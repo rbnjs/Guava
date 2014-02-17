@@ -10,12 +10,12 @@ DIGIT    [0-9]
 ID       [A-Za-z][A-Za-z0-9]*
 STRING   \"[^\n"]+\"
 CHAR     \'\\?[A-Za-z0-9]\'
-WS      [ \t]+
+WS       [ \t]+
 %%
 
 {WS} /* No hago nada con los espacios vacios */
 
-"//.*\n"  /* No logro hacer que este funcione. */
+"//".*\n  /* Comentarios de una sola linea */
 
 "/*"    { /* Acciones para el bloque de comentarios. */
         int c;

@@ -42,6 +42,7 @@ integer|real|boolean|character|string|void {
                                            }
 
 for      |
+main     |
 if       |
 then     |
 else     |

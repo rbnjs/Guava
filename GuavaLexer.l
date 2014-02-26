@@ -1,19 +1,41 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  GuavaLexer.l
+ *
+ *    Description:  Lexer del lenguaje Guava.
+ *
+ *        Version:  1.0
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Ruben Serradas, 
+ *
+ * =====================================================================================
+ */
 %{
 #include <iostream>
 #include <fstream>
-
+#include "GuavaDriver.hh"
+#include "GuavaParser.hh"
 %} 
-
+%{
+#define yyterminate() return token::END
+%}
 %option noyywrap yylineno
 
 DIGIT    [0-9]
-ID       [A-Za-z][A-Za-z0-9]*
+ID       [A-Za-z][A-Za-z0-9_]*
 STRING   \"[^\n"]+\"
 CHAR     \'\\?[A-Za-z0-9]\'
 WS       [ \t]+
 %%
 
-{WS} /* No hago nada con los espacios vacios */
+%{
+  yylloc->step ();
+%}
+
+{WS}      /* No hago nada con los espacios vacios */
 
 "//".*\n  /* Comentarios de una sola linea */
 
@@ -35,6 +57,7 @@ WS       [ \t]+
 
 true|false { 
                 std::cout << "booleano: " << YYText() << " linea: " << lineno() << '\n'; 
+		
            }
 
 integer|real|boolean|character|string|void {
@@ -43,6 +66,7 @@ integer|real|boolean|character|string|void {
 
 for      |
 main     |
+new      |
 if       |
 then     |
 else     |
@@ -56,8 +80,8 @@ union    |
 var      |
 function |
 print    |
-read { std::cout << "palabra reservada: " << YYText() << '\n';
-                                                                    }
+read { std::cout << "palabra reservada: " << YYText() << '\n'; }
+
 {DIGIT}+ {
               std::cout << "entero: " << YYText() << '\n';
          }

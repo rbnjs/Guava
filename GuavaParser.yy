@@ -72,7 +72,7 @@ class GuavaDriver;
 
 program: bloqueprincipal {};
 
-bloqueprincipal: bloquedeclare lfunciones {};
+bloqueprincipal: bloquedeclare lfunciones;
 
 bloquedeclare: /* Vacio */  {}
              | DECLARE '{' lvariables '}' {};
@@ -83,8 +83,10 @@ lvariables: tipo lvar ';' lvariables      {}
 lvar: ID           {}
     | ID ',' lvar  {};
 
-lfunciones: funcion lfunciones {}
-          | funcion            {};
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}';
+
+lfunciones: funcionmain        {}
+	  | funcion lfunciones {}
 
 funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN ID ';' '}'         {}
        | FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN valor ';' '}'      {}
@@ -122,7 +124,15 @@ lelseif: /* Vacio */                                                            
        | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif {}
        | ELSE '{'bloquedeclare listainstrucciones '}'                              {};
 
-llamadafuncion: ID '(' lvar ')' {};
+llamadafuncion: ID '(' lvarovalor ')' {}
+	      | PRINT '(' exp ')'     {}
+              | READ  '(' ID  ')'     {};
+
+lvarovalor: /* Vacio */         {}
+          | ID , lvarovalor     {}
+          | valor , lvarovalor  {}
+          | ID                  {}
+          | valor               {};
 
 exp: expbin       {}
    | expun        {} 

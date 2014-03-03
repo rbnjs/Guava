@@ -16,8 +16,12 @@
 %{
 #include <iostream>
 #include <fstream>
-#include "GuavaDriver.hh"
-#include "GuavaParser.hh"
+# include "GuavaDriver.hh"
+# include "GuavaParser.hh"
+
+
+
+typedef yy::GuavaParser::token token;
 %} 
 %{
 #define yyterminate() return token::END
@@ -27,13 +31,14 @@
 DIGIT    [0-9]
 ID       [A-Za-z][A-Za-z0-9_]*
 STRING   \"[^\n"]+\"
-CHAR     \'\\?[A-Za-z0-9]\'
+CHAR     \'[^\n']\'
 WS       [ \t]+
 %%
 
 %{
   yylloc->step ();
 %}
+
 
 {WS}      /* No hago nada con los espacios vacios */
 
@@ -55,83 +60,97 @@ WS       [ \t]+
             }
         }
 
-true|false { 
-                std::cout << "booleano: " << YYText() << " linea: " << lineno() << '\n'; 
-		
-           }
+true { yylval->boolval = true; return token::BOOL; } 
 
-integer|real|boolean|character|string|void {
-                                               std::cout << "tipo: " << YYText() << " linea: " << lineno() <<'\n';
-                                           }
+false { yylval->boolval = false; return token::BOOL; }
 
-for      |
-main     |
-new      |
-if       |
-then     |
-else     |
-while    |
-do       |
-return   |
-break    |
-continue |
-record   |
-union    |
-var      |
-function |
-print    |
-read { std::cout << "palabra reservada: " << YYText() << '\n'; }
+integer   { return token::TYPE_INTEGER; }
+real      { return token::TYPE_REAL; }
+boolean   { return token::TYPE_BOOLEAN; }
+character { return token::TYPE_CHAR; }
+string    { return token::TYPE_STRING; }
+void      { return token::TYPE_VOID; }
+
+for      { return token::FOR; }
+main     { return token::MAIN; }
+if       { return token::IF; }
+then     { return token::THEN; }
+else     { return token::ELSE; }
+while    { return token::WHILE; }
+do       { return token::DO;}
+return   { return token::RETURN; }
+break    { return token::BREAK; }
+continue { return token::CONTINUE; }
+record   { return token::RECORD; }
+union    { return token::UNION; }
+var      { return token::VAR; }
+function { return token::FUNCTION; }
+declare  { return token::DECLARE; }
+
+print    { return token::PRINT; } /* Funciones reservadas */
+read     { return token::READ; } 
 
 {DIGIT}+ {
-              std::cout << "entero: " << YYText() << '\n';
+	     int digit = atoi(yytext);
+             yylval->intval = digit;
+             return token::INTEGER;
          }
 
 {DIGIT}+"."{DIGIT}* {
-                        std::cout << "flotante: " << YYText() << '\n';
+                        float digit = atof(yytext);
+                        yylval->realval = digit;
+                        return token::REAL;
                     }
 
 {STRING} {
-             std::cout << "string: " << YYText() << '\n';
+             yylval->strval = yytext;
+             return token::STRING;
          }
 
 {CHAR} {
-           std::cout << "caracter: " << YYText() << '\n';
+           yylval->charval = yytext[0]; /* Probarr esto. */ 
+           return token::CHAR;
        }
 
+and { return token::AND; }
+or  { return token::OR;  }
+not { return token::NOT; }
+
+div { return token::DIV; }
+mod { return token::MOD; }
+
+
+
 {ID} {
-         std::cout << "identificador: " << YYText() << '\n';
+         yylval->strval = yytext;
+         return token::ID;
      }
 
 \n   
 
-"+"|"-"|"*"|"/"|"div"|"mod"|"**"|"--"|"++"|"." {
-                                                   std::cout << "operador numerico: " << YYText() << '\n';
-                                               }
+[+-/*(){}.,;] { return yy::GuavaParser::token_type (yytext[0]); } /* [+-*()/{}.,;] */
 
-:= {
-       std::cout << "asignacion: " << YYText() << '\n';
-   }
+"["|"]" { return yy::GuavaParser::token_type (yytext[0]); }
 
-">"|"<"|"<="|">="|"="|"!="|"<=>"|"and"|"or"|"not" {
-                                                      std::cout << "operador booleano: " << YYText() << '\n';
-                                                  }
+"**" { return token::POW; }
+"--" { return token::MINUSMINUS; }
+"++" { return token::PLUSPLUS; }
 
-"("|")" {
-            std::cout << "parentesis: " << YYText() << '\n';
-        }
+":=" { return token::ASSIGN; }
 
-"["|"]" { std::cout << "corchete: " << YYText() << '\n'; }
+">"   { yylval->subtok = 1; return token::COMPARISON; } 
+"<"   { yylval->subtok = 2; return token::COMPARISON; }
+"<="  { yylval->subtok = 3; return token::COMPARISON; }
+">="  { yylval->subtok = 4; return token::COMPARISON; }
+"="   { yylval->subtok = 5; return token::COMPARISON; }
+"!="  { yylval->subtok = 6; return token::COMPARISON; }
+"<=>" { yylval->subtok = 7; return token::COMPARISON; }
 
-"{"|"}" { std::cout << "llave: " << YYText() << '\n'; }
-
-
-","|";" { std::cout << "separador: " << YYText() << '\n'; }
-
-. std::cout << "caracter no reconocido" << YYText() << '\n';
+. std::cout << "Error: caracter no reconocido" << yytext << '\n';
 
 %%
 
-int main( int argc, char** argv )
+/*int main( int argc, char** argv )
 {
     if (argc > 1) { 
         std::ifstream archivo(argv[1]);
@@ -142,7 +161,24 @@ int main( int argc, char** argv )
         }
     }
     FlexLexer* lexer = new yyFlexLexer;
-    while(lexer->yylex() != 0)
-        ;
+    while(lexer->yylex() != 0);
     return 0;
+}*/
+
+void GuavaDriver::scan_begin ()
+{
+  yy_flex_debug = trace_scanning;
+  if (file.empty () || file == "-")
+    yyin = stdin;
+  else if (!(yyin = fopen (file.c_str (), "r")))
+    {
+      error ("cannot open " + file + ": " + strerror(errno));
+      exit (EXIT_FAILURE);
+    }
 }
+
+void GuavaDriver::scan_end ()
+{
+  fclose (yyin);
+}
+

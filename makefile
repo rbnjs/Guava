@@ -1,10 +1,37 @@
-LEX    = flex++
+all: Guava.out
 
-lexer: 	lex.yy.cc
-	g++ $^ -o $@
+Guava.out: GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-lex.yy.cc: GuavaLexer.l
-		flex++ $<
+	g++ -o Guava.out GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-clean: 
-	rm lex.yy.cc lexer 
+GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaParser.hh
+
+	g++ -c GuavaDriver.cc
+
+GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaDriver.hh
+
+	g++ -c GuavaParser.cc
+
+GuavaParser.cc GuavaParser.hh: GuavaParser.yy
+
+	bison --defines=GuavaParser.hh -o GuavaParser.cc GuavaParser.yy
+
+GuavaLexer.o: GuavaLexer.cc GuavaParser.hh GuavaDriver.hh
+
+	g++ -c GuavaLexer.cc
+
+GuavaLexer.cc: GuavaLexer.l
+
+	flex -o GuavaLexer.cc GuavaLexer.l
+
+Guava.o: Guava.cc
+
+	g++ -c Guava.cc
+
+.PHONY: clean
+
+clean:
+
+	-rm *.o GuavaParser.hh GuavaParser.cc GuavaParser.cc location.hh position.hh stack.hh Guava.out GuavaLexer.cc lex.yy.c
+
+

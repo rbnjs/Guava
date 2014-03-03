@@ -22,8 +22,6 @@
 GuavaDriver::GuavaDriver ()
   : trace_scanning (false), trace_parsing (false)
 {
-  variables["one"] = 1; // No se para que sirve esto todavia.
-  variables["two"] = 2;
 }
 /**
  * Destructor de la clase GuavaDriver 

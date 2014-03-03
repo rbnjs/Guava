@@ -13,25 +13,26 @@
  *
  * =====================================================================================
  */
-#ifndef GUAVADRIVER_HH
+//# ifndef GUAVADRIVER_HH
 # define GUAVADRIVER_HH
 # include <string>
-# include <map> //No estoy seguro de esto. Es posible hacerlo mediante un tipo predefinido token.
+# include <map> 
 # include "GuavaParser.hh"
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \
   yy::GuavaParser::token_type                         \
   yylex (yy::GuavaParser::semantic_type* yylval,      \
          yy::GuavaParser::location_type* yylloc,      \
-         GuavaParser& driver)
+         GuavaDriver& driver)
 // Se declara.
 YY_DECL;
 
 // Se realiza el escaneo y parseo de Guava.
-class GuavaDriver{
+class GuavaDriver
+{
 public:    
-    GuavaDriver() {}
-    ~GuavaDriver() {}
+    GuavaDriver();
+    virtual ~GuavaDriver();
 
     std::map<std::string, int> variables;
 
@@ -49,4 +50,4 @@ public:
     void error (const yy::location& l, const std::string& m);
     void error (const std::string& m);
 };
-#endif // ! GUAVADRIVER_HH
+//#endif // ! GUAVADRIVER_HH

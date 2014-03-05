@@ -23,8 +23,8 @@ public:
 
     void enterScope();
     void exitScope();
-    void insert(/*  Simbolo a insertar  */);              /* Inserta un simbolo a la tabla */
-    Symbol lookup(const std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    void insert(Symbol s);              /* Inserta un simbolo a la tabla */
+    Symbol lookup(std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     void show();                                          /* Muestra la tabla */
 private:
     std::stack<int> pila;

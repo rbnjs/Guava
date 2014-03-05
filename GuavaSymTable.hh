@@ -46,6 +46,9 @@ public:
 
     void insert(Symbol elem);              /* Inserta un simbolo a la tabla */
     void lookup(const std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    void enterScope();
+    void exitScope();
+    Symbol lookup(std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     void show();                                          /* Muestra la tabla */
 private:
     std::stack<int> pila;

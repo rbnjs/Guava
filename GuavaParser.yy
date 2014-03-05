@@ -40,7 +40,7 @@ class GuavaDriver;
 %token <realval>  REAL       
 %token <boolval>  BOOL       
 %token TYPE_INTEGER TYPE_REAL TYPE_CHAR TYPE_VOID TYPE_BOOLEAN TYPE_STRING
-%token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION VAR FUNCTION DECLARE
+%token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION VAR FUNCTION DECLARE ARRAY
 %token PRINT READ
 %left <subtok> COMPARISON
 %left AND
@@ -61,7 +61,13 @@ class GuavaDriver;
 %type <intval> funcion 
 %type <intval> lfunciones
 %type <intval> lvariables
+%type <intval> union
+%type <intval> record
 %type <intval> lvar
+%type <intval> lvararreglo
+%type <intval> arreglo
+%type <intval> larreglo
+%type <intval> lcorchetes
 %type <intval> tipo
 %type <intval> bloquedeclare
 %type <intval> bloqueprincipal
@@ -77,16 +83,43 @@ bloqueprincipal: bloquedeclare lfunciones;
 bloquedeclare: /* Vacio */  {}
              | DECLARE '{' lvariables '}' {};
 
-lvariables: tipo lvar ';' lvariables      {}
-          | tipo lvar ';'                 {};
+lvariables: tipo VAR lvar ';' lvariables          {}
+          | tipo VAR lvar ';'                     {}
+          | tipo ARRAY lvararreglo ';'            {}
+          | tipo ARRAY lvararreglo ';' lvariables {}
+          | ID   UNION lvar ';'                   {}
+          | ID   UNION lvar ';' lvariables        {}
+          | ID   RECORD lvar ';'                  {}
+          | ID   RECORD lvar ';' lvariables       {}
+          | union ';' lvariables                  {}
+          | record ';' lvariables                 {}
+          | union  ';'                            {}
+          | record ';'                            {};
+
+union: UNION ID '{' lvariables '}' {};
+
+record: RECORD ID '{' lvariables '}' {};
 
 lvar: ID           {}
     | ID ',' lvar  {};
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}';
+lvararreglo: ID lcorchetes               {}
+           | ID lcorchetes ',' lvararreglo {};
+
+lcorchetes: '[' exp ']'             {}
+          | '[' exp ']' lcorchetes {};
+
+arreglo: '[' larreglo ']' {};
+
+larreglo: exp ',' larreglo     {}
+        | arreglo ',' larreglo {}
+        | exp                  {}
+        | arreglo              {};
 
 lfunciones: funcionmain        {}
-	  | funcion lfunciones {}
+	  | funcion lfunciones {};
+
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}';
 
 funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN ID ';' '}'         {}
        | FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN valor ';' '}'      {}
@@ -100,15 +133,23 @@ lparam2: tipo ID             {}
        | tipo ID ',' lparam2 {};
 
 listainstrucciones: /* Vacio */                        {}
-                  | instruccion ';' listainstrucciones {};
+                  | instruccion ';' listainstrucciones {}
+                  | instruccion1 listainstrucciones    {};
 
 instruccion: asignacion     {}
-           | loopfor        {}
-           | loopwhile      {}
            | llamadafuncion {}
-           | selectorif     {};
+           | ID PLUSPLUS    {}
+           | ID MINUSMINUS  {};
+     
 
-asignacion: ID ASSIGN exp {};
+instruccion1: loopfor        {}
+            | loopwhile      {}
+            | selectorif     {};
+ 
+asignacion: ID ASSIGN exp            {}
+          | ID lcorchetes ASSIGN exp {}
+          | ID '.' ID ASSIGN exp     {}
+          | ID ASSIGN arreglo        {};
 
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' {}
        | FOR '(' ID ';' exp ';' exp ')' '{' bloquedeclare listainstrucciones '}'        {};
@@ -128,11 +169,14 @@ llamadafuncion: ID '(' lvarovalor ')' {}
 	      | PRINT '(' exp ')'     {}
               | READ  '(' ID  ')'     {};
 
-lvarovalor: /* Vacio */         {}
-          | ID , lvarovalor     {}
-          | valor , lvarovalor  {}
-          | ID                  {}
-          | valor               {};
+lvarovalor: /* Vacio */   {}
+          | lvarovalor2   {};      
+          
+lvarovalor2: ID ',' lvarovalor     {}
+          | valor ',' lvarovalor   {}
+          | ID                     {}
+          | valor                  {};
+
 
 exp: expbin       {}
    | expun        {} 
@@ -154,7 +198,9 @@ expbin: exp AND exp          {}
 expun: NOT exp               {}
      | '-' exp %prec UMINUS  {}
      | exp PLUSPLUS          {}
-     | exp MINUSMINUS        {};
+     | exp MINUSMINUS        {}
+     | ID '.' ID             {}
+     | ID lcorchetes         {};
 
 valor: BOOL  {}
      | STRING   {}

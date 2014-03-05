@@ -32,6 +32,6 @@ Guava.o: Guava.cc
 
 clean:
 
-	-rm *.o GuavaParser.hh GuavaParser.cc GuavaParser.cc location.hh position.hh stack.hh Guava.out GuavaLexer.cc lex.yy.c
+	-rm *.o GuavaParser.hh GuavaParser.cc location.hh position.hh stack.hh Guava.out GuavaLexer.cc
 
 

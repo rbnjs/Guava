@@ -31,7 +31,7 @@ typedef yy::GuavaParser::token token;
 DIGIT    [0-9]
 ID       [A-Za-z][A-Za-z0-9_]*
 STRING   \"[^\n"]+\"
-CHAR     \'[^\n']\'
+CHAR     \'[^']\'|\'\\n\'
 WS       [ \t]+
 %%
 
@@ -84,6 +84,7 @@ continue { return token::CONTINUE; }
 record   { return token::RECORD; }
 union    { return token::UNION; }
 var      { return token::VAR; }
+array    { return token::ARRAY; }
 function { return token::FUNCTION; }
 declare  { return token::DECLARE; }
 
@@ -108,7 +109,11 @@ read     { return token::READ; }
          }
 
 {CHAR} {
-           yylval->charval = yytext[0]; /* Probarr esto. */ 
+           if (strcmp(yytext,"\'\\n\'") == 0) { /* Hay que poner todos los caracteres especiales */
+               yylval->charval = '\n';
+               return token::CHAR;
+           }
+           yylval->charval = yytext[1]; 
            return token::CHAR;
        }
 

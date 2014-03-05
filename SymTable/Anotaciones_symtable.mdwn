@@ -1,2 +1,0 @@
-- Para llevar el control del identificador del scope se puede utilizar
-un contador global en el parser.

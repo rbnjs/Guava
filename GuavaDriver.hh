@@ -13,7 +13,7 @@
  *
  * =====================================================================================
  */
-//# ifndef GUAVADRIVER_HH
+# ifndef GUAVADRIVER_HH
 # define GUAVADRIVER_HH
 # include <string>
 # include <map> 
@@ -50,4 +50,4 @@ public:
     void error (const yy::location& l, const std::string& m);
     void error (const std::string& m);
 };
-//#endif // ! GUAVADRIVER_HH
+#endif // ! GUAVADRIVER_HH

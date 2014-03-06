@@ -19,20 +19,23 @@
 # include "GuavaDriver.hh"
 # include "GuavaParser.hh"
 
-
-
 typedef yy::GuavaParser::token token;
 %} 
 %{
 #define yyterminate() return token::END
 %}
-%option noyywrap yylineno
+%option noyywrap yylineno batch debug  
 
 DIGIT    [0-9]
 ID       [A-Za-z][A-Za-z0-9_]*
 STRING   \"[^\n"]+\"
 CHAR     \'[^']\'|\'\\n\'
 WS       [ \t]+
+%{
+// Code run each time a pattern is matched.
+# define YY_USER_ACTION  yylloc->columns (yyleng);
+%}
+
 %%
 
 %{
@@ -40,7 +43,10 @@ WS       [ \t]+
 %}
 
 
-{WS}      /* No hago nada con los espacios vacios */
+{WS}     yylloc->step (); 
+
+[\n]+    yylloc->lines (yyleng); yylloc->step ();    
+
 
 "//".*\n  /* Comentarios de una sola linea */
 
@@ -131,7 +137,6 @@ mod { return token::MOD; }
          return token::ID;
      }
 
-\n   
 
 [+-/*(){}.,;] { return yy::GuavaParser::token_type (yytext[0]); } /* [+-*()/{}.,;] */
 
@@ -151,7 +156,7 @@ mod { return token::MOD; }
 "!="  { yylval->subtok = 6; return token::COMPARISON; }
 "<=>" { yylval->subtok = 7; return token::COMPARISON; }
 
-. std::cout << "Error: caracter no reconocido" << yytext << '\n';
+. driver.error (*yylloc, "invalid character");
 
 %%
 

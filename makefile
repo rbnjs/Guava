@@ -1,8 +1,8 @@
-all: Guava.out
+all: guava
 
-Guava.out: GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava: GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-	g++ -o Guava.out GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	g++ -o guava GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaParser.hh
 
@@ -32,6 +32,6 @@ Guava.o: Guava.cc
 
 clean:
 
-	-rm *.o GuavaParser.hh GuavaParser.cc location.hh position.hh stack.hh Guava.out GuavaLexer.cc
+	-rm *.o GuavaParser.hh GuavaParser.cc location.hh position.hh stack.hh guava GuavaLexer.cc
 
 

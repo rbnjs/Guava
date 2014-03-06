@@ -15,40 +15,45 @@
  *
  * =====================================================================================
  */
-//Symbol: Clase que define una entrada de la tabla de simbolos.
+#include <string>
 class Symbol{
 public:
-    Symbol();          /* Constructor de la clase */
-    Symbol(std::string, std::string, int, S)
-    virtual ~Symbol(); /* Destructor */
+
+    Symbol(std::string name, std::string catg, int scop,Symbol s) {
+        sym_name = name;
+        sym_catg = catg;
+        scope = scop;
+        *type = s;
+    }
+
+    ~Symbol(){
+        type = 0;
+    }
 
     std::string sym_name; /* Nombre del simbolo */
     std::string sym_catg; /* Categoria del simbolo */
     int scope;            /* Identificador del scope del simbolo */
     Symbol *type;         /* Apuntador la descripcion del tipo del simbolo */
 
-    /* Funcion auxiliar para realizar comparaciones entre simbolos.
-     * return: 0 si son iguales en nombre y scope.
-     *         1 si son diferentes.
-     */
-    int compare(Symbol a, Symbol b) {
-        if(a.sym_name.compare(b.sym_name) == 0 && a.scope == b.scope) {
-            return 0;
-        }
-        return 1;
+
+    /* Se utiliza el operador == para comparar. 
+     * Cambie el compare por este porque considere que se veia mas chevere.  */
+    bool operator==(Symbol b) {
+        return ((sym_name.compare(b.sym_name) == 0) && scope == b.scope);
     }
+
 };
 
 class GuavaSymTable{
 public:
-    GuavaSymTable(); /* Constructor de la clase */
-    virtual ~GuavaSymTable(); /*  Destructor */
+    GuavaSymTable();                                      /* Constructor de la clase */
+    virtual ~GuavaSymTable();                             /*  Destructor */
 
-    void insert(Symbol elem);              /* Inserta un simbolo a la tabla */
+    void insert(Symbol elem);                             /* Inserta un simbolo a la tabla */
     void lookup(const std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     void enterScope();
     void exitScope();
-    Symbol lookup(std::string elem, int alcance);     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    Symbol lookup(std::string elem, int alcance);         /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     void show();                                          /* Muestra la tabla */
 private:
     std::stack<int> pila;
@@ -61,12 +66,12 @@ void GuavaSymTable::insert(Symbol elem) {
     std::map<std::string, std::list<Symbol>>::iterator sym_list;
 
     // Se verifica si el simbolo ya existe en la tabla
-    if(tabla.count(elem.sym_name)>0) {
+    if(tabla.count(elem.sym_name) > 0) {
         sym_list = tabla.find(elem.sym_name);
         for(std::list<Symbol>::iterator it=sym_list.begin();
             it != sym_list.end(); it++) {
             // Caso en el que el simbolo se encuentra en el mismo scope.
-            if(elem.compare(it) == 0) {
+            if(elem == it) {
                 /* ERROR YA EL SIMBOLO EXISTE EN ESTE SCOPE */
             }
         }

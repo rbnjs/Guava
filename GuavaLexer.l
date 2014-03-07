@@ -109,10 +109,27 @@ read     { return token::READ; }
                         return token::REAL;
                     }
 
+{DIGIT}+","{DIGIT}* { driver.error(*yylloc,"using , instead of .");
+                      yylval->realval = 0.0;
+                      return token::REAL;
+                    }
+
+
 {STRING} {
              yylval->strval = yytext;
              return token::STRING;
          }
+
+\"[^\n"]*$  { driver.error (*yylloc, "missing terminating character \"");
+              char * a = *"";
+              yylval->strval = a;
+              return token::STRING;
+            }
+
+\'[^\n'][^\n']+\' { driver.error (*yylloc, "multi-character character constant.");
+                    yylval->charval = '0';
+                    return token::CHAR;
+                  }
 
 {CHAR} {
            if (strcmp(yytext,"\'\\n\'") == 0) { /* Hay que poner todos los caracteres especiales */

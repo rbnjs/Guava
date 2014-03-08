@@ -20,18 +20,20 @@
 #include <list>
 #include <map>
 #include <iostream>
+
 /* Clase simbolo de Guava. */
 class Symbol{
 public:
     /**
      * Constructor de la clase Symbol.
      */
-    Symbol(std::string name, std::string catg, int scop,Symbol s) {
+    Symbol(std::string name, std::string catg, int scop, Symbol s) {
         sym_name = name;
         sym_catg = catg;
         scope = scop;
         *type = s;
     }
+    
     /**
      * Constructor de la clase Symbol.
      */
@@ -56,10 +58,11 @@ public:
 
     /**
      * Se utiliza el operador == para comparar. 
-     * Cambie el compare por este porque considere que se veia mas chevere.  */
+     */
     bool operator==(Symbol b) {
         return ((sym_name.compare(b.sym_name) == 0) && scope == b.scope);
     }
+
     /** 
      * Compara nombres y alcance 
      */
@@ -69,13 +72,14 @@ public:
 
     std::string show(){
         std::string result;
-        result = "name: " + sym_name;
-        result +="\ncategory: " +sym_catg;
+        result = "Name: " + sym_name;
+        result +="\nCategory: " +sym_catg;
         //result +="\ntype: " + type->sym_name;
         return result;
     }
 
 };
+
 /**
  * Declaracion de la clase para la tabla de simbolos.
  * */
@@ -88,12 +92,12 @@ public:
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */
     Symbol lookup(std::string elem, int alcance);         /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
-    std::string show(int scope);                                          /* Muestra la tabla */
-
+    std::string show(int scope);                          /* Muestra la tabla */
     std::stack<int> pila;                                 /* Pila de alcances */
-    std::map<std::string, std::list<Symbol> > tabla;       /* Tabla que representa la tabla de simbolos. */
+    std::map<std::string, std::list<Symbol>> tabla;      /* Tabla que representa la tabla de simbolos. */
     int alcance;                                          /* Alcance en numeros. */
 };
+
 /**
  * Constructor de la clase
  */
@@ -108,20 +112,17 @@ GuavaSymTable::~GuavaSymTable(){
  * Inserta un simbolo en la tabla de simbolos.
  * */
 void GuavaSymTable::insert(Symbol elem) {
-    std::list<Symbol> sym_list; /* Lista de colisiones, en caso de haber. OJO: No entiendo que estas haciendo aki*/
-
     /* Se verifica si el simbolo ya existe en la tabla */
-    if(tabla.count(elem.sym_name) > 0) {
-        sym_list = tabla[elem.sym_name];
-        for(std::list<Symbol>::iterator it = sym_list.begin();
-            it != sym_list.end(); it++) {
+    if(this->tabla.count(elem.sym_name) > 0) {
+        for(std::list<Symbol>::iterator it = this->tabla[elem.sym_name].begin();
+            it != this->tabla[elem.sym_name].end(); it++) {
             /* Caso en el que el simbolo se encuentra en el mismo scope. */
             if(elem == *it) {
                 /* EL SIMBOLO EXISTE EN ESTE SCOPE */
             }
         }
         /* Caso en el que el simbolo no existe en el scope, pero si en otros */
-        sym_list.push_back(elem);
+        this->tabla[elem.sym_name].push_back(elem);
     }
     /* Caso en el que el simbolo no pertenece a la tabla. */
     else {
@@ -141,6 +142,8 @@ Symbol GuavaSymTable::lookup(const std::string elem, int alcance){
             if (tmp.compare(elem, alcance)) return *it;
         }
     }
+    /* No existe un caso en el que no se encuentre? O supondremos que lookup
+     * se usa siempre que el simbolo ya este en la tabla? */
 }
 
 /**

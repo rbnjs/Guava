@@ -94,7 +94,7 @@ public:
     Symbol lookup(std::string elem, int alcance);         /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     std::string show(int scope);                          /* Muestra la tabla */
     std::stack<int> pila;                                 /* Pila de alcances */
-    std::map<std::string, std::list<Symbol>> tabla;      /* Tabla que representa la tabla de simbolos. */
+    std::map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
     int alcance;                                          /* Alcance en numeros. */
 };
 
@@ -182,3 +182,5 @@ std::string GuavaSymTable::show(int scope){
     }
     return result;
 }
+
+/* No falta la funcion update? para actualizar los valores dentro de la Tabla? */

@@ -35,11 +35,237 @@
  
 #include "GuavaSymTable.hh"
 
-/**
- * Clase que define una lista de variables a ser declaradas.
- */
+class Asignacion: public Instruccion{
+    std::string identificador;
+    std::string* identificador2;
+    LCorchetes* lcorchetes;
+    Arreglo* arreglo;
+    Exp* exp;
+    Asignacion(std::string id, Exp* e = 0, Lcorchetes* lc = 0 
+              , std::string* id2 = 0, Arreglo* arr = 0){
+                identificador = id;
+                *exp = *e;
+                *lcorchetes = *lc;
+                *identificador2 = *id2;
+                *arreglo = *arr;
+              }
+    ~Asignacion(){
+        delete identificador2;
+        delete lcorchetes;
+        delete arreglo;
+        delete exp;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+}
 
 /**
+ * Esta clase es una "interfaz" (al estilo de java) de instruccion.
+ */
+class Instruccion(){
+public:
+    virtual void show(std::string) = 0;
+    virtual void verificar(GuavaSymTable) = 0;
+}
+
+class ListaInstrucciones{
+public:
+    Instruccion* instruccion;
+    ListaInstrucciones* listainstrucciones;
+
+    ListaInstrucciones(Instruccion* inst = 0; ListaInstrucciones* li = 0){
+        *instruccion = inst;
+        *li = 0;
+    }
+    ~ListaInstrucciones(){
+        delete instruccion;
+        delete listainstrucciones;
+    }
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+}
+
+class LParam{
+public:
+    Tipo tipo;
+    std::string* identificador;
+
+    LParam(Tipo t, std::string* id= 0 ){
+        t = tipo;
+        *identificador = id; 
+    }
+    ~LParam(){ delete identificador; }
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class Funcion{
+public:
+    Tipo tipo;
+    std::string identificador;
+    LParam* parametros;
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listaI;
+    Exp* retorno;
+
+    Funcion(Tipo t, std::string id, LParam* param = 0, BloqueDeclare* decl = 0,
+            ListaInstrucciones* li = 0, Exp * r = 0){
+                tipo = t;
+                *parametros = *param;
+                *declaraciones = *decl;
+                *listaI = *li;
+                *retorno r = 0;
+            }
+    ~Funcion(){
+        delete parametros;
+        delete declaraciones;
+        delete listaI;
+        delete retorno;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LFunciones{
+public:
+    Funcion funcion;
+    LFunciones* lista;
+
+    LFunciones(Funcion f, LFunciones* l = 0){
+        funcion = f;
+        lista = l;
+    }
+
+    ~LFunciones(){delete[] lista;}
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LArreglo{
+public:
+    Exp* exp;
+    LArreglo* larr;
+    Arreglo* arr;
+
+    LArreglo(Arreglo a, LArreglo* lar = 0){
+        *arr = a;
+        *exp = 0;
+        *larr = *lar;
+    }
+
+    LArreglo(Exp e, LArreglo * lar = 0){
+        *exp = e;
+        *arr = 0;
+        *larr = lar;
+    }
+    
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class Arreglo{
+public:
+    LArreglo listaA;
+    
+    Arreglo(LArreglo l){
+        listaA = l;
+    }
+    
+    ~Arreglo(){}
+    
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LCorchetes{
+public:
+    Exp exp;
+    LCorchetes* lista;
+    LCorchetes(Exp e, LCorchetes l){
+        exp = e;
+        lista* = l;
+    }
+    LCorchetes(Exp e){
+        exp = e;
+        lista = 0;
+    }
+    ~LCorchetes(){}
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LVarArreglo{
+public:
+    std::string tipo;     /* Tipo */
+    LCorchetes corchetes  /* Corchetes del arreglo */
+    LVarArreglo lista;    /* Lista  */
+    LVarArreglo(std::string t, LVar l){
+        tipo = t;
+        lista = l;
+    }
+
+    LVarArreglo(std::string t){
+        tipo = t;
+    }
+    ~LVarArreglo(){}
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LVar{
+public:
+    std::string tipo; /* Tipo del lvar */
+    LVar lista;       /* lista de LVar */
+    LVar(std::string t, LVar l){
+        tipo = t;
+        lista = l;
+    }
+
+    LVar(std::string t){
+        tipo = t;
+    }
+
+    ~LVar(){}
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class Record{
+public:
+    std::string identificador;     /* Nombre del record. */
+    LVariables   lista;            /* Lista de variables. */
+    
+    Record(std::string id, Lvariables l){
+        lista = l;
+        identificador = id;
+    }
+    ~Record(){
+    }
+    void show(std::string);
+    void verificador(GuavaSymTable);
+};
+
+class Union{
+public:
+    std::string identificador;     /* Nombre del union. */
+    LVariables   lista;        /* Lista de variables. */
+    
+    Union(std::string id, Lvariables l){
+        lista = l;
+        identificador = id;
+    }
+    ~Union(){
+    }
+    void show(std::string);
+    void verificador(GuavaSymTable);
+};
+
+/**
+ * Clase que define una lista de variables a ser declaradas.
  * No se si sea bueno, o se vea bien, colocar todos los tipos de clases que
  * puede tener LVariables dependiendo de lo que se este declarando. Si no
  * entiendes preguntame para que te lo explique mejor.
@@ -47,14 +273,18 @@
 class LVariables {
 public:
     Tipo t;              /*Tipo de las variables a declarar */
+    
     /* Aqui pensaba colocar 'Modo' para ver si son pasadas por valor o por referencia*/
+
     LVar listaIds;          /* Lista de identificadores de variables */
     LVarArreglo listaIdsAr; /* Lista de identificadores de variables de tipo arreglo */
     Union u;                /* Bloque que define una union */
     Record r;               /* Bloque que defina un record */
     LVariables listaVar;    /* En caso de declarar mas de una lista de variables. */
+
     /*Constructores*/
     /*Caso en el que se declaran variables simples*/
+
     LVariables(Tipo tipo, LVar v) {
         t = tipo;
         listaIds = v;
@@ -64,7 +294,9 @@ public:
         listaIds = v;
         listaVar = listaVariables;
     }
+    
     /*Caso en el que se declaran variables de tipo arreglo*/
+
     LVariables(Tipo tipo, LVarArreglo va) {
         t = tipo;
         listaIdsAr = va;
@@ -74,6 +306,7 @@ public:
         listaIdsAr = va;
         listaVar = listaVariables;
     }
+    
     /*Para el caso en que se declaran uniones y records, simplemente no se
      *podria poner que el Tipo t = Union o Record o el ID de la estructura?
      *VER OBSERVACION 4
@@ -87,6 +320,7 @@ public:
         u = estructura;
         listaVar = listaVariables;
     }
+
     /*Caso definicion de Records*/
     LVariables(Record estructura) {
         r = estructura;
@@ -97,10 +331,12 @@ public:
     }
     ~LVariables(){}
     void show(std::string);
+    
     /*Investigar: Como realizar la verificacion si los tipos de listas de
      *            variables son diferentes? No es como python que por ser
      *            debilmente tipado una misma verificacion servia para todo.
      */
+
     void verificacion(GuavaSymTable);
 }
 

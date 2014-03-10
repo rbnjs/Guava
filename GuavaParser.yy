@@ -80,7 +80,7 @@ program: bloqueprincipal {};
 
 bloqueprincipal: bloquedeclare lfunciones;
 
-bloquedeclare: /* Vacio */  {}
+bloquedeclare: /* Vacio */                {}
              | DECLARE '{' lvariables '}' {};
 
 lvariables: tipo VAR lvar ';' lvariables          {}
@@ -107,23 +107,22 @@ lvararreglo: ID lcorchetes               {}
            | ID lcorchetes ',' lvararreglo {};
 
 lcorchetes: '[' exp ']'             {}
-          | '[' exp ']' lcorchetes {};
+          | '[' exp ']' lcorchetes  {};
 
 arreglo: '[' larreglo ']' {};
 
-larreglo: exp ',' larreglo     {}
-        | arreglo ',' larreglo {}
-        | exp                  {}
-        | arreglo              {};
+larreglo: exp ',' larreglo      {}
+        | arreglo ',' larreglo  {}
+        | exp                   {}
+        | arreglo               {};
 
 lfunciones: funcionmain        {}
 	  | funcion lfunciones {};
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}';
 
-funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN ID ';' '}'         {}
-       | FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN valor ';' '}'      {}
-       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN valor ';' '}' {};
+funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}'         {}
+       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}' {};
 
 lparam: /* Vacio */          {} 
       | tipo ID ',' lparam2  {} 
@@ -138,8 +137,8 @@ listainstrucciones: /* Vacio */                        {}
 
 instruccion: asignacion     {}
            | llamadafuncion {}
-           | ID PLUSPLUS    {}
-           | ID MINUSMINUS  {};
+           | exp PLUSPLUS    {}
+           | exp MINUSMINUS  {};
      
 
 instruccion1: loopfor        {}
@@ -172,10 +171,8 @@ llamadafuncion: ID '(' lvarovalor ')' {}
 lvarovalor: /* Vacio */   {}
           | lvarovalor2   {};      
           
-lvarovalor2: ID ',' lvarovalor     {}
-          | valor ',' lvarovalor   {}
-          | ID                     {}
-          | valor                  {};
+lvarovalor2: exp ',' lvarovalor2     {}
+           | exp                     {};	   
 
 
 exp: expbin       {}
@@ -202,7 +199,7 @@ expun: NOT exp               {}
      | ID '.' ID             {}
      | ID lcorchetes         {};
 
-valor: BOOL  {}
+valor: BOOL     {}
      | STRING   {}
      | CHAR     {}
      | INTEGER  {}

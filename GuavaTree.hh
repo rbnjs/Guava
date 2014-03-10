@@ -35,6 +35,92 @@
  
 #include "GuavaSymTable.hh"
 
+
+
+class LoopWhile: public Instruccion{
+    Exp exp;
+    BloqueDeclare declaraciones;
+    ListaInstrucciones listainstrucciones;
+    LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li){
+        exp = e;
+        declaraciones = bd;
+        listainstrucciones = li;
+    }
+    ~LoopWhile(){}
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+}
+
+class LoopFor: public Instruccion{
+public:
+    std::string identificador;
+    Exp exp;
+    Asignacion* asignacion;
+    Exp* exp2;
+    BloqueDeclare declaraciones;
+    ListaInstrucciones listainstrucciones;
+    
+    LoopFor(std::string id, Exp e1, Asignacion* a = 0,
+            Exp* e2 = 0, BloqueDeclare d, ListaInstrucciones l){
+                identificador = id;
+                exp = e1;
+                asignacion = a;
+                exp2 = e2
+                declaraciones = d;
+                listainstrucciones = l;
+            }
+    ~LoopFor(){
+        delete asignacion;
+        delete exp2;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class PlusMinus: public Instruccion{
+public:
+    Exp exp;
+    std::string tipo;
+    PlusMinus(Exp e, std::string t){
+        exp = e;
+        tipo = t;
+    }
+    ~PlusMinus(){}
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LVaroValor{
+public:
+    Exp* exp;
+    LVaroValor* lvarovalor;
+    LVaroValor(Exp* e = 0, LVaroValor* lv = 0){
+        exp = e;
+        *lvarovalor = *lv;
+    }
+    ~LVaroValor(){
+        delete lvarovalor;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class LlamadaFuncion: public Instruccion{
+public:
+    std::string identificador;
+    LVaroValor lvarovalor;
+    LlamadaFuncion(std::string id, LVaroValor lv){
+        identificador = id;
+        lvarovalor = lv;
+    }
+    ~LlamadaFuncion(){}
+    void show(std::string);
+    void verificar(GuavaSymTable);
+
+};
+
 class Asignacion: public Instruccion{
     std::string identificador;
     std::string* identificador2;
@@ -57,7 +143,7 @@ class Asignacion: public Instruccion{
     }
     void show(std::string);
     void verificar(GuavaSymTable);
-}
+};
 
 /**
  * Esta clase es una "interfaz" (al estilo de java) de instruccion.
@@ -84,7 +170,7 @@ public:
 
     void show(std::string);
     void verificar(GuavaSymTable);
-}
+};
 
 class LParam{
 public:

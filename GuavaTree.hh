@@ -35,9 +35,114 @@
  
 #include "GuavaSymTable.hh"
 
+class Valor: public Exp{
+    union valores{
+        
+    }
+}
 
+class ExpUn:public Exp{
+    Exp exp;
+    Exp* exp2;
+    LCorchetes* corchetes;
+    std::string* operacion;
+    ExpUn(Exp e, std::string* op){
+        exp = e;
+        *operacion = *op;
+    }
+    ExpUn(Exp e1, Exp* e2, std::string* op){
+        exp e1;
+        *exp2 = *e2;
+    }
+    ExpUn(Exp e1, LCorchetes* lc){
+        exp = e1;
+        *corchetes = lc;
+    }
+    ~ExpUn{
+        delete exp2;
+        delete corchetes;
+        delete operacion;
+    }
+};
+
+class ExpBin: public Exp{
+public:
+    Exp exp1,exp2;
+    std::string operacion;
+    ExpBin(Exp e1,Exp exp2,std::string op){
+        exp1 = e1;
+        exp2 = e2;
+        operacion = op;
+    }
+    ExpBin(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Exp{
+public:
+    Exp exp;
+    Exp(Exp e){
+        exp = e;
+    }
+    ~Exp(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+}
+
+class LElseIf{
+public:
+    Exp exp;
+    BloqueDeclare declaraciones;
+    ListaInstrucciones listainstrucciones;
+    LElseIf* lelseif;
+    LElseIf(Exp e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0){
+        exp = e;
+        declaraciones = d;
+        listainstrucciones = li;
+        lelseif = lif;
+    }
+    ~LElseIf(){
+        delete lelseif;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+class SelectorIf: public Instruccion{
+public:
+    Exp exp;
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listainstrucciones;
+    Instruccion* instruccion1, instruccion2;
+    LElseIf* lelseif;
+
+    SelectorIf(Exp e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0){
+        exp = e;
+        *declaraciones = *d;
+        *listainstrucciones = *l;
+        *lelseif = *lif;
+    }
+    SelectorIf(Exp e, Instruccion* i, Instruccion i2 = 0){
+        exp = e;
+        *instruccion1 = *i;
+        *instruccion2 = *i2;
+    }
+    ~SelectorIf(){
+        delete declaraciones;
+        delete listainstrucciones;
+        delete instruccion1;
+        delete instruccion2;
+        delete lelseif;
+    }
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
 
 class LoopWhile: public Instruccion{
+public:
     Exp exp;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
@@ -50,7 +155,7 @@ class LoopWhile: public Instruccion{
 
     void show(std::string);
     void verificar(GuavaSymTable);
-}
+};
 
 class LoopFor: public Instruccion{
 public:
@@ -150,6 +255,11 @@ class Asignacion: public Instruccion{
  */
 class Instruccion(){
 public:
+    Instruccion instruccion;
+    Instruccion(Instruccion i){
+        instruccion = i;
+    }
+    ~Instruccion(){}
     virtual void show(std::string) = 0;
     virtual void verificar(GuavaSymTable) = 0;
 }

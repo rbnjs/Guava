@@ -43,6 +43,7 @@ class GuavaDriver;
 %token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION VAR FUNCTION DECLARE ARRAY
 %token PRINT READ
 %left <subtok> COMPARISON
+%left UFO
 %left AND
 %left OR
 %left NOT /* Revisar esta */
@@ -184,6 +185,7 @@ exp: expbin       {}
 expbin: exp AND exp          {}
       | exp OR exp           {}
       | exp COMPARISON exp   {}
+      | exp UFO exp          {}
       | exp '+' exp          {}
       | exp '-' exp          {}
       | exp '*' exp          {}

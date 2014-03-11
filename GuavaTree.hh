@@ -35,13 +35,123 @@
  
 #include "GuavaSymTable.hh"
 
-class Valor: public Exp{
-    union valores{
-        
+class Exp{
+public:
+    Exp* exp;
+    Exp(Exp &e){
+        exp = e;
     }
-}
+    ~Exp(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class ExpParentizada{
+public:
+    Exp exp;
+    ExpParentizada(Exp e){
+        exp = e;
+    }
+    ~ExpParentizada(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Identificador{
+public:
+    std::string identificador;
+    Identificador(std::string i){
+        identificador = i;
+    }
+    ~Identificador(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+
+class Tipo{
+public:
+    std::string tipo;
+    Tipo(std::string t){
+        tipo = t;
+    }
+    ~Tipo(){}
+
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Valor: public Exp{
+public:
+    Valor(){}
+    virtual ~Valor(){}
+    virtual void show(std::string)=0;
+    virtual void verificar(GuavaSymTable)=0;
+};
+
+class Real: public Valor{
+public:
+    float real;
+    Real(float f): Valor(){
+        real = f;
+    }
+    ~Real(){}
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Integer: public Valor{
+public:
+    int integer;
+    Integer(int i){
+        integer = i;
+    }
+    ~Integer(){}
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Char: public Valor{
+public:
+    char ch;
+    Char(char c){
+        ch = c;
+    }
+    ~Char(){}
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class String: public Valor{
+public:
+    std::string str;
+    String(char* s){
+        str = std::string(s);
+    }
+    String Strin(std::string s){
+        str = s;
+    }
+    ~String(){}
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
+class Bool: public Valor{
+    bool b;
+    Bool(bool b2){
+        b2 = b;
+    }
+    ~Bool(){}
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+};
+
 
 class ExpUn:public Exp{
+public:
     Exp exp;
     Exp* exp2;
     LCorchetes* corchetes;
@@ -63,6 +173,8 @@ class ExpUn:public Exp{
         delete corchetes;
         delete operacion;
     }
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
 };
 
 class ExpBin: public Exp{
@@ -74,23 +186,12 @@ public:
         exp2 = e2;
         operacion = op;
     }
-    ExpBin(){}
+    ~ExpBin(){}
 
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
 
-class Exp{
-public:
-    Exp exp;
-    Exp(Exp e){
-        exp = e;
-    }
-    ~Exp(){}
-
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
-}
 
 class LElseIf{
 public:
@@ -253,7 +354,7 @@ class Asignacion: public Instruccion{
 /**
  * Esta clase es una "interfaz" (al estilo de java) de instruccion.
  */
-class Instruccion(){
+class Instruccion{
 public:
     Instruccion instruccion;
     Instruccion(Instruccion i){
@@ -331,10 +432,10 @@ public:
 
     LFunciones(Funcion f, LFunciones* l = 0){
         funcion = f;
-        lista = l;
+        *lista = *l;
     }
 
-    ~LFunciones(){delete[] lista;}
+    ~LFunciones(){delete lista;}
 
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -534,7 +635,7 @@ public:
      */
 
     void verificacion(GuavaSymTable);
-}
+};
 
 /**
  * Clase de bloque de declaraciones.
@@ -548,7 +649,7 @@ public:
     ~BloqueDeclare(){}
     void show(std::string);
     void verificacion(GuavaSymTable);
-}
+};
 
 /**
  * Clase de bloque principal.

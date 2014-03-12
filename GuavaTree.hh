@@ -302,7 +302,19 @@ public:
     void verificar(GuavaSymTable);
 };
 
+class Estructura{
+public:
+    Estructura* estructura;
+    Estructura(){ estructura = 0; }
+    Estructura(Estructura* e){
+        *estructura = *e;
+    }
+    ~Estructura(){ delete estructura; }
 
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
+
+};
 
 /**
  * Clase que define una lista de variables a ser declaradas.
@@ -318,8 +330,7 @@ public:
 
     LVar listaIds;          /* Lista de identificadores de variables */
     LVarArreglo listaIdsAr; /* Lista de identificadores de variables de tipo arreglo */
-    Union u;                /* Bloque que define una union */
-    Record r;               /* Bloque que defina un record */
+    Estructura estructura;  /* Este define a una union o registro. */
     LVariables* listaVar;    /* En caso de declarar mas de una lista de variables. */
 
     /*Constructores*/
@@ -356,23 +367,15 @@ public:
      */
     
     /*Caso definicion de Uniones*/
-    LVariables(Union estructura) {
-        u = estructura;
+    LVariables(Estructura e) {
+        estructura = e;
     }
-    LVariables(Union estructura, LVariables listaVariables) {
-        u = estructura;
+    LVariables(Estructura e, LVariables listaVariables) {
+        estructura = e;
         *listaVar = listaVariables;
     }
 
-    /*Caso definicion de Records*/
-    LVariables(Record estructura) {
-        r = estructura;
-    }
-    LVariables(Record estructura, LVariables listaVariables) {
-        r = estructura;
-        *listaVar = listaVariables;
-    }
-    ~LVariables(){}
+        ~LVariables(){}
     void show(std::string);
     
     /*Investigar: Como realizar la verificacion si los tipos de listas de
@@ -383,49 +386,70 @@ public:
     void verificacion(GuavaSymTable);
 };
 
-class Record{
+class Record:public Estructura{
 public:
     std::string identificador;     /* Nombre del record. */
     LVariables*   lista;            /* Lista de variables. */
 
-    Record(){}
+    Record(){
+        Estructura();
+        lista = 0;
+    }
 
     Record(std::string id, LVariables* l=0){
+        Estructura();
         *lista = *l;
         identificador = id;
     }
+
     ~Record(){
+        delete lista;
     }
     void show(std::string);
     void verificador(GuavaSymTable);
 };
 
 
-class Union{
+class Union:public Estructura{
 public:
     std::string identificador;     /* Nombre del union. */
-    LVariables*   lista;        /* Lista de variables. */
+    LVariables*   lista;           /* Lista de variables. */
     
-    Union(){}
-
-    Union(std::string id, LVariables* l){
-        lista* = *l;
-        identificador = id;
+    Union(){
+        Estructura();
+        lista = 0;
     }
 
-    ~Union(){}
+    Union(std::string id, LVariables* l=0){
+        Estructura();
+        identificador = id;
+        *lista = *l;
+    }
 
-void show(std::string);
+    ~Union(){
+        delete lista;
+    }
+
+    void show(std::string);
     void verificador(GuavaSymTable);
+
+};
+
+class IArreglo{
+public:
+    virtual ~IArreglo(){}
+
+    virtual void show(std::string)=0;
+    virtual void verificar(GuavaSymTable)=0;
 };
 
 class LArreglo{
 public:
     Exp* exp;
     LArreglo* larr;
-    Arreglo* arr;
+    IArreglo* arr;
 
-    LArreglo(Arreglo* a, LArreglo* lar = 0){
+    LArreglo(IArreglo* a, LArreglo* lar = 0){
         *arr = *a;
         exp = 0;
         *larr = *lar;
@@ -442,7 +466,7 @@ public:
 };
 
 
-class Arreglo{
+class Arreglo:public IArreglo{
 public:
     LArreglo* listaA;
     
@@ -450,10 +474,10 @@ public:
         *listaA = *l;
     }
     
-    ~Arreglo(){}
+    ~Arreglo(){ delete listaA; }
     
-    void show(std::string);
-    void verificar(GuavaSymTable);
+    void show(std::string){};
+    void verificar(GuavaSymTable){};
 };
 
 /**
@@ -704,10 +728,6 @@ public:
     void show(std::string);
     void verificar(GuavaSymTable);
 };
-
-
-
-
 
 
 

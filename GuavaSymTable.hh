@@ -47,7 +47,7 @@ public:
      * Destructor de la clase Symbol.
      * */
     ~Symbol(){
-        type = 0;
+        delete type;
     }
 
     std::string sym_name; /* Nombre del simbolo */
@@ -91,9 +91,9 @@ public:
     void insert(Symbol elem);                             /* Inserta un simbolo a la tabla */
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */
-    Symbol lookup(std::string elem, int alcance);         /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    Symbol* lookup(std::string elem);         /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     std::string show(int scope);                          /* Muestra la tabla */
-    std::stack<int> pila;                                 /* Pila de alcances */
+    std::list<int> pila;                                 /* Pila de alcances */
     std::map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
     int alcance;                                          /* Alcance en numeros. */
 };
@@ -133,17 +133,30 @@ void GuavaSymTable::insert(Symbol elem) {
 }
 /**
  * Busca el simbolo a ser evaluado.
+ * 
+ * Voy revisando por toda la pila de alcances 
+ * a ver si encuentro el simbolo deseado. Si 
+ * el elemento con el alcance concuerdan 
+ * entonces retorno un apuntador 
+ * a el simbolo deseado.
  */
-Symbol GuavaSymTable::lookup(const std::string elem, int alcance){
+Symbol* GuavaSymTable::lookup(const std::string elem){
     if (!this->tabla[elem].empty()){
-        std::list<Symbol>::iterator it = this->tabla[elem].begin();
-        for ( it ; it != this->tabla[elem].end() ; ++it){
-            Symbol tmp = *it;
-            if (tmp.compare(elem, alcance)) return *it;
+    for (std::list<int>::iterator pilaIt = this->pila.begin();
+         pilaIt != this->pila.end() ; 
+         ++pilaIt){
+            int alcance = *pilaIt;
+            
+            std::list<Symbol>::iterator it = this->tabla[elem].begin();
+
+            for ( it ; it != this->tabla[elem].end() ; ++it){
+                Symbol tmp = *it;
+                if (tmp.compare(elem, alcance)) return &(*it);
+            }
+
         }
     }
-    /* No existe un caso en el que no se encuentre? O supondremos que lookup
-     * se usa siempre que el simbolo ya este en la tabla? */
+    return 0; /* Null si no lo encuentra */
 }
 
 /**
@@ -151,7 +164,7 @@ Symbol GuavaSymTable::lookup(const std::string elem, int alcance){
  */
 int GuavaSymTable::enterScope(){
     ++alcance;
-    this->pila.push(alcance);
+    this->pila.push_front(alcance);
     return alcance;
 }
 
@@ -160,8 +173,8 @@ int GuavaSymTable::enterScope(){
  */
 int GuavaSymTable::exitScope(){
     if (!this->pila.empty()){
-        int tmp = pila.top();
-        pila.pop();
+        int tmp = pila.front();
+        pila.pop_front();
         return tmp;
     } else{
         return -1;

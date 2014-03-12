@@ -220,12 +220,19 @@ public:
 };
 
 /**
- * Esta clase es una "interfaz" (al estilo de java) de instruccion.
+ * Clase principal de instruccion
  */
 class Instruccion{
 public:
+    Instruccion* instruccion;
+
     Instruccion(){
     }
+
+    Instruccion(Instruccion* i){
+        *instruccion = *i;
+    }
+
     ~Instruccion(){}
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -295,42 +302,7 @@ public:
     void verificar(GuavaSymTable);
 };
 
-class LVariables;
-class Record{
-public:
-    std::string identificador;     /* Nombre del record. */
-    LVariables*   lista;            /* Lista de variables. */
 
-    Record(){}
-
-    Record(std::string id, LVariables* l=0){
-        *lista = *l;
-        identificador = id;
-    }
-    ~Record(){
-    }
-    void show(std::string);
-    void verificador(GuavaSymTable);
-};
-
-
-class Union{
-public:
-    std::string identificador;     /* Nombre del union. */
-    LVariables*   lista;        /* Lista de variables. */
-    
-    Union(){}
-
-    Union(std::string id, LVariables* l){
-        lista* = *l;
-        identificador = id;
-    }
-
-    ~Union(){}
-
-void show(std::string);
-    void verificador(GuavaSymTable);
-};
 
 /**
  * Clase que define una lista de variables a ser declaradas.
@@ -411,7 +383,41 @@ public:
     void verificacion(GuavaSymTable);
 };
 
-class Arreglo;
+class Record{
+public:
+    std::string identificador;     /* Nombre del record. */
+    LVariables*   lista;            /* Lista de variables. */
+
+    Record(){}
+
+    Record(std::string id, LVariables* l=0){
+        *lista = *l;
+        identificador = id;
+    }
+    ~Record(){
+    }
+    void show(std::string);
+    void verificador(GuavaSymTable);
+};
+
+
+class Union{
+public:
+    std::string identificador;     /* Nombre del union. */
+    LVariables*   lista;        /* Lista de variables. */
+    
+    Union(){}
+
+    Union(std::string id, LVariables* l){
+        lista* = *l;
+        identificador = id;
+    }
+
+    ~Union(){}
+
+void show(std::string);
+    void verificador(GuavaSymTable);
+};
 
 class LArreglo{
 public:

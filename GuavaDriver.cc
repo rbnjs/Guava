@@ -15,13 +15,13 @@
  */
 #include "GuavaDriver.hh"
 #include "GuavaParser.hh"
-
 /**
  * Constructor de la clase GuavaDriver
  */
 GuavaDriver::GuavaDriver ()
   : trace_scanning (false), trace_parsing (false)
 {
+    this->program = Program();
 }
 /**
  * Destructor de la clase GuavaDriver 

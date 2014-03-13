@@ -18,6 +18,7 @@
 # include <string>
 # include <map> 
 # include "GuavaParser.hh"
+# include "GuavaTree.hh"
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \
   yy::GuavaParser::token_type                         \
@@ -34,7 +35,7 @@ public:
     GuavaDriver();
     virtual ~GuavaDriver();
 
-    std::map<std::string, int> variables;
+    Program program;
 
     int result;
 
@@ -49,5 +50,6 @@ public:
     // Manejo de errores.
     void error (const yy::location& l, const std::string& m);
     void error (const std::string& m);
+    void warning(const yy::location& l, const std::string& m);
 };
 #endif // ! GUAVADRIVER_HH

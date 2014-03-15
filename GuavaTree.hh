@@ -51,11 +51,9 @@ public:
 class ExpParentizada{
 public:
     Exp exp;
-    ExpParentizada(Exp e){
-        Exp();
-        exp = e;
-    }
-    ~ExpParentizada(){}
+
+    ExpParentizada(Exp);    
+    ~ExpParentizada();
 
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -64,10 +62,9 @@ public:
 class Identificador{
 public:
     std::string identificador;
-    Identificador(std::string i){
-        identificador = i;
-    }
-    ~Identificador(){}
+    
+    Identificador(std::string);    
+    ~Identificador();
 
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -80,9 +77,7 @@ public:
     
     Tipo();
 
-    Tipo(std::string t){
-        tipo = t;
-    }
+    Tipo(std::string);    
     ~Tipo();
 
     virtual void show(std::string);
@@ -99,10 +94,8 @@ public:
 class Real: public Valor{
 public:
     float real;
-    Real(float f){
-        real = f;
-    }
-    ~Real(){}
+    Real(float f);    
+    ~Real();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -110,10 +103,8 @@ public:
 class Integer: public Valor{
 public:
     int integer;
-    Integer(int i){
-        integer = i;
-    }
-    ~Integer(){}
+    Integer(int i);    
+    ~Integer();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -121,10 +112,8 @@ public:
 class Char: public Valor{
 public:
     char ch;
-    Char(char c){
-        ch = c;
-    }
-    ~Char(){}
+    Char(char);
+    ~Char();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -132,23 +121,17 @@ public:
 class String: public Valor{
 public:
     std::string str;
-    String(char* s){
-        str = std::string(s);
-    }
-    String(std::string s){
-        str = s;
-    }
-    ~String(){}
+    String(char*);    
+    String(std::string);    
+    ~String();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
 
 class Bool: public Valor{
     bool b;
-    Bool(bool b2){
-        b2 = b;
-    }
-    ~Bool(){}
+    Bool(bool);    
+    ~Bool();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -157,15 +140,9 @@ class LCorchetes{
 public:
     Exp exp;
     LCorchetes* lista;
-    LCorchetes(Exp e, LCorchetes* l){
-        exp = e;
-        *lista = *l;
-    }
-    LCorchetes(Exp e){
-        exp = e;
-        lista = 0;
-    }
-    ~LCorchetes(){}
+    LCorchetes(Exp, LCorchetes*);    
+    LCorchetes(Exp);    
+    ~LCorchetes();
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -178,24 +155,10 @@ public:
     Exp* exp2;
     LCorchetes* corchetes;
     std::string* operacion;
-    ExpUn(Exp e, std::string* op){
-        Exp();
-        exp = e;
-        *operacion = *op;
-    }
-    ExpUn(Exp e1, Exp* e2, std::string* op){
-        exp = e1;
-        *exp2 = *e2;
-    }
-    ExpUn(Exp e1, LCorchetes* lc){
-        exp = e1;
-        *corchetes = *lc;
-    }
-    ~ExpUn(){
-        delete exp2;
-        delete corchetes;
-        delete operacion;
-    }
+    ExpUn(Exp, std::string*);    
+    ExpUn(Exp, Exp*, std::string*);    
+    ExpUn(Exp, LCorchetes*);    
+    ~ExpUn();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -204,13 +167,8 @@ class ExpBin: public Exp{
 public:
     Exp exp1,exp2;
     std::string operacion;
-    ExpBin(Exp e1,Exp e2,std::string op){
-        Exp();
-        exp1 = e1;
-        exp2 = e2;
-        operacion = op;
-    }
-    ~ExpBin(){}
+    ExpBin(Exp,Exp,std::string);
+    ~ExpBin();
 
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -223,13 +181,9 @@ class Instruccion{
 public:
     Instruccion* instruccion;
 
-    Instruccion(){
-    }
+    Instruccion();
 
-    Instruccion(Instruccion* i){
-        *instruccion = *i;
-    }
-
+    Instruccion(Instruccion*);
     ~Instruccion();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -254,39 +208,24 @@ public:
     LCorchetes* corchetes;  /* Corchetes del arreglo */
     LVarArreglo* lista;    /* Lista  */
 
-    LVarArreglo(){}
+    LVarArreglo();
+    LVarArreglo(std::string t, LVarArreglo* l);
+    LVarArreglo(std::string t);    
+    ~LVarArreglo();
 
-    LVarArreglo(std::string t, LVarArreglo* l){
-        tipo = t;
-        *lista = *l;
-        corchetes = 0;
-    }
-
-    LVarArreglo(std::string t){
-        tipo = t;
-        corchetes = 0;
-        lista = 0;
-    }
-    ~LVarArreglo(){}
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
+/* OJO: QUIERO QUE TIPO SEA DE TIPO STRING? */
 class LVar{
 public:
     std::string tipo; /* Tipo del lvar */
     LVar* lista;       /* lista de LVar */
-    LVar(){}
-    LVar(std::string t, LVar* l = 0){
-        tipo = t;
-        *lista = *l;
-    }
-
-    LVar(std::string t){
-        tipo = t;
-    }
-
-    ~LVar(){}
+    LVar();
+    LVar(std::string, LVar*);
+    LVar(std::string t);
+    ~LVar();
 
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -296,7 +235,7 @@ class Estructura{
 public:
     Estructura* estructura;
     Estructura();
-    Estructura(Estructura* e);
+    Estructura(Estructura*);
     ~Estructura();
 
     virtual void show(std::string);
@@ -327,14 +266,14 @@ public:
 
     /*Caso en el que se declaran variables simples*/
 
-    LVariables(Tipo tipo, LVar v);   
+    LVariables(Tipo, LVar);   
     
-    LVariables(Tipo tipo, LVar v, LVariables listaVariables);
+    LVariables(Tipo, LVar, LVariables);
 
     /*Caso en el que se declaran variables de tipo arreglo*/
 
-    LVariables(Tipo tipo, LVarArreglo va);    
-    LVariables(Tipo tipo, LVarArreglo va, LVariables listaVariables);
+    LVariables(Tipo, LVarArreglo);    
+    LVariables(Tipo, LVarArreglo, LVariables);
 
     /*Para el caso en que se declaran uniones y records, simplemente no se
      *podria poner que el Tipo t = Union o Record o el ID de la estructura?
@@ -342,8 +281,8 @@ public:
      */
     
     /*Caso definicion de Uniones*/
-    LVariables(Estructura e);     
-    LVariables(Estructura e, LVariables listaVariables);
+    LVariables(Estructura);     
+    LVariables(Estructura, LVariables);
 
     ~LVariables();
     void show(std::string);
@@ -361,20 +300,10 @@ public:
     std::string identificador;     /* Nombre del record. */
     LVariables*   lista;            /* Lista de variables. */
 
-    Record(){
-        Estructura();
-        lista = 0;
-    }
+    Record();
+    Record(std::string, LVariables*);
+    ~Record();    
 
-    Record(std::string id, LVariables* l=0){
-        Estructura();
-        *lista = *l;
-        identificador = id;
-    }
-
-    ~Record(){
-        delete lista;
-    }
     void show(std::string);
     void verificador(GuavaSymTable);
 };
@@ -385,21 +314,10 @@ public:
     std::string identificador;     /* Nombre del union. */
     LVariables*   lista;           /* Lista de variables. */
     
-    Union(){
-        Estructura();
-        lista = 0;
-    }
-
-    Union(std::string id, LVariables* l=0){
-        Estructura();
-        identificador = id;
-        *lista = *l;
-    }
-
-    ~Union(){
-        delete lista;
-    }
-
+    Union();
+    Union(std::string, LVariables*);
+    ~Union();    
+    
     void show(std::string);
     void verificador(GuavaSymTable);
 
@@ -434,14 +352,11 @@ class Arreglo:public IArreglo{
 public:
     LArreglo* listaA;
     
-    Arreglo(LArreglo* l){
-        *listaA = *l;
-    }
+    Arreglo(LArreglo*);    
+    ~Arreglo();
     
-    ~Arreglo(){ delete listaA; }
-    
-    void show(std::string){};
-    void verificar(GuavaSymTable){};
+    void show(std::string);
+    void verificar(GuavaSymTable);
 };
 
 /**
@@ -452,7 +367,7 @@ public:
     LVariables listaVar; /* Lista de variables a declarar */
     BloqueDeclare();
 
-    BloqueDeclare(LVariables l);    
+    BloqueDeclare(LVariables);    
     ~BloqueDeclare();
     void show(std::string);
     void verificacion(GuavaSymTable);
@@ -466,15 +381,8 @@ public:
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
     LElseIf* lelseif;
-    LElseIf(Exp e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0){
-        exp = e;
-        declaraciones = d;
-        listainstrucciones = li;
-        *lelseif = *lif;
-    }
-    ~LElseIf(){
-        delete lelseif;
-    }
+    LElseIf(Exp, BloqueDeclare, ListaInstrucciones, LElseIf*);
+    ~LElseIf();    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -488,25 +396,10 @@ public:
     Instruccion* instruccion2;
     LElseIf* lelseif;
 
-    SelectorIf(Exp e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0){
-        exp = e;
-        *declaraciones = *d;
-        *listainstrucciones = *l;
-        *lelseif = *lif;
-    }
+    SelectorIf(Exp, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
+    SelectorIf(Exp, Instruccion*, Instruccion*);    
+    ~SelectorIf(); 
 
-    SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0){
-        exp = e;
-        *instruccion1 = *i;
-        *instruccion2 = *i2;
-    }
-    ~SelectorIf(){
-        delete declaraciones;
-        delete listainstrucciones;
-        delete instruccion1;
-        delete instruccion2;
-        delete lelseif;
-    }
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -516,12 +409,9 @@ public:
     Exp exp;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
-    LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li){
-        exp = e;
-        declaraciones = bd;
-        listainstrucciones = li;
-    }
-    ~LoopWhile(){}
+
+    LoopWhile(Exp, BloqueDeclare, ListaInstrucciones);
+    ~LoopWhile();
 
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -535,98 +425,66 @@ public:
     Arreglo* arreglo;
     Exp* exp;
 
-    Asignacion(){}
+    Asignacion();
 
-    Asignacion(std::string id, Exp* e = 0, LCorchetes* lc = 0 
-                , std::string* id2 = 0, Arreglo* arr = 0){
-        identificador = id;
-        *exp = *e;
-        *lcorchetes = *lc;
-        *identificador2 = *id2;
-        *arreglo = *arr;
-    }
-
-    ~Asignacion(){
-        delete identificador2;
-        delete lcorchetes;
-        delete arreglo;
-        delete exp;
-    }
+    Asignacion(std::string, Exp*, LCorchetes* 
+                , std::string*, Arreglo*);
+    ~Asignacion();    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
 class LoopFor: public Instruccion{
-    public:
-        std::string identificador;
-        Exp exp;
-        Asignacion* asignacion;
-        Exp* exp2;
-        BloqueDeclare declaraciones;
-        ListaInstrucciones listainstrucciones;
+public:
+    std::string identificador;
+    Exp exp;
+    Asignacion* asignacion;
+    Exp* exp2;
+    BloqueDeclare declaraciones;
+    ListaInstrucciones listainstrucciones;
 
-        LoopFor(std::string id, Exp e1,BloqueDeclare d, ListaInstrucciones l,
-                Exp* e2 = 0, Asignacion* a = 0){
-            identificador = id;
-            exp = e1;
-            *asignacion = *a;
-            exp2 = e2;
-            declaraciones = d;
-            listainstrucciones = l;
-        }
+    LoopFor(std::string, Exp ,BloqueDeclare , ListaInstrucciones ,
+            Exp* , Asignacion*);
+    ~LoopFor();  
 
-        ~LoopFor(){
-            delete asignacion;
-            delete exp2;
-        }
-        void show(std::string);
-        void verificar(GuavaSymTable);
+    void show(std::string);
+    void verificar(GuavaSymTable);
 };
 
 class PlusMinus: public Instruccion{
-    public:
-        Exp exp;
-        std::string tipo;
-        PlusMinus(Exp e, std::string t){
-            exp = e;
-            tipo = t;
-        }
-        ~PlusMinus(){}
+public:
+    Exp exp;
+    std::string tipo;
 
-        void show(std::string);
-        void verificar(GuavaSymTable);
+    PlusMinus(Exp, std::string);
+    ~PlusMinus();
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
 };
 
 class LVaroValor{
-    public:
-        Exp* exp;
-        LVaroValor* lvarovalor;
-        LVaroValor(Exp* e = 0, LVaroValor* lv = 0){
-            exp = e;
-            *lvarovalor = *lv;
-        }
-        ~LVaroValor(){
-            delete lvarovalor;
-        }
-        void show(std::string);
-        void verificar(GuavaSymTable);
+public:
+    Exp* exp;
+    LVaroValor* lvarovalor;
+    LVaroValor(Exp*, LVaroValor*); 
+    ~LVaroValor();        
+    void show(std::string);
+    void verificar(GuavaSymTable);
 };
+
 /**
  * Clase de llamada funcion.
  */
 class LlamadaFuncion: public Instruccion{
-    public:
-        std::string identificador; /* Identificador de la funcion */
-        LVaroValor lvarovalor;     /* Lista de variables o valores. */
+public:
+    std::string identificador; /* Identificador de la funcion */
+    LVaroValor lvarovalor;     /* Lista de variables o valores. */
 
-        LlamadaFuncion(std::string id, LVaroValor lv){
-            identificador = id;
-            lvarovalor = lv;
-        }
-
-        ~LlamadaFuncion(){}
-        void show(std::string);
-        void verificar(GuavaSymTable);
+    LlamadaFuncion(std::string, LVaroValor);
+    ~LlamadaFuncion();
+    void show(std::string);
+    void verificar(GuavaSymTable);
 
 };
 /**

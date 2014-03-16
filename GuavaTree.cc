@@ -220,12 +220,12 @@ LVarArreglo::~LVarArreglo(){
 LVar::LVar(){}
 
 LVar::LVar(std::string t, LVar* l = 0){
-    tipo = t;
+    id = t;
     *lista = *l;
 }
 
 LVar::LVar(std::string t){
-    tipo = t;
+    id = t;
 }
 
 LVar::~LVar(){
@@ -537,3 +537,4 @@ Program::Program(BloquePrincipal b){
 }
 
 Program::~Program(){}
+

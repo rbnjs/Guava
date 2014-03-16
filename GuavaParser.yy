@@ -1,5 +1,6 @@
 %skeleton "lalr1.cc" /* -*- C++ -*- */
-%require "2.6.90.8-d4fe"
+%require "2.6"
+/*%require "2.6.90.8-d4fe"*/
 %defines
 %define parser_class_name "GuavaParser"
 %code requires {

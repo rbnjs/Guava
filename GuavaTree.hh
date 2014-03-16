@@ -40,10 +40,8 @@
 class Exp{
 public:
     Exp* exp;
-    Exp(){
-    }
+    Exp();
     ~Exp();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -51,10 +49,8 @@ public:
 class ExpParentizada{
 public:
     Exp exp;
-
     ExpParentizada(Exp);    
     ~ExpParentizada();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -62,10 +58,8 @@ public:
 class Identificador{
 public:
     std::string identificador;
-    
     Identificador(std::string);    
     ~Identificador();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -74,12 +68,9 @@ public:
 class Tipo{
 public:
     std::string tipo;
-    
     Tipo();
-
     Tipo(std::string);    
     ~Tipo();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -169,7 +160,6 @@ public:
     std::string operacion;
     ExpBin(Exp,Exp,std::string);
     ~ExpBin();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -180,9 +170,7 @@ public:
 class Instruccion{
 public:
     Instruccion* instruccion;
-
     Instruccion();
-
     Instruccion(Instruccion*);
     ~Instruccion();
     virtual void show(std::string);
@@ -193,9 +181,7 @@ class ListaInstrucciones{
 public:
     Instruccion* instruccion;
     ListaInstrucciones* listainstrucciones;
-
     ListaInstrucciones();
-
     ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
     ~ListaInstrucciones();
     void show(std::string);
@@ -207,26 +193,22 @@ public:
     std::string tipo;     /* Tipo */
     LCorchetes* corchetes;  /* Corchetes del arreglo */
     LVarArreglo* lista;    /* Lista  */
-
     LVarArreglo();
     LVarArreglo(std::string t, LVarArreglo* l);
     LVarArreglo(std::string t);    
     ~LVarArreglo();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
-/* OJO: QUIERO QUE TIPO SEA DE TIPO STRING? */
 class LVar{
 public:
-    std::string tipo; /* Tipo del lvar */
+    std::string id;    /* id de la variable*/
     LVar* lista;       /* lista de LVar */
     LVar();
     LVar(std::string, LVar*);
     LVar(std::string t);
     ~LVar();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -237,7 +219,6 @@ public:
     Estructura();
     Estructura(Estructura*);
     ~Estructura();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 
@@ -251,9 +232,9 @@ public:
  */
 class LVariables {
 public:
-    Tipo t;              /*Tipo de las variables a declarar */
+    Tipo t;                 /*Tipo de las variables a declarar */
     
-    /* Aqui pensaba colocar 'Modo' para ver si son pasadas por valor o por referencia*/
+    int modo;               /*Modo de pasaje de la variable: Por referencia=1, por valor=0*/
 
     LVar listaIds;          /* Lista de identificadores de variables */
     LVarArreglo listaIdsAr; /* Lista de identificadores de variables de tipo arreglo */
@@ -261,17 +242,13 @@ public:
     LVariables* listaVar;    /* En caso de declarar mas de una lista de variables. */
 
     /*Constructores*/
-
     LVariables();
 
     /*Caso en el que se declaran variables simples*/
-
     LVariables(Tipo, LVar);   
-    
     LVariables(Tipo, LVar, LVariables);
 
     /*Caso en el que se declaran variables de tipo arreglo*/
-
     LVariables(Tipo, LVarArreglo);    
     LVariables(Tipo, LVarArreglo, LVariables);
 
@@ -298,12 +275,10 @@ public:
 class Record:public Estructura{
 public:
     std::string identificador;     /* Nombre del record. */
-    LVariables*   lista;            /* Lista de variables. */
-
+    LVariables* lista;             /* Lista de variables. */
     Record();
     Record(std::string, LVariables*);
     ~Record();    
-
     void show(std::string);
     void verificador(GuavaSymTable);
 };
@@ -313,14 +288,11 @@ class Union:public Estructura{
 public:
     std::string identificador;     /* Nombre del union. */
     LVariables*   lista;           /* Lista de variables. */
-    
     Union();
     Union(std::string, LVariables*);
     ~Union();    
-    
     void show(std::string);
     void verificador(GuavaSymTable);
-
 };
 
 class IArreglo{
@@ -366,14 +338,11 @@ class BloqueDeclare {
 public:
     LVariables listaVar; /* Lista de variables a declarar */
     BloqueDeclare();
-
     BloqueDeclare(LVariables);    
     ~BloqueDeclare();
     void show(std::string);
     void verificacion(GuavaSymTable);
 };
-
-
 
 class LElseIf{
 public:
@@ -382,6 +351,7 @@ public:
     ListaInstrucciones listainstrucciones;
     LElseIf* lelseif;
     LElseIf(Exp, BloqueDeclare, ListaInstrucciones, LElseIf*);
+    LElseIf(BloqueDeclare, ListaInstrucciones);
     ~LElseIf();    
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -395,11 +365,9 @@ public:
     Instruccion* instruccion1; 
     Instruccion* instruccion2;
     LElseIf* lelseif;
-
     SelectorIf(Exp, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     SelectorIf(Exp, Instruccion*, Instruccion*);    
     ~SelectorIf(); 
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -409,10 +377,8 @@ public:
     Exp exp;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
-
     LoopWhile(Exp, BloqueDeclare, ListaInstrucciones);
     ~LoopWhile();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -424,11 +390,8 @@ public:
     LCorchetes* lcorchetes;
     Arreglo* arreglo;
     Exp* exp;
-
     Asignacion();
-
-    Asignacion(std::string, Exp*, LCorchetes* 
-                , std::string*, Arreglo*);
+    Asignacion(std::string, Exp*, LCorchetes*, std::string*, Arreglo*);
     ~Asignacion();    
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -442,11 +405,8 @@ public:
     Exp* exp2;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
-
-    LoopFor(std::string, Exp ,BloqueDeclare , ListaInstrucciones ,
-            Exp* , Asignacion*);
+    LoopFor(std::string, Exp, BloqueDeclare, ListaInstrucciones, Exp*, Asignacion*);
     ~LoopFor();  
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -455,10 +415,8 @@ class PlusMinus: public Instruccion{
 public:
     Exp exp;
     std::string tipo;
-
     PlusMinus(Exp, std::string);
     ~PlusMinus();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -480,13 +438,13 @@ class LlamadaFuncion: public Instruccion{
 public:
     std::string identificador; /* Identificador de la funcion */
     LVaroValor lvarovalor;     /* Lista de variables o valores. */
-
     LlamadaFuncion(std::string, LVaroValor);
     ~LlamadaFuncion();
     void show(std::string);
     void verificar(GuavaSymTable);
 
 };
+
 /**
  * Clase para lista de parametros.
  */
@@ -494,13 +452,10 @@ class LParam{
 public:
     Tipo tipo;
     std::string* identificador;
-    
     LParam();
-
-    LParam(Tipo, std::string*);    
-    
+    LParam(Tipo, std::string*);
+    LParam(Tipo, std::string*, LParam);
     ~LParam();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -516,11 +471,8 @@ public:
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listaI;
     Exp* retorno;
-
     Funcion();
-
     Funcion(Tipo, std::string, LParam*, BloqueDeclare* ,ListaInstrucciones*, Exp *);    
-    
     ~Funcion();    
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -533,17 +485,12 @@ class LFunciones{
 public:
     Funcion funcion;   /* Funcion */
     LFunciones* lista; /* Lista de funciones */
-    
     LFunciones();
-    
     LFunciones(Funcion, LFunciones*);
     ~LFunciones();
-
     void show(std::string);
     void verificar(GuavaSymTable);
 };
-
-
 
 /**
  * Clase de bloque principal.
@@ -552,9 +499,7 @@ class BloquePrincipal {
 public:
     BloqueDeclare globalD; /* Declaraciones globales. */
     LFunciones funciones;  /* Lista de funciones. */
-
     BloquePrincipal();
-
     BloquePrincipal(BloqueDeclare, LFunciones);
     ~BloquePrincipal();
     void show(std::string);
@@ -564,13 +509,9 @@ public:
 class Program{
 public:
     BloquePrincipal bloque;
-
     Program();
-
     Program(BloquePrincipal);
-
     ~Program();
-
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 }; 

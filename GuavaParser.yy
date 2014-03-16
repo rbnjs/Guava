@@ -118,16 +118,15 @@ larreglo: exp ',' larreglo      {}
         | arreglo               {};
 
 lfunciones: funcionmain        {}
-	  | funcion lfunciones {};
+	        | funcion lfunciones {};
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}';
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     {};
 
 funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}'         {}
        | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}' {};
 
 lparam: /* Vacio */          {} 
-      | tipo ID ',' lparam2  {} 
-      | tipo ID              {}
+      | lparam2              {} 
 
 lparam2: tipo ID             {}
        | tipo ID ',' lparam2 {};

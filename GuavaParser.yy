@@ -5,6 +5,7 @@
 %define parser_class_name "GuavaParser"
 %code requires {
 # include <string>
+# include "GuavaTree.hh"
 class GuavaDriver;
 }
 
@@ -27,6 +28,43 @@ class GuavaDriver;
     char         charval;
     int          subtok;
     float        realval;
+    /* Clases  */
+    Exp *classExp;
+    ExpParentizada *classExpParentizada;
+    Identificador *classIdentificador;
+    Tipo *classTipo;
+    Real *classReal;
+    Integer *classInteger;
+    Char *classChar;
+    String *classString;
+    Bool *classBool;
+    LCorchetes *classLCorchetes;
+    ExpUn *classExpUn;
+    ExpBin *classExpBin;
+    Instruccion *classInstruccion;
+    ListaInstrucciones *classListaInstrucciones;
+    LVarArreglo *classLVarArreglo;
+    LVar *classLVar;
+    Estructura *classEstructura;
+    LVariables *classLVariables;
+    Record *classRecord;
+    Union *classUnion;
+    LArreglo *classLArreglo;
+    Arreglo *classArreglo;
+    BloqueDeclare *classBloqueDeclare;
+    LElseIf *classLElseIf;
+    SelectorIf *classSelectorIf;
+    LoopWhile *classLoopWhile;
+    Asignacion *classAsignacion;
+    LoopFor *classLoopFor;
+    PlusMinus *classPlusMinus;
+    LVaroValor *classLVaroValor;
+    LlamadaFuncion *classLlamadaFuncion;
+    LParam *classLParam;
+    Funcion *classFuncion;
+    LFunciones *classLFunciones;
+    BloquePrincipal *classBloquePrincipal;
+    Program *classProgram;
 };
 %code {
 # include "GuavaDriver.hh"
@@ -53,6 +91,7 @@ class GuavaDriver;
 %nonassoc PLUSPLUS MINUSMINUS
 %right POW
 %nonassoc UMINUS
+/* Aqui debe ponerse las clases correspondientes. */
 %type <intval> valor
 %type <intval> expun expbin
 %type <intval> llamadafuncion selectorif loopwhile loopfor asignacion

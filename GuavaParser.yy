@@ -77,9 +77,9 @@ class GuavaDriver;
 %destructor { delete $$; } ID
 %% /* Reglas */
 
-program: bloqueprincipal {};
+program: bloqueprincipal { };
 
-bloqueprincipal: bloquedeclare lfunciones;
+bloqueprincipal: bloquedeclare lfunciones {};
 
 bloquedeclare: /* Vacio */                {}
              | DECLARE '{' lvariables '}' {};
@@ -138,8 +138,8 @@ listainstrucciones: /* Vacio */                        {}
 
 instruccion: asignacion     {}
            | llamadafuncion {}
-           | exp PLUSPLUS    {}
-           | exp MINUSMINUS  {};
+           | ID PLUSPLUS    {}
+           | ID MINUSMINUS  {};
      
 
 instruccion1: loopfor        {}

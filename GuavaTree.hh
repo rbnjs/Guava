@@ -53,104 +53,103 @@ public:
     virtual void verificar(GuavaSymTable);
 };
 
-class Identificador{
-public:
-    std::string identificador;
-    Identificador(std::string);    
-    ~Identificador();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+class Identificador:public Exp{
+    public:
+        std::string identificador;
+        Identificador(std::string);    
+        ~Identificador();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 
 class Tipo{
-public:
-    std::string tipo;
-    Tipo();
-    Tipo(std::string);   
-    ~Tipo();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        std::string tipo;
+        Tipo();
+        Tipo(std::string);   
+        ~Tipo();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class Valor: public Exp{
-public:
-    Valor* valor;
+    public:
+        Valor* valor;
 
-    Valor(Valor*);
-    Valor();
-    ~Valor();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+        Valor(Valor*);
+        Valor();
+        ~Valor();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class Real: public Valor{
-public:
-    float real;
-    Real(float f);    
-    ~Real();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        float real;
+        Real(float f);    
+        ~Real();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class Integer: public Valor{
-public:
-    int integer;
-    Integer(int i);    
-    ~Integer();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        int integer;
+        Integer(int i);    
+        ~Integer();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class Char: public Valor{
-public:
-    char ch;
-    Char(char);
-    ~Char();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        char ch;
+        Char(char);
+        ~Char();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class String: public Valor{
-public:
-    std::string str;
-    String(char*);    
-    String(std::string);    
-    ~String();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        std::string str;
+        String(char*);    
+        String(std::string);    
+        ~String();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class Bool: public Valor{
-    bool b;
-    Bool(bool);    
-    ~Bool();
-    virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
+    public:
+        bool b;
+        Bool(bool);    
+        ~Bool();
+        virtual void show(std::string);
+        virtual void verificar(GuavaSymTable);
 };
 
 class LCorchetes{
-public:
-    Exp exp;
-    LCorchetes* lista;
-    LCorchetes(Exp, LCorchetes*);    
-    LCorchetes(Exp);    
-    ~LCorchetes();
-    void show(std::string);
-    void verificar(GuavaSymTable);
+    public:
+        Exp exp;
+        LCorchetes* lista;
+        LCorchetes(Exp, LCorchetes*);    
+        LCorchetes(Exp);    
+        ~LCorchetes();
+        void show(std::string);
+        void verificar(GuavaSymTable);
 };
 
 
 
 class ExpUn:public Exp{
-public:
-    Exp exp;
-    Exp* exp2;
-    LCorchetes* corchetes;
-    std::string* operacion;
-    ExpUn(Exp, std::string*);    
-    ExpUn(Exp, Exp*, std::string*);    
-    ExpUn(Exp, LCorchetes*);    
+    public:
+        Exp exp;
+        LCorchetes* corchetes;
+        std::string* operacion;
+        ExpUn(Exp, std::string*);    
+        ExpUn(Exp, LCorchetes*);    
     ~ExpUn();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);

@@ -56,6 +56,7 @@ void ExpParentizada::verificar(GuavaSymTable g){}
 /* Class Identificador. */
 
 Identificador::Identificador(std::string i){
+    Exp();
     identificador = i;
 }
 
@@ -164,17 +165,13 @@ LCorchetes::~LCorchetes(){
 }
 void LCorchetes::show(std::string s){} 
 void LCorchetes::verificar(GuavaSymTable s){} 
+
 /* Class ExpUn */
 
 ExpUn::ExpUn(Exp e, std::string* op){
     Exp();
     exp = e;
     *operacion = *op;
-}
-
-ExpUn::ExpUn(Exp e1, Exp* e2, std::string* op){
-    exp = e1;
-    *exp2 = *e2;
 }
     
 ExpUn::ExpUn(Exp e1, LCorchetes* lc){
@@ -183,10 +180,10 @@ ExpUn::ExpUn(Exp e1, LCorchetes* lc){
 }
 
 ExpUn::~ExpUn(){
-    delete exp2;
     delete corchetes;
     delete operacion;
 }
+
 void ExpUn::show(std::string s){} 
 void ExpUn::verificar(GuavaSymTable s){} 
 /* Class ExpBin */

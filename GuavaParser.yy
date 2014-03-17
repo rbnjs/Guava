@@ -73,7 +73,7 @@ class GuavaDriver;
 
 %token            END       0 
 %right            ASSIGN     
-%token <strval>   ID         
+%token <strval>   ID
 %token <intval>   INTEGER    
 %token <strval>   STRING
 %token <charval>  CHAR       
@@ -118,6 +118,7 @@ class GuavaDriver;
 %type <classLArreglo> larreglo
 %type <classLCorchetes> lcorchetes
 %type <classTipo> tipo
+%type <classTipo> tipo1
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
 
@@ -239,27 +240,70 @@ expbin: exp AND exp          {}
       | exp '/' exp          {}
       | exp DIV exp          {}
       | exp MOD exp          {}
-      | exp POW exp          {};
+      | exp POW exp          {}
+      | ID '.' ID            {};
 
-expun: NOT exp               {}
-     | '-' exp %prec UMINUS  {}
-     | exp PLUSPLUS          {}
-     | exp MINUSMINUS        {}
-     | ID '.' ID             {}
-     | ID lcorchetes         {};
+expun: NOT exp               { std::string str = std::string("not");
+                               ExpUn tmp = ExpUn($2, &str);
+                               $$ = &tmp; 
+                             }
+     | '-' exp %prec UMINUS  { std::string str = std::string("-");
+                               ExpUn tmp = ExpUn($2, &str);
+                               $$ = &tmp; 
+                             }
+     | exp PLUSPLUS          { std::string str = std::string("++");
+                               ExpUn tmp = ExpUn($1, &str);
+                               $$ = &tmp; 
+                             }
+     | exp MINUSMINUS        { std::string str = std::string("--");
+                               ExpUn tmp = ExpUn($1, &str);
+                               $$ = &tmp; 
+                             }
+     | ID lcorchetes         { LCorchetes* lc;
+                               lc = $2;
+                               std::string str = std::string($1);
+                               Exp id = Identificador(str);
+                               ExpUn tmp = ExpUn(id, lc);
+                               $$ = &tmp;
+                             };
 
-valor: BOOL     {}
-     | STRING   {}
-     | CHAR     {}
-     | INTEGER  {}
-     | REAL     {};
+valor: BOOL     { Valor tmp = Bool($1);
+                  $$ = &tmp;
+                }
+     | STRING   { Valor tmp = String($1);
+                  $$ = &tmp;
+                }
+     | CHAR     { Valor tmp = Char($1);
+                  $$ = &tmp;
+                }
+     | INTEGER  { Valor tmp = Integer($1);
+                  $$ = &tmp;
+                }
+     | REAL     { Valor tmp = Real($1);
+                  $$ = &tmp;
+                };
 
-tipo: TYPE_REAL    {}
-    | TYPE_INTEGER {}
-    | TYPE_BOOLEAN {}
-    | TYPE_CHAR    {}
-    | TYPE_STRING  {}
-    | TYPE_VOID    {};
+tipo: tipo1         { $$ = $1; } 
+     | TYPE_VOID    {Tipo tmp = Tipo(std::string("void"));
+                      $$ = &tmp;
+                    };
+
+tipo1: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
+                      $$ = &tmp;
+                    }
+     | TYPE_INTEGER { Tipo tmp = Tipo(std::string("integer"));
+                      $$ = &tmp;
+                    }
+     | TYPE_BOOLEAN { Tipo tmp = Tipo(std::string("boolean"));
+                      $$ = &tmp;
+                    }
+     | TYPE_CHAR    { Tipo tmp = Tipo(std::string("character"));
+                      $$ = &tmp;
+                    }
+     | TYPE_STRING  { Tipo tmp = Tipo(std::string("string"));
+                      $$ = &tmp;
+                    };
+
 
 %%
 

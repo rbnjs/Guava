@@ -18,7 +18,6 @@
 
 /**
  * PARTE DE OBSERVACIONES:
- *
  * 1- Para la regla de lvariables: tipo no puede ser void, no puede existir
  *    una variable que sea de tipo void.
  * 2- Para la regla de lcorchetes: Esta regla es para la declaracion de
@@ -32,8 +31,6 @@
  * 5- Se debe definir de abajo hacia arriba, sino la compilacion no funcionara.
  *
  */
-# ifndef GUAVATREE_HH
-# define GUAVATREE_HH
 
 #include "GuavaSymTable.hh"
 
@@ -41,6 +38,7 @@ class Exp{
 public:
     Exp* exp;
     Exp();
+    Exp(Exp*);
     ~Exp();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -69,7 +67,7 @@ class Tipo{
 public:
     std::string tipo;
     Tipo();
-    Tipo(std::string);    
+    Tipo(std::string);   
     ~Tipo();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
@@ -77,9 +75,13 @@ public:
 
 class Valor: public Exp{
 public:
-    virtual ~Valor(){}
-    virtual void show(std::string) = 0;
-    virtual void verificar(GuavaSymTable) = 0;
+    Valor* valor;
+
+    Valor(Valor*);
+    Valor();
+    ~Valor();
+    virtual void show(std::string);
+    virtual void verificar(GuavaSymTable);
 };
 
 class Real: public Valor{
@@ -269,7 +271,7 @@ public:
      *            debilmente tipado una misma verificacion servia para todo.
      */
 
-    void verificacion(GuavaSymTable);
+    void verificar(GuavaSymTable);
 };
 
 class Record:public Estructura{
@@ -280,7 +282,7 @@ public:
     Record(std::string, LVariables*);
     ~Record();    
     void show(std::string);
-    void verificador(GuavaSymTable);
+    void verificar(GuavaSymTable);
 };
 
 
@@ -292,7 +294,7 @@ public:
     Union(std::string, LVariables*);
     ~Union();    
     void show(std::string);
-    void verificador(GuavaSymTable);
+    void verificar(GuavaSymTable);
 };
 
 class IArreglo{
@@ -341,7 +343,7 @@ public:
     BloqueDeclare(LVariables);    
     ~BloqueDeclare();
     void show(std::string);
-    void verificacion(GuavaSymTable);
+    void verificar(GuavaSymTable);
 };
 
 class LElseIf{
@@ -425,6 +427,7 @@ class LVaroValor{
 public:
     Exp* exp;
     LVaroValor* lvarovalor;
+    LVaroValor();
     LVaroValor(Exp*, LVaroValor*); 
     ~LVaroValor();        
     void show(std::string);
@@ -503,7 +506,7 @@ public:
     BloquePrincipal(BloqueDeclare, LFunciones);
     ~BloquePrincipal();
     void show(std::string);
-    void verificacion(GuavaSymTable);
+    void verificar(GuavaSymTable);
 };
 
 class Program{
@@ -516,4 +519,3 @@ public:
     virtual void verificar(GuavaSymTable);
 }; 
 
-#endif // ! GUAVADRIVER_HH

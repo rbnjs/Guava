@@ -6,11 +6,11 @@ guava: Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLex
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaParser.hh GuavaTree.hh
 
-	g++ -c -std=c++11 GuavaDriver.cc
+	g++ -c  GuavaDriver.cc
 
 GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaDriver.hh
 
-	g++ -std=c++11 -c GuavaParser.cc 
+	g++ -c GuavaParser.cc 
 
 GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 

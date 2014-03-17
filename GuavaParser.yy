@@ -28,42 +28,44 @@ class GuavaDriver;
     int          subtok;
     float        realval;
     /* Clases  */
+    Valor *classValor;
     Exp *classExp;
-    ExpParentizada *classExpParentizada;
-    Identificador *classIdentificador;
+    ExpUn *classExpUn;
+    ExpBin *classExpBin;
+    LlamadaFuncion *classLlamadaFuncion;
+    SelectorIf *classSelectorIf;
+    LoopWhile *classLoopWhile;
+    LoopFor *classLoopFor;
+    Asignacion *classAsignacion;
+    Instruccion *classInstruccion;
+    ListaInstrucciones *classListaInstrucciones;
+    LParam *classLParam;
+    LElseIf *classLElseIf;
+    Funcion *classFuncion;
+    LFunciones *classLFunciones;
+    LVariables *classLVariables;
+    Union *classUnion;
+    Record *classRecord;
+    LVar *classLVar;
+    LVaroValor *classLVaroValor;
+    LVarArreglo *classLVarArreglo;
+    Arreglo *classArreglo;
+    LArreglo *classLArreglo;
+    LCorchetes *classLCorchetes;
     Tipo *classTipo;
+    BloqueDeclare *classBloqueDeclare;
+    BloquePrincipal *classBloquePrincipal;
+
+    /*ExpParentizada *classExpParentizada;
+    Identificador *classIdentificador;
     Real *classReal;
     Integer *classInteger;
     Char *classChar;
     String *classString;
     Bool *classBool;
-    LCorchetes *classLCorchetes;
-    ExpUn *classExpUn;
-    ExpBin *classExpBin;
-    Instruccion *classInstruccion;
-    ListaInstrucciones *classListaInstrucciones;
-    LVarArreglo *classLVarArreglo;
-    LVar *classLVar;
     Estructura *classEstructura;
-    LVariables *classLVariables;
-    Record *classRecord;
-    Union *classUnion;
-    LArreglo *classLArreglo;
-    Arreglo *classArreglo;
-    BloqueDeclare *classBloqueDeclare;
-    LElseIf *classLElseIf;
-    SelectorIf *classSelectorIf;
-    LoopWhile *classLoopWhile;
-    Asignacion *classAsignacion;
-    LoopFor *classLoopFor;
     PlusMinus *classPlusMinus;
-    LVaroValor *classLVaroValor;
-    LlamadaFuncion *classLlamadaFuncion;
-    LParam *classLParam;
-    Funcion *classFuncion;
-    LFunciones *classLFunciones;
-    BloquePrincipal *classBloquePrincipal;
-    Program *classProgram;
+    Program *classProgram; */
 };
 %code {
 # include "GuavaDriver.hh"
@@ -91,26 +93,33 @@ class GuavaDriver;
 %right POW
 %nonassoc UMINUS
 /* Aqui debe ponerse las clases correspondientes. */
-%type <intval> valor
-%type <intval> expun expbin
-%type <intval> llamadafuncion selectorif loopwhile loopfor asignacion
-%type <intval> instruccion
-%type <intval> listainstrucciones
-%type <intval> lparam
-%type <intval> lelseif
-%type <intval> funcion 
-%type <intval> lfunciones
-%type <intval> lvariables
-%type <intval> union
-%type <intval> record
-%type <intval> lvar
-%type <intval> lvararreglo
-%type <intval> arreglo
-%type <intval> larreglo
-%type <intval> lcorchetes
-%type <intval> tipo
-%type <intval> bloquedeclare
-%type <intval> bloqueprincipal
+%type <classValor> valor
+%type <classExp> exp
+%type <classExpUn> expun
+%type <classExpBin> expbin
+%type <classLlamadaFuncion> llamadafuncion 
+%type <classSelectorIf> selectorif 
+%type <classLoopWhile> loopwhile 
+%type <classLoopFor> loopfor 
+%type <classAsignacion> asignacion
+%type <classInstruccion> instruccion
+%type <classListaInstrucciones> listainstrucciones
+%type <classLParam> lparam
+%type <classLElseIf> lelseif
+%type <classFuncion> funcion 
+%type <classLFunciones> lfunciones
+%type <classLVariables> lvariables
+%type <classUnion> union
+%type <classRecord> record
+%type <classLVar> lvar
+%type <classLVaroValor> lvarovalor lvarovalor2
+%type <classLVarArreglo> lvararreglo
+%type <classArreglo> arreglo
+%type <classLArreglo> larreglo
+%type <classLCorchetes> lcorchetes
+%type <classTipo> tipo
+%type <classBloqueDeclare> bloquedeclare
+%type <classBloquePrincipal> bloqueprincipal
 
 %start program
 %destructor { delete $$; } ID

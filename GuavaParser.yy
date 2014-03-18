@@ -134,18 +134,18 @@ bloqueprincipal: bloquedeclare lfunciones {};
 bloquedeclare: /* Vacio */                {}
              | DECLARE '{' lvariables '}' {};
 
-;lvariables: tipo1 VAR lvar ';' lvariables          {}
-          | tipo1 VAR lvar ';'                     {}
-          | tipo1 ARRAY lvararreglo ';'            {}
-          | tipo1 ARRAY lvararreglo ';' lvariables {}
-          | ID   UNION lvar ';'                   {}
-          | ID   UNION lvar ';' lvariables        {}
-          | ID   RECORD lvar ';'                  {}
-          | ID   RECORD lvar ';' lvariables       {}
-          | union ';' lvariables                  {}
-          | record ';' lvariables                 {}
-          | union  ';'                            {}
-          | record ';'                            {};
+lvariables: tipo1 VAR lvar ';' lvariables          { *$$ = LVariables($1, $3, *$5); }
+          | tipo1 VAR lvar ';'                     { *$$ = LVariables($1, $3, 0); }
+          | tipo1 ARRAY lvararreglo ';'            { *$$ = LVariables($1, $3, 0); }
+          | tipo1 ARRAY lvararreglo ';' lvariables { *$$ = LVariables($1, $3, *$5); }
+          | ID   UNION lvar ';'                    {}
+          | ID   UNION lvar ';' lvariables         {}
+          | ID   RECORD lvar ';'                   {}
+          | ID   RECORD lvar ';' lvariables        {}
+          | union ';' lvariables                   {}
+          | record ';' lvariables                  {}
+          | union  ';'                             {}
+          | record ';'                             {};
 
 union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
                                     };

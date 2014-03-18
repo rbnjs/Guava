@@ -244,11 +244,9 @@ public:
     LVariables();
 
     /*Caso en el que se declaran variables simples*/
-    LVariables(Tipo, LVar);   
-    LVariables(Tipo, LVar, LVariables);
+    LVariables(Tipo, LVar, LVariables *);
 
     /*Caso en el que se declaran variables de tipo arreglo*/
-    LVariables(Tipo, LVarArreglo);    
     LVariables(Tipo, LVarArreglo, LVariables);
 
     /*Para el caso en que se declaran uniones y records, simplemente no se

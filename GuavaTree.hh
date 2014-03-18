@@ -56,6 +56,7 @@ public:
 class Identificador:public Exp{
     public:
         std::string identificador;
+        Identificador();
         Identificador(std::string);    
         ~Identificador();
         virtual void show(std::string);
@@ -347,13 +348,16 @@ public:
 
 class LElseIf{
 public:
-    Exp exp;
+    Exp* exp;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
     LElseIf* lelseif;
+
+    LElseIf();
     LElseIf(Exp, BloqueDeclare, ListaInstrucciones, LElseIf*);
     LElseIf(BloqueDeclare, ListaInstrucciones);
-    ~LElseIf();    
+    ~LElseIf();
+
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -386,27 +390,33 @@ public:
 
 class Asignacion: public Instruccion{
 public:
-    std::string identificador;
-    std::string* identificador2;
+    Identificador identificador;
+    Identificador* identificador2;
     LCorchetes* lcorchetes;
     Arreglo* arreglo;
     Exp* exp;
+
     Asignacion();
-    Asignacion(std::string, Exp*, LCorchetes*, std::string*, Arreglo*);
-    ~Asignacion();    
+    Asignacion(Identificador, Exp);
+    Asignacion(Identificador, LCorchetes, Exp);
+    Asignacion(Identificador,Identificador,Exp);
+    Asignacion(Identificador, Arreglo);
+    ~Asignacion();
+
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
 class LoopFor: public Instruccion{
 public:
-    std::string identificador;
+    Identificador identificador;
     Exp exp;
     Asignacion* asignacion;
     Exp* exp2;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
-    LoopFor(std::string, Exp, BloqueDeclare, ListaInstrucciones, Exp*, Asignacion*);
+    LoopFor(Identificador, Exp,Exp, BloqueDeclare, ListaInstrucciones);
+    LoopFor(Identificador,Exp, Asignacion, BloqueDeclare, ListaInstrucciones);
     ~LoopFor();  
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -444,7 +454,6 @@ public:
     ~LlamadaFuncion();
     void show(std::string);
     void verificar(GuavaSymTable);
-
 };
 
 /**

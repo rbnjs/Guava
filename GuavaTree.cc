@@ -55,6 +55,10 @@ void ExpParentizada::verificar(GuavaSymTable g){}
 
 /* Class Identificador. */
 
+Identificador::Identificador(){
+    Exp();
+}
+
 Identificador::Identificador(std::string i){
     Exp();
     identificador = i;
@@ -405,14 +409,29 @@ BloqueDeclare::BloqueDeclare(LVariables l) {
 BloqueDeclare::~BloqueDeclare(){}
 void BloqueDeclare::show(std::string s){} 
 void BloqueDeclare::verificar(GuavaSymTable s){} 
+
 /* Class LElseIf */
 
+LElseIf::LElseIf(){
+    exp = 0;
+    lelseif = 0;
+}
+
 LElseIf::LElseIf(Exp e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0){
-    exp = e;
+    *exp = e;
     declaraciones = d;
     listainstrucciones = li;
     *lelseif = *lif;
 }
+
+
+LElseIf::LElseIf(BloqueDeclare d, ListaInstrucciones li){
+    exp = 0;
+    lelseif = 0;
+    declaraciones = d;
+    listainstrucciones = li;
+}
+
 
 LElseIf::~LElseIf(){
     delete lelseif;
@@ -446,6 +465,7 @@ void SelectorIf::show(std::string s){}
 void SelectorIf::verificar(GuavaSymTable s){} 
 
 /* Class LoopWhile */
+
 LoopWhile::LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li){
     exp = e;
     declaraciones = bd;
@@ -456,18 +476,43 @@ LoopWhile::~LoopWhile(){}
 
 void LoopWhile::show(std::string s){} 
 void LoopWhile::verificar(GuavaSymTable s){} 
+
 /* Class Asignacion */
 
 Asignacion::Asignacion(){}
 
-Asignacion::Asignacion(std::string id, Exp* e = 0, LCorchetes* lc = 0 
-                , std::string* id2 = 0, Arreglo* arr = 0){
-    identificador = id;
-    *exp = *e;
-    *lcorchetes = *lc;
-    *identificador2 = *id2;
-    *arreglo = *arr;
+Asignacion::Asignacion(Identificador i, Exp e){
+    identificador = i;
+    *exp = e;
+    lcorchetes = 0;
+    identificador2 = 0;
+    arreglo = 0;
 }
+
+Asignacion::Asignacion(Identificador id, LCorchetes lc, Exp e){
+    identificador = id;
+    *lcorchetes = lc;
+    *exp = e;
+    identificador2 = 0;
+    arreglo = 0;
+}
+
+Asignacion::Asignacion(Identificador id,Identificador id2,Exp e){
+    identificador = id;
+    *identificador2 = id2;
+    *exp = e;
+    lcorchetes = 0;
+    arreglo = 0;
+}
+
+Asignacion::Asignacion(Identificador id, Arreglo arr){
+    identificador = id;
+    *arreglo = arr;
+    lcorchetes = 0;
+    identificador2 = 0;
+    exp = 0;
+}
+
 
 Asignacion::~Asignacion(){
     delete identificador2;
@@ -477,14 +522,23 @@ Asignacion::~Asignacion(){
 }
 void Asignacion::show(std::string s){} 
 void Asignacion::verificar(GuavaSymTable s){} 
+
 /* Class LoopFor */
 
-LoopFor::LoopFor(std::string id, Exp e1,BloqueDeclare d, ListaInstrucciones l,
-                Exp* e2 = 0, Asignacion* a = 0){
+LoopFor::LoopFor(Identificador id, Exp e1,Exp e2,BloqueDeclare d, ListaInstrucciones l){
     identificador = id;
     exp = e1;
-    *asignacion = *a;
-    exp2 = e2;
+    asignacion = 0;
+    *exp2 = e2;
+    declaraciones = d;
+    listainstrucciones = l;
+}
+
+LoopFor::LoopFor(Identificador id, Exp e1,Asignacion asig,BloqueDeclare d, ListaInstrucciones l){
+    identificador = id;
+    exp = e1;
+    *asignacion = asig;
+    exp2 = 0;
     declaraciones = d;
     listainstrucciones = l;
 }
@@ -508,8 +562,11 @@ PlusMinus::~PlusMinus(){}
 
 void PlusMinus::show(std::string s){} 
 void PlusMinus::verificar(GuavaSymTable s){} 
+
 /* Class LVaroValor */
+
 LVaroValor::LVaroValor(){
+    exp = 0;
     lvarovalor = 0;
 }
  

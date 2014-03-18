@@ -276,7 +276,7 @@ public:
     Identificador id;     /* Nombre del record. */
     LVariables* lista;             /* Lista de variables. */
     Record();
-    Record(std::string, LVariables*);
+    Record(Identificador, LVariables*);
     ~Record();    
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -288,7 +288,7 @@ public:
     Identificador id;     /* Nombre del union. */
     LVariables*   lista;           /* Lista de variables. */
     Union();
-    Union(std::string, LVariables*);
+    Union(Identificador, LVariables*);
     ~Union();    
     void show(std::string);
     void verificar(GuavaSymTable);

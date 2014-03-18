@@ -134,7 +134,7 @@ bloqueprincipal: bloquedeclare lfunciones {};
 bloquedeclare: /* Vacio */                {}
              | DECLARE '{' lvariables '}' {};
 
-lvariables: tipo1 VAR lvar ';' lvariables          {}
+;lvariables: tipo1 VAR lvar ';' lvariables          {}
           | tipo1 VAR lvar ';'                     {}
           | tipo1 ARRAY lvararreglo ';'            {}
           | tipo1 ARRAY lvararreglo ';' lvariables {}
@@ -147,18 +147,26 @@ lvariables: tipo1 VAR lvar ';' lvariables          {}
           | union  ';'                            {}
           | record ';'                            {};
 
-union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), *$4) };
+union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
+                                    };
 
-record: RECORD ID '{' lvariables '}' { *$$ = Record(Identificador(std::string($2)), *$4) };
+record: RECORD ID '{' lvariables '}' { *$$ = Record(Identificador(std::string($2)), $4); 
+                                        };
 
-lvar: ID           { *$$ = LVar(Identificador(std::string($1)), LVar()) }
-    | ID ',' lvar  { *$$ = LVar(Identificador(std::string($1)), *$3) };
+lvar: ID           { *$$ = LVar(Identificador(std::string($1)), 0); 
+                    }
+    | ID ',' lvar  { *$$ = LVar(Identificador(std::string($1)), $3); 
+                    };
 
-lvararreglo: ID lcorchetes               { *$$ = LVarArreglo(Identificador(std::string($1)), *$2, LVarArreglo()) }
-           | ID lcorchetes ',' lvararreglo { *$$ = LVarArreglo(Identificador(std::string($1)), *$2, *$4) };
+lvararreglo: ID lcorchetes               { *$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
+                                         }
+           | ID lcorchetes ',' lvararreglo { *$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
+                                            };
 
-lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2) }
-          | '[' exp ']' lcorchetes  { *$$ = LCorchetes($2,*$4) };
+lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2); 
+                                    }
+          | '[' exp ']' lcorchetes  { *$$ = LCorchetes($2,$4); 
+                                    };
 
 arreglo: '[' larreglo ']' { *$$ = Arreglo($2); };
 

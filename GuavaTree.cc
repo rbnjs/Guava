@@ -339,6 +339,7 @@ Record::~Record(){
 
 void Record::show(std::string s){} 
 void Record::verificar(GuavaSymTable s){} 
+
 /* Class Union */
 
 //MOSCA CON LISTA

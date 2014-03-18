@@ -424,9 +424,9 @@ public:
 
 class PlusMinus: public Instruccion{
 public:
-    Exp exp;
+    Identificador identificador;
     std::string tipo;
-    PlusMinus(Exp, std::string);
+    PlusMinus(Identificador, std::string);
     ~PlusMinus();
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -461,11 +461,12 @@ public:
  */
 class LParam{
 public:
-    Tipo tipo;
-    std::string* identificador;
+    Tipo* tipo;
+    Identificador* identificador;
+    LParam* lparam;
     LParam();
-    LParam(Tipo, std::string*);
-    LParam(Tipo, std::string*, LParam);
+    LParam(Tipo, Identificador);
+    LParam(Tipo, Identificador, LParam);
     ~LParam();
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -477,14 +478,14 @@ public:
 class Funcion{
 public:
     Tipo tipo;
-    std::string identificador;
-    LParam* parametros;
-    BloqueDeclare* declaraciones;
-    ListaInstrucciones* listaI;
+    Identificador identificador;
+    LParam parametros; 
+    BloqueDeclare declaraciones;
+    ListaInstrucciones listaI;
     Exp* retorno;
     Funcion();
-    Funcion(Tipo, std::string, LParam*, BloqueDeclare* ,ListaInstrucciones*, Exp *);    
-    ~Funcion();    
+    Funcion(Tipo, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp);    
+    ~Funcion(); 
     void show(std::string);
     void verificar(GuavaSymTable);
 };

@@ -240,16 +240,10 @@ void ListaInstrucciones::verificar(GuavaSymTable s){}
 
 LVarArreglo::LVarArreglo(){}
 
-LVarArreglo::LVarArreglo(std::string t, LVarArreglo* l){
-    tipo = t;
-    *lista = *l;
-    corchetes = 0;
-}
-
-LVarArreglo::LVarArreglo(std::string t){
-    tipo = t;
-    corchetes = 0;
-    lista = 0;
+LVarArreglo::LVarArreglo(Identificador i, LCorchetes* lc, LVarArreglo* lva){
+    id = i;
+    corchetes = lc;
+    lista = lva;
 }
 
 LVarArreglo::~LVarArreglo(){
@@ -262,13 +256,9 @@ void LVarArreglo::verificar(GuavaSymTable s){}
 
 LVar::LVar(){}
 
-LVar::LVar(std::string t, LVar* l = 0){
-    id = t;
-    *lista = *l;
-}
-
-LVar::LVar(std::string t){
-    id = t;
+LVar::LVar(Identificador i, LVar* l){
+    id = i;
+    lista = l;
 }
 
 LVar::~LVar(){
@@ -331,32 +321,35 @@ void LVariables::verificar(GuavaSymTable s){}
 
 /* Class Record */
 
+//MOSCA CON LISTA
 Record::Record(){
     Estructura();
     lista = 0;
 }
 
-Record::Record(std::string id, LVariables* l = 0){
+Record::Record(Identificador i, LVariables* l){
     Estructura();
-    *lista = *l;
-    identificador = id;
+    id = i;
+    lista = l;
 }
 
 Record::~Record(){
     delete lista;
 }
+
 void Record::show(std::string s){} 
 void Record::verificar(GuavaSymTable s){} 
 /* Class Union */
 
+//MOSCA CON LISTA
 Union::Union(){
     Estructura();
     lista = 0;
 }
 
-Union::Union(std::string id, LVariables* l=0){
+Union::Union(Identificador i, LVariables* l){
     Estructura();
-    identificador = id;
+    id = i;
     *lista = *l;
 }
 

@@ -216,13 +216,17 @@ Instruccion::~Instruccion(){
 
 void Instruccion::show(std::string s){} 
 void Instruccion::verificar(GuavaSymTable s){} 
+
 /* Lista Instrucciones */
 
-ListaInstrucciones::ListaInstrucciones(){}
+ListaInstrucciones::ListaInstrucciones(){
+    instruccion = 0;
+    listainstrucciones = 0;
+}
 
 ListaInstrucciones::ListaInstrucciones(Instruccion* inst, ListaInstrucciones* li = 0){
     *instruccion = *inst;
-    *li = *li;
+    *listainstrucciones = *li;
 }
 
 ListaInstrucciones::~ListaInstrucciones(){
@@ -231,6 +235,7 @@ ListaInstrucciones::~ListaInstrucciones(){
 }
 void ListaInstrucciones::show(std::string s){} 
 void ListaInstrucciones::verificar(GuavaSymTable s){} 
+
 /* Class LVarArreglo */
 
 LVarArreglo::LVarArreglo(){}
@@ -553,8 +558,8 @@ void LoopFor::verificar(GuavaSymTable s){}
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Exp e, std::string t){
-    exp = e;
+PlusMinus::PlusMinus(Identificador id, std::string t){
+    identificador = id;
     tipo = t;
 }
 
@@ -594,34 +599,48 @@ void LlamadaFuncion::verificar(GuavaSymTable s){}
 
 /* Class LParam */
 
-LParam::LParam(){ }
-
-LParam::LParam(Tipo t, std::string* id = 0 ){
-    tipo = t;
-    *identificador = *id; 
+LParam::LParam(){ 
+    tipo = 0;
+    identificador = 0;
+    lparam = 0; 
 }
 
-LParam::~LParam(){ delete identificador; }
+LParam::LParam(Tipo t, Identificador id){
+    *tipo = t;
+    *identificador = id; 
+    lparam = 0;
+}
+
+LParam::LParam(Tipo t, Identificador id, LParam lp){
+    *tipo = t;
+    *identificador = id;
+    *lparam = lp;
+}
+LParam::~LParam(){
+    delete tipo;
+    delete identificador;
+    delete lparam; 
+}
+
 void LParam::show(std::string s){} 
 void LParam::verificar(GuavaSymTable s){} 
 
 /* Class Funcion */
 
-Funcion::Funcion(){}
+Funcion::Funcion(){
+    retorno = 0;
+}
 
-Funcion::Funcion(Tipo t, std::string id, LParam* param = 0, BloqueDeclare* decl = 0,
-    ListaInstrucciones* li = 0, Exp * r = 0){
+Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp r){
     tipo = t;
-    *parametros = *param;
-    *declaraciones = *decl;
-    *listaI = *li;
-    *retorno = *r;
+    identificador = id;
+    parametros = param;
+    declaraciones = decl;
+    listaI = li;
+    *retorno = r;
 }
 
 Funcion::~Funcion(){
-    delete parametros;
-    delete declaraciones;
-    delete listaI;
     delete retorno;
 }
 

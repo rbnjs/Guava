@@ -57,12 +57,11 @@ class Identificador:public Exp{
     public:
         std::string identificador;
         Identificador();
-        Identificador(std::string);    
+        Identificador(std::string); 
         ~Identificador();
         virtual void show(std::string);
         virtual void verificar(GuavaSymTable);
 };
-
 
 class Tipo{
     public:
@@ -192,12 +191,11 @@ public:
 
 class LVarArreglo{
 public:
-    std::string tipo;     /* Tipo */
-    LCorchetes* corchetes;  /* Corchetes del arreglo */
-    LVarArreglo* lista;    /* Lista  */
+    Identificador id;
+    LCorchetes* corchetes;
+    LVarArreglo* lista;
     LVarArreglo();
-    LVarArreglo(std::string t, LVarArreglo* l);
-    LVarArreglo(std::string t);    
+    LVarArreglo(Identificador, LCorchetes*,  LVarArreglo*);
     ~LVarArreglo();
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -205,11 +203,10 @@ public:
 
 class LVar{
 public:
-    std::string id;    /* id de la variable*/
-    LVar* lista;       /* lista de LVar */
+    Identificador id;
+    LVar* lista;
     LVar();
-    LVar(std::string, LVar*);
-    LVar(std::string t);
+    LVar(Identificador, LVar*);
     ~LVar();
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -276,7 +273,7 @@ public:
 
 class Record:public Estructura{
 public:
-    std::string identificador;     /* Nombre del record. */
+    Identificador id;     /* Nombre del record. */
     LVariables* lista;             /* Lista de variables. */
     Record();
     Record(std::string, LVariables*);
@@ -288,7 +285,7 @@ public:
 
 class Union:public Estructura{
 public:
-    std::string identificador;     /* Nombre del union. */
+    Identificador id;     /* Nombre del union. */
     LVariables*   lista;           /* Lista de variables. */
     Union();
     Union(std::string, LVariables*);

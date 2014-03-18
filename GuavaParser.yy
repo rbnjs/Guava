@@ -147,18 +147,18 @@ lvariables: tipo1 VAR lvar ';' lvariables          {}
           | union  ';'                            {}
           | record ';'                            {};
 
-union: UNION ID '{' lvariables '}' {};
+union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), *$4) };
 
-record: RECORD ID '{' lvariables '}' {};
+record: RECORD ID '{' lvariables '}' { *$$ = Record(Identificador(std::string($2)), *$4) };
 
-lvar: ID           {}
-    | ID ',' lvar  {};
+lvar: ID           { *$$ = LVar(Identificador(std::string($1)), LVar()) }
+    | ID ',' lvar  { *$$ = LVar(Identificador(std::string($1)), *$3) };
 
-lvararreglo: ID lcorchetes               {}
-           | ID lcorchetes ',' lvararreglo {};
+lvararreglo: ID lcorchetes               { *$$ = LVarArreglo(Identificador(std::string($1)), *$2, LVarArreglo()) }
+           | ID lcorchetes ',' lvararreglo { *$$ = LVarArreglo(Identificador(std::string($1)), *$2, *$4) };
 
-lcorchetes: '[' exp ']'             {}
-          | '[' exp ']' lcorchetes  {};
+lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2) }
+          | '[' exp ']' lcorchetes  { *$$ = LCorchetes($2,*$4) };
 
 arreglo: '[' larreglo ']' { *$$ = Arreglo($2); };
 

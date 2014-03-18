@@ -100,7 +100,7 @@ int GuavaSymTable::exitScope(){
     }
 }
 /**
- * Retorna un string para mostrar.
+ * Muestra el contenido de la tabla de simbolos.
  * */
 void GuavaSymTable::show(int scope, std::string identacion){
     std::map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
@@ -108,7 +108,7 @@ void GuavaSymTable::show(int scope, std::string identacion){
         std::list<Symbol>::iterator itList = itTabla->second.begin();
         for (itList ; itList != itTabla->second.end() ; ++itList){
             Symbol tmp = *itList;
-            tmp.show(identacion);
+            if (tmp.scope == scope) tmp.show(identacion);
         }
     }
 }

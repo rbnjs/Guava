@@ -247,7 +247,7 @@ public:
     LVariables(Tipo, LVar, LVariables *);
 
     /*Caso en el que se declaran variables de tipo arreglo*/
-    LVariables(Tipo, LVarArreglo, LVariables);
+    LVariables(Tipo, LVarArreglo, LVariables *);
 
     /*Para el caso en que se declaran uniones y records, simplemente no se
      *podria poner que el Tipo t = Union o Record o el ID de la estructura?
@@ -255,8 +255,7 @@ public:
      */
     
     /*Caso definicion de Uniones*/
-    LVariables(Estructura);     
-    LVariables(Estructura, LVariables);
+    LVariables(Estructura, LVariables *);
 
     ~LVariables();
     void show(std::string);
@@ -420,33 +419,62 @@ public:
 class PlusMinus: public Instruccion{
 public:
     Identificador identificador;
-    std::string tipo;
-    PlusMinus(Identificador, std::string);
+    int tipo; /* 0 para el dremento prefijo.
+               * 1 para el decremento postfijo.
+               * 2 para el incremento prefijo.
+               * 3 para el incremento prostfijo. */
+    
+    PlusMinus(Identificador, int);
     ~PlusMinus();
-    void show(std::string);
-    void verificar(GuavaSymTable);
-};
-
-class LVaroValor{
-public:
-    Exp* exp;
-    LVaroValor* lvarovalor;
-    LVaroValor();
-    LVaroValor(Exp*, LVaroValor*); 
-    ~LVaroValor();        
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
 /**
+ * Clase de lista de valores o variables, argumento de funciones e
+ * instruccions print y read.
+ */
+class LVaroValor{
+public:
+    Exp* exp;
+    LVaroValor* lvarovalor;
+    
+    LVaroValor();
+    LVaroValor(Exp*, LVaroValor*); 
+    ~LVaroValor();        
+    
+    void show(std::string);
+    void verificar(GuavaSymTable);
+};
+
+/**
+ * Clase de entrada y salida estandar (Instrucciones print y read)
+ */
+class EntradaSalida: public Instruccion {
+public:
+    int tipo; /*0 para entrada: read; 1 para salida: print*/
+    LVaroValor argumento;
+
+    EntradaSalida(int, LVaroValor);
+    ~EntradaSalida();
+
+    void show(std::string);
+    void verificar(GuavaSymTable);
+}
+
+/**
  * Clase de llamada funcion.
  */
+
 class LlamadaFuncion: public Instruccion{
 public:
-    std::string identificador; /* Identificador de la funcion */
+    Identificador id; /* Identificador de la funcion */
     LVaroValor lvarovalor;     /* Lista de variables o valores. */
+
     LlamadaFuncion(std::string, LVaroValor);
     ~LlamadaFuncion();
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -459,10 +487,11 @@ public:
     Tipo* tipo;
     Identificador* identificador;
     LParam* lparam;
+    
     LParam();
-    LParam(Tipo, Identificador);
     LParam(Tipo, Identificador, LParam);
     ~LParam();
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -478,23 +507,27 @@ public:
     BloqueDeclare declaraciones;
     ListaInstrucciones listaI;
     Exp* retorno;
+
     Funcion();
     Funcion(Tipo, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp);    
-    ~Funcion(); 
+    ~Funcion();
+
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
 /**
- * Clase para la lista de funciones-
+ * Clase para la lista de funciones.
  */
 class LFunciones{
 public:
     Funcion funcion;   /* Funcion */
     LFunciones* lista; /* Lista de funciones */
+    
     LFunciones();
     LFunciones(Funcion, LFunciones*);
     ~LFunciones();
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
@@ -506,19 +539,27 @@ class BloquePrincipal {
 public:
     BloqueDeclare globalD; /* Declaraciones globales. */
     LFunciones funciones;  /* Lista de funciones. */
+
     BloquePrincipal();
     BloquePrincipal(BloqueDeclare, LFunciones);
     ~BloquePrincipal();
+
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase que define el simbolo inicial de la gramatica que describe la
+ * estructura de un programa en Guava.
+ */
 class Program{
 public:
     BloquePrincipal bloque;
     Program();
     Program(BloquePrincipal);
+
     ~Program();
+
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 }; 

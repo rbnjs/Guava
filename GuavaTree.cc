@@ -323,36 +323,22 @@ void Estructura::verificar(GuavaSymTable s){}
 
 LVariables::LVariables(){}
 
-LVariables::LVariables(Tipo tipo, LVar v) {
-    this->t = tipo;
-    this->listaIds = v;
+LVariables::LVariables(Tipo tipo, LVar v, LVariables *listaVariables) {
+    t = tipo;
+    listaIds = v;
+    listaVar = listaVariables;
 }
 
-LVariables::LVariables(Tipo tipo, LVar v, LVariables listaVariables) {
-    this->t = tipo;
-    this->listaIds = v;
-    this->listaVar = &listaVariables;
-}
-
-LVariables::LVariables(Tipo tipo, LVarArreglo va) {
-    this->t = tipo;
-    this->listaIdsAr = va;
-}
-
-LVariables::LVariables(Tipo tipo, LVarArreglo va, LVariables listaVariables) {
-    this->t = tipo;
-    this->listaIdsAr = va;
-    this->listaVar = &listaVariables;
+LVariables::LVariables(Tipo tipo, LVarArreglo va, LVariables *listaVariables) {
+    t = tipo;
+    listaIdsAr = va;
+    listaVar = listaVariables;
 }
     
 /*Caso definicion de Uniones*/
-LVariables::LVariables(Estructura e) {
+LVariables::LVariables(Estructura e, LVariables *listaVariables) {
     estructura = e;
-}
-
-LVariables::LVariables(Estructura e, LVariables listaVariables) {
-    estructura = e;
-    *listaVar = listaVariables;
+    listaVar = listaVariables;
 }
 
 LVariables::~LVariables(){ delete this->listaVar; }
@@ -594,7 +580,7 @@ void LoopFor::verificar(GuavaSymTable s){}
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Identificador id, std::string t){
+PlusMinus::PlusMinus(Identificador id, int t){
     identificador = id;
     tipo = t;
 }
@@ -606,68 +592,76 @@ void PlusMinus::verificar(GuavaSymTable s){}
 
 /* Class LVaroValor */
 
-LVaroValor::LVaroValor(){
+LVaroValor::LVaroValor() {
     exp = 0;
     lvarovalor = 0;
 }
  
-LVaroValor::LVaroValor(Exp* e, LVaroValor* lv = 0){
+LVaroValor::LVaroValor(Exp* e, LVaroValor* lv) {
     *exp = *e;
     *lvarovalor = *lv;
 }
         
-LVaroValor::~LVaroValor(){
+LVaroValor::~LVaroValor() {
     delete exp;
     delete lvarovalor;
 }
-void LVaroValor::show(std::string s){} 
-void LVaroValor::verificar(GuavaSymTable s){} 
+void LVaroValor::show(std::string s) {} 
+void LVaroValor::verificar(GuavaSymTable s) {} 
+
+/* Class EntradaSalida */
+
+EntradaSalida::EntradaSalida(int t, LVaroValor lv) {
+    tipo = t;
+    argumento = lv;
+}
+
+EntradaSalida::~EntradaSalida() {}
+
+void EntradaSalida::show(std::string s) {}
+void EntradaSalida::verificar(GuavaSymTable s) {}
 
 /* Class LlamadaFuncion */
-LlamadaFuncion::LlamadaFuncion(std::string id, LVaroValor lv){
-    identificador = id;
+
+LlamadaFuncion::LlamadaFuncion(Identificador i, LVaroValor lv) {
+    id = i;
     lvarovalor = lv;
 }
 
-LlamadaFuncion::~LlamadaFuncion(){}
-void LlamadaFuncion::show(std::string s){} 
-void LlamadaFuncion::verificar(GuavaSymTable s){} 
+LlamadaFuncion::~LlamadaFuncion() {}
+
+void LlamadaFuncion::show(std::string s) {} 
+void LlamadaFuncion::verificar(GuavaSymTable s) {} 
 
 /* Class LParam */
 
-LParam::LParam(){ 
+LParam::LParam() { 
     tipo = 0;
     identificador = 0;
     lparam = 0; 
 }
 
-LParam::LParam(Tipo t, Identificador id){
-    *tipo = t;
-    *identificador = id; 
-    lparam = 0;
-}
-
-LParam::LParam(Tipo t, Identificador id, LParam lp){
+LParam::LParam(Tipo t, Identificador id, LParam lp) {
     *tipo = t;
     *identificador = id;
     *lparam = lp;
 }
-LParam::~LParam(){
+LParam::~LParam() {
     delete tipo;
     delete identificador;
     delete lparam; 
 }
 
-void LParam::show(std::string s){} 
-void LParam::verificar(GuavaSymTable s){} 
+void LParam::show(std::string s) {} 
+void LParam::verificar(GuavaSymTable s) {} 
 
 /* Class Funcion */
 
-Funcion::Funcion(){
+Funcion::Funcion() {
     retorno = 0;
 }
 
-Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp r){
+Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp r) {
     tipo = t;
     identificador = id;
     parametros = param;
@@ -676,48 +670,51 @@ Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, Lis
     *retorno = r;
 }
 
-Funcion::~Funcion(){
+Funcion::~Funcion() {
     delete retorno;
 }
 
-void Funcion::show(std::string s){} 
-void Funcion::verificar(GuavaSymTable s){} 
+void Funcion::show(std::string s) {} 
+void Funcion::verificar(GuavaSymTable s) {} 
 
 /* Class LFunciones */
 
-LFunciones::LFunciones(){}
+LFunciones::LFunciones() {}
     
-LFunciones::LFunciones(Funcion f, LFunciones* l){
+LFunciones::LFunciones(Funcion f, LFunciones* l) {
         funcion = f;
-        *lista = *l;
+        lista = l;
 }
 
-LFunciones::~LFunciones(){delete lista;}
-void LFunciones::show(std::string s){} 
-void LFunciones::verificar(GuavaSymTable s){} 
+LFunciones::~LFunciones() {delete lista;}
+
+void LFunciones::show(std::string s) {} 
+void LFunciones::verificar(GuavaSymTable s) {} 
 
 
 /* Class BloquePrincipal */
 
-BloquePrincipal::BloquePrincipal(){}
+BloquePrincipal::BloquePrincipal() {}
 
 BloquePrincipal::BloquePrincipal(BloqueDeclare b, LFunciones l) {
     globalD = b;
     funciones = l;
 }
 
-BloquePrincipal::~BloquePrincipal(){}
-void BloquePrincipal::show(std::string s){} 
-void BloquePrincipal::verificar(GuavaSymTable s){} 
+BloquePrincipal::~BloquePrincipal() {}
+
+void BloquePrincipal::show(std::string s) {} 
+void BloquePrincipal::verificar(GuavaSymTable s) {} 
  
 /* Class Program */
 
-Program::Program(){}
+Program::Program() {}
 
-Program::Program(BloquePrincipal b){
+Program::Program(BloquePrincipal b) {
     bloque = b;
 }
 
-Program::~Program(){}
-void Program::show(std::string s){} 
-void Program::verificar(GuavaSymTable s){} 
+Program::~Program() {}
+
+void Program::show(std::string s) {} 
+void Program::verificar(GuavaSymTable s) {}

@@ -65,8 +65,8 @@ class GuavaDriver;
     String *classString;
     Bool *classBool;
     Estructura *classEstructura;
-    PlusMinus *classPlusMinus;
-    Program *classProgram; */
+    PlusMinus *classPlusMinus;*/
+    Program *classProgram;
 };
 %code {
 # include "GuavaDriver.hh"
@@ -122,17 +122,20 @@ class GuavaDriver;
 %type <classTipo> tipo1
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
+%type <classProgram> program
 
 %start program
 %destructor { delete $$; } ID
 %% /* Reglas */
 
-program: bloqueprincipal { };
+/*LISTO*/
+program: bloqueprincipal { *$$ = Program(*$1); };
 
-bloqueprincipal: bloquedeclare lfunciones {};
+/*LISTO*/
+bloqueprincipal: bloquedeclare lfunciones { *$$ = BloquePrincipal(*$1, *$2); };
 
-bloquedeclare: /* Vacio */                {}
-             | DECLARE '{' lvariables '}' {};
+bloquedeclare: /* Vacio */                { *$$ = BloqueDeclare(); }
+             | DECLARE '{' lvariables '}' { *$$ = BloqueDeclare($3); };
 
 lvariables: tipo1 VAR lvar ';' lvariables          { *$$ = LVariables($1, $3, *$5); }
           | tipo1 VAR lvar ';'                     { *$$ = LVariables($1, $3, 0); }
@@ -142,10 +145,10 @@ lvariables: tipo1 VAR lvar ';' lvariables          { *$$ = LVariables($1, $3, *$
           | ID   UNION lvar ';' lvariables         {}
           | ID   RECORD lvar ';'                   {}
           | ID   RECORD lvar ';' lvariables        {}
-          | union ';' lvariables                   {}
-          | record ';' lvariables                  {}
-          | union  ';'                             {}
-          | record ';'                             {};
+          | union ';' lvariables                   { *$$ = LVariables($1, *$3); }
+          | record ';' lvariables                  { *$$ = LVariables($1, *$3); }
+          | union  ';'                             { *$$ = LVariables($1, 0); }
+          | record ';'                             { *$$ = LVariables($1, 0); };
 
 union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
                                     };
@@ -175,14 +178,16 @@ larreglo: exp ',' larreglo      { *$$ = LArreglo(*$1,$3); }
         | exp                   { *$$ = LArreglo(*$1,0);  }
         | arreglo               { *$$ = LArreglo($1,0);};
 
+/*LISTO*/
 lfunciones: funcionmain        { *$$ = LFunciones(*$1,0);  }
-	  | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
+	        | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
                                                                                             LParam lp = LParam();
                                                                                             *$$ = Funcion(v,Identificador(std::string("main")),lp,*$7,*$8,0); 
                                                                                           };
 
+/*LISTO*/
 funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                  ,*$5,*$8,*$9,*$11); 
                                                                                                   }
@@ -190,10 +195,11 @@ funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones R
                                                                                                     *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$8,*$9,0);
                                                                                                   };
 
+/*LISTO*/
 lparam: /* Vacio */          { *$$ = LParam(); } /* Nuevo alcance */
       | lparam2              { $$ = $1; } 
 
-lparam2: tipo1 ID              { *$$ = LParam(*$1,Identificador(std::string($2)));  } /* Nuevo alcance */
+lparam2: tipo1 ID              { *$$ = LParam(*$1,Identificador(std::string($2)), 0);  } /* Nuevo alcance */
        | tipo1 ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
 
 listainstrucciones: /* Vacio */                        { *$$ = ListaInstrucciones(); }
@@ -202,10 +208,12 @@ listainstrucciones: /* Vacio */                        { *$$ = ListaInstruccione
 
 instruccion: asignacion     { $$ = $1; }
            | llamadafuncion { $$ = $1;}
-           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); }
-           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); };
+           | MINUSMINUS ID  { *$$ = PlusMinus(Identificador(std::string($2)), 0); }
+           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)), 1); }
+           | PLUSPLUS ID    { *$$ = PlusMinus(Identificador(std::string($2)), 2); }
+           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)), 3); }
+           | entradasalida  {};
      
-
 instruccion1: loopfor        { $$ = $1; }
             | loopwhile      { $$ = $1; }
             | selectorif     { $$ = $1; };
@@ -228,6 +236,10 @@ asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::str
                                        Arreglo *arr = $3;
                                        *$$ = Asignacion(id,*arr);
                                      };
+
+/*LISTO*/
+entradasalida: READ '(' lvarovalor ')' { *$$ = EntradaSalida(0, *$3); }
+             | PRINT '(' lvarovalor ')'  { *$$ = EntradaSalida(1, *$3); };
 
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
                                                                                           Exp e1 = $5;
@@ -291,19 +303,13 @@ lelseif: /* Vacio */                                                            
                                                                                      *$$ = LElseIf(*bd,*li);
                                                                                    };
 
+/*LISTO*/
 llamadafuncion: ID '(' lvarovalor ')' { /* Nuevo alcance? */
                                         LVaroValor lv = *$3;
-                                        *$$ = LlamadaFuncion(std::string($1),lv); 
-                                      }
-	      | PRINT '(' lvarovalor ')' {  /* Nuevo alcance? */
-                                            LVaroValor lv = *$3; /* Tal vez todo esto sea necesario cambiarlo */
-                                            *$$ = LlamadaFuncion(std::string("print"),lv);  
-                                         }
-              | READ  '(' lvarovalor  ')' { /* Nuevo alcance? */
-                                            LVaroValor lv = *$3;
-                                            *$$ = LlamadaFuncion(std::string("read"),lv); 
-                                          };
+                                        *$$ = LlamadaFuncion(Identificador($1),lv);
+                                      };
 
+/*LISTO*****REVISAR LOS CONSTRUCTORES*/                                      
 lvarovalor: /* Vacio */   { *$$ = LVaroValor(); }
           | lvarovalor2   { $$ = $1; };      
           
@@ -313,7 +319,6 @@ lvarovalor2: exp ',' lvarovalor2     {  Exp e = $1;
            | exp                     { Exp e = $1;
                                         *$$ = LVaroValor(&e,0); 
                                      };	   
-
 
 exp: expbin       { *$$ = Exp($1); }
    | expun        { *$$ = Exp($1); } 

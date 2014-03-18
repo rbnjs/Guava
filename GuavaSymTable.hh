@@ -24,7 +24,6 @@
  * */
 class GuavaSymTable{
 public:
-    std::string show(int scope);                          /* Muestra la tabla */
     std::list<int> pila;                                  /* Pila de alcances */
     std::map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
     int alcance;                                          /* Alcance en numeros. */
@@ -36,4 +35,5 @@ public:
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */
     Symbol* lookup(std::string elem);                     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    void show(int,std::string);                          /* Muestra la tabla */
 };

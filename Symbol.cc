@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include <string>
+#include <iostream>
 #include "Symbol.hh"
 /**
  * Constructor de la clase Symbol.
@@ -57,10 +58,8 @@ bool Symbol::compare(std::string s, int sc){
     return ((this->sym_name.compare(s) == 0) && this->scope == sc);
 }
 
-std::string Symbol::show(){
-    std::string result;
-    result = "Name: " + this->sym_name;
-    result +="\nCategory: " +this->sym_catg;
-    //result +="\ntype: " + type->this->sym_name;
-    return result;
+void Symbol::show(std::string identacion){
+    std::cout << identacion << "Name: " + sym_name << '\n';
+    std::cout << identacion <<"Category: " +sym_catg;
+
 }

@@ -102,17 +102,15 @@ int GuavaSymTable::exitScope(){
 /**
  * Retorna un string para mostrar.
  * */
-std::string GuavaSymTable::show(int scope){
+void GuavaSymTable::show(int scope, std::string identacion){
     std::map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
-    std::string result = "";
     for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
         std::list<Symbol>::iterator itList = itTabla->second.begin();
         for (itList ; itList != itTabla->second.end() ; ++itList){
             Symbol tmp = *itList;
-            result += tmp.show();
+            tmp.show(identacion);
         }
     }
-    return result;
 }
 
 /* No falta la funcion update? para actualizar los valores dentro de la Tabla? */

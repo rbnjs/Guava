@@ -55,6 +55,6 @@ public:
     /**
      * Muestra lo que tiene el Symbol. 
      */
-    std::string show();
+    void show(std::string);
 };
 

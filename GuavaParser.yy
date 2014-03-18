@@ -105,9 +105,9 @@ class GuavaDriver;
 %type <classAsignacion> asignacion
 %type <classInstruccion> instruccion instruccion1
 %type <classListaInstrucciones> listainstrucciones
-%type <classLParam> lparam
+%type <classLParam> lparam lparam2
 %type <classLElseIf> lelseif
-%type <classFuncion> funcion 
+%type <classFuncion> funcion funcionmain
 %type <classLFunciones> lfunciones
 %type <classLVariables> lvariables
 %type <classUnion> union
@@ -134,10 +134,10 @@ bloqueprincipal: bloquedeclare lfunciones {};
 bloquedeclare: /* Vacio */                {}
              | DECLARE '{' lvariables '}' {};
 
-lvariables: tipo VAR lvar ';' lvariables          {}
-          | tipo VAR lvar ';'                     {}
-          | tipo ARRAY lvararreglo ';'            {}
-          | tipo ARRAY lvararreglo ';' lvariables {}
+lvariables: tipo1 VAR lvar ';' lvariables          {}
+          | tipo1 VAR lvar ';'                     {}
+          | tipo1 ARRAY lvararreglo ';'            {}
+          | tipo1 ARRAY lvararreglo ';' lvariables {}
           | ID   UNION lvar ';'                   {}
           | ID   UNION lvar ';' lvariables        {}
           | ID   RECORD lvar ';'                  {}
@@ -160,40 +160,47 @@ lvararreglo: ID lcorchetes               {}
 lcorchetes: '[' exp ']'             {}
           | '[' exp ']' lcorchetes  {};
 
-arreglo: '[' larreglo ']' {};
+arreglo: '[' larreglo ']' { *$$ = Arreglo($2); };
 
-larreglo: exp ',' larreglo      {}
-        | arreglo ',' larreglo  {}
-        | exp                   {}
-        | arreglo               {};
+larreglo: exp ',' larreglo      { *$$ = LArreglo(*$1,$3); }
+        | arreglo ',' larreglo  { *$$ = LArreglo($1,$3);  }
+        | exp                   { *$$ = LArreglo(*$1,0);  }
+        | arreglo               { *$$ = LArreglo($1,0);};
 
-lfunciones: funcionmain        {}
-	        | funcion lfunciones {};
+lfunciones: funcionmain        { *$$ = LFunciones(*$1,0);  }
+	  | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     {};
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
+                                                                                            LParam lp = LParam();
+                                                                                            *$$ = Funcion(v,Identificador(std::string("main")),lp,*$7,*$8,0); 
+                                                                                          };
 
-funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}'         {}
-       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}' {};
+funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
+                                                                                                                 ,*$5,*$8,*$9,*$11); 
+                                                                                                  }
+       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
+                                                                                                    *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$8,*$9,0);
+                                                                                                  };
 
-lparam: /* Vacio */          {} 
-      | lparam2              {} 
+lparam: /* Vacio */          { *$$ = LParam(); } /* Nuevo alcance */
+      | lparam2              { $$ = $1; } 
 
-lparam2: tipo ID             {}
-       | tipo ID ',' lparam2 {};
+lparam2: tipo1 ID              { *$$ = LParam(*$1,Identificador(std::string($2)));  } /* Nuevo alcance */
+       | tipo1 ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
 
-listainstrucciones: /* Vacio */                        {}
-                  | instruccion ';' listainstrucciones {}
-                  | instruccion1 listainstrucciones    {};
+listainstrucciones: /* Vacio */                        { *$$ = ListaInstrucciones(); }
+                  | instruccion ';' listainstrucciones { *$$ = ListaInstrucciones($1,$3); }
+                  | instruccion1 listainstrucciones    { *$$ = ListaInstrucciones($1,$2); };
 
-instruccion: asignacion     {}
-           | llamadafuncion {}
-           | ID PLUSPLUS    {}
-           | ID MINUSMINUS  {};
+instruccion: asignacion     { $$ = $1; }
+           | llamadafuncion { $$ = $1;}
+           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); }
+           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); };
      
 
-instruccion1: loopfor        {}
-            | loopwhile      {}
-            | selectorif     {};
+instruccion1: loopfor        { $$ = $1; }
+            | loopwhile      { $$ = $1; }
+            | selectorif     { $$ = $1; };
  
 asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::string($1));
                                        Exp e = $3;
@@ -204,8 +211,15 @@ asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::str
                                        Exp e = $4;
                                        *$$ = Asignacion(id,*lc,e);
                                      }
-          | ID '.' ID ASSIGN exp     {  }
-          | ID ASSIGN arreglo        {  };
+          | ID '.' ID ASSIGN exp     { Identificador id1 = Identificador(std::string($1));
+                                       Identificador id2 = Identificador(std::string($3));
+                                       Exp e = $5;
+                                       *$$ = Asignacion(id1,id2,e);
+                                     }
+          | ID ASSIGN arreglo        { Identificador id = Identificador(std::string($1));
+                                       Arreglo *arr = $3;
+                                       *$$ = Asignacion(id,*arr);
+                                     };
 
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
                                                                                           Exp e1 = $5;
@@ -346,12 +360,20 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn($2, &str);
                                $$ = &tmp; 
                              }
-     | exp PLUSPLUS          { std::string str = std::string("++");
+     | exp PLUSPLUS          { std::string str = std::string("++sufijo");
                                ExpUn tmp = ExpUn($1, &str);
                                $$ = &tmp; 
                              }
-     | exp MINUSMINUS        { std::string str = std::string("--");
+     | exp MINUSMINUS        { std::string str = std::string("--sufijo");
                                ExpUn tmp = ExpUn($1, &str);
+                               $$ = &tmp; 
+                             }
+     | PLUSPLUS exp         { std::string str = std::string("++prefijo");
+                              ExpUn tmp = ExpUn($2, &str);
+                              $$ = &tmp; 
+                            }
+     | MINUSMINUS exp        { std::string str = std::string("--prefijo");
+                               ExpUn tmp = ExpUn($2, &str);
                                $$ = &tmp; 
                              }
      | ID lcorchetes         { LCorchetes* lc;

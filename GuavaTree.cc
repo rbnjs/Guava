@@ -651,7 +651,7 @@ void Funcion::verificar(GuavaSymTable s){}
 
 LFunciones::LFunciones(){}
     
-LFunciones::LFunciones(Funcion f, LFunciones* l = 0){
+LFunciones::LFunciones(Funcion f, LFunciones* l){
         funcion = f;
         *lista = *l;
 }

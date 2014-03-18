@@ -189,8 +189,7 @@ LCorchetes::~LCorchetes(){
    delete lista; 
 }
 void LCorchetes::show(std::string s){
-    std::cout << s << "Lista de Corchetes: \n";
-    exp.show(s+"  ");
+    exp.show(s);
     if (lista !=0) lista->show(s);
 }
 
@@ -256,7 +255,10 @@ Instruccion::~Instruccion(){
     delete this->instruccion;
 }
 
-void Instruccion::show(std::string s){} 
+void Instruccion::show(std::string s){
+    std::cout << "Instruccion: \n";
+    instruccion->show(s+"  ");
+} 
 void Instruccion::verificar(GuavaSymTable s){} 
 
 /* Lista Instrucciones */
@@ -275,7 +277,10 @@ ListaInstrucciones::~ListaInstrucciones(){
     delete instruccion;
     delete listainstrucciones;
 }
-void ListaInstrucciones::show(std::string s){} 
+void ListaInstrucciones::show(std::string s){
+    if (instruccion != 0) instruccion->show(s);
+    if (listainstrucciones != 0) listainstrucciones->show(s);
+} 
 void ListaInstrucciones::verificar(GuavaSymTable s){} 
 
 /* Class LVarArreglo */
@@ -292,7 +297,12 @@ LVarArreglo::~LVarArreglo(){
     delete corchetes;
     delete lista;
 }
-void LVarArreglo::show(std::string s){} 
+void LVarArreglo::show(std::string s){
+    id.show(s);
+    corchetes->show(s);
+    lista->show(s);
+}
+
 void LVarArreglo::verificar(GuavaSymTable s){} 
 /* Class LVar */
 
@@ -306,7 +316,8 @@ LVar::LVar(Identificador i, LVar* l){
 LVar::~LVar(){
     delete lista;
 }
-void LVar::show(std::string s){} 
+void LVar::show(std::string s){
+} 
 void LVar::verificar(GuavaSymTable s){} 
 /* Class Estructura */
 
@@ -479,6 +490,8 @@ SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0){
     exp = e;
     *instruccion1 = *i;
     *instruccion2 = *i2;
+    listainstrucciones = 0;
+    declaraciones = 0;
 }
 
 SelectorIf::~SelectorIf(){
@@ -488,7 +501,16 @@ SelectorIf::~SelectorIf(){
     delete instruccion2;
     delete lelseif;
 }
-void SelectorIf::show(std::string s){} 
+void SelectorIf::show(std::string s){
+    std::cout << s << "If: \n";
+    exp.show("  "+s);
+    std::cout << s << "Then: \n";
+    if (listainstrucciones != 0) listainstrucciones->show("  "+s);
+    if ( instruccion1 != 0)  instruccion1->show("  "+s);
+    if ((lelseif!= 0 ) || (instruccion2 != 0))std::cout << s << "Else: \n";
+    if (lelseif != 0) lelseif->show("  "+s);
+    if (instruccion2 != 0) instruccion2->show("  "+s);
+} 
 void SelectorIf::verificar(GuavaSymTable s){} 
 
 /* Class LoopWhile */
@@ -501,7 +523,12 @@ LoopWhile::LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li){
 
 LoopWhile::~LoopWhile(){}
 
-void LoopWhile::show(std::string s){} 
+void LoopWhile::show(std::string s){
+    std::cout << s << "While:\n";
+    exp.show("  "+s);
+    std::cout << s << "do:\n";
+    listainstrucciones.show("  "+s);
+} 
 void LoopWhile::verificar(GuavaSymTable s){} 
 
 /* Class Asignacion */
@@ -547,7 +574,16 @@ Asignacion::~Asignacion(){
     delete arreglo;
     delete exp;
 }
-void Asignacion::show(std::string s){} 
+void Asignacion::show(std::string s){
+    std::cout << s << "Asignacion: \n";
+    identificador.show(s + "  ");
+    if (identificador2 != 0) identificador2->show(s+"  "); 
+    if (lcorchetes != 0) lcorchetes->show(s+"  ");
+    if (exp == 0){
+        exp->show(s+"  ");
+    }
+    if (arreglo != 0) arreglo->show(s+ "  ");
+} 
 void Asignacion::verificar(GuavaSymTable s){} 
 
 /* Class LoopFor */
@@ -575,7 +611,14 @@ LoopFor::~LoopFor(){
     delete exp2;
 }
 
-void LoopFor::show(std::string s){} 
+void LoopFor::show(std::string s){
+    std::cout << s << "Loop For: \n";
+    identificador.show("  "+s);
+    exp.show("  "+s);
+    if (asignacion != 0) asignacion->show(" "+s);
+    if (exp2 != 0) exp2->show("  "+s);
+    listainstrucciones.show("  "+s);
+} 
 void LoopFor::verificar(GuavaSymTable s){} 
 
 /* Class PlusMinus */
@@ -587,7 +630,10 @@ PlusMinus::PlusMinus(Identificador id, int t){
 
 PlusMinus::~PlusMinus(){}
 
-void PlusMinus::show(std::string s){} 
+void PlusMinus::show(std::string s){
+    std::cout << s << "Instruccion : " << tipo << '\n';
+    identificador.show("  "+s);
+} 
 void PlusMinus::verificar(GuavaSymTable s){} 
 
 /* Class LVaroValor */
@@ -606,8 +652,13 @@ LVaroValor::~LVaroValor() {
     delete exp;
     delete lvarovalor;
 }
-void LVaroValor::show(std::string s) {} 
-void LVaroValor::verificar(GuavaSymTable s) {} 
+
+void LVaroValor::show(std::string s) {
+    exp->show(s);
+    if (lvarovalor != 0) lvarovalor->show(s);
+} 
+
+void LVaroValor::verificar(GuavaSymTable s) {}
 
 /* Class EntradaSalida */
 
@@ -630,7 +681,13 @@ LlamadaFuncion::LlamadaFuncion(Identificador i, LVaroValor lv) {
 
 LlamadaFuncion::~LlamadaFuncion() {}
 
-void LlamadaFuncion::show(std::string s) {} 
+void LlamadaFuncion::show(std::string s){
+    std::cout << s << "Llamada Funcion : " << identificador << '\n';
+    std::cout << s << "Argumentos: \n";
+    //if (lvarovalor != 0) 
+    lvarovalor.show(s+ "  ");
+} 
+
 void LlamadaFuncion::verificar(GuavaSymTable s) {} 
 
 /* Class LParam */
@@ -652,7 +709,12 @@ LParam::~LParam() {
     delete lparam; 
 }
 
-void LParam::show(std::string s) {} 
+void LParam::show(std::string s) {
+    if (tipo!= 0) tipo->show(s);
+    if (identificador != 0) identificador->show(s);
+    if (lparam != 0) lparam->show(s);
+} 
+
 void LParam::verificar(GuavaSymTable s) {} 
 
 /* Class Funcion */
@@ -674,7 +736,17 @@ Funcion::~Funcion() {
     delete retorno;
 }
 
-void Funcion::show(std::string s) {} 
+void Funcion::show(std::string s) {
+    std::cout << s << "Funcion: \n";
+    tipo.show(s+ "  ");
+    identificador.show(s+ "  ");
+    std::cout << s << "Parametros: \n";
+    parametros.show(s+"  ");
+    std::cout << s << "Instrucciones: \n";
+    listaI.show(s+ "  ");
+    if (retorno != 0) retorno->show(s+"  ");
+} 
+
 void Funcion::verificar(GuavaSymTable s) {} 
 
 /* Class LFunciones */
@@ -686,9 +758,13 @@ LFunciones::LFunciones(Funcion f, LFunciones* l) {
         lista = l;
 }
 
-LFunciones::~LFunciones() {delete lista;}
+LFunciones::~LFunciones() { delete lista; }
 
-void LFunciones::show(std::string s) {} 
+void LFunciones::show(std::string s) {
+    funcion.show(s+"  ");
+    if (lista != 0) lista->show(s + "  ");
+} 
+
 void LFunciones::verificar(GuavaSymTable s) {} 
 
 
@@ -703,7 +779,10 @@ BloquePrincipal::BloquePrincipal(BloqueDeclare b, LFunciones l) {
 
 BloquePrincipal::~BloquePrincipal() {}
 
-void BloquePrincipal::show(std::string s) {} 
+void BloquePrincipal::show(std::string s) {
+    funciones.show(s);
+} 
+
 void BloquePrincipal::verificar(GuavaSymTable s) {} 
  
 /* Class Program */
@@ -716,5 +795,9 @@ Program::Program(BloquePrincipal b) {
 
 Program::~Program() {}
 
-void Program::show(std::string s) {} 
-void Program::verificar(GuavaSymTable s) {}
+void Program::show(std::string s){
+    std::cout << s << "Bloque: \n";
+    bloque.show(s+"  ");
+} 
+
+void Program::verificar(GuavaSymTable s){} 

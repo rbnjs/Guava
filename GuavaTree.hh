@@ -44,7 +44,7 @@ public:
     virtual void verificar(GuavaSymTable);
 };
 
-class ExpParentizada{
+class ExpParentizada: public Exp{
 public:
     Exp exp;
     ExpParentizada(Exp);    

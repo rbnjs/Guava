@@ -224,24 +224,50 @@ lvarovalor2: exp ',' lvarovalor2     {}
            | exp                     {};	   
 
 
-exp: expbin       {}
-   | expun        {} 
-   | valor        {}
-   | ID           {}
-   | '(' exp ')'  {};
+exp: expbin       { *$$ = Exp($1); }
+   | expun        { *$$ = Exp($1); } 
+   | valor        { *$$ = Exp($1); }
+   | ID           { Identificador id = Identificador($1);
+                    *$$ = id; 
+                  }
+   | '(' exp ')'  { *$$ = ExpParentizada($2); };
 
-expbin: exp AND exp          {}
-      | exp OR exp           {}
-      | exp COMPARISON exp   {}
-      | exp UFO exp          {}
-      | exp '+' exp          {}
-      | exp '-' exp          {}
-      | exp '*' exp          {}
-      | exp '/' exp          {}
-      | exp DIV exp          {}
-      | exp MOD exp          {}
-      | exp POW exp          {}
-      | ID '.' ID            {};
+expbin: exp AND exp          { *$$ = ExpBin($1,$3,std::string("and")); }
+      | exp OR exp           { *$$ = ExpBin($1,$3,std::string("or"));  }
+      | exp COMPARISON exp   { int cmpv = $2;
+                               switch(cmpv){
+                                    case 1:
+                                        *$$ = ExpBin($1,$3,std::string(">"));
+                                        break;
+                                    case 2:
+                                        *$$ = ExpBin($1,$3,std::string("<"));
+                                        break;
+                                    case 3:
+                                        *$$ = ExpBin($1,$3,std::string("<="));
+                                        break;
+                                    case 4:
+                                        *$$ = ExpBin($1,$3,std::string(">="));
+                                        break;
+                                    case 5:
+                                        *$$ = ExpBin($1,$3,std::string("="));
+                                        break;
+                                    case 6:
+                                        *$$ = ExpBin($1,$3,std::string("!="));
+                                        break;
+                               }
+                             }
+      | exp UFO exp          { *$$ = ExpBin($1,$3,std::string("<=>")); }
+      | exp '+' exp          { *$$ = ExpBin($1,$3,std::string("+")); }
+      | exp '-' exp          { *$$ = ExpBin($1,$3,std::string("-")); }
+      | exp '*' exp          { *$$ = ExpBin($1,$3,std::string("*")); }
+      | exp '/' exp          { *$$ = ExpBin($1,$3,std::string("/")); }
+      | exp DIV exp          { *$$ = ExpBin($1,$3,std::string("div")); }
+      | exp MOD exp          { *$$ = ExpBin($1,$3,std::string("mod")); }
+      | exp POW exp          { *$$ = ExpBin($1,$3,std::string("**")); }
+      | ID '.' ID            {	Exp id1 = Identificador(std::string($1));
+				Exp id2 = Identificador(std::string($3));
+                             	*$$ = ExpBin(id1,id2,std::string("."));
+                             };
 
 expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn($2, &str);

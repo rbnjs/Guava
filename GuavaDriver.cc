@@ -21,7 +21,6 @@
 GuavaDriver::GuavaDriver ()
   : trace_scanning (false), trace_parsing (false)
 {
-    this->program = Program();
 }
 /**
  * Destructor de la clase GuavaDriver 

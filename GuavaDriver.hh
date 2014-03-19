@@ -18,7 +18,6 @@
 # include <string>
 # include <map> 
 # include "GuavaParser.hh"
-# include "GuavaTree.hh"
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \
   yy::GuavaParser::token_type                         \
@@ -35,7 +34,6 @@ public:
     GuavaDriver();
     virtual ~GuavaDriver();
 
-    Program program;
 
     int result;
 

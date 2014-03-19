@@ -217,97 +217,50 @@ instruccion: asignacion     { $$ = $1; }
 instruccion1: loopfor        { $$ = $1; }
             | loopwhile      { $$ = $1; }
             | selectorif     { $$ = $1; };
- 
+
+/*LISTO*/
 asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::string($1));
-                                       Exp e = $3;
-                                       *$$ = Asignacion(id,e);
+                                       *$$ = Asignacion(id,$3);
                                      }
           | ID lcorchetes ASSIGN exp { Identificador id = Identificador(std::string($1));
-                                       LCorchetes *lc = $2;
-                                       Exp e = $4;
-                                       *$$ = Asignacion(id,*lc,e);
+                                       *$$ = Asignacion(id,*$2,$4);
                                      }
           | ID '.' ID ASSIGN exp     { Identificador id1 = Identificador(std::string($1));
                                        Identificador id2 = Identificador(std::string($3));
-                                       Exp e = $5;
-                                       *$$ = Asignacion(id1,id2,e);
+                                       *$$ = Asignacion(id1,id2,$5);
                                      }
           | ID ASSIGN arreglo        { Identificador id = Identificador(std::string($1));
-                                       Arreglo *arr = $3;
-                                       *$$ = Asignacion(id,*arr);
+                                       *$$ = Asignacion(id,*$3);
                                      };
 
 /*LISTO*/
 entradasalida: READ '(' lvarovalor ')' { *$$ = EntradaSalida(0, *$3); }
              | PRINT '(' lvarovalor ')'  { *$$ = EntradaSalida(1, *$3); };
 
+/*LISTO*/
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
-                                                                                          Exp e1 = $5;
-                                                                                          Asignacion *a = $7;
-                                                                                          /* Nuevo alcance */
-                                                                                          BloqueDeclare *bd = $10;
-                                                                                          ListaInstrucciones *li = $11;
-                                                                                          *$$ = LoopFor(id,e1,*a,*bd,*li); 
+                                                                                          *$$ = LoopFor(id,$5,*$7,*$10,*$11); 
                                                                                         }
        | FOR '(' ID ';' exp ';' exp ')' '{' bloquedeclare listainstrucciones '}'        { Identificador id = Identificador(std::string($3));
-                                                                                          Exp e1 = $5;
-                                                                                          Exp e2 = $7;
-                                                                                          /* Nuevo alcance */
-                                                                                          BloqueDeclare *bd = $10;
-                                                                                          ListaInstrucciones *li = $11;
-                                                                                          *$$ = LoopFor(id,e1,e2,*bd,*li);
+                                                                                          *$$ = LoopFor(id,$5,$7,*$10,*$11);
                                                                                         };
 
-loopwhile: WHILE '(' exp ')' DO '{' bloquedeclare listainstrucciones '}' { /* Nuevo alcance */
-                                                                           BloqueDeclare *bd = $7;
-                                                                           ListaInstrucciones *li = $8;
-                                                                           Exp e = $3;
-                                                                           *$$ = LoopWhile(e,*bd,*li);
-                                                                         }
-         | DO '{' bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /* Nuevo alcance */
-                                                                           BloqueDeclare *bd = $3;
-                                                                           ListaInstrucciones *li = $4;
-                                                                           Exp e = $8;
-                                                                           *$$ = LoopWhile(e,*bd,*li); 
-                                                                         };
-
-selectorif: IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { Exp e = $3;
-                                                                                   /* Nuevo alcance */
-                                                                                   BloqueDeclare *bd = $7;
-                                                                                   ListaInstrucciones *li = $8;
-                                                                                   LElseIf *le = $10;
-                                                                                   *$$ = SelectorIf(e,bd,li,le); 
-                                                                                 }
-          | IF '(' exp ')' THEN instruccion                                      { Exp e = $3;
-                                                                                   Instruccion *i = $6; 
-                                                                                   *$$ = SelectorIf(e,i,0);
-                                                                                 }
-          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { Exp e = $3;
-                                                                                   Instruccion *i = $6;
-                                                                                   Instruccion *i2 = $8;
-                                                                                   *$$ = SelectorIf(e,i,i2);
-                                                                                 };
-
-lelseif: /* Vacio */                                                               { *$$ = LElseIf(); }
-       | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { Exp e = $4;
-                                                                                     /* Nuevo alcance */
-                                                                                     BloqueDeclare *bd = $8;
-                                                                                     ListaInstrucciones *li = $9;
-                                                                                     LElseIf *lelse = $11;
-                                                                                     *$$ = LElseIf(e,*bd,*li,lelse);
-                                                                                   }
-       | ELSE '{'bloquedeclare listainstrucciones '}'                              { 
-                                                                                     /* Nuevo alcance */
-                                                                                     BloqueDeclare *bd = $3;
-                                                                                     ListaInstrucciones *li = $4;
-                                                                                     *$$ = LElseIf(*bd,*li);
-                                                                                   };
+/*LISTO*/
+loopwhile: WHILE '(' exp ')' DO '{' bloquedeclare listainstrucciones '}' { *$$ = LoopWhile($3,*$7,*$8); }
+         | DO '{' bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { *$$ = LoopWhile($8,*$3,*$4); };
 
 /*LISTO*/
-llamadafuncion: ID '(' lvarovalor ')' { /* Nuevo alcance? */
-                                        LVaroValor lv = *$3;
-                                        *$$ = LlamadaFuncion(Identificador($1),lv);
-                                      };
+selectorif: IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = SelectorIf($3,$7,$8,$10); }
+          | IF '(' exp ')' THEN instruccion                                      { *$$ = SelectorIf($3,$6,0); }
+          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { *$$ = SelectorIf($3,$6,$8); };
+
+/*LISTO*/
+lelseif: /* Vacio */                                                               { *$$ = LElseIf(); }
+       | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = LElseIf($4,*$8,*$9,$11); }
+       | ELSE '{'bloquedeclare listainstrucciones '}'                              { *$$ = LElseIf(*$3,*$4); };
+
+/*LISTO*/
+llamadafuncion: ID '(' lvarovalor ')' { *$$ = LlamadaFuncion(Identificador($1),*$3); };
 
 /*LISTO*****REVISAR LOS CONSTRUCTORES*/                                      
 lvarovalor: /* Vacio */   { *$$ = LVaroValor(); }

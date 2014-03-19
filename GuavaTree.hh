@@ -340,6 +340,10 @@ public:
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase necesaria para establecer varias clausulas de condicionales else
+ * en un bloque de instrucciones condicionados por IF.
+ */
 class LElseIf{
 public:
     Exp* exp;
@@ -356,6 +360,10 @@ public:
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase que define los bloques de codigo sujestos a condiciones para su
+ * ejecucion, bloques dentro de instrucciones de clausulas IF THEN ELSE.
+ */
 class SelectorIf: public Instruccion{
 public:
     Exp exp;
@@ -364,24 +372,35 @@ public:
     Instruccion* instruccion1; 
     Instruccion* instruccion2;
     LElseIf* lelseif;
+    
     SelectorIf(Exp, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     SelectorIf(Exp, Instruccion*, Instruccion*);    
     ~SelectorIf(); 
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase que define los bloques de instrucciones con iteracion indeterminada.
+ */
 class LoopWhile: public Instruccion{
 public:
     Exp exp;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
+
     LoopWhile(Exp, BloqueDeclare, ListaInstrucciones);
     ~LoopWhile();
+
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase que define las asignaciones de expresiones a variables del
+ * lenguaje.
+ */
 class Asignacion: public Instruccion{
 public:
     Identificador identificador;
@@ -401,6 +420,9 @@ public:
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase que describe los bloques de instrucciones con iteraciones acotadas.
+ */
 class LoopFor: public Instruccion{
 public:
     Identificador identificador;
@@ -409,13 +431,18 @@ public:
     Exp* exp2;
     BloqueDeclare declaraciones;
     ListaInstrucciones listainstrucciones;
-    LoopFor(Identificador, Exp,Exp, BloqueDeclare, ListaInstrucciones);
-    LoopFor(Identificador,Exp, Asignacion, BloqueDeclare, ListaInstrucciones);
+
+    LoopFor(Identificador, Exp, Exp, BloqueDeclare, ListaInstrucciones);
+    LoopFor(Identificador, Exp, Asignacion, BloqueDeclare, ListaInstrucciones);
     ~LoopFor();  
+    
     void show(std::string);
     void verificar(GuavaSymTable);
 };
 
+/**
+ * Clase para los incrementos y decrementos (prefijos y postfijos)
+ */
 class PlusMinus: public Instruccion{
 public:
     Identificador identificador;

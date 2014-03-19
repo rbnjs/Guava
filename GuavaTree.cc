@@ -462,7 +462,6 @@ LElseIf::LElseIf(Exp e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0
     *lelseif = *lif;
 }
 
-
 LElseIf::LElseIf(BloqueDeclare d, ListaInstrucciones li){
     exp = 0;
     lelseif = 0;
@@ -470,23 +469,23 @@ LElseIf::LElseIf(BloqueDeclare d, ListaInstrucciones li){
     listainstrucciones = li;
 }
 
-
 LElseIf::~LElseIf(){
     delete lelseif;
 }
-void LElseIf::show(std::string s){} 
-void LElseIf::verificar(GuavaSymTable s){}  
+
+void LElseIf::show(std::string s) {} 
+void LElseIf::verificar(GuavaSymTable s) {}  
 
 /* Class SelectorIf */
 
-SelectorIf::SelectorIf(Exp e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0){
+SelectorIf::SelectorIf(Exp e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0) {
     exp = e;
     *declaraciones = *d;
     *listainstrucciones = *l;
     *lelseif = *lif;
 }
 
-SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0){
+SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0) {
     exp = e;
     *instruccion1 = *i;
     *instruccion2 = *i2;
@@ -494,14 +493,15 @@ SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0){
     declaraciones = 0;
 }
 
-SelectorIf::~SelectorIf(){
+SelectorIf::~SelectorIf() {
     delete declaraciones;
     delete listainstrucciones;
     delete instruccion1;
     delete instruccion2;
     delete lelseif;
 }
-void SelectorIf::show(std::string s){
+
+void SelectorIf::show(std::string s) {
     std::cout << s << "If: \n";
     exp.show("  "+s);
     std::cout << s << "Then: \n";
@@ -511,31 +511,31 @@ void SelectorIf::show(std::string s){
     if (lelseif != 0) lelseif->show("  "+s);
     if (instruccion2 != 0) instruccion2->show("  "+s);
 } 
-void SelectorIf::verificar(GuavaSymTable s){} 
+void SelectorIf::verificar(GuavaSymTable s) {} 
 
 /* Class LoopWhile */
 
-LoopWhile::LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li){
+LoopWhile::LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li) {
     exp = e;
     declaraciones = bd;
     listainstrucciones = li;
 }
 
-LoopWhile::~LoopWhile(){}
+LoopWhile::~LoopWhile() {}
 
-void LoopWhile::show(std::string s){
+void LoopWhile::show(std::string s) {
     std::cout << s << "While:\n";
     exp.show("  "+s);
     std::cout << s << "do:\n";
     listainstrucciones.show("  "+s);
 } 
-void LoopWhile::verificar(GuavaSymTable s){} 
+void LoopWhile::verificar(GuavaSymTable s) {} 
 
 /* Class Asignacion */
 
-Asignacion::Asignacion(){}
+Asignacion::Asignacion() {}
 
-Asignacion::Asignacion(Identificador i, Exp e){
+Asignacion::Asignacion(Identificador i, Exp e) {
     identificador = i;
     *exp = e;
     lcorchetes = 0;
@@ -543,7 +543,7 @@ Asignacion::Asignacion(Identificador i, Exp e){
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id, LCorchetes lc, Exp e){
+Asignacion::Asignacion(Identificador id, LCorchetes lc, Exp e) {
     identificador = id;
     *lcorchetes = lc;
     *exp = e;
@@ -551,7 +551,7 @@ Asignacion::Asignacion(Identificador id, LCorchetes lc, Exp e){
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id,Identificador id2,Exp e){
+Asignacion::Asignacion(Identificador id,Identificador id2,Exp e) {
     identificador = id;
     *identificador2 = id2;
     *exp = e;
@@ -559,7 +559,7 @@ Asignacion::Asignacion(Identificador id,Identificador id2,Exp e){
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id, Arreglo arr){
+Asignacion::Asignacion(Identificador id, Arreglo arr) {
     identificador = id;
     *arreglo = arr;
     lcorchetes = 0;
@@ -568,13 +568,13 @@ Asignacion::Asignacion(Identificador id, Arreglo arr){
 }
 
 
-Asignacion::~Asignacion(){
+Asignacion::~Asignacion() {
     delete identificador2;
     delete lcorchetes;
     delete arreglo;
     delete exp;
 }
-void Asignacion::show(std::string s){
+void Asignacion::show(std::string s) {
     std::cout << s << "Asignacion: \n";
     identificador.show(s + "  ");
     if (identificador2 != 0) identificador2->show(s+"  "); 
@@ -584,11 +584,11 @@ void Asignacion::show(std::string s){
     }
     if (arreglo != 0) arreglo->show(s+ "  ");
 } 
-void Asignacion::verificar(GuavaSymTable s){} 
+void Asignacion::verificar(GuavaSymTable s) {} 
 
 /* Class LoopFor */
 
-LoopFor::LoopFor(Identificador id, Exp e1,Exp e2,BloqueDeclare d, ListaInstrucciones l){
+LoopFor::LoopFor(Identificador id, Exp e1,Exp e2,BloqueDeclare d, ListaInstrucciones l) {
     identificador = id;
     exp = e1;
     asignacion = 0;
@@ -597,7 +597,7 @@ LoopFor::LoopFor(Identificador id, Exp e1,Exp e2,BloqueDeclare d, ListaInstrucci
     listainstrucciones = l;
 }
 
-LoopFor::LoopFor(Identificador id, Exp e1,Asignacion asig,BloqueDeclare d, ListaInstrucciones l){
+LoopFor::LoopFor(Identificador id, Exp e1,Asignacion asig,BloqueDeclare d, ListaInstrucciones l) {
     identificador = id;
     exp = e1;
     *asignacion = asig;
@@ -606,12 +606,12 @@ LoopFor::LoopFor(Identificador id, Exp e1,Asignacion asig,BloqueDeclare d, Lista
     listainstrucciones = l;
 }
 
-LoopFor::~LoopFor(){
+LoopFor::~LoopFor() {
     delete asignacion;
     delete exp2;
 }
 
-void LoopFor::show(std::string s){
+void LoopFor::show(std::string s) {
     std::cout << s << "Loop For: \n";
     identificador.show("  "+s);
     exp.show("  "+s);
@@ -619,22 +619,23 @@ void LoopFor::show(std::string s){
     if (exp2 != 0) exp2->show("  "+s);
     listainstrucciones.show("  "+s);
 } 
-void LoopFor::verificar(GuavaSymTable s){} 
+
+void LoopFor::verificar(GuavaSymTable s) {} 
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Identificador id, int t){
+PlusMinus::PlusMinus(Identificador id, int t) {
     identificador = id;
     tipo = t;
 }
 
-PlusMinus::~PlusMinus(){}
+PlusMinus::~PlusMinus() {}
 
-void PlusMinus::show(std::string s){
+void PlusMinus::show(std::string s) {
     std::cout << s << "Instruccion : " << tipo << '\n';
     identificador.show("  "+s);
 } 
-void PlusMinus::verificar(GuavaSymTable s){} 
+void PlusMinus::verificar(GuavaSymTable s) {} 
 
 /* Class LVaroValor */
 

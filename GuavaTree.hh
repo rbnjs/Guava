@@ -144,12 +144,12 @@ class LCorchetes{
 
 
 class ExpUn:public Exp{
-    public:
-        Exp exp;
-        LCorchetes* corchetes;
-        std::string* operacion;
-        ExpUn(Exp, std::string*);    
-        ExpUn(Exp, LCorchetes*);    
+public:
+    Exp exp;
+    LCorchetes* corchetes;
+    std::string* operacion;
+    ExpUn(Exp, std::string*);
+    ExpUn(Exp, LCorchetes*);    
     ~ExpUn();
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);

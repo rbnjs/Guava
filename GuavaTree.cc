@@ -17,23 +17,24 @@
  */
 #include <string>
 #include "GuavaTree.hh"
-
+#include <iostream>
 /* Class de expresion  */
 
-/**
- * Destructor de la clase.
- */
 Exp::Exp(){}
 
 Exp::Exp(Exp * e){
     exp = e;    
 }
+
+/**
+ * Destructor de la clase.
+ */
 Exp::~Exp(){
-    delete this->exp;
+    delete exp;
 }
 
-void Exp::show(std::string){
-
+void Exp::show(std::string identacion){
+    exp->show(identacion);
 }
 
 void Exp::verificar(GuavaSymTable gst){
@@ -50,7 +51,9 @@ ExpParentizada::ExpParentizada(Exp e){
 
 ExpParentizada::~ExpParentizada(){}
 
-void ExpParentizada::show(std::string s){}
+void ExpParentizada::show(std::string s){
+    exp.show(s); // No se si poner algo con respecto al parentesis.
+}
 void ExpParentizada::verificar(GuavaSymTable g){}
 
 /* Class Identificador. */
@@ -66,7 +69,9 @@ Identificador::Identificador(std::string i){
 
 Identificador::~Identificador(){}
 
-void Identificador::show(std::string s){} 
+void Identificador::show(std::string s){
+    std::cout << s << "Identificador: " << identificador << '\n' ;
+} 
 void Identificador::verificar(GuavaSymTable s){} 
 
 /* Class tipo. */
@@ -80,8 +85,8 @@ Tipo::Tipo(std::string t){
 
 Tipo::~Tipo(){}
 
-void Tipo::show(std::string){
-
+void Tipo::show(std::string s){
+    std::cout << s << "Tipo: " << tipo << '\n' ;
 }
 
 void Tipo::verificar(GuavaSymTable gst){
@@ -99,7 +104,9 @@ Valor::Valor(){}
 Valor::~Valor(){
     delete valor;
 }
-void Valor::show(std::string s){} 
+void Valor::show(std::string s){
+    valor->show(s);
+} 
 void Valor::verificar(GuavaSymTable s){} 
 
 
@@ -110,15 +117,20 @@ Real::Real(float f){
 }
 
 Real::~Real(){}
-void Real::show(std::string s){} 
+void Real::show(std::string s){
+    std::cout << s << "Real: " << real << '\n';
+} 
 void Real::verificar(GuavaSymTable s){}  
+
 /* Class Integer */
 
 Integer::Integer(int i){
     integer = i;
 }
 Integer::~Integer(){}
-void Integer::show(std::string s){} 
+void Integer::show(std::string s){
+    std::cout << s << "Entero: " << integer << '\n';
+} 
 void Integer::verificar(GuavaSymTable s){}  
 
 /* Class Char */
@@ -128,8 +140,11 @@ Char::Char(char c){
 }
 
 Char::~Char(){}
-void Char::show(std::string s){} 
+void Char::show(std::string s){
+    std::cout << s << "Caracter: " << ch << '\n';
+} 
 void Char::verificar(GuavaSymTable s){} 
+
 /* Class String */
 
 String::String(char* s){
@@ -141,8 +156,11 @@ String::String(std::string s){
 }
 
 String::~String(){}
-void String::show(std::string s){} 
+void String::show(std::string s){
+    std::cout << s << "String: " << str << '\n';
+} 
 void String::verificar(GuavaSymTable s){} 
+
 /* Class Bool */
 
 Bool::Bool(bool b2){
@@ -150,8 +168,11 @@ Bool::Bool(bool b2){
 }
 
 Bool::~Bool(){}
-void Bool::show(std::string s){} 
+void Bool::show(std::string s){
+    std::cout << s << "Booleano: " << b << '\n';
+} 
 void Bool::verificar(GuavaSymTable s){} 
+
 /* Class LCorchetes */
 
 LCorchetes::LCorchetes(Exp e, LCorchetes* l){
@@ -167,7 +188,12 @@ LCorchetes::LCorchetes::LCorchetes(Exp e){
 LCorchetes::~LCorchetes(){
    delete lista; 
 }
-void LCorchetes::show(std::string s){} 
+void LCorchetes::show(std::string s){
+    std::cout << s << "Lista de Corchetes: \n";
+    exp.show(s+"  ");
+    if (lista !=0) lista->show(s);
+}
+
 void LCorchetes::verificar(GuavaSymTable s){} 
 
 /* Class ExpUn */
@@ -176,11 +202,13 @@ ExpUn::ExpUn(Exp e, std::string* op){
     Exp();
     exp = e;
     *operacion = *op;
+    corchetes = 0;
 }
     
 ExpUn::ExpUn(Exp e1, LCorchetes* lc){
     exp = e1;
     *corchetes = *lc;
+    operacion = 0;
 }
 
 ExpUn::~ExpUn(){
@@ -188,8 +216,15 @@ ExpUn::~ExpUn(){
     delete operacion;
 }
 
-void ExpUn::show(std::string s){} 
+void ExpUn::show(std::string s){
+    std::cout << s << "Expresion Unaria: \n";
+    std::cout << s << "Exp: \n";
+    exp.show(s+" ");
+    if (operacion != 0) std::cout << s << "Operador: " << *operacion;
+    if (corchetes != 0) corchetes->show(s+ "  ");
+} 
 void ExpUn::verificar(GuavaSymTable s){} 
+
 /* Class ExpBin */
 
 ExpBin::ExpBin(Exp e1,Exp e2,std::string op){
@@ -200,8 +235,15 @@ ExpBin::ExpBin(Exp e1,Exp e2,std::string op){
 }
 
 ExpBin::~ExpBin(){}
-void ExpBin::show(std::string s){} 
+void ExpBin::show(std::string s){
+    std::cout << s << "Expresion Binaria: \n";
+    exp1.show(s+"  ");
+    exp2.show(s+"  ");
+    std::cout << s << "Operador: " << operacion << '\n';
+} 
 void ExpBin::verificar(GuavaSymTable s){} 
+
+
 /* Class Instruccion */
 
 Instruccion::Instruccion(){}

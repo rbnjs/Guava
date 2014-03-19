@@ -2,13 +2,13 @@ all: guava
 
 guava: Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-	g++ -o guava GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	g++ -o guava Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaParser.hh GuavaTree.hh
+GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh
 
 	g++ -c  GuavaDriver.cc
 
-GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaDriver.hh
+GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaTree.hh GuavaDriver.hh
 
 	g++ -c GuavaParser.cc 
 
@@ -24,7 +24,7 @@ GuavaLexer.cc: GuavaLexer.l
 
 	flex -o GuavaLexer.cc GuavaLexer.l
 
-GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh
+GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh GuavaTree.hh
 
 	g++ -c GuavaSymTable.cc
 
@@ -32,7 +32,7 @@ Symbol.o: Symbol.cc Symbol.hh
 
 	g++ -c Symbol.cc
 
-GuavaTree.o: GuavaTree.hh GuavaTree.cc GuavaSymTable.hh
+GuavaTree.o: GuavaTree.cc GuavaTree.hh GuavaSymTable.hh
 
 	g++ -c GuavaTree.cc
 

@@ -171,7 +171,7 @@ mod { return token::MOD; }
 ">="  { yylval->subtok = 4; return token::COMPARISON; }
 "="   { yylval->subtok = 5; return token::COMPARISON; }
 "!="  { yylval->subtok = 6; return token::COMPARISON; }
-"<=>" { yylval->subtok = 7; return token::COMPARISON; }
+"<=>" { return token::UFO; }
 
 . driver.error (*yylloc, "invalid character");
 

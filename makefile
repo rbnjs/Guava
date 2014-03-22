@@ -2,13 +2,13 @@ all: guava
 
 guava: Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-	g++ -o guava GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	g++ -o guava GuavaDriver.o GuavaTree.o GuavaParser.o GuavaLexer.o Guava.o
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaParser.hh GuavaTree.hh
 
 	g++ -c  GuavaDriver.cc
 
-GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaDriver.hh
+GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaDriver.hh 
 
 	g++ -c GuavaParser.cc 
 

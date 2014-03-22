@@ -722,6 +722,7 @@ LParam::LParam(Tipo t, Identificador id, LParam lp) {
     *identificador = id;
     *lparam = lp;
 }
+
 LParam::~LParam() {
     delete tipo;
     delete identificador;

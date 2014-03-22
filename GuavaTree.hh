@@ -681,9 +681,9 @@ public:
 class Program{
 public:
     BloquePrincipal bloque;
+    
     Program();
     Program(BloquePrincipal);
-
     ~Program();
 
     virtual void show(std::string);

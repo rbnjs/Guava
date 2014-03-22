@@ -69,6 +69,7 @@ class GuavaDriver;
     PlusMinus *classPlusMinus;*/
     Program *classProgram;
 };
+
 %code {
 # include "GuavaDriver.hh"
 }
@@ -120,7 +121,6 @@ class GuavaDriver;
 %type <classLArreglo> larreglo
 %type <classLCorchetes> lcorchetes
 %type <classTipo> tipo
-%type <classTipo> tipo1
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
 %type <classProgram> program
@@ -141,18 +141,18 @@ bloquedeclare: /* Vacio */                { *$$ = BloqueDeclare(); }
              | DECLARE '{' lvariables '}' { *$$ = BloqueDeclare(*$3); };
 
 /*LISTO*/
-lvariables: tipo1 VAR lvar ';' lvariables          { *$$ = LVariables($1, $3, *$5); }
-          | tipo1 VAR lvar ';'                     { *$$ = LVariables($1, $3, 0); }
-          | tipo1 ARRAY lvararreglo ';'            { *$$ = LVariables($1, $3, 0); }
-          | tipo1 ARRAY lvararreglo ';' lvariables { *$$ = LVariables($1, $3, *$5); }
+lvariables: tipo VAR lvar ';' lvariables          { *$$ = LVariables(*$1, *$3, $5); }
+          | tipo VAR lvar ';'                     { *$$ = LVariables(*$1, *$3, 0); }
+          | tipo ARRAY lvararreglo ';'            { *$$ = LVariables(*$1, *$3, 0); }
+          | tipo ARRAY lvararreglo ';' lvariables { *$$ = LVariables(*$1, *$3, $5); }
           | ID   UNION lvar ';'                    {}
           | ID   UNION lvar ';' lvariables         {}
           | ID   RECORD lvar ';'                   {}
           | ID   RECORD lvar ';' lvariables        {}
-          | union ';' lvariables                   { *$$ = LVariables($1, *$3); }
-          | record ';' lvariables                  { *$$ = LVariables($1, *$3); }
-          | union  ';'                             { *$$ = LVariables($1, 0); }
-          | record ';'                             { *$$ = LVariables($1, 0); };
+          | union ';' lvariables                   { *$$ = LVariables(*$1, $3); }
+          | record ';' lvariables                  { *$$ = LVariables(*$1, $3); }
+          | union  ';'                             { *$$ = LVariables(*$1, 0); }
+          | record ';'                             { *$$ = LVariables(*$1, 0); };
 
 /*LISTO*/
 union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
@@ -194,7 +194,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstruccione
                                                                                           };
 
 /*LISTO*/
-funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
+funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                  ,*$5,*$8,*$9,*$11); 
                                                                                                   }
        | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
@@ -205,8 +205,8 @@ funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones R
 lparam: /* Vacio */          { *$$ = LParam(); } /* Nuevo alcance */
       | lparam2              { $$ = $1; } 
 
-lparam2: tipo1 ID              { *$$ = LParam(*$1,Identificador(std::string($2)), 0);  } /* Nuevo alcance */
-       | tipo1 ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
+lparam2: tipo ID              { *$$ = LParam(*$1,Identificador(std::string($2)), LParam());  } /* Nuevo alcance */
+       | tipo ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
 
 /*LISTO*/
 listainstrucciones: /* Vacio */                        { *$$ = ListaInstrucciones(); }
@@ -350,7 +350,7 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn($2, &str);
                                $$ = &tmp; 
                              }
-     | ID lcorchetes         { Exp id = Identificador(std:string($1));
+     | ID lcorchetes         { Exp id = Identificador(std::string($1));
                                ExpUn tmp = ExpUn(id, $2);
                                $$ = &tmp;
                              };
@@ -372,13 +372,7 @@ valor: BOOL     { Valor tmp = Bool($1);
                 };
 
 /*LISTO*/
-tipo: tipo1         { $$ = $1; } 
-     | TYPE_VOID    {Tipo tmp = Tipo(std::string("void"));
-                      $$ = &tmp;
-                    };
-
-/*LISTO*/
-tipo1: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
+tipo: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     }
      | TYPE_INTEGER { Tipo tmp = Tipo(std::string("integer"));

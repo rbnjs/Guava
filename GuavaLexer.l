@@ -121,8 +121,7 @@ read     { return token::READ; }
          }
 
 \"[^\n"]*$  { driver.error (*yylloc, "missing terminating character \"");
-              char * a = *"";
-              yylval->strval = a;
+              strcpy(yylval->strval, "");
               return token::STRING;
             }
 

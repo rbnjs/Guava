@@ -56,6 +56,7 @@ class GuavaDriver;
     Tipo *classTipo;
     BloqueDeclare *classBloqueDeclare;
     BloquePrincipal *classBloquePrincipal;
+    EntradaSalida *classEntradaSalida;
 
     /*ExpParentizada *classExpParentizada;
     Identificador *classIdentificador;
@@ -65,9 +66,10 @@ class GuavaDriver;
     String *classString;
     Bool *classBool;
     Estructura *classEstructura;
-    PlusMinus *classPlusMinus;
-    Program *classProgram; */
+    PlusMinus *classPlusMinus;*/
+    Program *classProgram;
 };
+
 %code {
 # include "GuavaDriver.hh"
 }
@@ -119,210 +121,174 @@ class GuavaDriver;
 %type <classLArreglo> larreglo
 %type <classLCorchetes> lcorchetes
 %type <classTipo> tipo
-%type <classTipo> tipo1
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
+%type <classProgram> program
+%type <classEntradaSalida> entradasalida
 
 %start program
 %destructor { delete $$; } ID
 %% /* Reglas */
 
-program: bloqueprincipal { };
+/*LISTO*/
+program: bloqueprincipal { *$$ = Program(*$1); };
 
-bloqueprincipal: bloquedeclare lfunciones {};
+/*LISTO*/
+bloqueprincipal: bloquedeclare lfunciones { *$$ = BloquePrincipal(*$1, *$2); };
 
-bloquedeclare: /* Vacio */                {}
-             | DECLARE '{' lvariables '}' {};
+/*LISTO*/
+bloquedeclare: /* Vacio */                { *$$ = BloqueDeclare(); }
+             | DECLARE '{' lvariables '}' { *$$ = BloqueDeclare(*$3); };
 
-;lvariables: tipo1 VAR lvar ';' lvariables          {}
-          | tipo1 VAR lvar ';'                     {}
-          | tipo1 ARRAY lvararreglo ';'            {}
-          | tipo1 ARRAY lvararreglo ';' lvariables {}
-          | ID   UNION lvar ';'                   {}
-          | ID   UNION lvar ';' lvariables        {}
-          | ID   RECORD lvar ';'                  {}
-          | ID   RECORD lvar ';' lvariables       {}
-          | union ';' lvariables                  {}
-          | record ';' lvariables                 {}
-          | union  ';'                            {}
-          | record ';'                            {};
+/*LISTO*/
+lvariables: tipo VAR lvar ';' lvariables          { *$$ = LVariables(*$1, *$3, $5); }
+          | tipo VAR lvar ';'                     { *$$ = LVariables(*$1, *$3, 0); }
+          | tipo ARRAY lvararreglo ';'            { *$$ = LVariables(*$1, *$3, 0); }
+          | tipo ARRAY lvararreglo ';' lvariables { *$$ = LVariables(*$1, *$3, $5); }
+          | ID   UNION lvar ';'                    {}
+          | ID   UNION lvar ';' lvariables         {}
+          | ID   RECORD lvar ';'                   {}
+          | ID   RECORD lvar ';' lvariables        {}
+          | union ';' lvariables                   { *$$ = LVariables(*$1, $3); }
+          | record ';' lvariables                  { *$$ = LVariables(*$1, $3); }
+          | union  ';'                             { *$$ = LVariables(*$1, 0); }
+          | record ';'                             { *$$ = LVariables(*$1, 0); };
 
+/*LISTO*/
 union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
                                     };
-
+/*LISTO*/
 record: RECORD ID '{' lvariables '}' { *$$ = Record(Identificador(std::string($2)), $4); 
                                         };
-
+/*LISTO*/
 lvar: ID           { *$$ = LVar(Identificador(std::string($1)), 0); 
                     }
     | ID ',' lvar  { *$$ = LVar(Identificador(std::string($1)), $3); 
                     };
-
+/*LISTO*/
 lvararreglo: ID lcorchetes               { *$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
                                          }
            | ID lcorchetes ',' lvararreglo { *$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
                                             };
-
-lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2); 
+/*LISTO*/
+lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2,0); 
                                     }
           | '[' exp ']' lcorchetes  { *$$ = LCorchetes($2,$4); 
                                     };
-
+/*LISTO*/
 arreglo: '[' larreglo ']' { *$$ = Arreglo($2); };
 
+/*LISTO*/
 larreglo: exp ',' larreglo      { *$$ = LArreglo(*$1,$3); }
         | arreglo ',' larreglo  { *$$ = LArreglo($1,$3);  }
         | exp                   { *$$ = LArreglo(*$1,0);  }
         | arreglo               { *$$ = LArreglo($1,0);};
 
+/*LISTO*/
 lfunciones: funcionmain        { *$$ = LFunciones(*$1,0);  }
-	  | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
+	        | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
                                                                                             LParam lp = LParam();
                                                                                             *$$ = Funcion(v,Identificador(std::string("main")),lp,*$7,*$8,0); 
                                                                                           };
 
-funcion: FUNCTION tipo1 ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
+/*LISTO*/
+funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                  ,*$5,*$8,*$9,*$11); 
                                                                                                   }
        | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
                                                                                                     *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$8,*$9,0);
                                                                                                   };
 
+/*LISTO*/
 lparam: /* Vacio */          { *$$ = LParam(); } /* Nuevo alcance */
       | lparam2              { $$ = $1; } 
 
-lparam2: tipo1 ID              { *$$ = LParam(*$1,Identificador(std::string($2)));  } /* Nuevo alcance */
-       | tipo1 ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
+lparam2: tipo ID              { *$$ = LParam(*$1,Identificador(std::string($2)), LParam());  } /* Nuevo alcance */
+       | tipo ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
 
+/*LISTO*/
 listainstrucciones: /* Vacio */                        { *$$ = ListaInstrucciones(); }
                   | instruccion ';' listainstrucciones { *$$ = ListaInstrucciones($1,$3); }
                   | instruccion1 listainstrucciones    { *$$ = ListaInstrucciones($1,$2); };
 
+/*LISTO*/
 instruccion: asignacion     { $$ = $1; }
-           | llamadafuncion { $$ = $1;}
-           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); }
-           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)),std::string("++")); };
+           | llamadafuncion { $$ = $1; }
+           | MINUSMINUS ID  { *$$ = PlusMinus(Identificador(std::string($2)), 0); }
+           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)), 1); }
+           | PLUSPLUS ID    { *$$ = PlusMinus(Identificador(std::string($2)), 2); }
+           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)), 3); }
+           | entradasalida  { $$ = $1; };
      
-
 instruccion1: loopfor        { $$ = $1; }
             | loopwhile      { $$ = $1; }
             | selectorif     { $$ = $1; };
- 
+
+/*LISTO*/
 asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::string($1));
-                                       Exp e = $3;
-                                       *$$ = Asignacion(id,e);
+                                       *$$ = Asignacion(id,$3);
                                      }
           | ID lcorchetes ASSIGN exp { Identificador id = Identificador(std::string($1));
-                                       LCorchetes *lc = $2;
-                                       Exp e = $4;
-                                       *$$ = Asignacion(id,*lc,e);
+                                       *$$ = Asignacion(id,*$2,$4);
                                      }
           | ID '.' ID ASSIGN exp     { Identificador id1 = Identificador(std::string($1));
                                        Identificador id2 = Identificador(std::string($3));
-                                       Exp e = $5;
-                                       *$$ = Asignacion(id1,id2,e);
+                                       *$$ = Asignacion(id1,id2,$5);
                                      }
           | ID ASSIGN arreglo        { Identificador id = Identificador(std::string($1));
-                                       Arreglo *arr = $3;
-                                       *$$ = Asignacion(id,*arr);
+                                       *$$ = Asignacion(id,*$3);
                                      };
 
+/*LISTO*/
+entradasalida: READ '(' lvarovalor ')' { *$$ = EntradaSalida(0, *$3); }
+             | PRINT '(' lvarovalor ')'  { *$$ = EntradaSalida(1, *$3); };
+
+/*LISTO*/
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
-                                                                                          Exp e1 = $5;
-                                                                                          Asignacion *a = $7;
-                                                                                          /* Nuevo alcance */
-                                                                                          BloqueDeclare *bd = $10;
-                                                                                          ListaInstrucciones *li = $11;
-                                                                                          *$$ = LoopFor(id,e1,*a,*bd,*li); 
+                                                                                          *$$ = LoopFor(id,$5,*$7,*$10,*$11); 
                                                                                         }
        | FOR '(' ID ';' exp ';' exp ')' '{' bloquedeclare listainstrucciones '}'        { Identificador id = Identificador(std::string($3));
-                                                                                          Exp e1 = $5;
-                                                                                          Exp e2 = $7;
-                                                                                          /* Nuevo alcance */
-                                                                                          BloqueDeclare *bd = $10;
-                                                                                          ListaInstrucciones *li = $11;
-                                                                                          *$$ = LoopFor(id,e1,e2,*bd,*li);
+                                                                                          *$$ = LoopFor(id,$5,$7,*$10,*$11);
                                                                                         };
 
-loopwhile: WHILE '(' exp ')' DO '{' bloquedeclare listainstrucciones '}' { /* Nuevo alcance */
-                                                                           BloqueDeclare *bd = $7;
-                                                                           ListaInstrucciones *li = $8;
-                                                                           Exp e = $3;
-                                                                           *$$ = LoopWhile(e,*bd,*li);
-                                                                         }
-         | DO '{' bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /* Nuevo alcance */
-                                                                           BloqueDeclare *bd = $3;
-                                                                           ListaInstrucciones *li = $4;
-                                                                           Exp e = $8;
-                                                                           *$$ = LoopWhile(e,*bd,*li); 
-                                                                         };
+/*LISTO*/
+loopwhile: WHILE '(' exp ')' DO '{' bloquedeclare listainstrucciones '}' { *$$ = LoopWhile($3,*$7,*$8); }
+         | DO '{' bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { *$$ = LoopWhile($8,*$3,*$4); };
 
-selectorif: IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { Exp e = $3;
-                                                                                   /* Nuevo alcance */
-                                                                                   BloqueDeclare *bd = $7;
-                                                                                   ListaInstrucciones *li = $8;
-                                                                                   LElseIf *le = $10;
-                                                                                   *$$ = SelectorIf(e,bd,li,le); 
-                                                                                 }
-          | IF '(' exp ')' THEN instruccion                                      { Exp e = $3;
-                                                                                   Instruccion *i = $6; 
-                                                                                   *$$ = SelectorIf(e,i,0);
-                                                                                 }
-          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { Exp e = $3;
-                                                                                   Instruccion *i = $6;
-                                                                                   Instruccion *i2 = $8;
-                                                                                   *$$ = SelectorIf(e,i,i2);
-                                                                                 };
+/*LISTO*/
+selectorif: IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = SelectorIf($3,$7,$8,$10); }
+          | IF '(' exp ')' THEN instruccion                                      { *$$ = SelectorIf($3,$6,0); }
+          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { *$$ = SelectorIf($3,$6,$8); };
 
+/*LISTO*/
 lelseif: /* Vacio */                                                               { *$$ = LElseIf(); }
-       | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { Exp e = $4;
-                                                                                     /* Nuevo alcance */
-                                                                                     BloqueDeclare *bd = $8;
-                                                                                     ListaInstrucciones *li = $9;
-                                                                                     LElseIf *lelse = $11;
-                                                                                     *$$ = LElseIf(e,*bd,*li,lelse);
-                                                                                   }
-       | ELSE '{'bloquedeclare listainstrucciones '}'                              { 
-                                                                                     /* Nuevo alcance */
-                                                                                     BloqueDeclare *bd = $3;
-                                                                                     ListaInstrucciones *li = $4;
-                                                                                     *$$ = LElseIf(*bd,*li);
-                                                                                   };
+       | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = LElseIf($4,*$8,*$9,$11); }
+       | ELSE '{'bloquedeclare listainstrucciones '}'                              { *$$ = LElseIf(*$3,*$4); };
 
-llamadafuncion: ID '(' lvarovalor ')' { /* Nuevo alcance? */
-                                        LVaroValor lv = *$3;
-                                        *$$ = LlamadaFuncion(std::string($1),lv); 
-                                      }
-	      | PRINT '(' lvarovalor ')' {  /* Nuevo alcance? */
-                                            LVaroValor lv = *$3; /* Tal vez todo esto sea necesario cambiarlo */
-                                            *$$ = LlamadaFuncion(std::string("print"),lv);  
-                                         }
-              | READ  '(' lvarovalor  ')' { /* Nuevo alcance? */
-                                            LVaroValor lv = *$3;
-                                            *$$ = LlamadaFuncion(std::string("read"),lv); 
-                                          };
+/*LISTO*/
+llamadafuncion: ID '(' lvarovalor ')' { *$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); };
 
+/*LISTO*****REVISAR LOS CONSTRUCTORES*/                                      
 lvarovalor: /* Vacio */   { *$$ = LVaroValor(); }
           | lvarovalor2   { $$ = $1; };      
           
-lvarovalor2: exp ',' lvarovalor2     {  Exp e = $1;
-                                        *$$ = LVaroValor(&e,$3);
+lvarovalor2: exp ',' lvarovalor2     { Exp e = $1;
+                                       *$$ = LVaroValor(&e,$3);
                                      }
            | exp                     { Exp e = $1;
-                                        *$$ = LVaroValor(&e,0); 
+                                       *$$ = LVaroValor(&e,0); 
                                      };	   
 
-
+/*LISTO*/
 exp: expbin       { *$$ = Exp($1); }
    | expun        { *$$ = Exp($1); } 
    | valor        { *$$ = Exp($1); }
-   | ID           { Identificador id = Identificador($1);
-                    *$$ = id; 
-                  }
+   | ID           { *$$ = Identificador(std::string($1)); }
    | '(' exp ')'  { *$$ = ExpParentizada($2); };
 
+/*LISTO*/
 expbin: exp AND exp          { *$$ = ExpBin($1,$3,std::string("and")); }
       | exp OR exp           { *$$ = ExpBin($1,$3,std::string("or"));  }
       | exp COMPARISON exp   { int cmpv = $2;
@@ -356,8 +322,8 @@ expbin: exp AND exp          { *$$ = ExpBin($1,$3,std::string("and")); }
       | exp MOD exp          { *$$ = ExpBin($1,$3,std::string("mod")); }
       | exp POW exp          { *$$ = ExpBin($1,$3,std::string("**")); }
       | ID '.' ID            {	Exp id1 = Identificador(std::string($1));
-				Exp id2 = Identificador(std::string($3));
-                             	*$$ = ExpBin(id1,id2,std::string("."));
+				                        Exp id2 = Identificador(std::string($3));
+                             	  *$$ = ExpBin(id1,id2,std::string("."));
                              };
 
 expun: NOT exp               { std::string str = std::string("not");
@@ -384,14 +350,11 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn($2, &str);
                                $$ = &tmp; 
                              }
-     | ID lcorchetes         { LCorchetes* lc;
-                               lc = $2;
-                               std::string str = std::string($1);
-                               Exp id = Identificador(str);
-                               ExpUn tmp = ExpUn(id, lc);
+     | ID lcorchetes         { Exp id = Identificador(std::string($1));
+                               ExpUn tmp = ExpUn(id, $2);
                                $$ = &tmp;
                              };
-
+/*LISTO*/
 valor: BOOL     { Valor tmp = Bool($1);
                   $$ = &tmp;
                 }
@@ -408,12 +371,8 @@ valor: BOOL     { Valor tmp = Bool($1);
                   $$ = &tmp;
                 };
 
-tipo: tipo1         { $$ = $1; } 
-     | TYPE_VOID    {Tipo tmp = Tipo(std::string("void"));
-                      $$ = &tmp;
-                    };
-
-tipo1: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
+/*LISTO*/
+tipo: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     }
      | TYPE_INTEGER { Tipo tmp = Tipo(std::string("integer"));

@@ -1,0 +1,61 @@
+/**
+ * FuncionesBasicas_Calculadora.gv
+ * SIN ERRORES.
+ *
+ * Prueba de funciones basicas. Simulacion de una calculadora de panadero
+ * on drugs: porque tiene potencia.
+ *
+ */
+
+declare {
+  integer memoria;
+}
+
+function integer sumar(integer a, integer b) {
+  return a+b;
+}
+
+function integer restar(integer a, integer b) {
+  return a-b;
+}
+
+function integer multiplicar(integer a, integer b) {
+  return a*b;
+}
+
+function integer division(integer a, integer b) {
+  return a div b;
+}
+
+function integer modulo(integer a, integer b) {
+  return a mod b;
+}
+
+function integer potencia(integer a, integer b) {
+  return a**b;
+}
+
+function void M(integer a) {
+  memoria = a;
+}
+
+function void RM() {
+  memoria = 0;
+}
+
+function void main() {
+  declare {
+    integer result;
+  }
+
+  memoria = 0;
+  result = sumar(1,2);
+  result = restar(7,result);
+  result = multiplicar(10,result);
+  M(result);
+  result = division(result,5);
+  result = modulo(10,memoria);
+  result = potencia(memoria,2);
+  RM();
+
+}

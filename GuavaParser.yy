@@ -134,7 +134,10 @@ class GuavaDriver;
 program: bloqueprincipal { *$$ = Program(*$1); };
 
 /*LISTO*/
-bloqueprincipal: bloquedeclare lfunciones { *$$ = BloquePrincipal(*$1, *$2); };
+bloqueprincipal: { 
+                   driver.tablaSimbolos.enterScope(); 
+                 } 
+                 bloquedeclare lfunciones { *$$ = BloquePrincipal(*$2, *$3); };
 
 /*LISTO*/
 bloquedeclare: /* Vacio */                { *$$ = BloqueDeclare(); }
@@ -188,24 +191,31 @@ larreglo: exp ',' larreglo      { *$$ = LArreglo(*$1,$3); }
 lfunciones: funcionmain        { *$$ = LFunciones(*$1,0);  }
 	        | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope();   
+                                                 } 
+                                                 bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
                                                                                             LParam lp = LParam();
-                                                                                            *$$ = Funcion(v,Identificador(std::string("main")),lp,*$7,*$8,0); 
+                                                                                            *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
                                                                                           };
 
 /*LISTO*/
-funcion: FUNCTION tipo ID '(' lparam ')' '{' bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                 ,*$5,*$8,*$9,*$11); 
+funcion: FUNCTION tipo ID '(' lparam ')' '{' { driver.tablaSimbolos.enterScope();   
+                                             }
+                                             bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
+                                                                                                                 ,*$5,*$9,*$10,*$12); 
                                                                                                   }
-       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
-                                                                                                    *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$8,*$9,0);
+       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' { 
+                                                    driver.tablaSimbolos.enterScope();   
+                                                  }
+                                                 bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
+                                                                                                    *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$9,*$10,0);
                                                                                                   };
 
 /*LISTO*/
-lparam: /* Vacio */          { *$$ = LParam(); } /* Nuevo alcance */
+lparam: /* Vacio */          { *$$ = LParam(); } 
       | lparam2              { $$ = $1; } 
 
-lparam2: tipo ID              { *$$ = LParam(*$1,Identificador(std::string($2)), LParam());  } /* Nuevo alcance */
+lparam2: tipo ID              { *$$ = LParam(*$1,Identificador(std::string($2)), LParam());  } 
        | tipo ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
 
 /*LISTO*/
@@ -246,26 +256,47 @@ entradasalida: READ '(' lvarovalor ')' { *$$ = EntradaSalida(0, *$3); }
              | PRINT '(' lvarovalor ')'  { *$$ = EntradaSalida(1, *$3); };
 
 /*LISTO*/
-loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
-                                                                                          *$$ = LoopFor(id,$5,*$7,*$10,*$11); 
+loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' { 
+                                                     driver.tablaSimbolos.enterScope();   
+                                                   }
+                                                   bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
+                                                                                          *$$ = LoopFor(id,$5,*$7,*$11,*$12); 
                                                                                         }
-       | FOR '(' ID ';' exp ';' exp ')' '{' bloquedeclare listainstrucciones '}'        { Identificador id = Identificador(std::string($3));
-                                                                                          *$$ = LoopFor(id,$5,$7,*$10,*$11);
+       | FOR '(' ID ';' exp ';' exp ')' '{' { 
+                                              driver.tablaSimbolos.enterScope();   
+                                            } 
+                                            bloquedeclare listainstrucciones '}'        { Identificador id = Identificador(std::string($3));
+                                                                                          *$$ = LoopFor(id,$5,$7,*$11,*$12);
                                                                                         };
 
 /*LISTO*/
-loopwhile: WHILE '(' exp ')' DO '{' bloquedeclare listainstrucciones '}' { *$$ = LoopWhile($3,*$7,*$8); }
-         | DO '{' bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { *$$ = LoopWhile($8,*$3,*$4); };
+loopwhile: WHILE '(' exp ')' DO '{' { 
+                                      driver.tablaSimbolos.enterScope();   
+                                    } 
+                                    bloquedeclare listainstrucciones '}' { *$$ = LoopWhile($3,*$8,*$9); }
+         | DO '{'{ 
+                   driver.tablaSimbolos.enterScope();   
+                 } 
+                  bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { *$$ = LoopWhile($9,*$4,*$5); };
 
 /*LISTO*/
-selectorif: IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = SelectorIf($3,$7,$8,$10); }
+selectorif: IF '(' exp ')' THEN '{' { 
+                                      driver.tablaSimbolos.enterScope();   
+                                    }
+                                    bloquedeclare listainstrucciones '}' lelseif { *$$ = SelectorIf($3,$8,$9,$11); }
           | IF '(' exp ')' THEN instruccion                                      { *$$ = SelectorIf($3,$6,0); }
           | IF '(' exp ')' THEN instruccion ELSE instruccion                     { *$$ = SelectorIf($3,$6,$8); };
 
 /*LISTO*/
 lelseif: /* Vacio */                                                               { *$$ = LElseIf(); }
-       | ELSE IF '(' exp ')' THEN '{' bloquedeclare listainstrucciones '}' lelseif { *$$ = LElseIf($4,*$8,*$9,$11); }
-       | ELSE '{'bloquedeclare listainstrucciones '}'                              { *$$ = LElseIf(*$3,*$4); };
+       | ELSE IF '(' exp ')' THEN '{' { 
+                                        driver.tablaSimbolos.enterScope();   
+                                      }
+                                      bloquedeclare listainstrucciones '}' lelseif { *$$ = LElseIf($4,*$9,*$10,$12); }
+       | ELSE '{' { 
+                    driver.tablaSimbolos.enterScope();   
+                  }
+                  bloquedeclare listainstrucciones '}'                              { *$$ = LElseIf(*$4,*$5); };
 
 /*LISTO*/
 llamadafuncion: ID '(' lvarovalor ')' { *$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); };
@@ -322,8 +353,8 @@ expbin: exp AND exp          { *$$ = ExpBin($1,$3,std::string("and")); }
       | exp MOD exp          { *$$ = ExpBin($1,$3,std::string("mod")); }
       | exp POW exp          { *$$ = ExpBin($1,$3,std::string("**")); }
       | ID '.' ID            {	Exp id1 = Identificador(std::string($1));
-				                        Exp id2 = Identificador(std::string($3));
-                             	  *$$ = ExpBin(id1,id2,std::string("."));
+                                Exp id2 = Identificador(std::string($3));
+                             	*$$ = ExpBin(id1,id2,std::string("."));
                              };
 
 expun: NOT exp               { std::string str = std::string("not");

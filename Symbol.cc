@@ -35,6 +35,7 @@ Symbol::Symbol(std::string name, std::string catg, int scop) {
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
+    type = 0;
 }
 
 /**  

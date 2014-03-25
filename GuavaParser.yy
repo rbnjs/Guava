@@ -5,6 +5,7 @@
 %define parser_class_name "GuavaParser"
 %code requires {
 # include <string>
+# include <iostream>
 # include "GuavaTree.hh"
 class GuavaDriver;
 }
@@ -127,258 +128,339 @@ class GuavaDriver;
 %type <classEntradaSalida> entradasalida
 
 %start program
-%destructor { delete $$; } ID
+/*%destructor { delete $$; } ID*/
 %% /* Reglas */
 
 /*LISTO*/
-program: bloqueprincipal { *$$ = Program(*$1); };
+program: bloqueprincipal { //*$$ = Program(*$1); 
+                         };
 
 /*LISTO*/
 bloqueprincipal: { 
                    driver.tablaSimbolos.enterScope(); 
                  } 
-                 bloquedeclare lfunciones { *$$ = BloquePrincipal(*$2, *$3); };
+                 bloquedeclare lfunciones { //*$$ = BloquePrincipal(*$2, *$3); 
+                                            };
 
 /*LISTO*/
-bloquedeclare: /* Vacio */                { *$$ = BloqueDeclare(); }
-             | DECLARE '{' lvariables '}' { *$$ = BloqueDeclare(*$3); };
+bloquedeclare: /* Vacio */                { //*$$ = BloqueDeclare(); 
+                                            }
+             | DECLARE '{' lvariables '}' { //*$$ = BloqueDeclare(*$3); 
+                                            };
 
 /*LISTO*/
-lvariables: tipo VAR lvar ';' lvariables          { *$$ = LVariables(*$1, *$3, $5); }
-          | tipo VAR lvar ';'                     { *$$ = LVariables(*$1, *$3, 0); }
-          | tipo ARRAY lvararreglo ';'            { *$$ = LVariables(*$1, *$3, 0); }
-          | tipo ARRAY lvararreglo ';' lvariables { *$$ = LVariables(*$1, *$3, $5); }
+lvariables: tipo VAR lvar ';' lvariables          { //*$$ = LVariables(*$1, *$3, $5);
+                                                  }
+          | tipo VAR lvar ';'                     { //*$$ = LVariables(*$1, *$3, 0); 
+                                                    }
+          | tipo ARRAY lvararreglo ';'            { //*$$ = LVariables(*$1, *$3, 0); 
+                                                    }
+          | tipo ARRAY lvararreglo ';' lvariables { //*$$ = LVariables(*$1, *$3, $5); 
+                                                    }
           | ID   UNION lvar ';'                    {}
           | ID   UNION lvar ';' lvariables         {}
           | ID   RECORD lvar ';'                   {}
           | ID   RECORD lvar ';' lvariables        {}
-          | union ';' lvariables                   { *$$ = LVariables(*$1, $3); }
-          | record ';' lvariables                  { *$$ = LVariables(*$1, $3); }
-          | union  ';'                             { *$$ = LVariables(*$1, 0); }
-          | record ';'                             { *$$ = LVariables(*$1, 0); };
+          | union ';' lvariables                   { //*$$ = LVariables(*$1, $3); 
+                                                    }
+          | record ';' lvariables                  { //*$$ = LVariables(*$1, $3); 
+                                                    }
+          | union  ';'                             { //*$$ = LVariables(*$1, 0); 
+                                                    }
+          | record ';'                             { //*$$ = LVariables(*$1, 0); 
+                                                    };
 
 /*LISTO*/
-union: UNION ID '{' lvariables '}' { *$$ = Union(Identificador(std::string($2)), $4); 
+union: UNION ID '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
                                     };
 /*LISTO*/
-record: RECORD ID '{' lvariables '}' { *$$ = Record(Identificador(std::string($2)), $4); 
+record: RECORD ID '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
                                         };
 /*LISTO*/
-lvar: ID           { *$$ = LVar(Identificador(std::string($1)), 0); 
+lvar: ID           { //*$$ = LVar(Identificador(std::string($1)), 0); 
                     }
-    | ID ',' lvar  { *$$ = LVar(Identificador(std::string($1)), $3); 
+    | ID ',' lvar  { //*$$ = LVar(Identificador(std::string($1)), $3); 
                     };
 /*LISTO*/
-lvararreglo: ID lcorchetes               { *$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
+lvararreglo: ID lcorchetes               { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
                                          }
-           | ID lcorchetes ',' lvararreglo { *$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
+           | ID lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
                                             };
 /*LISTO*/
-lcorchetes: '[' exp ']'             { *$$ = LCorchetes($2,0); 
+lcorchetes: '[' exp ']'             { LCorchetes tmp =  LCorchetes(*$2,0); 
+                                      $$ = &tmp;
                                     }
-          | '[' exp ']' lcorchetes  { *$$ = LCorchetes($2,$4); 
+          | '[' exp ']' lcorchetes  { LCorchetes tmp = LCorchetes(*$2,$4);
+                                      $$ = &tmp;
                                     };
 /*LISTO*/
-arreglo: '[' larreglo ']' { *$$ = Arreglo($2); };
-
-/*LISTO*/
-larreglo: exp ',' larreglo      { *$$ = LArreglo(*$1,$3); }
-        | arreglo ',' larreglo  { *$$ = LArreglo($1,$3);  }
-        | exp                   { *$$ = LArreglo(*$1,0);  }
-        | arreglo               { *$$ = LArreglo($1,0);};
-
-/*LISTO*/
-lfunciones: funcionmain        { *$$ = LFunciones(*$1,0);  }
-	        | funcion lfunciones { *$$ = LFunciones(*$1,$2); };
+lfunciones: funcionmain        { //*$$ = LFunciones(*$1,0);  
+                               }
+	  | funcion lfunciones { //*$$ = LFunciones(*$1,$2); 
+                               };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope();   
                                                  } 
-                                                 bloquedeclare listainstrucciones '}'     { Tipo v = Tipo(std::string("void"));
+                                                 bloquedeclare listainstrucciones '}'     { /*Tipo v = Tipo(std::string("void"));
                                                                                             LParam lp = LParam();
                                                                                             *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
+                                                                                            driver.tablaSimbolos.exitScope(); */
                                                                                           };
 
 /*LISTO*/
 funcion: FUNCTION tipo ID '(' lparam ')' '{' { driver.tablaSimbolos.enterScope();   
                                              }
-                                             bloquedeclare listainstrucciones RETURN exp ';' '}' { *$$ = Funcion(*$2,Identificador(std::string($3))
+                                             bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                  ,*$5,*$9,*$10,*$12); 
+                                                                                                   driver.tablaSimbolos.exitScope();*/
                                                                                                   }
        | FUNCTION TYPE_VOID ID '(' lparam ')' '{' { 
                                                     driver.tablaSimbolos.enterScope();   
                                                   }
-                                                 bloquedeclare listainstrucciones '}'            { Tipo v = Tipo(std::string("void"));
+                                                 bloquedeclare listainstrucciones '}'            { /*Tipo v = Tipo(std::string("void"));
                                                                                                     *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$9,*$10,0);
+                                                                                                    driver.tablaSimbolos.exitScope();*/
                                                                                                   };
 
 /*LISTO*/
-lparam: /* Vacio */          { *$$ = LParam(); } 
-      | lparam2              { $$ = $1; } 
+lparam: /* Vacio */          { //*$$ = LParam(); 
+                            } 
+      | lparam2              { //$$ = $1; 
+                                } 
 
-lparam2: tipo ID              { *$$ = LParam(*$1,Identificador(std::string($2)), LParam());  } 
-       | tipo ID ',' lparam2  { *$$ = LParam(*$1,Identificador(std::string($2)),*$4);};
+lparam2: tipo ID              { //*$$ = LParam(*$1,Identificador(std::string($2)), LParam());  
+                                } 
+       | tipo ID ',' lparam2  { //*$$ = LParam(*$1,Identificador(std::string($2)),*$4);
+                                };
 
 /*LISTO*/
-listainstrucciones: /* Vacio */                        { *$$ = ListaInstrucciones(); }
-                  | instruccion ';' listainstrucciones { *$$ = ListaInstrucciones($1,$3); }
-                  | instruccion1 listainstrucciones    { *$$ = ListaInstrucciones($1,$2); };
+listainstrucciones: /* Vacio */                        { //*$$ = ListaInstrucciones(); 
+                                                        }
+                  | instruccion ';' listainstrucciones { //*$$ = ListaInstrucciones($1,$3); 
+                                                        }
+                  | instruccion1 listainstrucciones    { //*$$ = ListaInstrucciones($1,$2); 
+                                                        };
 
 /*LISTO*/
-instruccion: asignacion     { $$ = $1; }
-           | llamadafuncion { $$ = $1; }
-           | MINUSMINUS ID  { *$$ = PlusMinus(Identificador(std::string($2)), 0); }
-           | ID MINUSMINUS  { *$$ = PlusMinus(Identificador(std::string($1)), 1); }
-           | PLUSPLUS ID    { *$$ = PlusMinus(Identificador(std::string($2)), 2); }
-           | ID PLUSPLUS    { *$$ = PlusMinus(Identificador(std::string($1)), 3); }
-           | entradasalida  { $$ = $1; };
+instruccion: asignacion     { //$$ = $1; 
+                            }
+           | llamadafuncion { //$$ = $1; 
+                            }
+           | MINUSMINUS ID  { //*$$ = PlusMinus(Identificador(std::string($2)), 0); 
+                            }
+           | ID MINUSMINUS  { //*$$ = PlusMinus(Identificador(std::string($1)), 1); 
+                            }
+           | PLUSPLUS ID    { //*$$ = PlusMinus(Identificador(std::string($2)), 2); 
+                            }
+           | ID PLUSPLUS    { //*$$ = PlusMinus(Identificador(std::string($1)), 3); 
+                            }
+           | entradasalida  { //$$ = $1; 
+                            };
      
-instruccion1: loopfor        { $$ = $1; }
-            | loopwhile      { $$ = $1; }
-            | selectorif     { $$ = $1; };
+instruccion1: loopfor        { //$$ = $1; 
+                             }
+            | loopwhile      { //$$ = $1; 
+                             }
+            | selectorif     { //$$ = $1; 
+                             };
 
 /*LISTO*/
-asignacion: ID ASSIGN exp            { Identificador id = Identificador(std::string($1));
-                                       *$$ = Asignacion(id,$3);
+asignacion: ID ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
+                                       *$$ = Asignacion(id,$3);*/
                                      }
-          | ID lcorchetes ASSIGN exp { Identificador id = Identificador(std::string($1));
-                                       *$$ = Asignacion(id,*$2,$4);
+          | ID lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+                                       *$$ = Asignacion(id,*$2,$4);*/
                                      }
-          | ID '.' ID ASSIGN exp     { Identificador id1 = Identificador(std::string($1));
+          | ID '.' ID ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
                                        Identificador id2 = Identificador(std::string($3));
-                                       *$$ = Asignacion(id1,id2,$5);
-                                     }
-          | ID ASSIGN arreglo        { Identificador id = Identificador(std::string($1));
-                                       *$$ = Asignacion(id,*$3);
+                                       *$$ = Asignacion(id1,id2,$5);*/
                                      };
 
 /*LISTO*/
-entradasalida: READ '(' lvarovalor ')' { *$$ = EntradaSalida(0, *$3); }
-             | PRINT '(' lvarovalor ')'  { *$$ = EntradaSalida(1, *$3); };
+entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
+                                       }
+             | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
+                                         };
 
 /*LISTO*/
 loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' { 
                                                      driver.tablaSimbolos.enterScope();   
                                                    }
-                                                   bloquedeclare listainstrucciones '}' { Identificador id = Identificador(std::string($3));
+                                                   bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                           *$$ = LoopFor(id,$5,*$7,*$11,*$12); 
+                                                                                          driver.tablaSimbolos.exitScope();*/
                                                                                         }
        | FOR '(' ID ';' exp ';' exp ')' '{' { 
                                               driver.tablaSimbolos.enterScope();   
                                             } 
-                                            bloquedeclare listainstrucciones '}'        { Identificador id = Identificador(std::string($3));
+                                            bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
                                                                                           *$$ = LoopFor(id,$5,$7,*$11,*$12);
+                                                                                          driver.tablaSimbolos.exitScope();*/
                                                                                         };
 
 /*LISTO*/
 loopwhile: WHILE '(' exp ')' DO '{' { 
                                       driver.tablaSimbolos.enterScope();   
                                     } 
-                                    bloquedeclare listainstrucciones '}' { *$$ = LoopWhile($3,*$8,*$9); }
+                                    bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); 
+                                                                           driver.tablaSimbolos.exitScope();*/
+                                                                         }
          | DO '{'{ 
                    driver.tablaSimbolos.enterScope();   
                  } 
-                  bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { *$$ = LoopWhile($9,*$4,*$5); };
+                  bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /**$$ = LoopWhile($9,*$4,*$5); 
+                                                                           driver.tablaSimbolos.exitScope();*/
+                                                                         };
 
 /*LISTO*/
 selectorif: IF '(' exp ')' THEN '{' { 
                                       driver.tablaSimbolos.enterScope();   
                                     }
-                                    bloquedeclare listainstrucciones '}' lelseif { *$$ = SelectorIf($3,$8,$9,$11); }
-          | IF '(' exp ')' THEN instruccion                                      { *$$ = SelectorIf($3,$6,0); }
-          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { *$$ = SelectorIf($3,$6,$8); };
+                                    bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);
+                                                                                   driver.tablaSimbolos.exitScope();*/
+                                                                                 }
+          | IF '(' exp ')' THEN instruccion                                      { //*$$ = SelectorIf($3,$6,0); 
+                                                                                 }
+          | IF '(' exp ')' THEN instruccion ELSE instruccion                     { //*$$ = SelectorIf($3,$6,$8); 
+                                                                                 };
 
 /*LISTO*/
-lelseif: /* Vacio */                                                               { *$$ = LElseIf(); }
+lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
+                                                                                   }
        | ELSE IF '(' exp ')' THEN '{' { 
                                         driver.tablaSimbolos.enterScope();   
                                       }
-                                      bloquedeclare listainstrucciones '}' lelseif { *$$ = LElseIf($4,*$9,*$10,$12); }
+                                      bloquedeclare listainstrucciones '}' lelseif { /**$$ = LElseIf($4,*$9,*$10,$12);
+                                                                                     driver.tablaSimbolos.exitScope();*/
+                                                                                   }
        | ELSE '{' { 
                     driver.tablaSimbolos.enterScope();   
                   }
-                  bloquedeclare listainstrucciones '}'                              { *$$ = LElseIf(*$4,*$5); };
+                  bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); 
+                                                                                      driver.tablaSimbolos.exitScope();*/
+                                                                                    };
 
 /*LISTO*/
-llamadafuncion: ID '(' lvarovalor ')' { *$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); };
+llamadafuncion: ID '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+                                      };
 
 /*LISTO*****REVISAR LOS CONSTRUCTORES*/                                      
-lvarovalor: /* Vacio */   { *$$ = LVaroValor(); }
-          | lvarovalor2   { $$ = $1; };      
+lvarovalor: /* Vacio */   { //*$$ = LVaroValor(); 
+                          }
+          | lvarovalor2   { //$$ = $1; 
+                          };      
           
-lvarovalor2: exp ',' lvarovalor2     { Exp e = $1;
-                                       *$$ = LVaroValor(&e,$3);
+lvarovalor2: exp ',' lvarovalor2     { //Exp e = $1;
+                                       //*$$ = LVaroValor(&e,$3);
                                      }
-           | exp                     { Exp e = $1;
-                                       *$$ = LVaroValor(&e,0); 
+           | exp                     { //Exp e = $1;
+                                       //*$$ = LVaroValor(&e,0); 
                                      };	   
 
 /*LISTO*/
-exp: expbin       { *$$ = Exp($1); }
-   | expun        { *$$ = Exp($1); } 
-   | valor        { *$$ = Exp($1); }
-   | ID           { *$$ = Identificador(std::string($1)); }
-   | '(' exp ')'  { *$$ = ExpParentizada($2); };
+exp: expbin       { //*$$ = Exp($1); 
+                  }
+   | expun        { //*$$ = Exp($1); 
+                  } 
+   | valor        { //Exp tmp = Exp($1); 
+                    //$$ = &tmp; 
+                  }
+   | ID           { //*$$ = Identificador(std::string($1)); 
+                  }
+   | '(' exp ')'  { //*$$ = ExpParentizada($2); 
+                  };
 
 /*LISTO*/
-expbin: exp AND exp          { *$$ = ExpBin($1,$3,std::string("and")); }
-      | exp OR exp           { *$$ = ExpBin($1,$3,std::string("or"));  }
+expbin: exp AND exp          { 
+                               ExpBin eb = ExpBin(*$1,*$3,std::string("and"));
+                               $$ = &eb;
+                             }
+      | exp OR exp           { 
+                               ExpBin eb = ExpBin(*$1,*$3,std::string("or"));
+                               $$ = &eb;
+                             }
       | exp COMPARISON exp   { int cmpv = $2;
                                switch(cmpv){
                                     case 1:
-                                        *$$ = ExpBin($1,$3,std::string(">"));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string(">"));
+                                        $$ = &eb;
                                         break;
                                     case 2:
-                                        *$$ = ExpBin($1,$3,std::string("<"));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string("<"));
+                                        $$ = &eb;
                                         break;
                                     case 3:
-                                        *$$ = ExpBin($1,$3,std::string("<="));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string("<="));
+                                        $$ = &eb;
                                         break;
                                     case 4:
-                                        *$$ = ExpBin($1,$3,std::string(">="));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string(">="));
+                                        $$ = &eb;
                                         break;
                                     case 5:
-                                        *$$ = ExpBin($1,$3,std::string("="));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string("="));
+                                        $$ = &eb;
                                         break;
                                     case 6:
-                                        *$$ = ExpBin($1,$3,std::string("!="));
+                                        ExpBin eb = ExpBin(*$1,*$3,std::string("!="));
+                                        $$ = &eb;
                                         break;
                                }
                              }
-      | exp UFO exp          { *$$ = ExpBin($1,$3,std::string("<=>")); }
-      | exp '+' exp          { *$$ = ExpBin($1,$3,std::string("+")); }
-      | exp '-' exp          { *$$ = ExpBin($1,$3,std::string("-")); }
-      | exp '*' exp          { *$$ = ExpBin($1,$3,std::string("*")); }
-      | exp '/' exp          { *$$ = ExpBin($1,$3,std::string("/")); }
-      | exp DIV exp          { *$$ = ExpBin($1,$3,std::string("div")); }
-      | exp MOD exp          { *$$ = ExpBin($1,$3,std::string("mod")); }
-      | exp POW exp          { *$$ = ExpBin($1,$3,std::string("**")); }
+      | exp UFO exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("<=>"));
+                               $$ = &eb;
+                             }
+      | exp '+' exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("+"));
+                               $$ = &eb;
+                             }
+      | exp '-' exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("-"));
+                               $$ = &eb;
+                             }
+      | exp '*' exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("*"));
+                               $$ = &eb;
+                             }
+      | exp '/' exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("/"));
+                               $$ = &eb;
+                             }
+      | exp DIV exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("div"));
+                               $$ = &eb; 
+                             }
+      | exp MOD exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("mod"));
+                               $$ = &eb; 
+                             }
+      | exp POW exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("**"));
+                               $$ = &eb; 
+                             }
       | ID '.' ID            {	Exp id1 = Identificador(std::string($1));
                                 Exp id2 = Identificador(std::string($3));
-                             	*$$ = ExpBin(id1,id2,std::string("."));
+                                ExpBin eb = ExpBin(id1,id2,std::string("."));
+                             	$$ = &eb;
                              };
 
 expun: NOT exp               { std::string str = std::string("not");
-                               ExpUn tmp = ExpUn($2, &str);
+                               ExpUn tmp = ExpUn(*$2, &str);
                                $$ = &tmp; 
                              }
      | '-' exp %prec UMINUS  { std::string str = std::string("-");
-                               ExpUn tmp = ExpUn($2, &str);
+                               ExpUn tmp = ExpUn(*$2, &str);
                                $$ = &tmp; 
                              }
      | exp PLUSPLUS          { std::string str = std::string("++sufijo");
-                               ExpUn tmp = ExpUn($1, &str);
+                               ExpUn tmp = ExpUn(*$1, &str);
                                $$ = &tmp; 
                              }
      | exp MINUSMINUS        { std::string str = std::string("--sufijo");
-                               ExpUn tmp = ExpUn($1, &str);
-                               $$ = &tmp; 
+                               ExpUn tmp = ExpUn(*$1, &str);
+                               $$ = &tmp;
                              }
      | PLUSPLUS exp         { std::string str = std::string("++prefijo");
-                              ExpUn tmp = ExpUn($2, &str);
+                              ExpUn tmp = ExpUn(*$2, &str);
                               $$ = &tmp; 
                             }
-     | MINUSMINUS exp        { std::string str = std::string("--prefijo");
-                               ExpUn tmp = ExpUn($2, &str);
+     | MINUSMINUS exp        { 
+                               std::string str = std::string("--prefijo");
+                               Exp e = *$2;
+                               ExpUn tmp = ExpUn(e, &str);
                                $$ = &tmp; 
                              }
      | ID lcorchetes         { Exp id = Identificador(std::string($1));
@@ -395,15 +477,19 @@ valor: BOOL     { Valor tmp = Bool($1);
      | CHAR     { Valor tmp = Char($1);
                   $$ = &tmp;
                 }
-     | INTEGER  { Valor tmp = Integer($1);
+     | INTEGER  { Integer tmp;
+                  tmp = Integer($1);
                   $$ = &tmp;
                 }
      | REAL     { Valor tmp = Real($1);
                   $$ = &tmp;
-                };
+                }
+     | arreglo  {
+                  $$ = $1;
+                }
 
 /*LISTO*/
-tipo: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
+tipo: TYPE_REAL     { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     }
      | TYPE_INTEGER { Tipo tmp = Tipo(std::string("integer"));
@@ -418,6 +504,27 @@ tipo: TYPE_REAL    { Tipo tmp = Tipo(std::string("real"));
      | TYPE_STRING  { Tipo tmp = Tipo(std::string("string"));
                       $$ = &tmp;
                     };
+
+/*LISTO*/
+arreglo: '[' larreglo ']' {
+                            Arreglo tmp;
+                            LArreglo *lr = $2;
+                            tmp = Arreglo(lr);
+                            $$ = &tmp; 
+                          };
+
+/*LISTO*/
+larreglo: exp ',' larreglo      { 
+                                  Exp e = *$1;
+                                  LArreglo *l = $3;
+                                  LArreglo tmp = LArreglo(e,l); 
+                                  $$ = &tmp;
+                                }
+        | exp                   { 
+                                  LArreglo tmp = LArreglo(*$1,0);
+                                  $$ = &tmp;
+                                 
+                                };
 
 
 %%

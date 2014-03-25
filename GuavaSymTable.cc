@@ -21,7 +21,7 @@
  * Constructor de la clase
  */
 GuavaSymTable::GuavaSymTable(){
-    this->alcance = 0;
+    alcance = 0;
 }
 
 GuavaSymTable::~GuavaSymTable(){

@@ -125,13 +125,12 @@ public:
 /**
  * Clase que define los numeros enteros dentro del lenguaje.
  */
-class Integer: public Valor{
+class Integer:public Valor{
 public:
     int integer;
-    
+    Integer();
     Integer(int);    
     ~Integer();
-    
     virtual void show(std::string);
     virtual void verificar(GuavaSymTable);
 };
@@ -385,14 +384,6 @@ public:
     void verificar(GuavaSymTable);
 };
 
-class IArreglo{
-public:
-    virtual ~IArreglo(){}
-
-    virtual void show(std::string)=0;
-    virtual void verificar(GuavaSymTable)=0;
-};
-
 /**
  * Define la estructuracion de los arreglos de datos en el lenguaje.
  */
@@ -400,9 +391,7 @@ class LArreglo{
 public:
     Exp* exp;
     LArreglo* larr;
-    IArreglo* arr;
 
-    LArreglo(IArreglo*, LArreglo*);
     LArreglo(Exp, LArreglo*);
     ~LArreglo();
     
@@ -413,10 +402,11 @@ public:
 /**
  * Clase que describe la definicion de estructuras de datos tipo arreglos.
  */
-class Arreglo:public IArreglo{
+class Arreglo:public Valor{
 public:
     LArreglo* listaA;
-    
+
+    Arreglo();
     Arreglo(LArreglo*);    
     ~Arreglo();
     

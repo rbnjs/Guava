@@ -21,14 +21,16 @@
 
 /* Class de expresion  */
 
-Exp::Exp() {}
+Exp::Exp() { 
+    exp = 0;
+}
 
-Exp::Exp(Exp * e) {
-    exp = e;    
+Exp::Exp(Exp *e) {
+    *exp = *e;    
 }
 
 Exp::~Exp() {
-    delete exp;
+    //delete exp;
 }
 
 void Exp::show(std::string identacion) {
@@ -39,10 +41,7 @@ void Exp::verificar(GuavaSymTable s) {}
 
 /* Class ExpParentizada */
 
-ExpParentizada::ExpParentizada(Exp e) {
-    Exp();
-    exp = e;
-}
+ExpParentizada::ExpParentizada(Exp e): Exp(), exp(e) {}
 
 ExpParentizada::~ExpParentizada() {}
 
@@ -89,14 +88,15 @@ void Tipo::verificar(GuavaSymTable s) {}
 
 /* Class Valor */
 
-Valor::Valor(Valor* v) {
+Valor::Valor(Valor* v): Exp(this) {
     *valor = *v;
 }
 
-Valor::Valor() {}
+Valor::Valor(): Exp() {
+    valor = 0;
+}
 
 Valor::~Valor() {
-    delete valor;
 }
 
 void Valor::show(std::string s) {
@@ -121,9 +121,11 @@ void Real::verificar(GuavaSymTable s) {}
 
 /* Class Integer */
 
-Integer::Integer(int i) {
-    integer = i;
+Integer::Integer(): Valor(){
+    integer = 0; 
 }
+
+Integer::Integer(int i): Valor(), integer(i) {}
 
 Integer::~Integer() {}
 
@@ -135,8 +137,7 @@ void Integer::verificar(GuavaSymTable s) {}
 
 /* Class Char */
 
-Char::Char(char c) {
-    ch = c;
+Char::Char(char c): Valor(), ch(c) {
 }
 
 Char::~Char() {}
@@ -149,12 +150,11 @@ void Char::verificar(GuavaSymTable s) {}
 
 /* Class String */
 
-String::String(char* s) {
+String::String(char* s): Valor() {
     str = std::string(s);
 }
 
-String::String(std::string s) {
-    str = s;
+String::String(std::string s):Valor(), str(s) {
 }
 
 String::~String() {}
@@ -167,8 +167,7 @@ void String::verificar(GuavaSymTable s) {}
 
 /* Class Bool */
 
-Bool::Bool(bool b2){
-    b = b2;
+Bool::Bool(bool b2): Valor(), b(b2){
 }
 
 Bool::~Bool(){}
@@ -181,13 +180,11 @@ void Bool::verificar(GuavaSymTable s) {}
 
 /* Class LCorchetes */
 
-LCorchetes::LCorchetes(Exp e, LCorchetes* l) {
-    exp = e;
-    *lista = *l;
+LCorchetes::LCorchetes(Exp e, LCorchetes* l): exp(e), lista(l) {
 }
 
 LCorchetes::~LCorchetes() {
-   delete lista; 
+   //delete lista; 
 }
 
 void LCorchetes::show(std::string s) {
@@ -199,22 +196,20 @@ void LCorchetes::verificar(GuavaSymTable s) {}
 
 /* Class ExpUn */
 
-ExpUn::ExpUn(Exp e, std::string* op) {
-    Exp();
+ExpUn::ExpUn(Exp e, std::string* op):Exp() {
     exp = e;
-    *operacion = *op;
+    operacion = op;
     corchetes = 0;
 }
     
-ExpUn::ExpUn(Exp e1, LCorchetes* lc) {
-    exp = e1;
-    *corchetes = *lc;
+ExpUn::ExpUn(Exp e1, LCorchetes* lc): Exp() {
+    corchetes = lc;
     operacion = 0;
 }
 
 ExpUn::~ExpUn() {
-    delete corchetes;
-    delete operacion;
+    //delete corchetes;
+    //delete operacion; 
 }
 
 void ExpUn::show(std::string s) {
@@ -417,22 +412,13 @@ void Union::verificar(GuavaSymTable s) {}
 
 /* Class LArreglo */
 
-LArreglo::LArreglo(IArreglo* a, LArreglo* lar = 0) {
-    *arr = *a;
-    exp = 0;
-    *larr = *lar;
-}
-
-LArreglo::LArreglo(Exp e, LArreglo* lar = 0) {
-    *exp = e;
-    arr = 0;
-    *larr = *lar;
+LArreglo::LArreglo(Exp e, LArreglo* lar = 0): exp(&e),larr(lar) {
 }
     
 LArreglo::~LArreglo() {
-    delete exp;
-    delete arr;
-    delete larr;
+    /* MEMORY LEAK -> Revisar */
+    //delete exp;
+    //delete larr;
 }
 
 void LArreglo::show(std::string s) {} 
@@ -440,12 +426,16 @@ void LArreglo::verificar(GuavaSymTable s) {}
 
 /* Class Arreglo */
 
-Arreglo::Arreglo(LArreglo* l) {
-    *listaA = *l;
+Arreglo::Arreglo():Valor(){
+    listaA = 0;
+}
+
+Arreglo::Arreglo(LArreglo* l):Valor(),listaA(l) {
 }
     
 Arreglo::~Arreglo() { 
-    delete listaA;
+    /* MEMORY LEAK -> Revisar  */
+    //delete listaA;
 }
 
 void Arreglo::show(std::string) {}

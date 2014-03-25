@@ -1,0 +1,45 @@
+/**
+ * Arreglos1.gv
+ * SIN ERRORES.
+ *
+ * Prueba de arreglos, operaciones basicas.
+ *
+ */
+
+declare {
+  integer array a[10];
+}
+
+function void main() {
+  declare {
+    real array b[10];
+    boolean array c[10];
+    char array d[10];
+    String array e[10];
+  }
+
+  a[0] = 1;
+  a[1] = 1;
+  a[2] = a[0]+a[1];
+  a[3] = a[1]+a[2];
+  a[4] = a[2]+a[3];
+
+  b[3] = 3.00;
+  b[1] = 0.10;
+  b[4] = 0.04;
+  b[0] = b[3]+b[1]+b[4];
+
+  c[0] = true;
+  c[1] = c[0] or false;
+  c[2] = c[0] and not c[1];
+
+  d[0] = 'h';
+  d[1] = 'o';
+  d[2] = 'l';
+  d[3] = 'a';
+
+  e[0] = "Hola";
+  e[9] = "Mundo";
+  e[4] = "!";
+
+}

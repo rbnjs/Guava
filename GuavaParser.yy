@@ -150,12 +150,14 @@ bloquedeclare: /* Vacio */                { //*$$ = BloqueDeclare();
                                             };
 
 /*LISTO*/
-lvariables: tipo VAR lvar ';' lvariables          { Tipo tipo = *$1; 
-                                                    LVar lvar = *$3; 
+lvariables: tipo VAR lvar ';' lvariables          { //Tipo tipo = *$1; 
+                                                    //LVar lvar = *$3; 
                                                     
                                                   }
           | tipo VAR lvar ';'                     { //*$$ = LVariables(*$1, *$3, 0); 
                                                     }
+          | tipo lvar ';' lvariables              {}
+          | tipo lvar ';'                         {}
           | tipo ARRAY lvararreglo ';'            { //*$$ = LVariables(*$1, *$3, 0); 
                                                     }
           | tipo ARRAY lvararreglo ';' lvariables { //*$$ = LVariables(*$1, *$3, $5); 
@@ -180,11 +182,11 @@ union: UNION ID '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)
 record: RECORD ID '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
                                      };
 
-lvar: ID           { LVar tmp = LVar(Identificador(std::string($1)), 0); 
-                     $$ = &tmp; 
+lvar: ID           { //LVar tmp = LVar(Identificador(std::string($1)), 0); 
+                     //$$ = &tmp;
                    }
-    | ID ',' lvar  { LVar tmp = LVar(Identificador(std::string($1)), $3); 
-                     $$ = &tmp;
+    | ID ',' lvar  { //LVar tmp = LVar(Identificador(std::string($1)), $3); 
+                     //$$ = &tmp;
                    };
 
 /*LISTO*/

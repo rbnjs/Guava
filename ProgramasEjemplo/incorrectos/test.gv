@@ -1,0 +1,11 @@
+/**
+ * Programa para pruebas de errores.
+ */
+
+declare {
+  integer b;
+  integer a
+}
+
+function void main() {
+}

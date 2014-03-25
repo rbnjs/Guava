@@ -1,0 +1,50 @@
+/**
+ * OperacionesBasicas.gv
+ * SIN ERRORES.
+ *
+ * Prueba de operaciones basicas del lenguaje.
+ *
+ * Notar que esto es un bloque de comentario, o sea, tambien estamos probando
+ * los comentarios. JE, JE, JE.
+ */
+
+declare {
+  integer a,b,c;
+}
+
+function void main () {
+  real d,e;
+  boolean f,g;
+
+  a := 1;
+  b := 2;
+  c := 3;
+
+  d := 3.14;
+  e := d * 1.5;
+
+  f := true;
+  g := false;
+
+  /* Comienzo de operaciones */
+  
+  a := (2*a-(25+(-b))) div (5+b mod c**c);
+  
+  d := ((d + e) / 1.61) - (-e*3.1415);
+
+  f := true and g;
+  f := f or false;
+  g := (f or g) and true or false and (true or f or g or (true and false));
+
+  f := a > b;
+  f := b < a;
+  f := a >= c;
+  f := a <= c;
+  f := a = b;
+
+  g := ((a>b)and true) or (c<=b or f);
+  g := (a+5-b mod 17*(c**2)) >= (e/d/e+1.5*d) = ((d / e*1.5 + (1.5*d)) < (a+c-b**2 div (a+c-b)**2)) and (f or g and (a>b));
+  
+  c := a <=> b;
+  c := (a<=>b)<=>(b<=>(15<=>c));
+}

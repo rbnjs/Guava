@@ -314,17 +314,22 @@ LVar::LVar() {
 
 LVar::LVar(Identificador i, LVar* l) {
     id = i;
-    *lista = *l;
+    lista = l;
 }
-
-
 
 LVar::~LVar() {
     //delete lista;
 }
 
 std::list<Identificador> LVar::get_list(){
-
+    std::list<Identificador> result;
+    while (lista != 0){
+        id.show(std::string(""));
+        result.push_front(id);
+    }
+    id.show(std::string(""));
+    result.push_front(id);
+    return result;
 }
 
 void LVar::show(std::string s) {} 

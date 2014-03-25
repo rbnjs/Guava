@@ -109,10 +109,6 @@ read     { return token::READ; }
                         return token::REAL;
                     }
 
-{DIGIT}+","{DIGIT}* { driver.error(*yylloc,"using , instead of .");
-                      yylval->realval = 0.0;
-                      return token::REAL;
-                    }
 
 
 {STRING} {
@@ -148,9 +144,9 @@ mod { return token::MOD; }
 
 
 
-{ID} {
-         yylval->strval = yytext;
-         return token::ID;
+{ID} {	
+        yylval->strval = yytext;
+     	return token::ID;
      }
 
 

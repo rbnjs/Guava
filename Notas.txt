@@ -1,0 +1,58 @@
+1- Los valores no se definen es en codigo de maquina? Estamos suponiendo que un
+real en Guava equivale a un float en C++.
+
+2- En que se puede usar la expresion unaria: x[a]?
+
+3- Una expresion no debe de guardar el tipo de expresion que es?
+
+4- Dado que tenemos constructores de clases vacios, si estos crean instancias
+   'vacias' de la clase, que conviene mas: cuando se necesite dejar una clase
+   vacia llamar a este constructor, o crear un constructor padre que no tome
+   en cuenta este constructor 'hijo'?. Ejemplo:
+
+   La clase SelectorIf deriva de la regla gramatical:
+
+   selectorIF : IF ( exp ) THEN { bloquedeclare listainstrucciones } lelseif
+              | IF ( exp ) THEN instruccion
+              | IF ( exp ) THEN instruccion ELSE instruccion
+
+   Para la 3era 'subregla' se podria utilizar el mismo constructor de
+   la siguiente manera:
+
+   a- SelectorIf(Expresion(),Instruccion(instruccion), Instruccion())
+   b- SelectorIf(Expresion(),Instruccion(instruccion))
+
+   De acuerdo con lo explicado anteriormente.
+
+5- En el loop for, para la regla:
+
+   loopfor : FOR ( ID ; exp ; exp ) { bloquedeclare listainstrucciones }
+
+   No se deberia especificar que la segunda expresion, que determina el cambio
+   del iterador, sea unicamente una expresion de tipo incremento/decremento?
+
+6- Para la clase LVaroValor deberia de existir un contructor solo dada una 
+   lista de la misma clase. Recordar que las reglas donde esta clase se aplica
+   son:
+
+   lvarovalor : lambda
+              | lvarovalor2
+
+   lvarovalor2 : exp , lvarovalor2
+               | exp
+
+7- Remasterizar la gramatica, cambiar recursion derecha por izquierda, etc.
+
+8- Para verificar los constructores bien y como se debe ir armando el arbol,
+   como recomendacion de Maik: ir desde los terminales hasta los no terminales
+   con sus constructores, recordar que ellos solo reciben el string y lo
+   convierten al 'identificador' de la clase.
+
+9- Tenemos que tener CUIDADO con el loop for. Una de las reglas gramaticales
+   es de la forma:
+
+   FOR ( ID ; exp ; asignacion )
+
+   De aqui puede existir cualquier tipo de asignacion, lo que no garantiza que
+   se cumpla la condicion de que la variable de iteracion itere sobre si misma,
+   valga la redundancia.

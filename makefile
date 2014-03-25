@@ -14,7 +14,7 @@ GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaTree.hh GuavaDriver.hh
 
 GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 
-	bison --defines=GuavaParser.hh -o GuavaParser.cc GuavaParser.yy
+	bison -r state --defines=GuavaParser.hh -o GuavaParser.cc GuavaParser.yy
 
 GuavaLexer.o: GuavaLexer.cc GuavaParser.hh GuavaDriver.hh
 

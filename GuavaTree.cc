@@ -224,11 +224,9 @@ void ExpUn::verificar(GuavaSymTable s) {}
 
 /* Class ExpBin */
 
-ExpBin::ExpBin(Exp e1,Exp e2,std::string op){
-    Exp();
-    exp1 = e1;
-    exp2 = e2;
-    operacion = op;
+ExpBin::ExpBin():Exp(){}
+
+ExpBin::ExpBin(Exp e1,Exp e2,std::string op):Exp(), exp1(e1), exp2(e2), operacion(op){
 }
 
 ExpBin::~ExpBin() {}
@@ -310,15 +308,23 @@ void LVarArreglo::verificar(GuavaSymTable s) {}
 
 /* Class LVar */
 
-LVar::LVar() {}
+LVar::LVar() {
+    lista = 0;
+}
 
 LVar::LVar(Identificador i, LVar* l) {
     id = i;
     *lista = *l;
 }
 
+
+
 LVar::~LVar() {
-    delete lista;
+    //delete lista;
+}
+
+std::list<Identificador> LVar::get_list(){
+
 }
 
 void LVar::show(std::string s) {} 
@@ -631,9 +637,7 @@ void LoopFor::verificar(GuavaSymTable s) {}
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Identificador id, int t) {
-    identificador = id;
-    tipo = t;
+PlusMinus::PlusMinus(Identificador id, int t):Instruccion(), identificador(id), tipo(t) {
 }
 
 PlusMinus::~PlusMinus() {}
@@ -650,15 +654,17 @@ LVaroValor::LVaroValor() {
     exp = 0;
     lvarovalor = 0;
 }
- 
-LVaroValor::LVaroValor(Exp* e, LVaroValor* lv) {
-    *exp = *e;
-    *lvarovalor = *lv;
+
+LVaroValor::LVaroValor(Exp* e):exp(e){
+    lvarovalor = 0;
+}
+
+LVaroValor::LVaroValor(Exp* e, LVaroValor* lv): exp(e), lvarovalor(lv){
 }
         
 LVaroValor::~LVaroValor() {
-    delete exp;
-    delete lvarovalor;
+    //delete exp;
+    //delete lvarovalor;
 }
 
 void LVaroValor::show(std::string s) {

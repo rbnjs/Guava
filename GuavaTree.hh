@@ -33,7 +33,7 @@
  */
 
 #include "GuavaSymTable.hh"
-
+#include <list>
 /**
  * Clase que define las expresiones del lenguaje.
  */
@@ -217,7 +217,7 @@ class ExpBin: public Exp{
 public:
     Exp exp1,exp2;
     std::string operacion;
-    
+    ExpBin(); 
     ExpBin(Exp,Exp,std::string);
     ~ExpBin();
     
@@ -286,6 +286,7 @@ public:
     LVar();
     LVar(Identificador, LVar*);
     ~LVar();
+    std::list<Identificador> get_list();
     
     void show(std::string);
     void verificar(GuavaSymTable);
@@ -557,6 +558,7 @@ public:
     LVaroValor* lvarovalor;
     
     LVaroValor();
+    LVaroValor(Exp*);
     LVaroValor(Exp*, LVaroValor*); 
     ~LVaroValor();        
     

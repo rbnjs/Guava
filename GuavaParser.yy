@@ -66,8 +66,8 @@ class GuavaDriver;
     Char *classChar;
     String *classString;
     Bool *classBool;
-    Estructura *classEstructura;
-    PlusMinus *classPlusMinus;*/
+    Estructura *classEstructura;*/
+    PlusMinus *classPlusMinus;
     Program *classProgram;
 };
 
@@ -106,7 +106,8 @@ class GuavaDriver;
 %type <classLoopWhile> loopwhile 
 %type <classLoopFor> loopfor 
 %type <classAsignacion> asignacion
-%type <classInstruccion> instruccion instruccion1
+%type <classInstruccion> instruccion
+%type <classInstruccion> instruccion1
 %type <classListaInstrucciones> listainstrucciones
 %type <classLParam> lparam lparam2
 %type <classLElseIf> lelseif
@@ -149,7 +150,9 @@ bloquedeclare: /* Vacio */                { //*$$ = BloqueDeclare();
                                             };
 
 /*LISTO*/
-lvariables: tipo VAR lvar ';' lvariables          { //*$$ = LVariables(*$1, *$3, $5);
+lvariables: tipo VAR lvar ';' lvariables          { Tipo tipo = *$1; 
+                                                    LVar lvar = *$3; 
+                                                    
                                                   }
           | tipo VAR lvar ';'                     { //*$$ = LVariables(*$1, *$3, 0); 
                                                     }
@@ -162,31 +165,34 @@ lvariables: tipo VAR lvar ';' lvariables          { //*$$ = LVariables(*$1, *$3,
           | ID   RECORD lvar ';'                   {}
           | ID   RECORD lvar ';' lvariables        {}
           | union ';' lvariables                   { //*$$ = LVariables(*$1, $3); 
-                                                    }
+                                                   }
           | record ';' lvariables                  { //*$$ = LVariables(*$1, $3); 
-                                                    }
+                                                   }
           | union  ';'                             { //*$$ = LVariables(*$1, 0); 
-                                                    }
+                                                   }
           | record ';'                             { //*$$ = LVariables(*$1, 0); 
-                                                    };
+                                                   };
 
 /*LISTO*/
 union: UNION ID '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
-                                    };
-/*LISTO*/
+                                   };
+
 record: RECORD ID '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
-                                        };
+                                     };
+
+lvar: ID           { LVar tmp = LVar(Identificador(std::string($1)), 0); 
+                     $$ = &tmp; 
+                   }
+    | ID ',' lvar  { LVar tmp = LVar(Identificador(std::string($1)), $3); 
+                     $$ = &tmp;
+                   };
+
 /*LISTO*/
-lvar: ID           { //*$$ = LVar(Identificador(std::string($1)), 0); 
-                    }
-    | ID ',' lvar  { //*$$ = LVar(Identificador(std::string($1)), $3); 
-                    };
-/*LISTO*/
-lvararreglo: ID lcorchetes               { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
-                                         }
+lvararreglo: ID lcorchetes                 { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
+                                           }
            | ID lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
-                                            };
-/*LISTO*/
+                                           };
+
 lcorchetes: '[' exp ']'             { LCorchetes tmp =  LCorchetes(*$2,0); 
                                       $$ = &tmp;
                                     }
@@ -242,26 +248,30 @@ listainstrucciones: /* Vacio */                        { //*$$ = ListaInstruccio
                                                         };
 
 /*LISTO*/
-instruccion: asignacion     { //$$ = $1; 
+instruccion: asignacion     { 
                             }
-           | llamadafuncion { //$$ = $1; 
+           | llamadafuncion { 
                             }
-           | MINUSMINUS ID  { //*$$ = PlusMinus(Identificador(std::string($2)), 0); 
+           | MINUSMINUS ID  { PlusMinus tmp = PlusMinus(Identificador(std::string($2)), 0); 
+                              //$$ = &tmp; 
                             }
-           | ID MINUSMINUS  { //*$$ = PlusMinus(Identificador(std::string($1)), 1); 
+           | ID MINUSMINUS  { PlusMinus tmp = PlusMinus(Identificador(std::string($1)), 1); 
+                              //$$ = &tmp;
                             }
-           | PLUSPLUS ID    { //*$$ = PlusMinus(Identificador(std::string($2)), 2); 
+           | PLUSPLUS ID    { PlusMinus tmp = PlusMinus(Identificador(std::string($2)), 2); 
+                              $$ = &tmp;
                             }
-           | ID PLUSPLUS    { //*$$ = PlusMinus(Identificador(std::string($1)), 3); 
+           | ID PLUSPLUS    { PlusMinus tmp = PlusMinus(Identificador(std::string($1)), 3); 
+                              $$ = &tmp;
                             }
-           | entradasalida  { //$$ = $1; 
+           | entradasalida  { 
                             };
      
-instruccion1: loopfor        { //$$ = $1; 
+instruccion1: loopfor        { 
                              }
-            | loopwhile      { //$$ = $1; 
+            | loopwhile      { 
                              }
-            | selectorif     { //$$ = $1; 
+            | selectorif     { 
                              };
 
 /*LISTO*/
@@ -340,37 +350,39 @@ lelseif: /* Vacio */                                                            
                                                                                       driver.tablaSimbolos.exitScope();*/
                                                                                     };
 
-/*LISTO*/
-llamadafuncion: ID '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+llamadafuncion: ID '(' /* enterScope */ 
+                       lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
                                       };
 
-/*LISTO*****REVISAR LOS CONSTRUCTORES*/                                      
-lvarovalor: /* Vacio */   { //*$$ = LVaroValor(); 
+
+lvarovalor: /* Vacio */   { LVaroValor tmp= LVaroValor();
+                            $$ = &tmp;
                           }
-          | lvarovalor2   { //$$ = $1; 
+          | lvarovalor2   { 
                           };      
           
-lvarovalor2: exp ',' lvarovalor2     { //Exp e = $1;
-                                       //*$$ = LVaroValor(&e,$3);
+lvarovalor2: exp ',' lvarovalor2     { Exp e = $1;
+                                       LVaroValor tmp = LVaroValor(&e,$3);
+                                       $$ = &tmp; 
                                      }
-           | exp                     { //Exp e = $1;
-                                       //*$$ = LVaroValor(&e,0); 
+           | exp                     { Exp e = $1;
+                                       LVaroValor tmp = LVaroValor(&e);
+                                       $$ = &tmp; 
                                      };	   
 
-/*LISTO*/
-exp: expbin       { //*$$ = Exp($1); 
+/*Aqui no es necesario poner nada. Revisar esto.*/
+exp: expbin       {  
                   }
-   | expun        { //*$$ = Exp($1); 
+   | expun        {  
                   } 
-   | valor        { //Exp tmp = Exp($1); 
-                    //$$ = &tmp; 
+   | valor        {  
                   }
-   | ID           { //*$$ = Identificador(std::string($1)); 
+   | ID           { 
                   }
-   | '(' exp ')'  { //*$$ = ExpParentizada($2); 
+   | '(' exp ')'  { 
                   };
 
-/*LISTO*/
+/*Faltan pruebas*/
 expbin: exp AND exp          { 
                                ExpBin eb = ExpBin(*$1,*$3,std::string("and"));
                                $$ = &eb;
@@ -380,29 +392,30 @@ expbin: exp AND exp          {
                                $$ = &eb;
                              }
       | exp COMPARISON exp   { int cmpv = $2;
+                               ExpBin eb;
                                switch(cmpv){
                                     case 1:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string(">"));
+                                        eb = ExpBin(*$1,*$3,std::string(">"));
                                         $$ = &eb;
                                         break;
                                     case 2:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string("<"));
+                                        eb = ExpBin(*$1,*$3,std::string("<"));
                                         $$ = &eb;
                                         break;
                                     case 3:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string("<="));
+                                        eb = ExpBin(*$1,*$3,std::string("<="));
                                         $$ = &eb;
                                         break;
                                     case 4:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string(">="));
+                                        eb = ExpBin(*$1,*$3,std::string(">="));
                                         $$ = &eb;
                                         break;
                                     case 5:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string("="));
+                                        eb = ExpBin(*$1,*$3,std::string("="));
                                         $$ = &eb;
                                         break;
                                     case 6:
-                                        ExpBin eb = ExpBin(*$1,*$3,std::string("!="));
+                                        eb = ExpBin(*$1,*$3,std::string("!="));
                                         $$ = &eb;
                                         break;
                                }
@@ -431,12 +444,13 @@ expbin: exp AND exp          {
       | exp POW exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("**"));
                                $$ = &eb; 
                              }
-      | ID '.' ID            {	Exp id1 = Identificador(std::string($1));
+      | ID '.' ID            {	Exp id1 = Identificador(std::string($1)); /* Es necesario considerar el caso ID.ID.ID... */ 
                                 Exp id2 = Identificador(std::string($3));
                                 ExpBin eb = ExpBin(id1,id2,std::string("."));
                              	$$ = &eb;
                              };
 
+/* Expresiones unarias probadas y funcionan. */
 expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn(*$2, &str);
                                $$ = &tmp; 
@@ -467,7 +481,7 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn(id, $2);
                                $$ = &tmp;
                              };
-/*LISTO*/
+/*Funciona*/
 valor: BOOL     { Valor tmp = Bool($1);
                   $$ = &tmp;
                 }
@@ -488,7 +502,7 @@ valor: BOOL     { Valor tmp = Bool($1);
                   $$ = $1;
                 }
 
-/*LISTO*/
+/*Funciona*/
 tipo: TYPE_REAL     { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     }
@@ -505,7 +519,7 @@ tipo: TYPE_REAL     { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     };
 
-/*LISTO*/
+/*Funciona*/
 arreglo: '[' larreglo ']' {
                             Arreglo tmp;
                             LArreglo *lr = $2;
@@ -513,7 +527,8 @@ arreglo: '[' larreglo ']' {
                             $$ = &tmp; 
                           };
 
-/*LISTO*/
+/*Funciona. Faltan ejemplos mas interesantes.*/
+
 larreglo: exp ',' larreglo      { 
                                   Exp e = *$1;
                                   LArreglo *l = $3;

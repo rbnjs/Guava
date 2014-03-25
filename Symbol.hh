@@ -30,7 +30,7 @@ public:
     /**
      * Constructor de la clase Symbol.
      */
-    Symbol(std::string name, std::string catg, int scop, Symbol s);
+    Symbol(std::string name, std::string catg, int scop, Symbol* s);
 
     /**
      * Constructor de la clase Symbol.

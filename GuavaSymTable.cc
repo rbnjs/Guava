@@ -50,6 +50,11 @@ void GuavaSymTable::insert(Symbol elem) {
         this->tabla[elem.sym_name] = empty_list;
     }
 }
+
+void insert(std::string name, std::string catg, int sc, Symbol* symbol){
+   Symbol nuevo = Symbol(name, catg, sc, symbol); 
+}
+
 /**
  * Busca el simbolo a ser evaluado.
  * 
@@ -76,6 +81,20 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
         }
     }
     return 0; /* Null si no lo encuentra */
+}
+
+/**
+ * Busca un tipo determinado.
+ */
+Symbol* GuavaSymTable::lookupType(std::string type){
+    if (!tabla[type].empty()){
+        if (tabla[type].size() == 1){
+            std::list<Symbol> l = tabla[type];
+            return &l.front();
+        }
+        return 0;
+    }
+    return 0;
 }
 
 /**
@@ -113,4 +132,4 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
-/* No falta la funcion update? para actualizar los valores dentro de la Tabla? */
+/* falta la funcion update */

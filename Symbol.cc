@@ -21,11 +21,11 @@
 /**
  * Constructor de la clase Symbol.
  */
-Symbol::Symbol(std::string name, std::string catg, int scop, Symbol s) {
+Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* s) {
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
-    this->type = &s;
+    this->type = s;
 }
 
 /**

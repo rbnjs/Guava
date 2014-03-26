@@ -58,9 +58,9 @@ class GuavaDriver;
     BloqueDeclare *classBloqueDeclare;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
+    Identificador *classIdentificador;
 
     /*ExpParentizada *classExpParentizada;
-    Identificador *classIdentificador;
     Real *classReal;
     Integer *classInteger;
     Char *classChar;
@@ -115,6 +115,7 @@ class GuavaDriver;
 %type <classLFunciones> lfunciones
 %type <classLVariables> lvariables
 %type <classUnion> union
+%type <classIdentificador> identificador
 %type <classRecord> record
 %type <classLVar> lvar
 %type <classLVaroValor> lvarovalor lvarovalor2
@@ -150,9 +151,10 @@ bloquedeclare: /* Vacio */                { //*$$ = BloqueDeclare();
                                             };
 
 /*LISTO*/
-lvariables: tipo VAR lvar ';' lvariables          { Tipo tipo = *$1; 
+lvariables: tipo VAR lvar ';' lvariables          { Tipo *tipo = $1; 
                                                     LVar lvar = *$3; 
-                                                    
+                                                    std::list<Identificador> lista = lvar.get_list();
+                                                    std::cout << lista.size() << '\n';
                                                   }
           | tipo VAR lvar ';'                     { //*$$ = LVariables(*$1, *$3, 0); 
                                                     }
@@ -160,10 +162,10 @@ lvariables: tipo VAR lvar ';' lvariables          { Tipo tipo = *$1;
                                                     }
           | tipo ARRAY lvararreglo ';' lvariables { //*$$ = LVariables(*$1, *$3, $5); 
                                                     }
-          | ID   UNION lvar ';'                    {}
-          | ID   UNION lvar ';' lvariables         {}
-          | ID   RECORD lvar ';'                   {}
-          | ID   RECORD lvar ';' lvariables        {}
+          | identificador   UNION lvar ';'                    {}
+          | identificador   UNION lvar ';' lvariables         {}
+          | identificador   RECORD lvar ';'                   {}
+          | identificador   RECORD lvar ';' lvariables        {}
           | union ';' lvariables                   { //*$$ = LVariables(*$1, $3); 
                                                    }
           | record ';' lvariables                  { //*$$ = LVariables(*$1, $3); 
@@ -174,23 +176,25 @@ lvariables: tipo VAR lvar ';' lvariables          { Tipo tipo = *$1;
                                                    };
 
 /*LISTO*/
-union: UNION ID '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
+union: UNION identificador '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
                                    };
 
-record: RECORD ID '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
+record: RECORD identificador '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
                                      };
 
-lvar: ID           { LVar tmp = LVar(Identificador(std::string($1)), 0); 
+lvar: identificador           { 
+                     LVar tmp = LVar(*$1, 0); 
                      $$ = &tmp; 
                    }
-    | ID ',' lvar  { LVar tmp = LVar(Identificador(std::string($1)), $3); 
+    | identificador ',' lvar  { std::cout << $1 << '\n';
+                     LVar tmp = LVar(*$1, $3); 
                      $$ = &tmp;
                    };
 
 /*LISTO*/
-lvararreglo: ID lcorchetes                 { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
+lvararreglo: identificador lcorchetes                 { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
                                            }
-           | ID lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
+           | identificador lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
                                            };
 
 lcorchetes: '[' exp ']'             { LCorchetes tmp =  LCorchetes(*$2,0); 
@@ -214,13 +218,13 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterSco
                                                                                           };
 
 /*LISTO*/
-funcion: FUNCTION tipo ID '(' lparam ')' '{' { driver.tablaSimbolos.enterScope();   
+funcion: FUNCTION tipo identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope();   
                                              }
                                              bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                  ,*$5,*$9,*$10,*$12); 
                                                                                                    driver.tablaSimbolos.exitScope();*/
                                                                                                   }
-       | FUNCTION TYPE_VOID ID '(' lparam ')' '{' { 
+       | FUNCTION TYPE_VOID identificador '(' lparam ')' '{' { 
                                                     driver.tablaSimbolos.enterScope();   
                                                   }
                                                  bloquedeclare listainstrucciones '}'            { /*Tipo v = Tipo(std::string("void"));
@@ -234,9 +238,9 @@ lparam: /* Vacio */          { //*$$ = LParam();
       | lparam2              { //$$ = $1; 
                                 } 
 
-lparam2: tipo ID              { //*$$ = LParam(*$1,Identificador(std::string($2)), LParam());  
+lparam2: tipo identificador              { //*$$ = LParam(*$1,Identificador(std::string($2)), LParam());  
                                 } 
-       | tipo ID ',' lparam2  { //*$$ = LParam(*$1,Identificador(std::string($2)),*$4);
+       | tipo identificador ',' lparam2  { //*$$ = LParam(*$1,Identificador(std::string($2)),*$4);
                                 };
 
 /*LISTO*/
@@ -252,16 +256,16 @@ instruccion: asignacion     {
                             }
            | llamadafuncion { 
                             }
-           | MINUSMINUS ID  { PlusMinus tmp = PlusMinus(Identificador(std::string($2)), 0); 
+           | MINUSMINUS identificador  { PlusMinus tmp = PlusMinus(*$2, 0); 
                               //$$ = &tmp; 
                             }
-           | ID MINUSMINUS  { PlusMinus tmp = PlusMinus(Identificador(std::string($1)), 1); 
+           | identificador MINUSMINUS  { PlusMinus tmp = PlusMinus(*$1, 1); 
                               //$$ = &tmp;
                             }
-           | PLUSPLUS ID    { PlusMinus tmp = PlusMinus(Identificador(std::string($2)), 2); 
+           | PLUSPLUS identificador    { PlusMinus tmp = PlusMinus(*$2, 2); 
                               $$ = &tmp;
                             }
-           | ID PLUSPLUS    { PlusMinus tmp = PlusMinus(Identificador(std::string($1)), 3); 
+           | identificador PLUSPLUS    { PlusMinus tmp = PlusMinus(*$1, 3); 
                               $$ = &tmp;
                             }
            | entradasalida  { 
@@ -275,13 +279,13 @@ instruccion1: loopfor        {
                              };
 
 /*LISTO*/
-asignacion: ID ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
+asignacion: identificador ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
                                        *$$ = Asignacion(id,$3);*/
                                      }
-          | ID lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+          | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
                                        *$$ = Asignacion(id,*$2,$4);*/
                                      }
-          | ID '.' ID ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
+          | identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
                                        Identificador id2 = Identificador(std::string($3));
                                        *$$ = Asignacion(id1,id2,$5);*/
                                      };
@@ -293,14 +297,14 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
                                          };
 
 /*LISTO*/
-loopfor: FOR '(' ID ';' exp ';' asignacion ')' '{' { 
+loopfor: FOR '(' identificador ';' exp ';' asignacion ')' '{' { 
                                                      driver.tablaSimbolos.enterScope();   
                                                    }
                                                    bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                           *$$ = LoopFor(id,$5,*$7,*$11,*$12); 
                                                                                           driver.tablaSimbolos.exitScope();*/
                                                                                         }
-       | FOR '(' ID ';' exp ';' exp ')' '{' { 
+       | FOR '(' identificador ';' exp ';' exp ')' '{' { 
                                               driver.tablaSimbolos.enterScope();   
                                             } 
                                             bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
@@ -350,9 +354,9 @@ lelseif: /* Vacio */                                                            
                                                                                       driver.tablaSimbolos.exitScope();*/
                                                                                     };
 
-llamadafuncion: ID '(' /* enterScope */ 
-                       lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
-                                      };
+llamadafuncion: identificador '(' /* enterScope */ 
+                                 lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+                                                };
 
 
 lvarovalor: /* Vacio */   { LVaroValor tmp= LVaroValor();
@@ -377,8 +381,8 @@ exp: expbin       {
                   } 
    | valor        {  
                   }
-   | ID           { 
-                  }
+   | identificador    { 
+                      }
    | '(' exp ')'  { 
                   };
 
@@ -444,11 +448,11 @@ expbin: exp AND exp          {
       | exp POW exp          { ExpBin eb = ExpBin(*$1,*$3,std::string("**"));
                                $$ = &eb; 
                              }
-      | ID '.' ID            {	Exp id1 = Identificador(std::string($1)); /* Es necesario considerar el caso ID.ID.ID... */ 
-                                Exp id2 = Identificador(std::string($3));
-                                ExpBin eb = ExpBin(id1,id2,std::string("."));
-                             	$$ = &eb;
-                             };
+      | identificador '.' identificador { Exp id1 = *$1; 
+                                          Exp id2 = *$3;
+                                          ExpBin eb = ExpBin(id1,id2,std::string("."));
+                             	          $$ = &eb;
+                                        };
 
 /* Expresiones unarias probadas y funcionan. */
 expun: NOT exp               { std::string str = std::string("not");
@@ -477,10 +481,10 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn tmp = ExpUn(e, &str);
                                $$ = &tmp; 
                              }
-     | ID lcorchetes         { Exp id = Identificador(std::string($1));
-                               ExpUn tmp = ExpUn(id, $2);
-                               $$ = &tmp;
-                             };
+     | identificador lcorchetes { Exp id = *$1;
+                                  ExpUn tmp = ExpUn(id, $2);
+                                  $$ = &tmp;
+                                };
 /*Funciona*/
 valor: BOOL     { Valor tmp = Bool($1);
                   $$ = &tmp;
@@ -519,6 +523,7 @@ tipo: TYPE_REAL     { Tipo tmp = Tipo(std::string("real"));
                       $$ = &tmp;
                     };
 
+
 /*Funciona*/
 arreglo: '[' larreglo ']' {
                             Arreglo tmp;
@@ -540,6 +545,10 @@ larreglo: exp ',' larreglo      {
                                   $$ = &tmp;
                                  
                                 };
+
+identificador: ID { Identificador id = Identificador(std::string($1));
+                    $$ = &id;
+                  };
 
 
 %%

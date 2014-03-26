@@ -133,67 +133,66 @@ class GuavaDriver;
 /*%destructor { delete $$; } ID*/
 %% /* Reglas */
 
-/*LISTO*/
 program: bloqueprincipal { //*$$ = Program(*$1); 
                          };
 
-/*LISTO*/
-bloqueprincipal: { 
-                   driver.tablaSimbolos.enterScope(); 
-                 } 
-                 bloquedeclare lfunciones { //*$$ = BloquePrincipal(*$2, *$3); 
-                                            };
+bloqueprincipal: { driver.tablaSimbolos.enterScope(); } 
+                 bloquedeclare lfunciones 
+                 { //*$$ = BloquePrincipal(*$2, *$3); 
+                 };
 
-/*LISTO*/
 bloquedeclare: /* Vacio */                { //*$$ = BloqueDeclare(); 
-                                            }
+                                          }
              | DECLARE '{' lvariables '}' { //*$$ = BloqueDeclare(*$3); 
-                                            };
+                                          };
 
-/*LISTO*/
-lvariables: tipo VAR lvar ';' lvariables          { Tipo *tipo = $1; 
-                                                    LVar lvar = *$3; 
-                                                    std::list<Identificador> lista = lvar.get_list();
-                                                    std::cout << lista.size() << '\n';
-                                                  }
-          | tipo VAR lvar ';'                     { //*$$ = LVariables(*$1, *$3, 0); 
-                                                    }
-          | tipo lvar ';' lvariables              {}
-          | tipo lvar ';'                         {}
-          | tipo ARRAY lvararreglo ';'            { //*$$ = LVariables(*$1, *$3, 0); 
-                                                    }
-          | tipo ARRAY lvararreglo ';' lvariables { //*$$ = LVariables(*$1, *$3, $5); 
-                                                    }
-          | identificador   UNION lvar ';'                    {}
-          | identificador   UNION lvar ';' lvariables         {}
-          | identificador   RECORD lvar ';'                   {}
-          | identificador   RECORD lvar ';' lvariables        {}
-          | union ';' lvariables                   { //*$$ = LVariables(*$1, $3); 
-                                                   }
-          | record ';' lvariables                  { //*$$ = LVariables(*$1, $3); 
-                                                   }
-          | union  ';'                             { //*$$ = LVariables(*$1, 0); 
-                                                   }
-          | record ';'                             { //*$$ = LVariables(*$1, 0); 
-                                                   };
+lvariables: tipo VAR lvar ';' lvariables                { Tipo *tipo = $1; 
+                                                          LVar lvar = *$3; 
+                                                          std::list<Identificador> lista = lvar.get_list();
+                                                          std::cout << lista.size() << '\n';
+                                                        }
+          | tipo VAR lvar ';'                           { //*$$ = LVariables(*$1, *$3, 0); 
+                                                        }
+          | tipo lvar ';' lvariables                    {}
+          | tipo lvar ';'                               {}
+          | tipo ARRAY lvararreglo ';'                  { //*$$ = LVariables(*$1, *$3, 0); 
+                                                        }
+          | tipo ARRAY lvararreglo ';' lvariables       { //*$$ = LVariables(*$1, *$3, $5); 
+                                                        }
+          | identificador   UNION lvar ';'              {}
+          | identificador   UNION lvar ';' lvariables   {}
+          | identificador   RECORD lvar ';'             {}
+          | identificador   RECORD lvar ';' lvariables  {}
+          | union ';' lvariables                        { //*$$ = LVariables(*$1, $3); 
+                                                        }
+          | record ';' lvariables                       { //*$$ = LVariables(*$1, $3); 
+                                                        }
+          | union  ';'                                  { //*$$ = LVariables(*$1, 0);  
+                                                        }
+          | record ';'                                  { //*$$ = LVariables(*$1, 0);  
+                                                        }
+          /*Errores*/
+          | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
+          | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/}
 
-/*LISTO*/
 union: UNION identificador '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
-                                   };
+                                              }
+       /*Errores*/
+       | UNION identificador '{' error '}'    {/*Definicion erronea de la estructura*/}; //OJO con este error y el de las reglas de lvariables
 
 record: RECORD identificador '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
-                                     };
+                                                }
+       /*Errores*/
+       | RECORD identificador '{' error '}'     {/*Definicion erronea de la estructura*/};
 
-lvar: identificador           { 
-                     LVar tmp = LVar(*$1, 0); 
-                     $$ = &tmp; 
-                   }
+lvar: identificador           { LVar tmp = LVar(*$1, 0); 
+                                $$ = &tmp; 
+                              }
     | identificador ',' lvar  { std::cout << $1 << '\n';
-                     LVar tmp = LVar(*$1, $3); 
-                     $$ = &tmp;
-                   };
+                                LVar tmp = LVar(*$1, $3); 
+                                $$ = &tmp;
+                              };
 
-/*LISTO*/
 lvararreglo: identificador lcorchetes                 { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
                                            }
            | identificador lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
@@ -204,35 +203,70 @@ lcorchetes: '[' exp ']'             { LCorchetes tmp =  LCorchetes(*$2,0);
                                     }
           | '[' exp ']' lcorchetes  { LCorchetes tmp = LCorchetes(*$2,$4);
                                       $$ = &tmp;
-                                    };
-/*LISTO*/
+                                    }
+          /*Errores*/
+          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/};
+
 lfunciones: funcionmain        { //*$$ = LFunciones(*$1,0);  
                                }
-	  | funcion lfunciones { //*$$ = LFunciones(*$1,$2); 
+	        | funcion lfunciones { //*$$ = LFunciones(*$1,$2); 
                                };
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope();   
-                                                 } 
-                                                 bloquedeclare listainstrucciones '}'     { /*Tipo v = Tipo(std::string("void"));
-                                                                                            LParam lp = LParam();
-                                                                                            *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
-                                                                                            driver.tablaSimbolos.exitScope(); */
-                                                                                          };
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope(); } 
+                                                 bloquedeclare listainstrucciones 
+                                             '}' 
+                                                 { /*Tipo v = Tipo(std::string("void"));
+                                                   LParam lp = LParam();
+                                                   *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
+                                                   driver.tablaSimbolos.exitScope(); */
+                                                 }
+           /*Errores*/
+             /*Mala especificacion del encabezado de la funcion*/
+           | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { driver.tablaSimbolos.enterScope(); } 
+                                                       bloquedeclare listainstrucciones 
+                                                   '}' 
+                                                       { /*Tipo v = Tipo(std::string("void"));
+                                                         LParam lp = LParam();
+                                                         *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
+                                                         driver.tablaSimbolos.exitScope(); */
+                                                       }
+                
 
-/*LISTO*/
-funcion: FUNCTION tipo identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope();   
-                                             }
-                                             bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                 ,*$5,*$9,*$10,*$12); 
-                                                                                                   driver.tablaSimbolos.exitScope();*/
-                                                                                                  }
-       | FUNCTION TYPE_VOID identificador '(' lparam ')' '{' { 
-                                                    driver.tablaSimbolos.enterScope();   
-                                                  }
-                                                 bloquedeclare listainstrucciones '}'            { /*Tipo v = Tipo(std::string("void"));
-                                                                                                    *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$9,*$10,0);
-                                                                                                    driver.tablaSimbolos.exitScope();*/
-                                                                                                  };
+funcion: FUNCTION tipo identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope(); }
+                                                        bloquedeclare listainstrucciones RETURN exp ';' 
+                                                    '}' 
+                                                        { /**$$ = Funcion(*$2,Identificador(std::string($3))
+                                                          ,*$5,*$9,*$10,*$12); 
+                                                          driver.tablaSimbolos.exitScope();*/
+                                                        }
+       
+       | FUNCTION TYPE_VOID identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope(); }
+                                                             bloquedeclare listainstrucciones 
+                                                         '}'            
+                                                             { /*Tipo v = Tipo(std::string("void"));
+                                                               *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$9,*$10,0);
+                                                               driver.tablaSimbolos.exitScope();*/
+                                                             }
+       /*Errores*/
+         /*Mala especificacion del encabezado de la funcion*/
+       | FUNCTION tipo identificador '(' error ')' '{' { driver.tablaSimbolos.enterScope(); }
+                                                        bloquedeclare listainstrucciones RETURN exp ';' 
+                                                    '}' 
+                                                        { /**$$ = Funcion(*$2,Identificador(std::string($3))
+                                                          ,*$5,*$9,*$10,*$12); 
+                                                          driver.tablaSimbolos.exitScope();*/
+                                                        }
+       
+         /*Mala especificacion del encabezado de la funcion*/
+       | FUNCTION TYPE_VOID identificador '(' error ')' '{' { driver.tablaSimbolos.enterScope(); }
+                                                             bloquedeclare listainstrucciones 
+                                                         '}'            
+                                                             { /*Tipo v = Tipo(std::string("void"));
+                                                               *$$ = Funcion(v,Identificador(std::string($3)),*$5,*$9,*$10,0);
+                                                               driver.tablaSimbolos.exitScope();*/
+                                                             }
+
+
 
 /*LISTO*/
 lparam: /* Vacio */          { //*$$ = LParam(); 

@@ -58,3 +58,10 @@ public:
     void show(std::string);
 };
 
+class SymbolArray: public Symbol{
+
+};
+
+class SymbolStructure: public Symbol{
+
+};

@@ -211,10 +211,13 @@ lvararreglo: identificador lcorchetes                 { //*$$ = LVarArreglo(Iden
                                                        };
 
 lcorchetes: '[' exp ']'             { 
-                                      $$ = new LCorchetes(*$2,0);
+                                      LCorchetes *nuevo =  new LCorchetes();
+                                      nuevo->append(*$2);
+                                      $$ = nuevo;
                                     }
-          | '[' exp ']' lcorchetes  { 
-                                      $$ = new LCorchetes(*$2,$4);
+          | lcorchetes '[' exp ']' { 
+                                      $1->append(*$3);
+                                      $$ = $1; 
                                     }
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/};

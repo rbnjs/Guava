@@ -177,16 +177,17 @@ void Bool::verificar(GuavaSymTable s) {}
 
 /* Class LCorchetes */
 
-LCorchetes::LCorchetes(Exp e, LCorchetes* l): exp(e), lista(l) {
+LCorchetes::LCorchetes() {
+}
+
+void LCorchetes::append(Exp e){
+    lista.push_back(e);
 }
 
 LCorchetes::~LCorchetes() {
-   //delete lista; 
 }
 
 void LCorchetes::show(std::string s) {
-    exp.show(s);
-    if (lista !=0) lista->show(s);
 }
 
 void LCorchetes::verificar(GuavaSymTable s) {}

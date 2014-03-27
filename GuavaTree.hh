@@ -183,10 +183,10 @@ public:
  */
 class LCorchetes{
 public:
-    Exp exp;
-    LCorchetes* lista;
+    std::list<Exp> lista;
         
-    LCorchetes(Exp, LCorchetes*);    
+    LCorchetes();
+    void append(Exp);
     ~LCorchetes();
         
     void show(std::string);

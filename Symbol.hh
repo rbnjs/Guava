@@ -59,9 +59,12 @@ public:
 };
 
 class SymbolArray: public Symbol{
-
+    int* arreglo;
+    SymbolArray(std::string, std::string, int, Symbol*, int*);
+    ~SymbolArray();
 };
 
 class SymbolStructure: public Symbol{
-
+    int fieldScope;
+    SymbolStructure(std::string,std::string,int,Symbol*,int);
 };

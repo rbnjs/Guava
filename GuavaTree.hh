@@ -34,6 +34,7 @@
 
 #include "GuavaSymTable.hh"
 #include <list>
+#include <utility>
 /**
  * Clase que define las expresiones del lenguaje.
  */
@@ -263,12 +264,12 @@ public:
  */
 class LVarArreglo{
 public:
-    Identificador id;
-    LCorchetes* corchetes;
-    LVarArreglo* lista;
+    std::list<std::pair <Identificador, LCorchetes> > lista;
     
     LVarArreglo();
-    LVarArreglo(Identificador, LCorchetes*,  LVarArreglo*);
+    LVarArreglo(Identificador, LCorchetes);
+    void append(Identificador,LCorchetes);
+    std::list<std::pair <Identificador, LCorchetes> > LVarArreglo::get_list();
     ~LVarArreglo();
     
     void show(std::string);
@@ -389,10 +390,10 @@ public:
  */
 class LArreglo{
 public:
-    Exp* exp;
-    LArreglo* larr;
+    std::list<Exp> larr;
 
-    LArreglo(Exp, LArreglo*);
+    LArreglo();
+    void append(Exp);
     ~LArreglo();
     
     void show(std::string);

@@ -285,21 +285,24 @@ void ListaInstrucciones::verificar(GuavaSymTable s) {}
 
 LVarArreglo::LVarArreglo() {}
 
-LVarArreglo::LVarArreglo(Identificador i, LCorchetes* lc, LVarArreglo* lva) {
-    id = i;
-    corchetes = lc;
-    lista = lva;
+LVarArreglo::LVarArreglo(Identificador i, LCorchetes lc) {
+   std::pair <Identificador, LCorchetes> nuevo (i,lc);
+   lista.push_back(nuevo);
+}
+
+void LVarArreglo::append(Identificador id,LCorchetes lc){
+   std::pair <Identificador, LCorchetes> nuevo (id,lc);
+   lista.push_back(nuevo);
+}
+
+std::list<std::pair <Identificador, LCorchetes> > LVarArreglo::get_id_list(){
+    return lista;
 }
 
 LVarArreglo::~LVarArreglo() {
-    delete corchetes;
-    delete lista;
 }
 
 void LVarArreglo::show(std::string s) {
-    id.show(s);
-    corchetes->show(s);
-    lista->show(s);
 }
 
 void LVarArreglo::verificar(GuavaSymTable s) {} 
@@ -414,13 +417,14 @@ void Union::verificar(GuavaSymTable s) {}
 
 /* Class LArreglo */
 
-LArreglo::LArreglo(Exp e, LArreglo* lar = 0): exp(&e),larr(lar) {
+LArreglo::LArreglo(){
 }
-    
+
+void LArreglo::append(Exp e){
+    larr.push_back(e);
+}
+
 LArreglo::~LArreglo() {
-    /* MEMORY LEAK -> Revisar */
-    //delete exp;
-    //delete larr;
 }
 
 void LArreglo::show(std::string s) {} 

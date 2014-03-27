@@ -6,6 +6,7 @@
 %code requires {
 # include <string>
 # include <iostream>
+# include <utility>
 # include "GuavaTree.hh"
 class GuavaDriver;
 }
@@ -148,12 +149,12 @@ bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare();
              | DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(*$3); 
                                           };
 
-lvariables: tipo VAR lvar ';' lvariables                {
-                                                            std::list<Identificador> l = $3->get_list();
+lvariables: lvariables ';' tipo VAR lvar                 {
+                                                            std::list<Identificador> l = $5->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$1->tipo); 
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$3->tipo); 
                                                             }
                                                             driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
@@ -166,17 +167,24 @@ lvariables: tipo VAR lvar ';' lvariables                {
                                                             }
                                                             driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
-          | tipo ARRAY lvararreglo ';'                  { 
+          | tipo ARRAY lvararreglo ';'                  {  
+                                                            /*std::list<Identificador> l = $3->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("array"),scop,$1->tipo); 
+                                                            }
+                                                            driver.tablaSimbolos.show(scop,std::string(""));*/
                                                         }
-          | tipo ARRAY lvararreglo ';' lvariables       { 
+          | lvariables ';' tipo ARRAY lvararreglo       { 
                                                         }
           | identificador   UNION lvar ';'              {}
-          | identificador   UNION lvar ';' lvariables   {}
+          | lvariables ';' identificador   UNION lvar   {}
           | identificador   RECORD lvar ';'             {}
-          | identificador   RECORD lvar ';' lvariables  {}
-          | union ';' lvariables                        { 
+          | lvariables ';' identificador   RECORD lvar  {}
+          | lvariables ';' union                        { 
                                                         }
-          | record ';' lvariables                       { 
+          | lvariables ';' record                       { 
                                                         }
           | union  ';'                                  { 
                                                         }
@@ -186,7 +194,7 @@ lvariables: tipo VAR lvar ';' lvariables                {
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
           | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/}
 
-union: UNION identificador '{' lvariables '}' { //*$$ = Union(Identificador(std::string($2)), $4); 
+union: UNION identificador '{' lvariables '}' { 
                                               }
        /*Errores*/
        | UNION identificador '{' error '}'    {/*Definicion erronea de la estructura*/}; //OJO con este error y el de las reglas de lvariables
@@ -205,11 +213,14 @@ lvar: identificador           { LVar *tmp = new LVar();
                                 $$ = $1;
                               };
 
-lvararreglo: identificador lcorchetes                 { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, 0); 
-                                                      }
-            | identificador lcorchetes ',' lvararreglo { //*$$ = LVarArreglo(Identificador(std::string($1)), $2, $4); 
+lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
+                                                         $$ = tmp;
+                                                       }
+            | lvararreglo ',' identificador lcorchetes { $1->append(*$3,*$4);
+                                                         $$ = $1;
                                                        };
 
+/* Esto tiene que hacerse a tiempo de compilacion. Cambiar por enteros solamente. */
 lcorchetes: '[' exp ']'             { 
                                       LCorchetes *nuevo =  new LCorchetes();
                                       nuevo->append(*$2);
@@ -569,14 +580,13 @@ arreglo: '[' larreglo ']' {
 
 /*Funciona. Faltan ejemplos mas interesantes.*/
 
-larreglo: exp ',' larreglo      { 
-                                  Exp e = *$1;
-                                  LArreglo *l = $3;
-                                  LArreglo* tmp = new LArreglo(e,l); 
-                                  $$ = tmp;
+larreglo: larreglo ',' exp      { 
+                                  $1->append(*$3);
+                                  $$ = $1;
                                 }
         | exp                   { 
-                                  LArreglo *tmp = new LArreglo(*$1,0);
+                                  LArreglo *tmp = new LArreglo();
+                                  tmp->append(*$1);
                                   $$ = tmp;
                                  
                                 };

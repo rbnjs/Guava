@@ -53,13 +53,10 @@ void ExpParentizada::verificar(GuavaSymTable s) {}
 
 /* Class Identificador. */
 
-Identificador::Identificador(){
-    Exp();
+Identificador::Identificador():Exp(){
 }
 
-Identificador::Identificador(std::string i) {
-    Exp();
-    identificador = i;
+Identificador::Identificador(std::string i):Exp(),identificador(i) {
 }
 
 Identificador::~Identificador() {}
@@ -309,27 +306,20 @@ void LVarArreglo::verificar(GuavaSymTable s) {}
 /* Class LVar */
 
 LVar::LVar() {
-    lista = 0;
 }
 
-LVar::LVar(Identificador i, LVar* l) {
-    id = i;
-    lista = l;
+LVar::LVar(std::list<Identificador> l): lista(l) {
+}
+
+void LVar::append(Identificador id){
+    lista.push_back(id);
 }
 
 LVar::~LVar() {
-    //delete lista;
 }
 
 std::list<Identificador> LVar::get_list(){
-    std::list<Identificador> result;
-    while (lista != 0){
-        id.show(std::string(""));
-        result.push_front(id);
-    }
-    id.show(std::string(""));
-    result.push_front(id);
-    return result;
+    return lista;
 }
 
 void LVar::show(std::string s) {} 

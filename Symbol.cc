@@ -42,7 +42,6 @@ Symbol::Symbol(std::string name, std::string catg, int scop) {
  * Destructor de la clase Symbol.
  */
 Symbol::~Symbol(){
-    delete type;
 }
 
 /**
@@ -60,7 +59,7 @@ bool Symbol::compare(std::string s, int sc){
 }
 
 void Symbol::show(std::string identacion){
-    std::cout << identacion << "Name: " + sym_name << '\n';
-    std::cout << identacion <<"Category: " +sym_catg;
+    std::cout << identacion << "Name: " + sym_name;
+    std::cout << identacion <<" Category: " +sym_catg << '\n';
 
 }

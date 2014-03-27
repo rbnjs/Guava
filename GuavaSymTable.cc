@@ -51,8 +51,14 @@ void GuavaSymTable::insert(Symbol elem) {
     }
 }
 
-void insert(std::string name, std::string catg, int sc, Symbol* symbol){
-   Symbol nuevo = Symbol(name, catg, sc, symbol); 
+void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* symbol){
+   Symbol* nuevo = new Symbol(name, catg, sc, symbol); 
+   this->insert(*nuevo);
+}
+
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo){    
+    Symbol* type = this->lookupType(tipo);
+    this->insert(name,catg,sc,type);
 }
 
 /**

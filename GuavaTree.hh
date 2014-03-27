@@ -280,11 +280,10 @@ public:
  */
 class LVar{
 public:
-    Identificador id;
-    LVar* lista;
-    
+   std::list<Identificador> lista; 
     LVar();
-    LVar(Identificador, LVar*);
+    LVar(std::list<Identificador>);
+    void append(Identificador);
     ~LVar();
     std::list<Identificador> get_list();
     

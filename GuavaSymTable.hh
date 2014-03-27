@@ -34,6 +34,7 @@ public:
     Symbol* lookupType(std::string);
     void insert(Symbol elem);                             /* Inserta un simbolo a la tabla */
     void insert(std::string,std::string,int,Symbol*);
+    void insert(std::string,std::string,int,std::string);
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */
     Symbol* lookup(std::string elem);                     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */

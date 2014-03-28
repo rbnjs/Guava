@@ -299,7 +299,7 @@ lcorchetes: '[' INTEGER ']'         {
 
 lfunciones: funcionmain        { //*$$ = LFunciones(*$1,0);  
                                }
-          | funcion lfunciones { //*$$ = LFunciones(*$1,$2); 
+          | lfunciones funcion { //*$$ = LFunciones(*$1,$2); 
                                };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope(); } 

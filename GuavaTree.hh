@@ -269,7 +269,7 @@ public:
     LVarArreglo();
     LVarArreglo(Identificador, LCorchetes);
     void append(Identificador,LCorchetes);
-    std::list<std::pair <Identificador, LCorchetes> > LVarArreglo::get_list();
+    std::list<std::pair <Identificador, LCorchetes> > get_list();
     ~LVarArreglo();
     
     void show(std::string);

@@ -60,6 +60,19 @@ bool Symbol::compare(std::string s, int sc){
 
 void Symbol::show(std::string identacion){
     std::cout << identacion << "Name: " + sym_name;
-    std::cout << identacion <<" Category: " +sym_catg << '\n';
+    std::cout << identacion <<" Category: " +sym_catg;
+    if (type != 0) std::cout << " Type: "+ this->type->sym_name << '\n';
+}
 
+SymbolArray::SymbolArray(std::string name, std::string catg,int scop, Symbol* type, int* array):
+        Symbol(name,catg,scop,type), arreglo(array){}
+
+SymbolArray::~SymbolArray(){
+    delete[] arreglo;
+}
+
+SymbolStructure::SymbolStructure(std::string name, std::string catg, int scop, Symbol* type, int fscop):
+                    Symbol(name,catg,scop,type), fieldScope(fscop){}
+
+SymbolStructure::~SymbolStructure(){
 }

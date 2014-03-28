@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "GuavaSymTable.hh"
+#include <iostream>
 
 /**
  * Constructor de la clase
@@ -57,8 +58,19 @@ void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* s
 }
 
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo){    
+    this->insert(name,catg,sc,this->lookupType(tipo));
+}
+
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo){    
     Symbol* type = this->lookupType(tipo);
-    this->insert(name,catg,sc,type);
+    Symbol* nuevo = new SymbolArray(name,catg,sc,type,arreglo);
+    this->insert(*nuevo);
+}
+
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int fsc){    
+    Symbol* type = this->lookupType(tipo);
+    Symbol* nuevo = new SymbolStructure(name,catg,sc,type,fsc);
+    this->insert(*nuevo);
 }
 
 /**

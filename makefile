@@ -6,7 +6,7 @@ guava: Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLex
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh
 
-	g++ -c  GuavaDriver.cc
+	g++ -c   GuavaDriver.cc
 
 GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaTree.hh GuavaDriver.hh
 
@@ -26,7 +26,7 @@ GuavaLexer.cc: GuavaLexer.l
 
 GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh GuavaTree.hh
 
-	g++ -c GuavaSymTable.cc
+	g++ -g -c GuavaSymTable.cc
 
 Symbol.o: Symbol.cc Symbol.hh
 

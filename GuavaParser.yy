@@ -168,13 +168,15 @@ lvariables: lvariables ';' tipo VAR lvar                 {
                                                             driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
           | tipo ARRAY lvararreglo ';'                  {  
-                                                            /*std::list<Identificador> l = $3->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            std::list<std::pair <Identificador, LCorchetes> > l = $3->get_list();
+                                                            std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("array"),scop,$1->tipo); 
+                                                               std::pair <Identificador, LCorchetes> par (*it);
+                                                               int *arreglo = new int[par.second.lista.size()];
+                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$1->tipo,arreglo); 
                                                             }
-                                                            driver.tablaSimbolos.show(scop,std::string(""));*/
+                                                            driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
           | lvariables ';' tipo ARRAY lvararreglo       { 
                                                         }
@@ -192,7 +194,7 @@ lvariables: lvariables ';' tipo VAR lvar                 {
                                                         }
           /*Errores*/
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
-          | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/}
+          | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
 
 union: UNION identificador '{' lvariables '}' { 
                                               }

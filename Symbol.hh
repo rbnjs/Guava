@@ -55,16 +55,19 @@ public:
     /**
      * Muestra lo que tiene el Symbol. 
      */
-    void show(std::string);
+    virtual void show(std::string);
 };
 
 class SymbolArray: public Symbol{
-    int* arreglo;
+public:
+    int *arreglo;
     SymbolArray(std::string, std::string, int, Symbol*, int*);
     ~SymbolArray();
 };
 
 class SymbolStructure: public Symbol{
+public:
     int fieldScope;
     SymbolStructure(std::string,std::string,int,Symbol*,int);
+    ~SymbolStructure();
 };

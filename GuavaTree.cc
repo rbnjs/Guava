@@ -295,7 +295,7 @@ void LVarArreglo::append(Identificador id,LCorchetes lc){
    lista.push_back(nuevo);
 }
 
-std::list<std::pair <Identificador, LCorchetes> > LVarArreglo::get_id_list(){
+std::list<std::pair <Identificador, LCorchetes> > LVarArreglo::get_list(){
     return lista;
 }
 

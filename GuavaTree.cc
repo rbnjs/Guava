@@ -180,7 +180,7 @@ void Bool::verificar(GuavaSymTable s) {}
 LCorchetes::LCorchetes() {
 }
 
-void LCorchetes::append(Exp e){
+void LCorchetes::append(Integer e){
     lista.push_back(e);
 }
 

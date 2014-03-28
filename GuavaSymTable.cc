@@ -52,24 +52,19 @@ void GuavaSymTable::insert(Symbol elem) {
     }
 }
 
-void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* symbol){
-   Symbol* nuevo = new Symbol(name, catg, sc, symbol); 
+void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type){
+   Symbol* nuevo = new Symbol(name, catg, sc, type); 
    this->insert(*nuevo);
 }
 
-void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo){    
-    this->insert(name,catg,sc,this->lookupType(tipo));
-}
 
-void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo){    
-    Symbol* type = this->lookupType(tipo);
-    Symbol* nuevo = new SymbolArray(name,catg,sc,type,arreglo);
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo,int size){    
+    SymbolArray* nuevo = new SymbolArray(name,catg,sc,tipo,arreglo,size);
     this->insert(*nuevo);
 }
 
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int fsc){    
-    Symbol* type = this->lookupType(tipo);
-    Symbol* nuevo = new SymbolStructure(name,catg,sc,type,fsc);
+    Symbol* nuevo = new SymbolStructure(name,catg,sc,tipo,fsc);
     this->insert(*nuevo);
 }
 
@@ -121,6 +116,14 @@ Symbol* GuavaSymTable::lookupType(std::string type){
 int GuavaSymTable::enterScope(){
     ++alcance;
     this->pila.push_front(alcance);
+    return alcance;
+}
+
+/**
+ * Aumenta en uno el alcance
+ */
+int GuavaSymTable::newScope(){
+    ++alcance;
     return alcance;
 }
 

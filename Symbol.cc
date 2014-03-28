@@ -21,21 +21,11 @@
 /**
  * Constructor de la clase Symbol.
  */
-Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* s) {
+Symbol::Symbol(std::string name, std::string catg, int scop, std::string s) {
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
     this->type = s;
-}
-
-/**
- * Constructor de la clase Symbol.
- */
-Symbol::Symbol(std::string name, std::string catg, int scop) {
-    this->sym_name = name;
-    this->sym_catg = catg;
-    this->scope = scop;
-    type = 0;
 }
 
 /**  
@@ -60,18 +50,28 @@ bool Symbol::compare(std::string s, int sc){
 
 void Symbol::show(std::string identacion){
     std::cout << identacion << "Name: " + sym_name;
-    std::cout << identacion <<" Category: " +sym_catg;
-    if (type != 0) std::cout << " Type: "+ this->type->sym_name << '\n';
+    std::cout << " Category: " +sym_catg;
+    std::cout << " Type: "+ type << '\n';
 }
 
-SymbolArray::SymbolArray(std::string name, std::string catg,int scop, Symbol* type, int* array):
-        Symbol(name,catg,scop,type), arreglo(array){}
+SymbolArray::SymbolArray(std::string name, std::string catg,int scop, std::string type, int* array,int siz):
+        Symbol(name,catg,scop,type), arreglo(array), size(siz){}
 
 SymbolArray::~SymbolArray(){
     delete[] arreglo;
 }
 
-SymbolStructure::SymbolStructure(std::string name, std::string catg, int scop, Symbol* type, int fscop):
+void SymbolArray::show(std::string identacion){
+    std::cout << identacion << "Name: " + sym_name;
+    std::cout << " Category: " +sym_catg;
+    std::cout << " Size: ";
+    for (int i = 0; i  !=  size; i++){
+        std::cout << "[" << arreglo[i] << "] ";
+    }
+    std::cout << "Type: "+ type << '\n';
+}
+
+SymbolStructure::SymbolStructure(std::string name, std::string catg, int scop, std::string type, int fscop):
                     Symbol(name,catg,scop,type), fieldScope(fscop){}
 
 SymbolStructure::~SymbolStructure(){

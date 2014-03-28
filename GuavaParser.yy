@@ -74,6 +74,7 @@ class GuavaDriver;
 
 %code {
 # include "GuavaDriver.hh"
+int current_scope;
 }
 
 %token            END       0 
@@ -144,19 +145,20 @@ bloqueprincipal: {
                  bloquedeclare lfunciones  { //*$$ = BloquePrincipal(*$2, *$3); 
                                            };
 
-bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(); 
+bloquedeclare: /* Vacio */                { //$$ = new BloqueDeclare(); 
                                           }
-             | DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(*$3); 
+             | DECLARE '{' lvariables '}' { //$$ = new BloqueDeclare(*$3); 
                                           };
 
-lvariables: lvariables ';' tipo VAR lvar                 {
-                                                            std::list<Identificador> l = $5->get_list();
+lvariables: lvariables  tipo VAR lvar ';'               {
+                                                            std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$3->tipo); 
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$2->tipo); 
                                                             }
-                                                            driver.tablaSimbolos.show(scop,std::string(""));
+                                                            std::string* str = new std::string("");
+                                                            driver.tablaSimbolos.show(scop,*str);
                                                         }
           | tipo VAR lvar ';'                           { 
                                                             std::list<Identificador> l = $3->get_list();
@@ -165,7 +167,6 @@ lvariables: lvariables ';' tipo VAR lvar                 {
                                                             for (it ; it != l.end(); ++it){
                                                                driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$1->tipo); 
                                                             }
-                                                            driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
           | tipo ARRAY lvararreglo ';'                  {  
                                                             std::list<std::pair <Identificador, LCorchetes> > l = $3->get_list();
@@ -173,20 +174,75 @@ lvariables: lvariables ';' tipo VAR lvar                 {
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
                                                                std::pair <Identificador, LCorchetes> par (*it);
+                                                               int size (par.second.lista.size());
                                                                int *arreglo = new int[par.second.lista.size()];
-                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$1->tipo,arreglo); 
+                                                               std::list<Integer>::iterator itInt (par.second.lista.begin());
+                                                               for (int i = 0; i != size ; i++){
+                                                                    arreglo[i] = itInt->integer;
+                                                                    ++itInt;
+                                                               }
+                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$1->tipo
+                                                                                            ,arreglo,size); 
                                                             }
                                                             driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
-          | lvariables ';' tipo ARRAY lvararreglo       { 
+          | lvariables tipo ARRAY lvararreglo ';'      { 
+                                                            std::list<std::pair <Identificador, LCorchetes> > l = $4->get_list();
+                                                            std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               std::pair <Identificador, LCorchetes> par (*it);
+                                                               int size (par.second.lista.size());
+                                                               int *arreglo = new int[size];
+                                                               std::list<Integer>::iterator itInt (par.second.lista.begin());
+                                                               for (int i = 0; i != size ; i++){
+                                                                    arreglo[i] = itInt->integer;
+                                                                    ++itInt;
+                                                               }
+                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$2->tipo
+                                                                                            ,arreglo,size); 
+                                                            }
+                                                            driver.tablaSimbolos.show(scop,std::string(""));
                                                         }
-          | identificador   UNION lvar ';'              {}
-          | lvariables ';' identificador   UNION lvar   {}
-          | identificador   RECORD lvar ';'             {}
-          | lvariables ';' identificador   RECORD lvar  {}
-          | lvariables ';' union                        { 
+          | identificador   UNION lvar ';'              {
+                                                            std::list<Identificador> l = $3->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,$1->identificador); 
+                                                            }
                                                         }
-          | lvariables ';' record                       { 
+          | lvariables  identificador   UNION lvar ';'  {
+                                                            std::list<Identificador> l = $4->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,$2->identificador); 
+                                                            }
+                                                            std::string* str = new std::string("");
+                                                            driver.tablaSimbolos.show(scop,*str);
+                                                        }
+          | identificador   RECORD lvar ';'             {
+                                                            std::list<Identificador> l = $3->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop,$1->identificador); 
+                                                            }
+                                                        }
+          | lvariables identificador RECORD lvar ';'   {
+                                                            std::list<Identificador> l = $4->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it ; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop,$2->identificador); 
+                                                            }
+                                                            std::string* str = new std::string("");
+                                                            driver.tablaSimbolos.show(scop,*str);
+                                                        }
+          | lvariables  union ';'                       {
+                                                        }
+          | lvariables  record  ';'                     { 
                                                         }
           | union  ';'                                  { 
                                                         }
@@ -196,13 +252,19 @@ lvariables: lvariables ';' tipo VAR lvar                 {
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
           | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
 
-union: UNION identificador '{' lvariables '}' { 
-                                              }
+union: UNION identificador '{' {
+                                current_scope = driver.tablaSimbolos.newScope();
+                               }
+                              lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("unionType"),0,std::string("union"),current_scope);
+                                             }
        /*Errores*/
        | UNION identificador '{' error '}'    {/*Definicion erronea de la estructura*/}; //OJO con este error y el de las reglas de lvariables
 
-record: RECORD identificador '{' lvariables '}' { //*$$ = Record(Identificador(std::string($2)), $4); 
-                                                }
+record: RECORD identificador '{'{
+                                 current_scope = driver.tablaSimbolos.newScope();
+                                } 
+                                lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("recordType"),0,std::string("record"),current_scope);
+                                               }
        /*Errores*/
        | RECORD identificador '{' error '}'     {/*Definicion erronea de la estructura*/};
 
@@ -223,15 +285,15 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
                                                        };
 
 /* Esto tiene que hacerse a tiempo de compilacion. Cambiar por enteros solamente. */
-lcorchetes: '[' exp ']'             { 
+lcorchetes: '[' INTEGER ']'         { 
                                       LCorchetes *nuevo =  new LCorchetes();
-                                      nuevo->append(*$2);
+                                      nuevo->append(*(new Integer($2)));
                                       $$ = nuevo;
                                     }
-          | lcorchetes '[' exp ']' { 
-                                      $1->append(*$3);
-                                      $$ = $1; 
-                                    }
+          | lcorchetes '[' INTEGER ']' { 
+                                         $1->append(*(new Integer($3)));
+                                         $$ = $1; 
+                                       }
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/};
 
@@ -556,19 +618,19 @@ valor: BOOL     {
 
 /*Funciona*/
 tipo: TYPE_REAL     { 
-                      $$ = new Tipo(std::string("real"));
+                      $$ = new Tipo(*(new std::string("real")));
                     }
      | TYPE_INTEGER { 
-                      $$ = new Tipo(std::string("integer"));
+                      $$ = new Tipo(*(new std::string("integer")));
                     }
      | TYPE_BOOLEAN { 
-                      $$ = new Tipo(std::string("boolean"));
+                      $$ = new Tipo(*(new std::string("boolean")));
                     }
      | TYPE_CHAR    { 
-                      $$ = new Tipo(std::string("character"));
+                      $$ = new Tipo(*(new std::string("character")));
                     }
      | TYPE_STRING  { 
-                      $$ = new Tipo(std::string("string"));
+                      $$ = new Tipo(*(new std::string("string")));
                     };
 
 

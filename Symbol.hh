@@ -25,17 +25,12 @@ public:
     std::string sym_name; /* Nombre del simbolo */
     std::string sym_catg; /* Categoria del simbolo */
     int scope;            /* Identificador del scope del simbolo */
-    Symbol *type;         /* Apuntador la descripcion del tipo del simbolo */
+    std::string type;
 
     /**
      * Constructor de la clase Symbol.
      */
-    Symbol(std::string name, std::string catg, int scop, Symbol* s);
-
-    /**
-     * Constructor de la clase Symbol.
-     */
-    Symbol(std::string name, std::string catg, int scop);
+    Symbol(std::string name, std::string catg, int scop, std::string type);
 
     /**
      * Destructor de la clase Symbol.
@@ -61,13 +56,16 @@ public:
 class SymbolArray: public Symbol{
 public:
     int *arreglo;
-    SymbolArray(std::string, std::string, int, Symbol*, int*);
+    int size;
+    SymbolArray(std::string, std::string, int, std::string, int*,int);
     ~SymbolArray();
+    void show(std::string);
 };
 
 class SymbolStructure: public Symbol{
 public:
     int fieldScope;
-    SymbolStructure(std::string,std::string,int,Symbol*,int);
+    SymbolStructure(std::string,std::string,int,std::string,int);
     ~SymbolStructure();
+    //void show(std::string);
 };

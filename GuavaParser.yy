@@ -86,7 +86,7 @@ int current_scope;
 %token <realval>  REAL       
 %token <boolval>  BOOL       
 %token TYPE_INTEGER TYPE_REAL TYPE_CHAR TYPE_VOID TYPE_BOOLEAN TYPE_STRING
-%token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION VAR FUNCTION DECLARE ARRAY
+%token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION REFERENCE FUNCTION DECLARE ARRAY
 %token PRINT READ
 %left <subtok> COMPARISON
 %left UFO
@@ -150,22 +150,38 @@ bloquedeclare: /* Vacio */                { //$$ = new BloqueDeclare();
              | DECLARE '{' lvariables '}' { //$$ = new BloqueDeclare(*$3); 
                                           };
 
-lvariables: lvariables  tipo VAR lvar ';'               {
+lvariables: lvariables  tipo REFERENCE lvar ';'               {
                                                             std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
-                                                            for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$2->tipo); 
+                                                            for (it; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$2->tipo); 
                                                             }
                                                             std::string* str = new std::string("");
                                                             driver.tablaSimbolos.show(scop,*str);
                                                         }
-          | tipo VAR lvar ';'                           { 
+          | tipo REFERENCE lvar ';'                           { 
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
-                                                            for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("var"),scop,$1->tipo); 
+                                                            for (it; it != l.end(); ++it){
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$1->tipo); 
+                                                            }
+                                                        }
+          | lvariables tipo lvar ';'                    {
+                                                            std::list<Identificador> l = $3->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it; it != l.end(); ++it){
+                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$2->tipo);
+                                                            }
+                                                        }
+          | tipo lvar ';'                               {
+                                                            std::list<Identificador> l = $2->get_list();
+                                                            std::list<Identificador>::iterator it = l.begin();
+                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            for (it; it != l.end(); ++it){
+                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$1->tipo);
                                                             }
                                                         }
           | tipo ARRAY lvararreglo ';'                  {  
@@ -250,7 +266,7 @@ lvariables: lvariables  tipo VAR lvar ';'               {
                                                         }
           /*Errores*/
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
-          | tipo VAR lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
+          | tipo REFERENCE lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
 
 union: UNION identificador '{' {
                                 current_scope = driver.tablaSimbolos.newScope();

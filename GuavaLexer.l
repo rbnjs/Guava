@@ -77,22 +77,22 @@ character { return token::TYPE_CHAR; }
 string    { return token::TYPE_STRING; }
 void      { return token::TYPE_VOID; }
 
-for      { return token::FOR; }
-main     { return token::MAIN; }
-if       { return token::IF; }
-then     { return token::THEN; }
-else     { return token::ELSE; }
-while    { return token::WHILE; }
-do       { return token::DO;}
-return   { return token::RETURN; }
-break    { return token::BREAK; }
-continue { return token::CONTINUE; }
-record   { return token::RECORD; }
-union    { return token::UNION; }
-var      { return token::VAR; }
-array    { return token::ARRAY; }
-function { return token::FUNCTION; }
-declare  { return token::DECLARE; }
+for       { return token::FOR; }
+main      { return token::MAIN; }
+if        { return token::IF; }
+then      { return token::THEN; }
+else      { return token::ELSE; }
+while     { return token::WHILE; }
+do        { return token::DO;}
+return    { return token::RETURN; }
+break     { return token::BREAK; }
+continue  { return token::CONTINUE; }
+record    { return token::RECORD; }
+union     { return token::UNION; }
+reference { return token::REFERENCE; }
+array     { return token::ARRAY; }
+function  { return token::FUNCTION; }
+declare   { return token::DECLARE; }
 
 print    { return token::PRINT; } /* Funciones reservadas */
 read     { return token::READ; } 

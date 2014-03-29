@@ -31,7 +31,7 @@ public:
     GuavaSymTable();                                      /* Constructor de la clase */
     ~GuavaSymTable();                                     /*  Destructor */
 
-    Symbol* lookupType(std::string);
+    Symbol* lookupGlobal(std::string);
     void insert(Symbol elem);                                      /* Inserta un simbolo a la tabla */
     void insert(std::string,std::string,int,std::string);          /* Inserta simbolo */
     void insert(std::string,std::string,int,std::string,int*,int); /* Agrega un arreglo a la tabla */

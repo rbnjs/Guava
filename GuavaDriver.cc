@@ -48,7 +48,7 @@ int GuavaDriver::parse (const std::string &f)
 /**
  * Funcion que imprime un mensaje de error.
  * @param yy::location& l: Referencia al lugar del error.
- * @param std::string& m: Referencia a nombre del token erroneo.
+ * @param std::string& m: Referencia a mensaje de error.
  */
 void GuavaDriver::error (const yy::location& l, const std::string& m)
 {
@@ -56,7 +56,7 @@ void GuavaDriver::error (const yy::location& l, const std::string& m)
 }
 /**
  * Funcion que imprime un mensaje de error.
- * @param std::string& m: Referencia a nombre del token erroneo.
+ * @param std::string& m: Referencia a mensaje de error.
  */
 void GuavaDriver::error (const std::string& m)
 {

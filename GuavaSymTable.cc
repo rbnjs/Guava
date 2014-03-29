@@ -51,20 +51,20 @@ void GuavaSymTable::insert(Symbol elem) {
         this->tabla[elem.sym_name] = empty_list;
     }
 }
-
+/* Inserta un simbolo */
 void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type){
    Symbol* nuevo = new Symbol(name, catg, sc, type); 
    this->insert(*nuevo);
 }
 
-
+/* Inserta un arreglo */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo,int size){    
-    SymbolArray* nuevo = new SymbolArray(name,catg,sc,tipo,arreglo,size);
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,arreglo,size);
     this->insert(*nuevo);
 }
-
+/* Inserta una estructura */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int fsc){    
-    Symbol* nuevo = new SymbolStructure(name,catg,sc,tipo,fsc);
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,fsc);
     this->insert(*nuevo);
 }
 
@@ -99,7 +99,7 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
 /**
  * Busca un tipo determinado.
  */
-Symbol* GuavaSymTable::lookupType(std::string type){
+Symbol* GuavaSymTable::lookupGlobal(std::string type){
     if (!tabla[type].empty()){
         if (tabla[type].size() == 1){
             std::list<Symbol> l = tabla[type];
@@ -152,5 +152,6 @@ void GuavaSymTable::show(int scope, std::string identacion){
         }
     }
 }
+
 
 /* falta la funcion update */

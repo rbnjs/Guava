@@ -111,8 +111,8 @@ int current_scope;
 %type <classAsignacion> asignacion
 %type <classInstruccion> instruccion
 %type <classInstruccion> instruccion1
-%type <classListaInstrucciones> listainstrucciones
-%type <classLParam> lparam lparam2
+%type <classListaInstrucciones> listainstrucciones listainstrucciones1
+%type <classLParam> lparam lparam2 lparam3
 %type <classLElseIf> lelseif
 %type <classFuncion> funcion funcionmain
 %type <classLFunciones> lfunciones
@@ -201,7 +201,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'               {
                                                                                             ,arreglo,size); 
                                                             }
                                                             driver.tablaSimbolos.show(scop,std::string(""));
-                                                        }
+                                                       }
           | lvariables tipo ARRAY lvararreglo ';'      { 
                                                             std::list<std::pair <Identificador, LCorchetes> > l = $4->get_list();
                                                             std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
@@ -264,25 +264,19 @@ lvariables: lvariables  tipo REFERENCE lvar ';'               {
                                                         }
           | record ';'                                  { 
                                                         }
-          /*Errores*/
-          | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
-          | tipo REFERENCE lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
+
 
 union: UNION identificador '{' {
                                 current_scope = driver.tablaSimbolos.newScope();
                                }
                               lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("unionType"),0,std::string("union"),current_scope);
                                              }
-       /*Errores*/
-       | UNION identificador '{' error '}'    {/*Definicion erronea de la estructura*/}; //OJO con este error y el de las reglas de lvariables
 
 record: RECORD identificador '{'{
                                  current_scope = driver.tablaSimbolos.newScope();
                                 } 
                                 lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("recordType"),0,std::string("record"),current_scope);
                                                }
-       /*Errores*/
-       | RECORD identificador '{' error '}'     {/*Definicion erronea de la estructura*/};
 
 lvar: identificador           { LVar *tmp = new LVar();
                                 tmp->append(*$1);
@@ -291,14 +285,23 @@ lvar: identificador           { LVar *tmp = new LVar();
     | lvar ',' identificador  { 
                                 $1->append(*$3);
                                 $$ = $1;
-                              };
+                              }
+    /*Errores*/
+    | error                   { LVar *tmp = new LVar ();
+                                $$ = tmp; }
+    | lvar ',' error          {};
 
 lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
                                                          $$ = tmp;
                                                        }
             | lvararreglo ',' identificador lcorchetes { $1->append(*$3,*$4);
                                                          $$ = $1;
-                                                       };
+                                                       }
+            | error lcorchetes                         { LVarArreglo* tmp = new LVarArreglo();
+                                                         $$ = tmp;
+                                                       }
+            | lvararreglo ',' error lcorchetes         {};
+
 
 /* Esto tiene que hacerse a tiempo de compilacion. Cambiar por enteros solamente. */
 lcorchetes: '[' INTEGER ']'         { 
@@ -311,7 +314,8 @@ lcorchetes: '[' INTEGER ']'         {
                                          $$ = $1; 
                                        }
           /*Errores*/
-          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/};
+          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
+          | lcorchetes '[' error ']' {};
 
 lfunciones: funcionmain        { //*$$ = LFunciones(*$1,0);  
                                }
@@ -370,18 +374,33 @@ lparam: /* Vacio */          { $$ = new LParam();
       | lparam2              { $$ = $1; 
                              } 
 
-lparam2: tipo identificador               { //*$$ = LParam(*$1,Identificador(std::string($2)), LParam());  
+lparam2: tipo identificador lparam3              { //*$$ = LParam(*$1,$2, $3);  
                                           } 
-        | tipo identificador ',' lparam2  { //*$$ = LParam(*$1,Identificador(std::string($2)),*$4);
-                                          };
+        | tipo error                      {/*$$ = LParam();*/};
+
+lparam3: /*Vacio*/                      {//*$$ = LParam();
+                                        }
+       | ',' tipo identificador lparam3 {//*$$ = LParam(*$2,$3,$4);
+                                        }
+
+       /*Error*/
+       | ',' tipo error lparam          {}
 
 /*LISTO*/
-listainstrucciones: /* Vacio */                        { //*$$ = ListaInstrucciones(); 
-                                                       }
-| instruccion ';' listainstrucciones { //*$$ = ListaInstrucciones($1,$3); 
-}
-| instruccion1 listainstrucciones    { //*$$ = ListaInstrucciones($1,$2); 
-};
+listainstrucciones: /*Vacio*/                           { //*$$ = ListaInstrucciones();
+                                                        }
+                  | instruccion ';' listainstrucciones1 { //*$$ = ListaInstrucciones($1,$3); 
+                                                        }
+                  | instruccion1 listainstrucciones1    { //*$$ = ListaInstrucciones($1,$3);
+                                                        };
+
+
+listainstrucciones1 : /*Vacio*/                           { //*$$ = ListaInstrucciones();
+                                                          }
+                    | listainstrucciones1 instruccion ';' { //*$$ = ListaInstrucciones($3,$1); 
+                                                          }
+                    | listainstrucciones1 instruccion1  { //*$$ = ListaInstrucciones($3,$1); 
+                                                            };
 
 /*LISTO*/
 instruccion: asignacion     { 
@@ -401,7 +420,11 @@ instruccion: asignacion     {
                                          $$ = new PlusMinus(*$1, 3); 
                                        }
            | entradasalida  { 
-                            };
+                            }
+           /*Errores*/
+           | error identificador       {/*Error en la especificacion del incremento o decremento*/}
+           | identificador error       {/*Error en la especificacion del incremento o decremento*/}
+
 
 instruccion1: loopfor        { 
                              }
@@ -414,13 +437,16 @@ instruccion1: loopfor        {
 asignacion: identificador ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
                                                    *$$ = Asignacion(id,$3);*/
             }
-| identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+            | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
                                          *$$ = Asignacion(id,*$2,$4);*/
 }
-| identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
+            | identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
                                                      Identificador id2 = Identificador(std::string($3));
                                                     *$$ = Asignacion(id1,id2,$5);*/
-};
+}
+            /*Errores*/
+            | error ASSIGN exp  {/*Error en el elemento a asignar.*/}
+            | identificador ASSIGN error {}
 
 /*LISTO*/
 entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
@@ -497,13 +523,11 @@ lvarovalor: /* Vacio */   {
           | lvarovalor2   { $$ = $1;
                           };      
           
-lvarovalor2: exp ',' lvarovalor2     { 
-                                       $$ = new  LVaroValor($1,$3);
-                                     }
-           | exp                     { Exp e = $1;
-                                       LVaroValor *tmp = new LVaroValor(&e);
-                                       $$ = tmp; 
-                                     };	   
+lvarovalor2: exp                  { Exp e = $1;
+                                    LVaroValor *tmp = new LVaroValor(&e);
+                                    $$ = tmp;
+                                  }
+           | lvarovalor2 ',' exp  { $$ = new LVaroValor($3,$1); };
 
 /*Aqui no es necesario poner nada. Revisar esto.*/
 exp: expbin       {  
@@ -598,6 +622,8 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn* tmp = new ExpUn(*$1, &str);
                                $$ = tmp;
                              }
+     /*Las dos siguientes reglas no deberian de existir, no es posible
+       incrementar o decrementar una expresion sin conocer su valor final*/
      | PLUSPLUS exp         { std::string str = std::string("++prefijo");
                               ExpUn* tmp = new ExpUn(*$2, &str);
                               $$ = tmp; 

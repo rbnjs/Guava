@@ -702,6 +702,9 @@ void LParam::append(Tipo t, Identificador id){
     std::pair<Tipo, Identificador> par (t,id);
     lParam.push_back(par);
 }
+std::list<std::pair<Tipo,Identificador> > LParam::get_list(){
+    return lParam;
+}
 
 LParam::~LParam() {
 }

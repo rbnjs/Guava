@@ -37,6 +37,7 @@ public:
     void insert(std::string,std::string,int,std::string,int*,int); /* Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,std::string,int);      /* Agrega una estructura a la tabla */
     void insertFunction(std::string,std::string,int,std::string,int); /* Agrega una funcion a la tabla  */
+    void insertReference(std::string,std::string, int, std::string);
     int newScope();                                        /* Aumenta en uno el alcance. */
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */

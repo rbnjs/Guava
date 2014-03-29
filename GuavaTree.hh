@@ -603,8 +603,9 @@ public:
 
     LParam();
     void append(Tipo, Identificador);
-    ~LParam();
     
+    ~LParam();
+    std::list<std::pair<Tipo,Identificador> > get_list();
     void show(std::string);
     void verificar(GuavaSymTable);
 };

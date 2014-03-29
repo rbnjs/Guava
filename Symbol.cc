@@ -88,3 +88,8 @@ SymbolFunction::~SymbolFunction(){
 }
 
 void SymbolFunction::show(std::string){}
+
+SymbolReference::SymbolReference(std::string name, std::string catg, int scope, std::string type):
+        Symbol(name,catg,scope,type){}
+
+SymbolReference::~SymbolReference(){}

@@ -32,6 +32,7 @@ public:
      */
     Symbol(std::string name, std::string catg, int scop, std::string type);
 
+
     /**
      * Destructor de la clase Symbol.
      * */
@@ -76,4 +77,10 @@ public:
     SymbolFunction(std::string,std::string,int,std::string,int);
     ~SymbolFunction();
     void show(std::string);
+};
+
+class SymbolReference: public Symbol{
+public:
+    SymbolReference(std::string name, std::string catg, int scope, std::string type);
+    ~SymbolReference(); 
 };

@@ -158,4 +158,8 @@ void GuavaSymTable::insertFunction(std::string name, std::string catg, int sc, s
     this->insert(*nuevo);
 }
 
+void GuavaSymTable::insertReference(std::string name, std::string catg, int sc, std::string typ){
+    Symbol* nuevo = new SymbolReference(name,catg,sc,typ);
+    this->insert(*nuevo);
+}
 /* falta la funcion update */

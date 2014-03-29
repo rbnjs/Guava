@@ -76,3 +76,15 @@ SymbolStructure::SymbolStructure(std::string name, std::string catg, int scop, s
 
 SymbolStructure::~SymbolStructure(){
 }
+
+void SymbolStructure::show(std::string){
+
+}
+
+SymbolFunction::SymbolFunction(std::string name, std::string catg, int scop, std::string type, int fscop):
+                    Symbol(name,catg,scop,type), paramScope(fscop){}
+
+SymbolFunction::~SymbolFunction(){
+}
+
+void SymbolFunction::show(std::string){}

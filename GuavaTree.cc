@@ -449,11 +449,9 @@ void Arreglo::verificar(GuavaSymTable) {}
 
 /* Class BloqueDeclare */
 
-BloqueDeclare::BloqueDeclare() {}
+BloqueDeclare::BloqueDeclare(): scope(0){}
 
-BloqueDeclare::BloqueDeclare(LVariables l) {
-    listaVar = l;
-}
+BloqueDeclare::BloqueDeclare(int sc): scope(sc){}
     
 BloqueDeclare::~BloqueDeclare() {}
 
@@ -651,25 +649,16 @@ void PlusMinus::verificar(GuavaSymTable s) {}
 /* Class LVaroValor */
 
 LVaroValor::LVaroValor() {
-    exp = 0;
-    lvarovalor = 0;
 }
 
-LVaroValor::LVaroValor(Exp* e):exp(e){
-    lvarovalor = 0;
-}
-
-LVaroValor::LVaroValor(Exp* e, LVaroValor* lv): exp(e), lvarovalor(lv){
+void LVaroValor::append(Exp e){
+    lvarovalor.push_back(e);
 }
         
 LVaroValor::~LVaroValor() {
-    //delete exp;
-    //delete lvarovalor;
 }
 
 void LVaroValor::show(std::string s) {
-    exp->show(s);
-    if (lvarovalor != 0) lvarovalor->show(s);
 } 
 
 void LVaroValor::verificar(GuavaSymTable s) {}
@@ -707,28 +696,17 @@ void LlamadaFuncion::verificar(GuavaSymTable s) {}
 
 /* Class LParam */
 
-LParam::LParam() { 
-    tipo = 0;
-    identificador = 0;
-    lparam = 0; 
-}
+LParam::LParam(){}
 
-LParam::LParam(Tipo t, Identificador id, LParam lp) {
-    *tipo = t;
-    *identificador = id;
-    *lparam = lp;
+void LParam::append(Tipo t, Identificador id){
+    std::pair<Tipo, Identificador> par (t,id);
+    lParam.push_back(par);
 }
 
 LParam::~LParam() {
-    delete tipo;
-    delete identificador;
-    delete lparam; 
 }
 
 void LParam::show(std::string s) {
-    if (tipo!= 0) tipo->show(s);
-    if (identificador != 0) identificador->show(s);
-    if (lparam != 0) lparam->show(s);
 } 
 
 void LParam::verificar(GuavaSymTable s) {} 
@@ -739,17 +717,16 @@ Funcion::Funcion() {
     retorno = 0;
 }
 
-Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp r) {
+Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp* r) {
     tipo = t;
     identificador = id;
     parametros = param;
     declaraciones = decl;
     listaI = li;
-    *retorno = r;
+    retorno = r;
 }
 
 Funcion::~Funcion() {
-    delete retorno;
 }
 
 void Funcion::show(std::string s) {

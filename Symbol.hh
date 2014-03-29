@@ -67,5 +67,13 @@ public:
     int fieldScope;
     SymbolStructure(std::string,std::string,int,std::string,int);
     ~SymbolStructure();
-    //void show(std::string);
+    void show(std::string);
+};
+
+class SymbolFunction: public Symbol{
+public:
+    int paramScope;
+    SymbolFunction(std::string,std::string,int,std::string,int);
+    ~SymbolFunction();
+    void show(std::string);
 };

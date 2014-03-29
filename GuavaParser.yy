@@ -75,6 +75,8 @@ class GuavaDriver;
 %code {
 # include "GuavaDriver.hh"
 int current_scope;
+int declare_scope;
+std::string identacion ("");
 }
 
 %token            END       0 
@@ -142,15 +144,16 @@ program: bloqueprincipal { //*$$ = Program(*$1);
 bloqueprincipal: { 
                   driver.tablaSimbolos.enterScope(); 
                  } 
-                 bloquedeclare lfunciones  { //*$$ = BloquePrincipal(*$2, *$3); 
+                 bloquedeclare lfunciones  { //*$$ = new BloquePrincipal(*$2, *$3); 
                                            };
 
-bloquedeclare: /* Vacio */                { //$$ = new BloqueDeclare(); 
+bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
                                           }
-             | DECLARE '{' lvariables '}' { //$$ = new BloqueDeclare(*$3); 
+             | {declare_scope = driver.tablaSimbolos.alcance; }
+               DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 
-lvariables: lvariables  tipo REFERENCE lvar ';'               {
+lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
@@ -160,7 +163,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'               {
                                                             std::string* str = new std::string("");
                                                             driver.tablaSimbolos.show(scop,*str);
                                                         }
-          | tipo REFERENCE lvar ';'                           { 
+          | tipo REFERENCE lvar ';'                     { 
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
@@ -266,20 +269,23 @@ lvariables: lvariables  tipo REFERENCE lvar ';'               {
                                                         }
           /*Errores*/
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
-          | tipo REFERENCE lvar error ';'                     {/*Caracteres inesperados luego de lista de declaraciones*/};
+          | tipo REFERENCE lvar error ';'               {/*Caracteres inesperados luego de lista de declaraciones*/};
 
 union: UNION identificador '{' {
                                 current_scope = driver.tablaSimbolos.newScope();
+                                driver.tablaSimbolos.insert($2->identificador,std::string("unionType"),0,std::string("union"),current_scope);
                                }
-                              lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("unionType"),0,std::string("union"),current_scope);
+                              lvariables '}' { 
                                              }
        /*Errores*/
        | UNION identificador '{' error '}'    {/*Definicion erronea de la estructura*/}; //OJO con este error y el de las reglas de lvariables
 
 record: RECORD identificador '{'{
                                  current_scope = driver.tablaSimbolos.newScope();
+                                 driver.tablaSimbolos.insert($2->identificador,std::string("recordType"),0,std::string("record"),current_scope);
+                                 /* Meto el record antes de lvariables porque dentro de lvariables pueden haber records tambien */
                                 } 
-                                lvariables '}' { driver.tablaSimbolos.insert($2->identificador,std::string("recordType"),0,std::string("record"),current_scope);
+                                lvariables '}' { 
                                                }
        /*Errores*/
        | RECORD identificador '{' error '}'     {/*Definicion erronea de la estructura*/};
@@ -318,48 +324,58 @@ lfunciones: funcionmain        { //*$$ = LFunciones(*$1,0);
           | lfunciones funcion { //*$$ = LFunciones(*$1,$2); 
                                };
 
-funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { driver.tablaSimbolos.enterScope(); } 
+funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("void"),0,std::string("function"),current_scope);
+                                                 } 
                                                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
                                                                                         LParam lp = LParam();
-                                                                                        *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
-                                                                                        driver.tablaSimbolos.exitScope(); */
+                                                                                        *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/ 
+                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                        driver.tablaSimbolos.exitScope(); 
                                                                                       }
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
-          | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { driver.tablaSimbolos.enterScope(); } 
+          | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
+                                                      } 
                                                      bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
                                                                                              LParam lp = LParam();
-                                                                                             *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0); 
-                                                                                             driver.tablaSimbolos.exitScope(); */
+                                                                                             *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/
+                                                                                             driver.tablaSimbolos.exitScope(); 
                                                                                             }
 
 
-funcion: FUNCTION tipo identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope(); }
+funcion: FUNCTION tipo identificador '(' lparam ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
+                                                          driver.tablaSimbolos.insert($3->identificador,$2->tipo,0
+                                                          ,std::string("function"),current_scope);
+                                                        }
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                            ,*$5,*$9,*$10,*$12); 
-                                                                                                             driver.tablaSimbolos.exitScope();*/
+                                                                                                                            ,*$5,*$9,*$10,*$12);*/ 
+                                                                                                             driver.tablaSimbolos.exitScope();
                                                                                                            }
 
-        | FUNCTION TYPE_VOID identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope(); }
+        | FUNCTION TYPE_VOID identificador '(' lparam ')' '{' { driver.tablaSimbolos.enterScope(); 
+                                                                driver.tablaSimbolos.insert($3->identificador,std::string("void"),0
+                                                                                            ,std::string("function"),current_scope);
+                                                              }
                                                             bloquedeclare listainstrucciones '}'           { /*Tipo v = Tipo(std::string("void"));
                                                                                                               *$$ = Funcion(v,Identificador(std::string($3)),
-                                                                                                                            *$5,*$9,*$10,0);
-                                                                                                              driver.tablaSimbolos.exitScope();*/
+                                                                                                                            *$5,*$9,*$10,0);*/
+                                                                                                              driver.tablaSimbolos.exitScope();
                                                                                                             }
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
         | FUNCTION tipo identificador '(' error ')' '{' { driver.tablaSimbolos.enterScope(); }
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                             ,*$5,*$9,*$10,*$12); 
-                                                                                                             driver.tablaSimbolos.exitScope();*/
+                                                                                                                             ,*$5,*$9,*$10,*$12); */ 
+                                                                                                             driver.tablaSimbolos.exitScope();
                                                                                                            }
 
 /*Mala especificacion del encabezado de la funcion*/
         | FUNCTION TYPE_VOID identificador '(' error ')' '{' { driver.tablaSimbolos.enterScope(); }
                                                             bloquedeclare listainstrucciones '}'           { /*Tipo v = Tipo(std::string("void"));
                                                                                                              *$$ = Funcion(v,Identificador(std::string($3)),
-                                                                                                             *$5,*$9,*$10,0);
-                                                                                                             driver.tablaSimbolos.exitScope();*/
+                                                                                                             *$5,*$9,*$10,0);*/
+                                                                                                             driver.tablaSimbolos.exitScope();
                                                                                                             }
 
 
@@ -370,18 +386,21 @@ lparam: /* Vacio */          { $$ = new LParam();
       | lparam2              { $$ = $1; 
                              } 
 
-lparam2: tipo identificador               { //*$$ = LParam(*$1,Identificador(std::string($2)), LParam());  
+lparam2: tipo identificador               { LParam *tmp =  new LParam();
+                                            tmp->append(*$1,*$2);
+                                            $$ = tmp;
                                           } 
-        | tipo identificador ',' lparam2  { //*$$ = LParam(*$1,Identificador(std::string($2)),*$4);
+        | lparam2 ',' tipo identificador  { $1->append(*$3,*$4);
+                                            $$ = $1;
                                           };
 
 /*LISTO*/
 listainstrucciones: /* Vacio */                        { //*$$ = ListaInstrucciones(); 
                                                        }
-| instruccion ';' listainstrucciones { //*$$ = ListaInstrucciones($1,$3); 
-}
-| instruccion1 listainstrucciones    { //*$$ = ListaInstrucciones($1,$2); 
-};
+                  |listainstrucciones instruccion ';' { //*$$ = ListaInstrucciones($1,$3); 
+                                                      }
+                  | listainstrucciones instruccion1    { //*$$ = ListaInstrucciones($1,$2); 
+                                                        };
 
 /*LISTO*/
 instruccion: asignacion     { 
@@ -413,82 +432,81 @@ instruccion1: loopfor        {
 /*LISTO*/
 asignacion: identificador ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
                                                    *$$ = Asignacion(id,$3);*/
-            }
-| identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
-                                         *$$ = Asignacion(id,*$2,$4);*/
-}
-| identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
-                                                     Identificador id2 = Identificador(std::string($3));
-                                                    *$$ = Asignacion(id1,id2,$5);*/
-};
+                                                }
+           | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+                                                    *$$ = Asignacion(id,*$2,$4);*/
+                                                 }
+            | identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
+                                                                 Identificador id2 = Identificador(std::string($3));
+                                                                *$$ = Asignacion(id1,id2,$5);*/
+                                                             };
 
-/*LISTO*/
+/*Esto hay que cambiarlo.*/
 entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
-               }
-| PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
-};
+                                       }
+             | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
+                                         };
 
 /*LISTO*/
 loopfor: FOR '(' identificador ';' exp ';' asignacion ')' '{' { 
-             driver.tablaSimbolos.enterScope();   
-         }
-bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
-                                        *$$ = LoopFor(id,$5,*$7,*$11,*$12); 
-                                        driver.tablaSimbolos.exitScope();*/
-}
-| FOR '(' identificador ';' exp ';' exp ')' '{' { 
-    driver.tablaSimbolos.enterScope();   
-} 
-bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
-                                               *$$ = LoopFor(id,$5,$7,*$11,*$12);
-                                               driver.tablaSimbolos.exitScope();*/
-};
+                                                                driver.tablaSimbolos.enterScope();   
+                                                              }
+                                                            bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
+                                                                                                    *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
+                                                                                                    driver.tablaSimbolos.exitScope();
+                                                                                                 }
+        | FOR '(' identificador ';' exp ';' exp ')' '{' { 
+                                                          driver.tablaSimbolos.enterScope();   
+                                                        } 
+                                                        bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
+                                                                                                        *$$ = LoopFor(id,$5,$7,*$11,*$12);*/
+                                                                                                        driver.tablaSimbolos.exitScope();
+                                                                                                    };
 
 /*LISTO*/
 loopwhile: WHILE '(' exp ')' DO '{' { 
-               driver.tablaSimbolos.enterScope();   
-           } 
-bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); 
-                                         driver.tablaSimbolos.exitScope();*/
-}
-| DO '{'{ 
-driver.tablaSimbolos.enterScope();   
-} 
-bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /**$$ = LoopWhile($9,*$4,*$5); 
-                                                           driver.tablaSimbolos.exitScope();*/
-};
+                                     driver.tablaSimbolos.enterScope();   
+                                    } 
+                                    bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); */
+                                                                            driver.tablaSimbolos.exitScope();
+                                                                         }
+          | DO '{' { 
+                    driver.tablaSimbolos.enterScope();   
+                   } 
+                    bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /**$$ = LoopWhile($9,*$4,*$5); */
+                                                                              driver.tablaSimbolos.exitScope();
+                                                                           };
 
 /*LISTO*/
 selectorif: IF '(' exp ')' THEN '{' { 
-                driver.tablaSimbolos.enterScope();   
-            }
-bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);
-                                                 driver.tablaSimbolos.exitScope();*/
-}
-| IF '(' exp ')' THEN instruccion                                      { //*$$ = SelectorIf($3,$6,0); 
-}
-| IF '(' exp ')' THEN instruccion ELSE instruccion                     { //*$$ = SelectorIf($3,$6,$8); 
-};
+                                      driver.tablaSimbolos.enterScope();   
+                                    }
+                                    bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);*/
+                                                                                    driver.tablaSimbolos.exitScope();
+                                                                                 }
+           | IF '(' exp ')' THEN instruccion                                      { //*$$ = SelectorIf($3,$6,0); 
+                                                                                  }
+           | IF '(' exp ')' THEN instruccion ELSE instruccion                     { //*$$ = SelectorIf($3,$6,$8); 
+                                                                                  };
 
 /*LISTO*/
 lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
                                                                                    }
-| ELSE IF '(' exp ')' THEN '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstrucciones '}' lelseif { /**$$ = LElseIf($4,*$9,*$10,$12);
-                                                 driver.tablaSimbolos.exitScope();*/
-}
-| ELSE '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); 
-                                                                      driver.tablaSimbolos.exitScope();*/
-};
+        | lelseif ELSE IF '(' exp ')' THEN '{' { 
+                                         driver.tablaSimbolos.enterScope();   
+                                       }
+                                       bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
+                                                                                driver.tablaSimbolos.exitScope();
+                                                                            }
+        | ELSE '{' { 
+                     driver.tablaSimbolos.enterScope();   
+                   }
+                    bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
+                                                                                          driver.tablaSimbolos.exitScope();
+                                                                                      };
 
-llamadafuncion: identificador '(' /* enterScope */ 
-lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
-};
+llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+                                                 };
 
 
 lvarovalor: /* Vacio */   { 
@@ -497,11 +515,13 @@ lvarovalor: /* Vacio */   {
           | lvarovalor2   { $$ = $1;
                           };      
           
-lvarovalor2: exp ',' lvarovalor2     { 
-                                       $$ = new  LVaroValor($1,$3);
+lvarovalor2: lvarovalor2 ',' exp     { 
+                                      $1->append(*$3);
+                                      $$ = $1;
                                      }
-           | exp                     { Exp e = $1;
-                                       LVaroValor *tmp = new LVaroValor(&e);
+           | exp                     {
+                                       LVaroValor *tmp = new LVaroValor();
+                                       tmp->append(*$1);
                                        $$ = tmp; 
                                      };	   
 

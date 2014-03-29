@@ -420,10 +420,10 @@ public:
  */
 class BloqueDeclare {
 public:
-    LVariables listaVar; /* Lista de variables a declarar */
+    int scope;
     
     BloqueDeclare();
-    BloqueDeclare(LVariables);    
+    BloqueDeclare(int);    
     ~BloqueDeclare();
     
     void show(std::string);
@@ -554,12 +554,9 @@ public:
  */
 class LVaroValor{
 public:
-    Exp* exp;
-    LVaroValor* lvarovalor;
-    
+    std::list<Exp> lvarovalor;
     LVaroValor();
-    LVaroValor(Exp*);
-    LVaroValor(Exp*, LVaroValor*); 
+    void append(Exp e);
     ~LVaroValor();        
     
     void show(std::string);
@@ -602,12 +599,10 @@ public:
  */
 class LParam{
 public:
-    Tipo* tipo;
-    Identificador* identificador;
-    LParam* lparam;
-    
+    std::list<std::pair<Tipo, Identificador> > lParam;
+
     LParam();
-    LParam(Tipo, Identificador, LParam);
+    void append(Tipo, Identificador);
     ~LParam();
     
     void show(std::string);
@@ -627,7 +622,7 @@ public:
     Exp* retorno;
 
     Funcion();
-    Funcion(Tipo, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp);    
+    Funcion(Tipo, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp*);    
     ~Funcion();
 
     void show(std::string);

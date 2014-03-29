@@ -99,7 +99,7 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
 /**
  * Busca un tipo determinado.
  */
-Symbol* GuavaSymTable::lookupType(std::string type){
+Symbol* GuavaSymTable::lookupGlobal(std::string type){
     if (!tabla[type].empty()){
         if (tabla[type].size() == 1){
             std::list<Symbol> l = tabla[type];
@@ -151,6 +151,11 @@ void GuavaSymTable::show(int scope, std::string identacion){
             if (tmp.scope == scope) tmp.show(identacion);
         }
     }
+}
+
+void GuavaSymTable::insertFunction(std::string name, std::string catg, int sc, std::string typ, int paramsc){
+    Symbol* nuevo = new SymbolFunction(name,catg,sc,typ,paramsc);
+    this->insert(*nuevo);
 }
 
 /* falta la funcion update */

@@ -68,6 +68,8 @@ public:
 class Identificador:public Exp{
 public:
     std::string identificador;
+    int line;
+    int column;
     
     Identificador();
     Identificador(std::string); 

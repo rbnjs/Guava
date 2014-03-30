@@ -144,9 +144,9 @@ mod { return token::MOD; }
 
 
 
-{ID} {	
-        yylval->strval = yytext;
-     	return token::ID;
+{ID} {
+       yylval->strval = yytext;
+       return token::ID;
      }
 
 

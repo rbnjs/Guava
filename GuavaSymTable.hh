@@ -39,6 +39,7 @@ public:
     int newScope();                                        /* Aumenta en uno el alcance. */
     int enterScope();                                     /* Entra un nuevo alcance  */
     int exitScope();                                      /* Sale del alcance  */
+    int currentScope();                                    /* Muestra el alcance actual */ 
     Symbol* lookup(std::string elem);                     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
     void show(int,std::string);                           /* Muestra la tabla */
 };

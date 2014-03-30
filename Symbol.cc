@@ -86,7 +86,8 @@ void Symbol::show(std::string identacion){
     } else{
         std::cout << identacion << "Name: " + sym_name;
         std::cout << " Category: " +sym_catg;
-        std::cout << " Type: ";
+        std::cout << " Type: " +type ;
+        std::cout << " Max Index: "; 
         for (int i = 0; i != size; i++){
             std::cout << "[" << arreglo[i] << "] ";
         }

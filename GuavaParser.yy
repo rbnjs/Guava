@@ -183,7 +183,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                 driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$2->tipo);
                                                             }
                                                         }
-          | tipo lvar ';'                               {
+          | tipo lvar ';'                               {   
                                                             std::list<Identificador> l = $2->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
@@ -240,7 +240,6 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             for (it ; it != l.end(); ++it){
                                                                driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,$2->identificador); 
                                                             }
-                                                            std::string* str = new std::string("");
                                                         }
           | identificador   RECORD lvar ';'             {
                                                             std::list<Identificador> l = $3->get_list();
@@ -257,7 +256,6 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             for (it ; it != l.end(); ++it){
                                                                driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop,$2->identificador); 
                                                             }
-                                                            std::string* str = new std::string("");
                                                         }
           | lvariables  union ';'                       {
                                                         }
@@ -271,25 +269,30 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
           | tipo REFERENCE lvar error ';'               {/*Caracteres inesperados luego de lista de declaraciones*/};
 
-union: UNION identificador '{' { int n = driver.tablaSimbolos.alcance;
-                                int fsc = driver.tablaSimbolos.newScope();
+union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
+                                int fsc = driver.tablaSimbolos.enterScope();
                                 driver.tablaSimbolos.insert($2->identificador,std::string("union"),n,std::string("unionType"),fsc);
                                 identacion += "  ";
                                }
-                              lvariables '}' {  std::cout << "Union: \n";
-                                                driver.tablaSimbolos.show(driver.tablaSimbolos.alcance,identacion); 
-                                                Symbol * tmp;
-                                                tmp = driver.tablaSimbolos.lookupGlobal(std::string($2->identificador));
-                                                driver.tablaSimbolos.show(tmp->fieldScope,identacion);
+                              lvariables '}' {  //identacion += "  ";
+                                                std::cout << identacion << "Union " << $2->identificador << " {\n";
+                                                driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
+                                                std::cout << identacion <<"}\n";
+                                                identacion.erase(0,2);
                                                 driver.tablaSimbolos.exitScope();
                                              }
 
 record: RECORD identificador '{'{
-                                 current_scope = driver.tablaSimbolos.newScope();
-                                 driver.tablaSimbolos.insert($2->identificador,std::string("record"),0,std::string("recordType"),current_scope);
-                                 /* Meto el record antes de lvariables porque dentro de lvariables pueden haber records tambien */
+                                 int n = driver.tablaSimbolos.currentScope();
+                                 int fsc = driver.tablaSimbolos.enterScope();
+                                 driver.tablaSimbolos.insert($2->identificador,std::string("record"),n,std::string("recordType"),fsc);
+                                 identacion += "  ";
                                 } 
-                                lvariables '}' { 
+                                lvariables '}' { std::cout << identacion << "Union " << $2->identificador << " {\n";
+                                                 driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
+                                                 std::cout << identacion <<"}\n";
+                                                 identacion.erase(0,2);
+                                                 driver.tablaSimbolos.exitScope();
                                                }
 
 lvar: identificador           { LVar *tmp = new LVar();
@@ -317,7 +320,7 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
             | lvararreglo ',' error lcorchetes         {};
 
 
-/* Esto tiene que hacerse a tiempo de compilacion. Cambiar por enteros solamente. */
+
 lcorchetes: '[' INTEGER ']'         { 
                                       LCorchetes *nuevo =  new LCorchetes();
                                       nuevo->append(*(new Integer($2)));
@@ -373,7 +376,7 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                             ,*$5,*$9,*$10,*$12);*/ 
                                                                                                              std::cout << $3->identificador << "{\n";
-                                                                                                              std::cout << "Parametros y variables:\n";
+                                                                                                             std::cout << "Parametros y variables:\n";
                                                                                                              driver.tablaSimbolos.show(current_scope,identacion);
                                                                                                              std::cout << "}\n";
                                                                                                              driver.tablaSimbolos.exitScope();
@@ -513,17 +516,27 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
 /*LISTO*/
 loopfor: FOR '(' identificador ';' exp ';' asignacion ')' '{' { 
                                                                 driver.tablaSimbolos.enterScope();   
+                                                                identacion += "  "; 
                                                               }
                                                             bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                     *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
+                                                                                                    std::cout << identacion << "for {\n";
+                                                                                                    int cscope = driver.tablaSimbolos.currentScope();
+                                                                                                    driver.tablaSimbolos.show(cscope,identacion+ "  ");
+                                                                                                    std::cout << identacion << "}\n";
                                                                                                     driver.tablaSimbolos.exitScope();
                                                                                                     identacion.erase(0,2);
                                                                                                  }
         | FOR '(' identificador ';' exp ';' exp ')' '{' { 
                                                           driver.tablaSimbolos.enterScope();   
+                                                          identacion += "  ";
                                                         } 
                                                         bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
                                                                                                         *$$ = LoopFor(id,$5,$7,*$11,*$12);*/
+                                                                                                        std::cout << identacion << "for {\n";
+                                                                                                        int cscope = driver.tablaSimbolos.currentScope();
+                                                                                                        driver.tablaSimbolos.show(cscope,identacion+ "  ");
+                                                                                                        std::cout << identacion << "}\n";
                                                                                                         driver.tablaSimbolos.exitScope();
                                                                                                         identacion.erase(0,2);
                                                                                                     };
@@ -534,6 +547,9 @@ loopwhile: WHILE '(' exp ')' DO '{' {
                                      identacion += "  ";
                                     } 
                                     bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); */
+                                                                            std::cout << identacion << "while {\n"; 
+                                                                            driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                            std::cout << identacion << "}\n ";
                                                                             driver.tablaSimbolos.exitScope();
                                                                             identacion.erase(0,2);
                                                                          }

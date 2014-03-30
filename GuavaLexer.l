@@ -20,6 +20,7 @@
 # include "GuavaParser.hh"
 
 typedef yy::GuavaParser::token token;
+int myline;
 %} 
 %{
 #define yyterminate() return token::END
@@ -48,14 +49,13 @@ WS       [ \t]+
 [\n]+    yylloc->lines (yyleng); yylloc->step ();    
 
 
-"//".*\n  /* Comentarios de una sola linea */
+"//".*\n  yylloc->lines (1); /* Comentarios de una sola linea */
 
 "/*"    { /* Acciones para el bloque de comentarios. */
         int c;
-
-        while((c = yyinput()) != 0)
-            {
-
+        int line = 0;
+        while((c = yyinput()) != 0){
+	    if (c == '\n') line++;
             if(c == '*')
                 {
                 if((c = yyinput()) == '/')
@@ -64,6 +64,7 @@ WS       [ \t]+
                     unput(c);
                 }
             }
+	yylloc->lines (line);
         }
 
 true { yylval->boolval = true; return token::BOOL; } 

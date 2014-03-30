@@ -139,6 +139,11 @@ int GuavaSymTable::exitScope(){
         return -1;
     }
 }
+
+int GuavaSymTable::currentScope(){
+    return pila.front();
+}
+
 /**
  * Muestra el contenido de la tabla de simbolos.
  * */

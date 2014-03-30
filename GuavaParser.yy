@@ -186,6 +186,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -210,6 +211,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -234,6 +236,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -258,6 +261,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -284,6 +288,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int size (par.second.lista.size());
@@ -317,6 +322,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int size (par.second.lista.size());
@@ -349,6 +355,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -374,6 +381,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->column;
@@ -399,6 +407,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
                                                                int line = it->line;
@@ -424,6 +433,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     columna << tmp->column;
                                                                     msg += columna.str();
                                                                     driver.error(yylloc,msg);
+                                                                    error_state = 1;
                                                                     continue;
                                                                }
 

@@ -47,7 +47,6 @@ public:
     ~Exp();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -61,7 +60,6 @@ public:
     ~ExpParentizada();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -76,7 +74,6 @@ public:
     ~Identificador();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -91,7 +88,6 @@ public:
     ~Tipo();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -106,7 +102,6 @@ public:
     ~Valor();
 
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -120,7 +115,6 @@ public:
     ~Real();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -133,7 +127,6 @@ public:
     Integer(int);    
     ~Integer();
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -147,7 +140,6 @@ public:
     ~Char();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -162,7 +154,6 @@ public:
     ~String();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -176,7 +167,6 @@ public:
     ~Bool();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -191,7 +181,6 @@ public:
     ~LCorchetes();
         
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -208,7 +197,6 @@ public:
     ~ExpUn();
 
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -223,7 +211,6 @@ public:
     ~ExpBin();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -238,7 +225,6 @@ public:
     ~Instruccion();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -255,7 +241,6 @@ public:
     ~ListaInstrucciones();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -273,7 +258,6 @@ public:
     ~LVarArreglo();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -289,7 +273,6 @@ public:
     std::list<Identificador> get_list();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -304,7 +287,6 @@ public:
     ~Estructura();
     
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 };
 
 /**
@@ -347,7 +329,6 @@ public:
      *            variables son diferentes? No es como python que por ser
      *            debilmente tipado una misma verificacion servia para todo.
      */
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -365,7 +346,6 @@ public:
     ~Record();    
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -382,7 +362,6 @@ public:
     ~Union();   
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -397,7 +376,6 @@ public:
     ~LArreglo();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -412,7 +390,6 @@ public:
     ~Arreglo();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -427,7 +404,6 @@ public:
     ~BloqueDeclare();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -447,7 +423,6 @@ public:
     ~LElseIf();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -468,7 +443,6 @@ public:
     ~SelectorIf(); 
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -484,7 +458,6 @@ public:
     ~LoopWhile();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -507,7 +480,6 @@ public:
     ~Asignacion();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -527,7 +499,6 @@ public:
     ~LoopFor();  
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -545,7 +516,6 @@ public:
     ~PlusMinus();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -560,7 +530,6 @@ public:
     ~LVaroValor();        
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -575,7 +544,6 @@ public:
     ~EntradaSalida();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -591,7 +559,6 @@ public:
     ~LlamadaFuncion();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -603,11 +570,10 @@ public:
 
     LParam();
     void append(Tipo, Identificador);
-    
-    ~LParam();
     std::list<std::pair<Tipo,Identificador> > get_list();
+    ~LParam();
+    
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -627,7 +593,6 @@ public:
     ~Funcion();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -643,7 +608,6 @@ public:
     ~LFunciones();
     
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -659,7 +623,6 @@ public:
     ~BloquePrincipal();
 
     void show(std::string);
-    void verificar(GuavaSymTable);
 };
 
 /**
@@ -669,12 +632,10 @@ public:
 class Program{
 public:
     BloquePrincipal bloque;
-    
     Program();
-    Program(BloquePrincipal);
     ~Program();
+    Program(BloquePrincipal);
 
     virtual void show(std::string);
-    virtual void verificar(GuavaSymTable);
 }; 
 

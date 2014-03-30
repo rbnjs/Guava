@@ -51,20 +51,20 @@ void GuavaSymTable::insert(Symbol elem) {
         this->tabla[elem.sym_name] = empty_list;
     }
 }
-
+/* Inserta un simbolo */
 void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type){
    Symbol* nuevo = new Symbol(name, catg, sc, type); 
    this->insert(*nuevo);
 }
 
-
+/* Inserta un arreglo */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo,int size){    
-    SymbolArray* nuevo = new SymbolArray(name,catg,sc,tipo,arreglo,size);
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,arreglo,size);
     this->insert(*nuevo);
 }
-
+/* Inserta una estructura */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int fsc){    
-    Symbol* nuevo = new SymbolStructure(name,catg,sc,tipo,fsc);
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,fsc);
     this->insert(*nuevo);
 }
 
@@ -153,13 +153,5 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
-void GuavaSymTable::insertFunction(std::string name, std::string catg, int sc, std::string typ, int paramsc){
-    Symbol* nuevo = new SymbolFunction(name,catg,sc,typ,paramsc);
-    this->insert(*nuevo);
-}
 
-void GuavaSymTable::insertReference(std::string name, std::string catg, int sc, std::string typ){
-    Symbol* nuevo = new SymbolReference(name,catg,sc,typ);
-    this->insert(*nuevo);
-}
 /* falta la funcion update */

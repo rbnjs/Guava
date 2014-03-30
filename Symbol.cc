@@ -18,6 +18,7 @@
 #include <string>
 #include <iostream>
 #include "Symbol.hh"
+Symbol::Symbol(){}
 /**
  * Constructor de la clase Symbol.
  */
@@ -26,7 +27,36 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s) {
     this->sym_catg = catg;
     this->scope = scop;
     this->type = s;
+    size = 0;
+    arreglo = 0;
+    fieldScope = 0;
 }
+/**
+ * Constructor para arreglo 
+ */
+Symbol::Symbol(std::string name, std::string catg, int scop, std::string s, int* array,int tam){
+    this->sym_name = name;
+    this->sym_catg = catg;
+    this->scope = scop;
+    this->type = s;
+    size = tam;
+    arreglo = array;
+    fieldScope = 0;   
+}
+/**
+ * Constructor para estructuras.
+ */
+Symbol::Symbol(std::string name,std::string catg,int scop,std::string s,int fsc){
+    this->sym_name = name;
+    this->sym_catg = catg;
+    this->scope = scop;
+    this->type = s;
+    size = 0;
+    arreglo = 0;
+    fieldScope = fsc;   
+
+}
+
 
 /**  
  * Destructor de la clase Symbol.
@@ -49,12 +79,22 @@ bool Symbol::compare(std::string s, int sc){
 }
 
 void Symbol::show(std::string identacion){
-    std::cout << identacion << "Name: " + sym_name;
-    std::cout << " Category: " +sym_catg;
-    std::cout << " Type: "+ type << '\n';
+    if (size == 0){
+        std::cout << identacion << "Name: " + sym_name;
+        std::cout << " Category: " +sym_catg;
+        std::cout << " Type: "+ type << '\n';
+    } else{
+        std::cout << identacion << "Name: " + sym_name;
+        std::cout << " Category: " +sym_catg;
+        std::cout << " Type: ";
+        for (int i = 0; i != size; i++){
+            std::cout << "[" << arreglo[i] << "] ";
+        }
+        std::cout <<'\n';
+    }
 }
 
-SymbolArray::SymbolArray(std::string name, std::string catg,int scop, std::string type, int* array,int siz):
+/*SymbolArray::SymbolArray(std::string name, std::string catg,int scop, std::string type, int* array,int siz):
         Symbol(name,catg,scop,type), arreglo(array), size(siz){}
 
 SymbolArray::~SymbolArray(){
@@ -92,4 +132,4 @@ void SymbolFunction::show(std::string){}
 SymbolReference::SymbolReference(std::string name, std::string catg, int scope, std::string type):
         Symbol(name,catg,scope,type){}
 
-SymbolReference::~SymbolReference(){}
+SymbolReference::~SymbolReference(){}*/

@@ -26,12 +26,26 @@ public:
     std::string sym_catg; /* Categoria del simbolo */
     int scope;            /* Identificador del scope del simbolo */
     std::string type;
+    int *arreglo;
+    int size;
+    int fieldScope;
 
     /**
-     * Constructor de la clase Symbol.
+     * Constructor de la clase Symbol para variable.
      */
     Symbol(std::string name, std::string catg, int scop, std::string type);
 
+    /**
+     * Constructor para arreglo 
+     */
+    Symbol(std::string, std::string, int, std::string, int*,int); 
+   
+    /**
+     * Constructor para estructuras.
+     */
+    Symbol(std::string,std::string,int,std::string,int);
+
+    Symbol();
 
     /**
      * Destructor de la clase Symbol.
@@ -54,7 +68,7 @@ public:
     virtual void show(std::string);
 };
 
-class SymbolArray: public Symbol{
+/*class SymbolArray: public Symbol{
 public:
     int *arreglo;
     int size;
@@ -83,4 +97,4 @@ class SymbolReference: public Symbol{
 public:
     SymbolReference(std::string name, std::string catg, int scope, std::string type);
     ~SymbolReference(); 
-};
+};*/

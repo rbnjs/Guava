@@ -113,8 +113,8 @@ std::string identacion ("");
 %type <classAsignacion> asignacion
 %type <classInstruccion> instruccion
 %type <classInstruccion> instruccion1
-%type <classListaInstrucciones> listainstrucciones listainstrucciones1
-%type <classLParam> lparam lparam2 lparam3
+%type <classListaInstrucciones> listainstrucciones
+%type <classLParam> lparam lparam2
 %type <classLElseIf> lelseif
 %type <classFuncion> funcion funcionmain
 %type <classLFunciones> lfunciones
@@ -564,7 +564,23 @@ selectorif: IF '(' exp ')' THEN '{' {
 /*LISTO*/
 lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
                                                                                    }
-        | lelseif ELSE IF '(' exp ')' THEN '{' { 
+       | ELSE IF '(' exp ')' THEN '{' { 
+                                        driver.tablaSimbolos.enterScope();   
+                                      }
+                                      bloquedeclare listainstrucciones '}' lelseif2 { /**$$ = LElseIf($4,*$9,*$10,$12);*/
+                                                                                      driver.tablaSimbolos.exitScope();
+                                                                                    }
+
+       | ELSE '{' { 
+                    driver.tablaSimbolos.enterScope();   
+                  }
+                   bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
+                                                                                         driver.tablaSimbolos.exitScope();
+                                                                                     };
+
+
+lelseif2: /*Vacio*/
+        | lelseif2 ELSE IF '(' exp ')' THEN '{' { 
                                          driver.tablaSimbolos.enterScope();   
                                        }
                                        bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/

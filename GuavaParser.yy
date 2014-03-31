@@ -77,27 +77,35 @@ class GuavaDriver;
 # include "GuavaDriver.hh"
 int current_scope;
 int declare_scope;
+int error_type;
 std::string identacion ("");
 
 }
 
-%token            END       0 
+%token            END       0 "end of block" 
 %right            ASSIGN     
-%token <strval>   ID
-%token <intval>   INTEGER    
-%token <strval>   STRING
-%token <charval>  CHAR       
-%token <realval>  REAL       
-%token <boolval>  BOOL       
+%token <strval>   ID          "identifier"
+%token <intval>   INTEGER     "integer value"
+%token <strval>   STRING      "string"
+%token <charval>  CHAR        "character"
+%token <realval>  REAL        "real value"
+%token <boolval>  BOOL        "boolean value"
 %token TYPE_INTEGER TYPE_REAL TYPE_CHAR TYPE_VOID TYPE_BOOLEAN TYPE_STRING
-%token FOR MAIN IF THEN ELSE WHILE DO RETURN BREAK CONTINUE RECORD UNION REFERENCE FUNCTION DECLARE ARRAY
-%token PRINT READ
+%token FOR "for loop" MAIN "main function" IF "if" THEN "then" ELSE "else" WHILE "while loop" 
+       DO "do clause" RETURN "return statement" BREAK "break statement" CONTINUE "continue statement"
+       RECORD "record" UNION "union" REFERENCE "reference" FUNCTION "function" 
+       DECLARE "declare statement" ARRAY "array"
+%token PRINT "print statement" READ "read statement"
+%token <operator> UFO "UFO operator" AND "AND operator" OR "OR operator" NOT "NOT operator"
+                  '+' "PLUS operator" '-' "MINUS operator" '*' "TIMES operator" '/' "DIVISION operator"
+                  DIV "DIV operator" MOD "MOD operator" PLUSPLUS "INCREMENT operator" 
+                  MINUSMINUS "DECREMENT operator" POW "POWER operator" UMINUS "UNARY MINUS operator"
 %left <subtok> COMPARISON
 %left UFO
 %left AND
 %left OR
 %left NOT /* Revisar esta */
-%left '+' '-' 
+%left '+' '-'
 %left '*' '/' DIV MOD
 %nonassoc PLUSPLUS MINUSMINUS
 %right POW
@@ -479,7 +487,8 @@ lvar: identificador           { LVar *tmp = new LVar();
                               }
     /*Errores*/
     | error                   { LVar *tmp = new LVar ();
-                                $$ = tmp; }
+                                $$ = tmp;
+                              }
     | lvar ',' error          {};
 
 lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
@@ -508,10 +517,15 @@ lcorchetes: '[' INTEGER ']'         {
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
           | lcorchetes '[' error ']' {};
 
-lfunciones: funcion        { //*$$ = LFunciones(*$1,0);  
-                               }
-          | lfunciones funcion { //*$$ = LFunciones(*$1,$2); 
-                               };
+lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);
+                                           }
+          | lfunciones1 funcionmain        { //*$$ = LFunciones(*$2,$1);  
+                                           }
+
+lfunciones1: funcion              { //*$$ = LFunciones(*$1,0);
+                                  }
+           | lfunciones1 funcion  { //*$$ = LFunciones(*$2,$1);
+                                  }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                    int line = yylloc.begin.line;
@@ -580,7 +594,6 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                                                                                               driver.tablaSimbolos.exitScope();
                                                                                                               identacion.erase(0,2);
                                                                                                             }
-        | funcionmain   {}
 
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
@@ -709,7 +722,7 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
                                          };
 
 /*LISTO*/
-loopfor: FOR '(' identificador ';' exp ';' asignacion ')' '{' { 
+loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' { 
                                                                 driver.tablaSimbolos.enterScope();   
                                                                 identacion += "  "; 
                                                               }
@@ -722,90 +735,102 @@ loopfor: FOR '(' identificador ';' exp ';' asignacion ')' '{' {
                                                                                                     driver.tablaSimbolos.exitScope();
                                                                                                     identacion.erase(0,2);
                                                                                                  }
-        | FOR '(' identificador ';' exp ';' exp ')' '{' { 
+       /*Errores*/
+       | FOR '(' error ';' exp ';' errorloopfor ')' '{' { 
                                                           driver.tablaSimbolos.enterScope();   
-                                                          identacion += "  ";
-                                                        } 
-                                                        bloquedeclare listainstrucciones '}'        { /*Identificador id = Identificador(std::string($3));
-                                                                                                        *$$ = LoopFor(id,$5,$7,*$11,*$12);*/
-                                                                                                        std::cout << identacion << "for {\n";
-                                                                                                        int cscope = driver.tablaSimbolos.currentScope();
-                                                                                                        driver.tablaSimbolos.show(cscope,identacion+ "  ");
-                                                                                                        std::cout << identacion << "}\n";
-                                                                                                        driver.tablaSimbolos.exitScope();
-                                                                                                        identacion.erase(0,2);
-                                                                                                    };
+                                                        }
+                                                      bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
+                                                                                              *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
+                                                                                           }
+       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { 
+                                                                     driver.tablaSimbolos.enterScope();   
+                                                                   }
+                                                                 bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
+                                                                                                         *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
+                                                                                                      };
+/**
+ * Regla utilizada en el manejo de errores del encabezado de una iteracion
+ * acotada
+ */
+errorloopfor : asignacion {}
+             | exp        {}
+             | error      {};
+
 
 /*LISTO*/
-loopwhile: WHILE '(' exp ')' DO '{' { 
-                                     driver.tablaSimbolos.enterScope();   
-                                     identacion += "  ";
-                                    } 
-                                    bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); */
-                                                                            std::cout << identacion << "while {\n"; 
-                                                                            driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
-                                                                            std::cout << identacion << "}\n ";
-                                                                            driver.tablaSimbolos.exitScope();
-                                                                            identacion.erase(0,2);
-                                                                         }
-          | DO '{' { 
-                    driver.tablaSimbolos.enterScope();   
-                    identacion += "  ";
-                   } 
-                    bloquedeclare listainstrucciones '}' WHILE '(' exp ')' { /**$$ = LoopWhile($9,*$4,*$5); */
-                                                                              driver.tablaSimbolos.exitScope();
-                                                                              identacion.erase(0,2);
-                                                                           };
-
-/*LISTO*/
-selectorif: IF '(' exp ')' THEN '{' { 
-                                      driver.tablaSimbolos.enterScope();   
-                                      identacion += "  ";
-                                    }
-                                    bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);*/
+loopwhile: WHILE '(' errorloopwhile ')' DO '{' { 
+                                                 driver.tablaSimbolos.enterScope();   
+                                                 identacion += "  ";
+                                               }
+                                             bloquedeclare listainstrucciones '}' { /**$$ = LoopWhile($3,*$8,*$9); */
+                                                                                    std::cout << identacion << "while {\n"; 
+                                                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                                    std::cout << identacion << "}\n ";
                                                                                     driver.tablaSimbolos.exitScope();
                                                                                     identacion.erase(0,2);
+                                                                                  }
+         | DO '{' { 
+                   driver.tablaSimbolos.enterScope();   
+                   identacion += "  ";
+                  } 
+                   bloquedeclare listainstrucciones '}' WHILE '(' errorloopwhile ')' { /**$$ = LoopWhile($9,*$4,*$5); */
+                                                                                       std::cout << identacion << "while {\n";
+                                                                                       driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                                       std::cout << identacion << "}\n ";
+
+                                                                                       driver.tablaSimbolos.exitScope();
+                                                                                       identacion.erase(0,2);
+                                                                                     };
+/**
+ * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
+ */
+errorloopwhile : exp    {}
+               | error  {};
+
+/*LISTO*/
+selectorif: IF '(' errorif ')' THEN '{' { 
+                                          driver.tablaSimbolos.enterScope();   
+                                          identacion += "  ";
+                                        }
+                                        bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);*/
+                                                                                        driver.tablaSimbolos.exitScope();
+                                                                                        identacion.erase(0,2);
                                                                                     
                                                                                  }
-           | IF '(' exp ')' THEN instruccion                                      { //*$$ = SelectorIf($3,$6,0); 
-                                                                                  }
-           | IF '(' exp ')' THEN instruccion ELSE instruccion                     { //*$$ = SelectorIf($3,$6,$8); 
-                                                                                  };
+           | IF '(' errorif ')' THEN instruccion ';'                             { //*$$ = SelectorIf($3,$6,0); 
+                                                                                 }
+           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'            { //*$$ = SelectorIf($3,$6,$8); 
+                                                                                 };
 
 /*LISTO*/
 lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
                                                                                    }
-       | ELSE IF '(' exp ')' THEN '{' { 
-                                        driver.tablaSimbolos.enterScope();   
-                                      }
-                                      bloquedeclare listainstrucciones '}' lelseif2 { /**$$ = LElseIf($4,*$9,*$10,$12);*/
-                                                                                      driver.tablaSimbolos.exitScope();
-                                                                                    }
+       | lelseif1 ELSE '{' { 
+                             driver.tablaSimbolos.enterScope();   
+                           }
+                           bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
+                                                                                               driver.tablaSimbolos.exitScope();
+                                                                                             };
 
-       | ELSE '{' { 
-                    driver.tablaSimbolos.enterScope();   
-                  }
-                   bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
-                                                                                         driver.tablaSimbolos.exitScope();
-                                                                                     };
+lelseif1: /*Vacio*/
+        | lelseif1 ELSE IF '(' errorif ')' THEN '{' { 
+                                                      driver.tablaSimbolos.enterScope();   
+                                                    }
+                                                    bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
+                                                                                           driver.tablaSimbolos.exitScope();
+                                                                                         }
 
-
-lelseif2: /*Vacio*/
-        | lelseif2 ELSE IF '(' exp ')' THEN '{' { 
-                                         driver.tablaSimbolos.enterScope();   
-                                       }
-                                       bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
-                                                                                driver.tablaSimbolos.exitScope();
-                                                                            }
-        | ELSE '{' { 
-                     driver.tablaSimbolos.enterScope();   
-                   }
-                    bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
-                                                                                          driver.tablaSimbolos.exitScope();
-                                                                                      };
+/**
+ * Regla utilizada para el manejo de errores de los selectores de bloques e
+ * instrucciones if-then-else.
+ */
+errorif : exp   {}
+        | error {};
 
 llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
-                                                 };
+                                                 }
+              /*Errores*/
+              | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/};
 
 
 lvarovalor: /* Vacio */   { 
@@ -822,7 +847,13 @@ lvarovalor2: lvarovalor2 ',' exp     {
                                        LVaroValor *tmp = new LVaroValor();
                                        tmp->append(*$1);
                                        $$ = tmp; 
-                                     };	   
+                                     }
+           /*Errores*/
+           | lvarovalor2 ',' error   {}
+           | error                   {
+                                       LVaroValor *tmp = new LVaroValor();
+                                       $$ = tmp;
+                                     };
 
 /*Aqui no es necesario poner nada. Revisar esto.*/
 exp: expbin       {  
@@ -834,7 +865,9 @@ exp: expbin       {
    | identificador    { 
                       }
    | '(' exp ')'  { 
-                  };
+                  }
+   /*Errores*/
+   | '(' error ')'  {};
 
 /*Faltan pruebas*/
 expbin: exp AND exp          { 
@@ -990,7 +1023,10 @@ larreglo: larreglo ',' exp      {
                                   tmp->append(*$1);
                                   $$ = tmp;
                                  
-                                };
+                                }
+        /*Errores*/
+        | larreglo ',' error    { $$ = $1; }
+        | error                 { LArreglo *tmp = new LArreglo(); };
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

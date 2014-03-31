@@ -530,6 +530,12 @@ lcorchetes: '[' INTEGER ']'         {
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
           | lcorchetes '[' error ']' {};
 
+lcorchetesExp: '[' exp ']'               {}
+             | lcorchetesExp '[' exp ']' {}
+             | '[' error ']'             {}
+             |  lcorchetesExp '[' exp ']' {}
+
+
 lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);
                                            }
           | lfunciones1 funcionmain        { //*$$ = LFunciones(*$2,$1);  
@@ -746,7 +752,7 @@ asignacion: identificador ASSIGN exp            { /*Identificador id = Identific
                                                   } else{
                                                   }
                                                 }             
-            | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+            | identificador lcorchetesExp ASSIGN exp { /*Identificador id = Identificador(std::string($1));
                                                     *$$ = Asignacion(id,*$2,$4);*/
                                                     if (driver.tablaSimbolos.lookup($1->identificador) == 0){
                                                         std::string msg ("Undeclared identifier '");
@@ -958,7 +964,8 @@ exp: expbin       {
    | '(' exp ')'  { 
                   }
    /*Errores*/
-   | '(' error ')'  {};
+   | '(' error ')'  {}
+   | llamadafuncion {}
 
 /*Faltan pruebas*/
 expbin: exp AND exp          { 
@@ -1069,9 +1076,9 @@ expun: NOT exp               { std::string str = std::string("not");
                                ExpUn* tmp = new ExpUn(e, &str);
                                $$ = tmp; 
                              }
-     | identificador lcorchetes { Exp id = *$1;
+     | identificador lcorchetesExp { /*Exp id = *$1;
                                   ExpUn* tmp = new ExpUn(id, $2);
-                                  $$ = tmp;
+                                  $$ = tmp;*/
                                 };
 /*Funciona*/
 valor: BOOL     { 

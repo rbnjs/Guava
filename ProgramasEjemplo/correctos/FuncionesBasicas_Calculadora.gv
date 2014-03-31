@@ -36,11 +36,11 @@ function integer potencia(integer a, integer b) {
 }
 
 function void M(integer a) {
-  memoria = a;
+  memoria := a;
 }
 
 function void RM() {
-  memoria = 0;
+  memoria := 0;
 }
 
 function void main() {
@@ -48,14 +48,14 @@ function void main() {
     integer result;
   }
 
-  memoria = 0;
-  result = sumar(1,2);
-  result = restar(7,result);
-  result = multiplicar(10,result);
+  memoria := 0;
+  result := sumar(1,2);
+  result := restar(7,result);
+  result := multiplicar(10,result);
   M(result);
-  result = division(result,5);
-  result = modulo(10,memoria);
-  result = potencia(memoria,2);
+  result := division(result,5);
+  result := modulo(10,memoria);
+  result := potencia(memoria,2);
   RM();
 
 }

@@ -13,9 +13,10 @@ declare {
 }
 
 function void main () {
-  real d,e;
-  boolean f,g;
-
+  declare{
+    real d,e;
+    boolean f,g;
+  }
   a := 1;
   b := 2;
   c := 3;
@@ -28,9 +29,9 @@ function void main () {
 
   /* Comienzo de operaciones */
   
-  a := (2*a-(25+(-b))) div (5+b mod c**c);
+  //a := (2*a-(25+(-b))) div (5+b mod c**c);
   
-  d := ((d + e) / 1.61) - (-e*3.1415);
+  //d := ((d + e) / 1.61) - (-e*3.1415);
 
   f := true and g;
   f := f or false;

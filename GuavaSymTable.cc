@@ -111,6 +111,23 @@ Symbol* GuavaSymTable::simple_lookup(const std::string elem){
     }
     return 0; /* Null si no lo encuentra */
 }
+/**
+ * Busca un simbolo en el alcance sc
+ */
+Symbol* GuavaSymTable::lookup(const std::string elem, int sc){
+    if (!this->tabla[elem].empty()){
+        int alcance = sc;
+
+        std::list<Symbol>::iterator it = this->tabla[elem].begin();
+
+        for ( it ; it != this->tabla[elem].end() ; ++it){
+            Symbol tmp = *it;
+            if (tmp.compare(elem, alcance)) return &(*it);
+        }
+
+    }
+    return 0; /* Null si no lo encuentra */
+}
 
 /**
  * Entra en un nuevo scope y empila el numero identificador del mismo.

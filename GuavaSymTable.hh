@@ -40,6 +40,7 @@ public:
     int exitScope();                                      /* Sale del alcance  */
     int currentScope();                                    /* Muestra el alcance actual */ 
     Symbol* lookup(std::string elem);                     /*  Busca un simbolo en la tabla y retorna NULL o el simbolo. */
+    Symbol* lookup(std::string, int);                      /* Busca un simbolo con un scope determinado */
     Symbol* simple_lookup(std::string elem);             /* Busca un simbolo en el alcance actual */
     void show(int,std::string);                           /* Muestra la tabla */
 };

@@ -156,9 +156,9 @@ bloqueprincipal: {
                  } 
                  bloquedeclare lfunciones  { //*$$ = new BloquePrincipal(*$2, *$3);
                                              std::cout << "Funciones: " << '\n';
-                                             driver.tablaSimbolos.show(0,identacion);
+                                             driver.tablaSimbolos.show(0,identacion+"  ");
                                              std::cout << "Variables globales: \n";
-                                             driver.tablaSimbolos.show(1,identacion);
+                                             driver.tablaSimbolos.show(1,identacion+ "  ");
                                            };
 
 bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
@@ -452,11 +452,11 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                 driver.tablaSimbolos.insert($2->identificador,std::string("union"),n,std::string("unionType"),line,column,fsc);
                                 identacion += "  ";
                                }
-                              lvariables '}' {  //identacion += "  ";
+                              lvariables '}' {  
+                                                identacion.erase(0,2);
                                                 std::cout << identacion << "Union " << $2->identificador << " {\n";
                                                 driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
                                                 std::cout << identacion <<"}\n";
-                                                identacion.erase(0,2);
                                                 driver.tablaSimbolos.exitScope();
                                              }
 
@@ -675,16 +675,41 @@ instruccion: asignacion     {
            | llamadafuncion { 
                             }
            | MINUSMINUS identificador  {
-                                         $$ = new PlusMinus(*$2, 0); 
+                                         if (driver.tablaSimbolos.lookup($2->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $2->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                         } else{
+                                            $$ = new PlusMinus(*$2, 0);
+                                         }
                                        }
-           | identificador MINUSMINUS { 
-                                         $$ = new PlusMinus(*$1, 1); 
+           | identificador MINUSMINUS { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $1->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                         } else{
+                                            $$ = new PlusMinus(*$1, 1); 
+                                         }
                                        }
-           | PLUSPLUS identificador    { 
-                                         $$ = new PlusMinus(*$2, 2); 
+           | PLUSPLUS identificador    { if (driver.tablaSimbolos.lookup($2->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $2->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                         } else{
+                                            $$ = new PlusMinus(*$2, 2); 
+                                         }
                                        }
-           | identificador PLUSPLUS    { 
-                                         $$ = new PlusMinus(*$1, 3); 
+           | identificador PLUSPLUS    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $1->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                         } else{
+                                            $$ = new PlusMinus(*$1, 3); 
+                                         }
                                        }
            | entradasalida  { 
                             }
@@ -703,13 +728,44 @@ instruccion1: loopfor        {
 /*LISTO*/
 asignacion: identificador ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
                                                    *$$ = Asignacion(id,$3);*/
+                                                   if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                                        std::string msg ("Undeclared identifier '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                  } else{
+                                                  }
                                                 }             
             | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
                                                     *$$ = Asignacion(id,*$2,$4);*/
+                                                    if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                                        std::string msg ("Undeclared identifier '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                    } else{
+                                                    }
+
                                                   }
-            | identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
+            | identificador lAccesoAtributos ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
                                                                 Identificador id2 = Identificador(std::string($3));
                                                                 *$$ = Asignacion(id1,id2,$5);*/
+                                                                Symbol * id;
+                                                                if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                                                                      std::string msg ("Undeclared identifier '");
+                                                                      msg += $1->identificador;
+                                                                      msg += "'";
+                                                                      driver.error(yylloc,msg);
+                                                                     
+                                                                 }
+                                                                 if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
+                                                                        std::string msg2 ("The ");
+                                                                        msg2 += id->sym_catg;
+                                                                        msg2 += "  ";
+                                                                        msg2 += id->sym_name;
+                                                                        msg2 += " is not a record nor an union";
+                                                                        driver.error(yylloc,msg2);
+                                                                    }
                                                              }
             /*Errores*/
             | error ASSIGN exp  {/*Error en el elemento a asignar.*/}
@@ -722,10 +778,15 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
                                          };
 
 /*LISTO*/
-loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' { 
-                                                                driver.tablaSimbolos.enterScope();   
-                                                                identacion += "  "; 
-                                                              }
+loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' { if (driver.tablaSimbolos.lookup($3->identificador) == 0){
+                                                                      std::string msg ("Undeclared identifier '");
+                                                                      msg += $3->identificador;
+                                                                      msg += "'";
+                                                                      driver.error(yylloc,msg);
+                                                                  } 
+                                                                  driver.tablaSimbolos.enterScope();   
+                                                                  identacion += "  "; 
+                                                                }
                                                             bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                     *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
                                                                                                     std::cout << identacion << "for {\n";
@@ -737,13 +798,16 @@ loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' {
                                                                                                  }
        /*Errores*/
        | FOR '(' error ';' exp ';' errorloopfor ')' '{' { 
-                                                          driver.tablaSimbolos.enterScope();   
                                                         }
                                                       bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                               *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
                                                                                            }
-       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { 
-                                                                     driver.tablaSimbolos.enterScope();   
+       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { if (driver.tablaSimbolos.lookup($3->identificador) == 0){
+                                                                        std::string msg ("Undeclared identifier '");
+                                                                        msg += $3->identificador;
+                                                                        msg += "'";
+                                                                        driver.error(yylloc,msg);
+                                                                     }
                                                                    }
                                                                  bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                          *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
@@ -828,6 +892,12 @@ errorif : exp   {}
         | error {};
 
 llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+                                                    if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){
+                                                        std::string msg ("Undefined function '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                    }
                                                  }
               /*Errores*/
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/};
@@ -862,7 +932,12 @@ exp: expbin       {
                   } 
    | valor        {  
                   }
-   | identificador    { 
+   | identificador    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                            std::string msg ("Undeclared identifier '");
+                            msg += $1->identificador;
+                            msg += "'";
+                            driver.error(yylloc,msg);
+                        }
                       }
    | '(' exp ')'  { 
                   }
@@ -929,8 +1004,24 @@ expbin: exp AND exp          {
       | exp POW exp          { 
                                $$ = new ExpBin(*$1,*$3,std::string("**"));
                              }
-      | identificador '.' identificador { 
-                             	          $$ = new ExpBin(*$1,*$3,std::string("."));
+      | identificador lAccesoAtributos { 
+                             	          //$$ = new ExpBin(*$1,*$3,std::string("."));
+                                            Symbol * id;
+                                            if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                                                std::string msg ("Undeclared identifier '");
+                                                msg += $1->identificador;
+                                                msg += "'";
+                                                driver.error(yylloc,msg);
+                                                                     
+                                            }
+                                            if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
+                                                std::string msg2 ("The ");
+                                                msg2 += id->sym_catg;
+                                                msg2 += "  ";
+                                                msg2 += id->sym_name;
+                                                msg2 += " is not a record nor an union";
+                                                driver.error(yylloc,msg2);
+                                            }
                                         };
 
 /* Revisar si hay que poner new string */
@@ -1027,6 +1118,9 @@ larreglo: larreglo ',' exp      {
         /*Errores*/
         | larreglo ',' error    { $$ = $1; }
         | error                 { LArreglo *tmp = new LArreglo(); };
+
+lAccesoAtributos: '.' identificador {}
+                | lAccesoAtributos '.' identificador {};
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

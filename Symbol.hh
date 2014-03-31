@@ -29,21 +29,23 @@ public:
     int *arreglo;
     int size;
     int fieldScope;
+    int line;
+    int column;
 
     /**
      * Constructor de la clase Symbol para variable.
      */
-    Symbol(std::string name, std::string catg, int scop, std::string type);
+    Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna);
 
     /**
      * Constructor para arreglo 
      */
-    Symbol(std::string, std::string, int, std::string, int*,int); 
+    Symbol(std::string, std::string, int, std::string,int,int, int*,int); 
    
     /**
      * Constructor para estructuras.
      */
-    Symbol(std::string,std::string,int,std::string,int);
+    Symbol(std::string,std::string,int,std::string,int,int,int);
 
     Symbol();
 

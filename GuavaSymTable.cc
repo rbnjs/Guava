@@ -52,19 +52,19 @@ void GuavaSymTable::insert(Symbol elem) {
     }
 }
 /* Inserta un simbolo */
-void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type){
-   Symbol* nuevo = new Symbol(name, catg, sc, type); 
+void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type,int line, int column){
+   Symbol* nuevo = new Symbol(name, catg, sc, type,line,column); 
    this->insert(*nuevo);
 }
 
 /* Inserta un arreglo */
-void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int* arreglo,int size){    
-    Symbol* nuevo = new Symbol(name,catg,sc,tipo,arreglo,size);
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo,int line,int column, int* arreglo,int size){    
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,line,column,arreglo,size);
     this->insert(*nuevo);
 }
 /* Inserta una estructura */
-void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo, int fsc){    
-    Symbol* nuevo = new Symbol(name,catg,sc,tipo,fsc);
+void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo,int line,int column, int fsc){    
+    Symbol* nuevo = new Symbol(name,catg,sc,tipo,line,column,fsc);
     this->insert(*nuevo);
 }
 
@@ -95,19 +95,21 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
     }
     return 0; /* Null si no lo encuentra */
 }
-
 /**
- * Busca un tipo determinado.
+ * Busca un simbolo en el alcance actual
  */
-Symbol* GuavaSymTable::lookupGlobal(std::string type){
-    if (!tabla[type].empty()){
-        if (tabla[type].size() == 1){
-            std::list<Symbol> l = tabla[type];
-            return &l.front();
+Symbol* GuavaSymTable::simple_lookup(const std::string elem){
+    if (!this->tabla[elem].empty()){
+        int alcance = pila.front();
+            
+        std::list<Symbol>::iterator it = this->tabla[elem].begin();
+
+        for ( it ; it != this->tabla[elem].end() ; ++it){
+            Symbol tmp = *it;
+            if (tmp.compare(elem, alcance)) return &(*it);
         }
-        return 0;
     }
-    return 0;
+    return 0; /* Null si no lo encuentra */
 }
 
 /**

@@ -6,6 +6,7 @@
 %code requires {
 # include <string>
 # include <iostream>
+# include <sstream>
 # include <utility>
 # include "GuavaTree.hh"
 class GuavaDriver;
@@ -77,6 +78,7 @@ class GuavaDriver;
 int current_scope;
 int declare_scope;
 std::string identacion ("");
+
 }
 
 %token            END       0 
@@ -162,7 +164,23 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$2->tipo); 
+                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                               if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$2->tipo,line,column); 
                                                             }
                                                             std::string* str = new std::string("");
                                                             driver.tablaSimbolos.show(scop,*str);
@@ -172,7 +190,23 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$1->tipo); 
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$1->tipo,line,column); 
                                                             }
                                                         }
           | lvariables tipo lvar ';'                    {
@@ -180,7 +214,23 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it; it != l.end(); ++it){
-                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$2->tipo);
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$2->tipo,line,column);
                                                             }
                                                         }
           | tipo lvar ';'                               {   
@@ -188,7 +238,23 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it; it != l.end(); ++it){
-                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$1->tipo);
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$1->tipo,line,column);
                                                             }
                                                         }
           | tipo ARRAY lvararreglo ';'                  {  
@@ -197,6 +263,21 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
                                                                std::pair <Identificador, LCorchetes> par (*it);
+
+                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += par.first.identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
                                                                int size (par.second.lista.size());
                                                                int *arreglo = new int[par.second.lista.size()];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
@@ -204,8 +285,10 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     arreglo[i] = itInt->integer;
                                                                     ++itInt;
                                                                }
+                                                               int line = par.first.line;
+                                                               int column = par.first.column;
                                                                driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$1->tipo
-                                                                                            ,arreglo,size); 
+                                                                                            ,line,column,arreglo,size); 
                                                             }
                                                         }
           | lvariables tipo ARRAY lvararreglo ';'      { 
@@ -214,6 +297,20 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
                                                                std::pair <Identificador, LCorchetes> par (*it);
+                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += par.first.identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
                                                                int size (par.second.lista.size());
                                                                int *arreglo = new int[size];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
@@ -221,8 +318,10 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                     arreglo[i] = itInt->integer;
                                                                     ++itInt;
                                                                }
+                                                               int line = par.first.line;
+                                                               int column = par.first.column;
                                                                driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$2->tipo
-                                                                                            ,arreglo,size); 
+                                                                                            ,line,column,arreglo,size); 
                                                             }
                                                         }
           | identificador   UNION lvar ';'              {
@@ -230,7 +329,24 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,$1->identificador); 
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,
+                                                               $1->identificador,line,column);  
                                                             }
                                                         }
           | lvariables  identificador   UNION lvar ';'  {
@@ -238,7 +354,24 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,$2->identificador); 
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->column;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar")
+                                                               ,scop,$2->identificador,line,column); 
                                                             }
                                                         }
           | identificador   RECORD lvar ';'             {
@@ -246,7 +379,24 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop,$1->identificador); 
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop
+                                                               ,$1->identificador,line,column); 
                                                             }
                                                         }
           | lvariables identificador RECORD lvar ';'   {
@@ -254,7 +404,25 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador>::iterator it = l.begin();
                                                             int scop = driver.tablaSimbolos.alcance;
                                                             for (it ; it != l.end(); ++it){
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop,$2->identificador); 
+                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
+                                                                if (tmp != 0){
+                                                                    std::stringstream linea,columna;
+                                                                    std::string msg ("variable name '");
+                                                                    msg += it->identificador;
+                                                                    msg += "' already used in line: ";
+                                                                    linea << tmp->line;
+                                                                    msg += linea.str();
+                                                                    msg += " column: ";
+                                                                    columna << tmp->column;
+                                                                    msg += columna.str();
+                                                                    driver.error(yylloc,msg);
+                                                                    continue;
+                                                               }
+
+                                                               int line = it->line;
+                                                               int column = it->column;
+                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar")
+                                                               ,scop,$2->identificador,line,column); 
                                                             }
                                                         }
           | lvariables  union ';'                       {
@@ -271,7 +439,9 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
 
 union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                 int fsc = driver.tablaSimbolos.enterScope();
-                                driver.tablaSimbolos.insert($2->identificador,std::string("union"),n,std::string("unionType"),fsc);
+                                int line = yylloc.begin.line;
+                                int column = yylloc.begin.column;
+                                driver.tablaSimbolos.insert($2->identificador,std::string("union"),n,std::string("unionType"),line,column,fsc);
                                 identacion += "  ";
                                }
                               lvariables '}' {  //identacion += "  ";
@@ -285,7 +455,9 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
 record: RECORD identificador '{'{
                                  int n = driver.tablaSimbolos.currentScope();
                                  int fsc = driver.tablaSimbolos.enterScope();
-                                 driver.tablaSimbolos.insert($2->identificador,std::string("record"),n,std::string("recordType"),fsc);
+                                 int line = yylloc.begin.line;
+                                 int column = yylloc.begin.column;
+                                 driver.tablaSimbolos.insert($2->identificador,std::string("record"),n,std::string("recordType"),line,column,fsc);
                                  identacion += "  ";
                                 } 
                                 lvariables '}' { std::cout << identacion << "Union " << $2->identificador << " {\n";
@@ -300,6 +472,8 @@ lvar: identificador           { LVar *tmp = new LVar();
                                 $$ = tmp;
                               }
     | lvar ',' identificador  { 
+                                $3->line = yylloc.begin.line;
+                                $3->column = yylloc.begin.column;
                                 $1->append(*$3);
                                 $$ = $1;
                               }
@@ -340,7 +514,10 @@ lfunciones: funcion        { //*$$ = LFunciones(*$1,0);
                                };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
-                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,std::string("void"),current_scope);
+                                                   int line = yylloc.begin.line;
+                                                   int column = yylloc.begin.column;
+                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,std::string("void")
+                                                   ,line,column,current_scope);
                                                    identacion += "  ";
                                                  } 
                                                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
@@ -356,8 +533,10 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
           | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
+                                                        int line = yylloc.begin.line;
+                                                        int column = yylloc.begin.column;
                                                         driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,
-                                                        std::string("void"),current_scope);
+                                                        std::string("void"),line,column,current_scope);
                                                         identacion += "  ";
                                                       } 
                                                      bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
@@ -369,8 +548,10 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
 
 
 funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.enterScope();
+                                           int line = yylloc.begin.line;
+                                           int column = yylloc.begin.column;
                                            driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->tipo,current_scope);
+                                                                    ,$2->tipo,line,column,current_scope);
                                            identacion += "  ";
                                          } lparam ')' '{' 
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
@@ -384,8 +565,10 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                                                                                            }
 
         | FUNCTION TYPE_VOID identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                  int line = yylloc.begin.line;
+                                                  int column = yylloc.begin.column;
                                                   driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                ,std::string("void"),current_scope);
+                                                                ,std::string("void"),line,column,current_scope);
                                                    identacion += "  ";
                                                  } lparam ')' '{' bloquedeclare listainstrucciones '}'     { /*Tipo v = Tipo(std::string("void"));
                                                                                                               *$$ = Funcion(v,Identificador(std::string($3)),
@@ -401,9 +584,11 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
 
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
-        | FUNCTION tipo identificador '(' error ')' '{' {current_scope =  driver.tablaSimbolos.enterScope(); 
+        | FUNCTION tipo identificador '(' error ')' '{' { current_scope =  driver.tablaSimbolos.enterScope(); 
+                                                          int line = yylloc.begin.line;
+                                                          int column = yylloc.begin.column;
                                                           driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->tipo,current_scope);
+                                                                    ,$2->tipo,line,column,current_scope);
                                                           identacion += "  ";
                                                         }
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
@@ -414,8 +599,10 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
 
 /*Mala especificacion del encabezado de la funcion*/
         | FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                               int line = yylloc.begin.line;
+                                                               int column = yylloc.begin.column;
                                                                driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,std::string("void"),current_scope);
+                                                                    ,std::string("void"),line,column,current_scope);
                                                                identacion += "  ";
                                                              }
                                                             bloquedeclare listainstrucciones '}'           { /*Tipo v = Tipo(std::string("void"));
@@ -434,18 +621,26 @@ lparam: /* Vacio */          { $$ = new LParam();
                              } 
 
 lparam2: tipo identificador               { $$ = new LParam(); 
-                                            driver.tablaSimbolos.insert($2->identificador,std::string("value"),current_scope,$1->tipo);
+                                            int line = yylloc.begin.line;
+                                            int column = yylloc.begin.column;
+                                            driver.tablaSimbolos.insert($2->identificador,std::string("value"),current_scope,$1->tipo,line,column);
                                           } 
-        | tipo REFERENCE identificador    {$$ = new LParam();
-                                            driver.tablaSimbolos.insert($3->identificador,std::string("reference"),current_scope,$1->tipo);
+        | tipo REFERENCE identificador    { $$ = new LParam();
+                                            int line = yylloc.begin.line;
+                                            int column = yylloc.begin.column;
+                                            driver.tablaSimbolos.insert($3->identificador,std::string("reference"),current_scope,$1->tipo,line,column);
                                           } 
         | lparam2 ',' tipo identificador  { 
-                                            driver.tablaSimbolos.insert($4->identificador,std::string("value"),current_scope,$3->tipo);
+                                            int line = yylloc.begin.line;
+                                            int column = yylloc.begin.column;
+                                            driver.tablaSimbolos.insert($4->identificador,std::string("value"),current_scope,$3->tipo,line,column);
                                             $$ = $1;
                                           }
         | lparam2 ',' tipo REFERENCE 
                       identificador       { 
-                                            driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo);
+                                            int line = yylloc.begin.line;
+                                            int column = yylloc.begin.column;
+                                            driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo,line,column);
                                             $$ = $1;
                                           };
         | tipo error                      {/*$$ = LParam();*/}
@@ -799,6 +994,8 @@ larreglo: larreglo ',' exp      {
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);
+                    id->line = yylloc.begin.line;
+                    id->column = yylloc.begin.column;
                     $$ = id;
                   };
 

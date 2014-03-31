@@ -22,7 +22,7 @@ Symbol::Symbol(){}
 /**
  * Constructor de la clase Symbol.
  */
-Symbol::Symbol(std::string name, std::string catg, int scop, std::string s) {
+Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int linea, int columna) {
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
@@ -30,11 +30,13 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s) {
     size = 0;
     arreglo = 0;
     fieldScope = 0;
+    line = linea;
+    column = columna;
 }
 /**
  * Constructor para arreglo 
  */
-Symbol::Symbol(std::string name, std::string catg, int scop, std::string s, int* array,int tam){
+Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int linea, int columna, int* array,int tam){
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
@@ -42,11 +44,13 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s, int*
     size = tam;
     arreglo = array;
     fieldScope = 0;   
+    line = linea;
+    column = columna;
 }
 /**
  * Constructor para estructuras.
  */
-Symbol::Symbol(std::string name,std::string catg,int scop,std::string s,int fsc){
+Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int linea, int columna,int fsc){
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
@@ -54,7 +58,8 @@ Symbol::Symbol(std::string name,std::string catg,int scop,std::string s,int fsc)
     size = 0;
     arreglo = 0;
     fieldScope = fsc;   
-
+    column = columna;
+    line =  linea;
 }
 
 

@@ -295,7 +295,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                int *arreglo = new int[par.second.lista.size()];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
                                                                for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->integer;
+                                                                    arreglo[i] = itInt->getValor();
                                                                     ++itInt;
                                                                }
                                                                int line = par.first.line;
@@ -329,7 +329,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                int *arreglo = new int[size];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
                                                                for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->integer;
+                                                                    arreglo[i] = itInt->getValor();
                                                                     ++itInt;
                                                                }
                                                                int line = par.first.line;

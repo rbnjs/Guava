@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Ruben Serradas (), 
+ *         Author:  Ruben Serradas (), Michael Woo 
  *   Organization:  USB
  *
  * =====================================================================================
@@ -91,16 +91,44 @@ public:
     
     virtual void show(std::string);
 };
+/**
+ * Define la estructuracion de los arreglos de datos en el lenguaje.
+ */
+class LArreglo{
+public:
+    std::list<Exp> larr;
+
+    LArreglo();
+    void append(Exp);
+    ~LArreglo();
+    
+    void show(std::string);
+};
+
+typedef union {
+    float real;
+    std::string* str;
+    int integer;
+    char ch;
+    bool boolean;
+    LArreglo* listaA;
+} ValorU;
 
 /**
  * Describe valores constantes del lenguaje.
  */
-class Valor: public Exp{
+class Valor{
 public:
-    Valor* valor;
+    ValorU valor;
 
-    Valor(Valor*);
     Valor();
+    Valor(float);
+    Valor(int);
+    Valor(char);
+    Valor(std::string);
+    Valor(bool);
+    Valor(LArreglo*);
+
     ~Valor();
 
     virtual void show(std::string);
@@ -111,7 +139,6 @@ public:
  */
 class Real: public Valor{
 public:
-    float real;
     
     Real(float);    
     ~Real();
@@ -124,9 +151,9 @@ public:
  */
 class Integer:public Valor{
 public:
-    int integer;
     Integer();
     Integer(int);    
+    int getValor();
     ~Integer();
     virtual void show(std::string);
 };
@@ -366,26 +393,12 @@ public:
     void show(std::string);
 };
 
-/**
- * Define la estructuracion de los arreglos de datos en el lenguaje.
- */
-class LArreglo{
-public:
-    std::list<Exp> larr;
-
-    LArreglo();
-    void append(Exp);
-    ~LArreglo();
-    
-    void show(std::string);
-};
 
 /**
  * Clase que describe la definicion de estructuras de datos tipo arreglos.
  */
 class Arreglo:public Valor{
 public:
-    LArreglo* listaA;
 
     Arreglo();
     Arreglo(LArreglo*);    

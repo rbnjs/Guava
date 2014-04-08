@@ -96,10 +96,10 @@ std::string identacion ("");
        RECORD "record" UNION "union" REFERENCE "reference" FUNCTION "function" 
        DECLARE "declare statement" ARRAY "array"
 %token PRINT "print statement" READ "read statement"
-%token <operator> UFO "UFO operator" AND "AND operator" OR "OR operator" NOT "NOT operator"
-                  '+' "PLUS operator" '-' "MINUS operator" '*' "TIMES operator" '/' "DIVISION operator"
-                  DIV "DIV operator" MOD "MOD operator" PLUSPLUS "INCREMENT operator" 
-                  MINUSMINUS "DECREMENT operator" POW "POWER operator" UMINUS "UNARY MINUS operator"
+%token <operator> UFO "<=> operator" AND "and operator" OR "or operator" NOT "not operator"
+                  '+' "+ operator" '-' "- operator" '*' "* operator" '/' "/ operator"
+                  DIV "div operator" MOD "mod operator" PLUSPLUS "++ operator" 
+                  MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 %left <subtok> COMPARISON
 %left UFO
 %left AND
@@ -114,8 +114,8 @@ std::string identacion ("");
 /* Clases correspondientes. */
 %type <classValor> valor
 %type <classExp> exp
-%type <classExpUn> expun
-%type <classExpBin> expbin
+%type <int> expBool         /* Tipo */
+%type <int> expAritmetica /* Falta el tipo para esto. */
 %type <classLlamadaFuncion> llamadafuncion 
 %type <classSelectorIf> selectorif 
 %type <classLoopWhile> loopwhile 
@@ -948,10 +948,10 @@ lvarovalor2: lvarovalor2 ',' exp     {
                                      };
 
 /*Aqui no es necesario poner nada. Revisar esto.*/
-exp: expbin       {  
-                  }
-   | expun        {  
-                  } 
+exp: expAritmetica       {  
+                         }
+   | expBool             {  
+                         } 
    | valor        {  
                   }
    | identificador    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
@@ -966,68 +966,7 @@ exp: expbin       {
    /*Errores*/
    | '(' error ')'  {}
    | llamadafuncion {}
-
-/*Faltan pruebas*/
-expbin: exp AND exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("and"));
-                             }
-      | exp OR exp           { 
-                               $$ = new ExpBin(*$1,*$3,std::string("or"));
-                             }
-      | exp COMPARISON exp   { int cmpv = $2;
-                               ExpBin *eb;
-                               switch(cmpv){
-                                    case 1:
-                                        eb = new ExpBin(*$1,*$3,std::string(">"));
-                                        $$ = eb;
-                                        break;
-                                    case 2:
-                                        eb = new ExpBin(*$1,*$3,std::string("<"));
-                                        $$ = eb;
-                                        break;
-                                    case 3:
-                                        eb = new ExpBin(*$1,*$3,std::string("<="));
-                                        $$ = eb;
-                                        break;
-                                    case 4:
-                                        eb = new ExpBin(*$1,*$3,std::string(">="));
-                                        $$ = eb;
-                                        break;
-                                    case 5:
-                                        eb = new ExpBin(*$1,*$3,std::string("="));
-                                        $$ = eb;
-                                        break;
-                                    case 6:
-                                        eb = new ExpBin(*$1,*$3,std::string("!="));
-                                        $$ = eb;
-                                        break;
-                               }
-                             }
-      | exp UFO exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("<=>"));
-                             }
-      | exp '+' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("+"));
-                             }
-      | exp '-' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("-"));
-                             }
-      | exp '*' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("*"));
-                             }
-      | exp '/' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("/"));
-                             }
-      | exp DIV exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("div"));
-                             }
-      | exp MOD exp          { 
-                               $$ =  new ExpBin(*$1,*$3,std::string("mod"));
-                             }
-      | exp POW exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("**"));
-                             }
-      | identificador lAccesoAtributos { 
+   | identificador lAccesoAtributos { 
                              	          //$$ = new ExpBin(*$1,*$3,std::string("."));
                                             Symbol * id;
                                             if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
@@ -1045,41 +984,73 @@ expbin: exp AND exp          {
                                                 msg2 += " is not a record nor an union";
                                                 driver.error(yylloc,msg2);
                                             }
-                                        };
+                                      }
+    | identificador lcorchetesExp     { 
+                                      };
 
-/* Revisar si hay que poner new string */
-expun: NOT exp               { std::string str = std::string("not");
-                               ExpUn* tmp = new ExpUn(*$2, &str);
-                               $$ = tmp; 
+/*Faltan pruebas*/
+expBool: exp AND exp          { 
                              }
-     | '-' exp %prec UMINUS  { std::string str = std::string("-");
-                               ExpUn* tmp = new ExpUn(*$2, &str);
-                               $$ = tmp; 
+      | exp OR exp           { 
                              }
-     | exp PLUSPLUS          { std::string str = std::string("++sufijo");
-                               ExpUn* tmp = new ExpUn(*$1, &str);
-                               $$ = tmp; 
+      | exp COMPARISON exp   { int cmpv = $2;
+                               //ExpBin *eb;
+                               switch(cmpv){
+                                    case 1:
+                                        //eb = new ExpBin(*$1,*$3,std::string(">"));
+                                        //$$ = eb;
+                                        break;
+                                    case 2:
+                                        //eb = new ExpBin(*$1,*$3,std::string("<"));
+                                        //$$ = eb;
+                                        break;
+                                    case 3:
+                                        //eb = new ExpBin(*$1,*$3,std::string("<="));
+                                        //$$ = eb;
+                                        break;
+                                    case 4:
+                                        //eb = new ExpBin(*$1,*$3,std::string(">="));
+                                        //$$ = eb;
+                                        break;
+                                    case 5:
+                                        //eb = new ExpBin(*$1,*$3,std::string("="));
+                                        //$$ = eb;
+                                        break;
+                                    case 6:
+                                        //eb = new ExpBin(*$1,*$3,std::string("!="));
+                                        //$$ = eb;
+                                        break;
+                               }
                              }
-     | exp MINUSMINUS        { std::string str = std::string("--sufijo");
-                               ExpUn* tmp = new ExpUn(*$1, &str);
-                               $$ = tmp;
-                             }
-     /*Las dos siguientes reglas no deberian de existir, no es posible
-       incrementar o decrementar una expresion sin conocer su valor final*/
-     | PLUSPLUS exp         { std::string str = std::string("++prefijo");
-                              ExpUn* tmp = new ExpUn(*$2, &str);
-                              $$ = tmp; 
-                            }
-     | MINUSMINUS exp        { 
-                               std::string str = std::string("--prefijo");
-                               Exp e = *$2;
-                               ExpUn* tmp = new ExpUn(e, &str);
-                               $$ = tmp; 
-                             }
-     | identificador lcorchetesExp { /*Exp id = *$1;
-                                  ExpUn* tmp = new ExpUn(id, $2);
-                                  $$ = tmp;*/
-                                };
+      | NOT exp               { 
+                             };
+      
+
+
+expAritmetica: '-' exp %prec UMINUS  {  
+                                     }
+             | exp PLUSPLUS          {  
+                                     }
+             | exp MINUSMINUS        { 
+                                     }
+             | exp UFO exp           { 
+                                     }
+             | exp '+' exp           { 
+                                     }
+             | exp '-' exp           { 
+                                     }
+             | exp '*' exp           { 
+                                     }
+             | exp '/' exp           { 
+                                     }
+             | exp DIV exp           { 
+                                     }
+             | exp MOD exp           { 
+                                     }
+             | exp POW exp           { 
+                                     };
+
+
 /*Funciona*/
 valor: BOOL     { 
                   $$ = new Bool($1);

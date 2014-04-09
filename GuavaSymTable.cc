@@ -177,5 +177,4 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
-
 /* falta la funcion update */

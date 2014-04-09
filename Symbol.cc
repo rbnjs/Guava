@@ -32,6 +32,33 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     fieldScope = 0;
     line = linea;
     column = columna;
+    if (catg.compare("reference")){
+        referencia  = true;
+        if ( name.compare("real") ){
+            contenido.referencia.real = 0;
+        } else if ( name.compare("integer") ){
+            contenido.referencia.integer = 0;
+        } else if ( name.compare("boolean") ){
+            contenido.referencia.boolean = 0;
+        } else if ( name.compare("character") ){
+            contenido.referencia.ch = 0;
+        } else {
+            contenido.referencia.str = 0;
+        }
+    } else{
+        referencia = false;
+        if ( name.compare("real") ){
+            contenido.valor.real = 0.0;
+        } else if ( name.compare("integer") ){
+            contenido.valor.integer = 0;
+        } else if ( name.compare("boolean") ){
+            contenido.valor.boolean = false;
+        } else if ( name.compare("character") ){
+            contenido.valor.ch =' ';
+        } else {
+            contenido.valor.str = new std::string("");
+        }
+    }
 }
 /**
  * Constructor para arreglo 

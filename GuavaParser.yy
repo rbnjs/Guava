@@ -1150,9 +1150,26 @@ lAccesoAtributos: '.' identificador { Symbol* id;
                                             driver.error(yylloc,msg);
                                             error_state = 1;               
                                      } else if ((id->sym_catg.compare("unionVar") == 0) || id->sym_catg.compare("recordVar") == 0){
+                                            Symbol* structure;
+                                            structure = driver.tablaSimbolos.lookup(id->type,attribute_scope);
+                                            if (structure != 0) attribute_scope = structure->fieldScope;
                                      }
                                     }
-                | lAccesoAtributos '.' identificador {};
+                | lAccesoAtributos '.' identificador {
+                                                        Symbol* id;
+                                                        if ((id = driver.tablaSimbolos.lookup($3->identificador,attribute_scope)) == 0){
+                                                            std::string msg ("Undeclared identifier '");
+                                                            msg += $3->identificador;
+                                                            msg += "'";
+                                                            driver.error(yylloc,msg);
+                                                            error_state = 1;               
+                                                        } else if ((id->sym_catg.compare("unionVar") == 0) || id->sym_catg.compare("recordVar") == 0){
+                                                            Symbol* structure;
+                                                            structure = driver.tablaSimbolos.lookup(id->type,attribute_scope);
+                                                            if (structure != 0)  attribute_scope = structure->fieldScope;
+                                                        }
+
+                                                     };
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

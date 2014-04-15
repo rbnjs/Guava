@@ -511,6 +511,7 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
             | lvararreglo ',' identificador lcorchetes { $1->append(*$3,*$4);
                                                          $$ = $1;
                                                        }
+            /*Errores*/
             | error lcorchetes                         { LVarArreglo* tmp = new LVarArreglo();
                                                          $$ = tmp;
                                                        }
@@ -667,6 +668,7 @@ lparam2: tipo identificador               { $$ = new LParam();
                                             driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo,line,column);
                                             $$ = $1;
                                           };
+        /*Errores*/
         | tipo error                      {/*$$ = LParam();*/}
         | tipo REFERENCE error            {/*$$ = LParam():*/}
         | lparam2 ',' tipo error          {}
@@ -676,7 +678,7 @@ lparam2: tipo identificador               { $$ = new LParam();
 /*LISTO*/
 listainstrucciones: /* Vacio */                        { //*$$ = ListaInstrucciones(); 
                                                        }
-                  |listainstrucciones instruccion ';' { //*$$ = ListaInstrucciones($1,$3); 
+                  | listainstrucciones instruccion ';' { //*$$ = ListaInstrucciones($1,$3); 
                                                       }
                   | listainstrucciones instruccion1    { //*$$ = ListaInstrucciones($1,$2); 
                                                         };
@@ -966,18 +968,6 @@ expun: NOT exp               { std::string str = std::string("not");
      | exp MINUSMINUS        { std::string str = std::string("--sufijo");
                                ExpUn* tmp = new ExpUn(*$1, &str);
                                $$ = tmp;
-                             }
-     /*Las dos siguientes reglas no deberian de existir, no es posible
-       incrementar o decrementar una expresion sin conocer su valor final*/
-     | PLUSPLUS exp         { std::string str = std::string("++prefijo");
-                              ExpUn* tmp = new ExpUn(*$2, &str);
-                              $$ = tmp; 
-                            }
-     | MINUSMINUS exp        { 
-                               std::string str = std::string("--prefijo");
-                               Exp e = *$2;
-                               ExpUn* tmp = new ExpUn(e, &str);
-                               $$ = tmp; 
                              }
      | identificador lcorchetes { Exp id = *$1;
                                   ExpUn* tmp = new ExpUn(id, $2);

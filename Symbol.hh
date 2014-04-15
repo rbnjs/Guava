@@ -17,6 +17,8 @@
  */
 
 #include <string>
+#include "Types.hh"
+
 
 typedef union {
     float* real;

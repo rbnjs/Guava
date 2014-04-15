@@ -1,24 +1,24 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Types.hh
+ *       Filename :  Types.hh
  *
- *    Description:  Clases de tipos para el sistema de tipos de Guava.
+ *    Description :  Clases de tipos para el sistema de tipos de Guava.
  *
- *        Version:  1.0
- *        Created:  08/05/14 11:17:16
- *       Revision:  none
- *       Compiler:  gcc
+ *        Version :  1.0
+ *        Created :  08/05/14 11 :17 :16
+ *       Revision :  none
+ *       Compiler :  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author :  YOUR NAME (), 
+ *   Organization :  
  *
  * =====================================================================================
  */
 #include <list>
 
 class TypeS{
-public:
+public :
    virtual bool is_numeric() = 0; 
    virtual bool is_error() = 0;
    virtual bool is_bool() = 0;
@@ -29,114 +29,133 @@ public:
    virtual bool is_union() = 0;
 };
 
-class TypeReal:public TypeS{
-public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+class TypeReal :public TypeS{
+public :
+    TypeReal();
+    ~TypeReal();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 
-class TypeInt:public TypeS{
-public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+class TypeInt :public TypeS{
+public :
+    TypeInt();
+    ~TypeInt();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 
-class TypeError:public TypeS{
+class TypeError :public TypeS{
 public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+    TypeError();
+    ~TypeError();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 
 class TypeBool:public TypeS{
 public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+    TypeBool();
+    ~TypeBool();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 
 class TypeChar:public TypeS{
 public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+    TypeChar();
+    ~TypeChar();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 class TypeString:public TypeS{
 public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+    TypeString();
+    ~TypeString();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 };
 class TypeFunction:public TypeS{
 public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
-private:
+    TypeFunction(TypeS*,std::list<TypeS*>); 
+    ~TypeFunction(); 
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+private :
     TypeS* rango;
     std::list<TypeS*> parametros;
 };
 
-class TypeStructure:public TypeS{
-public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
-private:
+class TypeStructure :public TypeS{
+public :
+    TypeStructure(std::list<TypeS*>);
+    ~TypeStructure();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+private :
     std::list<TypeS*> atributos;
 };
-class TypeUnion:public TypeS{
-public:
-   bool is_numeric() ; 
-   bool is_error() ;
-   bool is_bool() ;
-   bool is_char() ;
-   bool is_str() ;
-   bool is_func() ;
-   bool is_structure() ;
-   bool is_union() ;
+
+class TypeUnion :public TypeS{
+public :
+    TypeUnion(std::list<TypeS*>);
+    ~TypeUnion();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
 private:
     std::list<TypeS*> atributos;
 };

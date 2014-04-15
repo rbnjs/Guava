@@ -166,7 +166,8 @@ bloqueprincipal: {
 
 bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
                                           }
-             | { declare_scope = driver.tablaSimbolos.currentScope(); }
+             | { declare_scope = driver.tablaSimbolos.currentScope(); 
+               }
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 

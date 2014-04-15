@@ -19,16 +19,11 @@ function void main () {
   /* Incrementos */
   i := i++;
   i := ++i;
-  i := (++(i++)++)++;
 
   /* Decrementos */
   i := i--;
-  i := --i------;
-  i := (--((i--)--)--)--;
 
   /* Combinacion de operadores */
-  (--((++i)--))++;
-  i++--++--;
 
   b := not b;
   b := not not not b;

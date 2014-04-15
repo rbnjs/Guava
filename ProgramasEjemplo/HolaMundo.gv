@@ -1,7 +1,0 @@
-declare {
-  String h = "Hola Mundo";
-}
-
-function void main() {
-  print(h);
-}

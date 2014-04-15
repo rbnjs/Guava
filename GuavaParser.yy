@@ -76,6 +76,7 @@ class GuavaDriver;
 %code {
 # include "GuavaDriver.hh"
 int current_scope;
+int attribute_scope; 
 int declare_scope;
 int error_state;
 std::string identacion ("");
@@ -96,10 +97,10 @@ std::string identacion ("");
        RECORD "record" UNION "union" REFERENCE "reference" FUNCTION "function" 
        DECLARE "declare statement" ARRAY "array"
 %token PRINT "print statement" READ "read statement"
-%token <operator> UFO "UFO operator" AND "AND operator" OR "OR operator" NOT "NOT operator"
-                  '+' "PLUS operator" '-' "MINUS operator" '*' "TIMES operator" '/' "DIVISION operator"
-                  DIV "DIV operator" MOD "MOD operator" PLUSPLUS "INCREMENT operator" 
-                  MINUSMINUS "DECREMENT operator" POW "POWER operator" UMINUS "UNARY MINUS operator"
+%token <operator> UFO "<=> operator" AND "and operator" OR "or operator" NOT "not operator"
+                  '+' "+ operator" '-' "- operator" '*' "* operator" '/' "/ operator"
+                  DIV "div operator" MOD "mod operator" PLUSPLUS "++ operator" 
+                  MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 %left <subtok> COMPARISON
 %left UFO
 %left AND
@@ -114,8 +115,8 @@ std::string identacion ("");
 /* Clases correspondientes. */
 %type <classValor> valor
 %type <classExp> exp
-%type <classExpUn> expun
-%type <classExpBin> expbin
+%type <int> expBool         /* Tipo */
+%type <int> expAritmetica /* Falta el tipo para esto. */
 %type <classLlamadaFuncion> llamadafuncion 
 %type <classSelectorIf> selectorif 
 %type <classLoopWhile> loopwhile 
@@ -157,22 +158,22 @@ bloqueprincipal: {
                  bloquedeclare lfunciones  { //*$$ = new BloquePrincipal(*$2, *$3);
                                              if (!error_state) {
                                                 std::cout << "Funciones: " << '\n';
-                                                driver.tablaSimbolos.show(0,identacion);
+                                                driver.tablaSimbolos.show(0,identacion+ "  ");
                                                 std::cout << "Variables globales: \n";
-                                                driver.tablaSimbolos.show(1,identacion);
+                                                driver.tablaSimbolos.show(1,identacion+ "  ");
                                              }
                                            };
 
 bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
                                           }
-             | { declare_scope = driver.tablaSimbolos.alcance; }
+             | { declare_scope = driver.tablaSimbolos.currentScope(); }
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 
 lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                             std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it; it != l.end(); ++it){
                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                if (tmp != 0){
@@ -197,7 +198,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | tipo REFERENCE lvar ';'                     { 
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -222,7 +223,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | lvariables tipo lvar ';'                    {
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -247,7 +248,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | tipo lvar ';'                               {   
                                                             std::list<Identificador> l = $2->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -272,7 +273,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | tipo ARRAY lvararreglo ';'                  {  
                                                             std::list<std::pair <Identificador, LCorchetes> > l = $3->get_list();
                                                             std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                std::pair <Identificador, LCorchetes> par (*it);
 
@@ -295,7 +296,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                int *arreglo = new int[par.second.lista.size()];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
                                                                for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->integer;
+                                                                    arreglo[i] = itInt->getValor();
                                                                     ++itInt;
                                                                }
                                                                int line = par.first.line;
@@ -307,7 +308,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | lvariables tipo ARRAY lvararreglo ';'      { 
                                                             std::list<std::pair <Identificador, LCorchetes> > l = $4->get_list();
                                                             std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                std::pair <Identificador, LCorchetes> par (*it);
                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador);
@@ -329,7 +330,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                int *arreglo = new int[size];
                                                                std::list<Integer>::iterator itInt (par.second.lista.begin());
                                                                for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->integer;
+                                                                    arreglo[i] = itInt->getValor();
                                                                     ++itInt;
                                                                }
                                                                int line = par.first.line;
@@ -338,10 +339,10 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
                                                                                             ,line,column,arreglo,size); 
                                                             }
                                                         }
-          | identificador   UNION lvar ';'              {
+          | identificador UNION lvar ';'              {
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -367,7 +368,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | lvariables  identificador   UNION lvar ';'  {
                                                             std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -393,7 +394,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | identificador   RECORD lvar ';'             {
                                                             std::list<Identificador> l = $3->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -419,7 +420,7 @@ lvariables: lvariables  tipo REFERENCE lvar ';'         {
           | lvariables identificador RECORD lvar ';'   {
                                                             std::list<Identificador> l = $4->get_list();
                                                             std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.alcance;
+                                                            int scop = driver.tablaSimbolos.currentScope();
                                                             for (it ; it != l.end(); ++it){
                                                                 Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
                                                                 if (tmp != 0){
@@ -463,12 +464,11 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                 identacion += "  ";
                                }
                               lvariables '}' {  if (!error_state) {
-                                                  //identacion += "  ";
-                                                  std::cout << identacion << "Union " << $2->identificador << " {\n";
-                                                  driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
-                                                  std::cout << identacion <<"}\n";
-                                                  identacion.erase(0,2);
-                                                  driver.tablaSimbolos.exitScope();
+                                                    identacion.erase(0,2);
+                                                    std::cout << identacion << "Union " << $2->identificador << " {\n";
+                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
+                                                    std::cout << identacion <<"}\n";
+                                                    driver.tablaSimbolos.exitScope(); 
                                                 }
                                              }
 
@@ -503,7 +503,7 @@ lvar: identificador           { LVar *tmp = new LVar();
     | error                   { LVar *tmp = new LVar ();
                                 $$ = tmp;
                               }
-    | lvar ',' error          {};
+    | lvar ',' error          { $$ = $1; };
 
 lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
                                                          $$ = tmp;
@@ -531,6 +531,12 @@ lcorchetes: '[' INTEGER ']'         {
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
           | lcorchetes '[' error ']' {};
+
+lcorchetesExp: '[' exp ']'               {}
+             | lcorchetesExp '[' exp ']' {}
+             | '[' error ']'             {}
+             |  lcorchetesExp '[' error ']' {}
+
 
 lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);
                                            }
@@ -667,12 +673,12 @@ lparam2: tipo identificador               { $$ = new LParam();
                                             int column = yylloc.begin.column;
                                             driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo,line,column);
                                             $$ = $1;
-                                          };
-        /*Errores*/
+                                          }
+        
         | tipo error                      {/*$$ = LParam();*/}
         | tipo REFERENCE error            {/*$$ = LParam():*/}
         | lparam2 ',' tipo error          {}
-        | lparam2 ',' tipo REFERENCE error  {}
+        | lparam2 ',' tipo REFERENCE error  {};
 
 
 /*LISTO*/
@@ -688,16 +694,45 @@ instruccion: asignacion     {
            | llamadafuncion { 
                             }
            | MINUSMINUS identificador  {
-                                         $$ = new PlusMinus(*$2, 0); 
+                                         if (driver.tablaSimbolos.lookup($2->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $2->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;
+                                         } else{
+                                            $$ = new PlusMinus(*$2, 0);
+                                         }
                                        }
-           | identificador MINUSMINUS { 
-                                         $$ = new PlusMinus(*$1, 1); 
+           | identificador MINUSMINUS { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $1->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;
+                                         } else{
+                                            $$ = new PlusMinus(*$1, 1); 
+                                         }
                                        }
-           | PLUSPLUS identificador    { 
-                                         $$ = new PlusMinus(*$2, 2); 
+           | PLUSPLUS identificador    { if (driver.tablaSimbolos.lookup($2->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $2->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;
+                                         } else{
+                                            $$ = new PlusMinus(*$2, 2); 
+                                         }
                                        }
-           | identificador PLUSPLUS    { 
-                                         $$ = new PlusMinus(*$1, 3); 
+           | identificador PLUSPLUS    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $1->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;
+                                         } else{
+                                            $$ = new PlusMinus(*$1, 3); 
+                                         }
                                        }
            | entradasalida  { 
                             }
@@ -713,20 +748,59 @@ instruccion1: loopfor        {
             | selectorif     { 
                              };
 
-/*LISTO*/
 asignacion: identificador ASSIGN exp            { /*Identificador id = Identificador(std::string($1));
                                                    *$$ = Asignacion(id,$3);*/
-                                                }             
-            | identificador lcorchetes ASSIGN exp { /*Identificador id = Identificador(std::string($1));
-                                                    *$$ = Asignacion(id,*$2,$4);*/
+                                                   if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                                        std::string msg ("Undeclared identifier '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                        error_state = 1;
+                                                  } else{
                                                   }
-            | identificador '.' identificador ASSIGN exp     { /*Identificador id1 = Identificador(std::string($1));
-                                                                Identificador id2 = Identificador(std::string($3));
-                                                                *$$ = Asignacion(id1,id2,$5);*/
-                                                             }
+                                                }             
+            | identificador lcorchetesExp ASSIGN exp { /*Identificador id = Identificador(std::string($1));
+                                                    *$$ = Asignacion(id,*$2,$4);*/
+                                                    if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                                                        std::string msg ("Undeclared identifier '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                        error_state = 1;
+                                                    } else{
+                                                    }
+
+                                                  }
+            | identificador { Symbol * id;
+                              if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                                    std::string msg ("Undeclared identifier '");
+                                    msg += $1->identificador;
+                                    msg += "'";
+                                    driver.error(yylloc,msg);
+                                    error_state = 1;
+                              } else {
+                                    if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
+                                    std::string msg2 ("The ");
+                                    msg2 += id->sym_catg;
+                                    msg2 += "  ";
+                                    msg2 += id->sym_name;
+                                    msg2 += " is not a record nor an union";
+                                    driver.error(yylloc,msg2);
+                                    error_state = 1;                                    
+                                   } else {
+                                    Symbol* structure;
+                                    structure = driver.tablaSimbolos.lookup(id->type);
+                                    attribute_scope = structure->fieldScope;
+                                   }
+                              }
+                            } 
+                            lAccesoAtributos ASSIGN exp     {   
+                                                            }
             /*Errores*/
-            | error ASSIGN exp  {/*Error en el elemento a asignar.*/}
-            | identificador ASSIGN error {}
+            | error ASSIGN exp  {
+                                }
+            | identificador ASSIGN error {};
+
 
 /*Esto hay que cambiarlo.*/
 entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
@@ -734,11 +808,16 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
              | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
                                          };
 
-/*LISTO*/
-loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' { 
-                                                                driver.tablaSimbolos.enterScope();   
-                                                                identacion += "  "; 
-                                                              }
+loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' { if (driver.tablaSimbolos.lookup($3->identificador) == 0){
+                                                                      std::string msg ("Undeclared identifier '");
+                                                                      msg += $3->identificador;
+                                                                      msg += "'";
+                                                                      driver.error(yylloc,msg);
+                                                                      error_state = 1;
+                                                                  } 
+                                                                  driver.tablaSimbolos.enterScope();   
+                                                                  identacion += "  "; 
+                                                                }
                                                             bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                     *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
                                                                                                     if (!error_state) {
@@ -752,13 +831,17 @@ loopfor: FOR '(' identificador ';' exp ';' errorloopfor ')' '{' {
                                                                                                  }
        /*Errores*/
        | FOR '(' error ';' exp ';' errorloopfor ')' '{' { 
-                                                          driver.tablaSimbolos.enterScope();   
                                                         }
                                                       bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                               *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
                                                                                            }
-       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { 
-                                                                     driver.tablaSimbolos.enterScope();   
+       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { if (driver.tablaSimbolos.lookup($3->identificador) == 0){
+                                                                        std::string msg ("Undeclared identifier '");
+                                                                        msg += $3->identificador;
+                                                                        msg += "'";
+                                                                        driver.error(yylloc,msg);
+                                                                        error_state = 1;
+                                                                     }
                                                                    }
                                                                  bloquedeclare listainstrucciones '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                          *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
@@ -821,7 +904,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
            | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'            { //*$$ = SelectorIf($3,$6,$8); 
                                                                                  };
 
-/*LISTO*/
+
 lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
                                                                                    }
        | lelseif1 ELSE '{' { 
@@ -837,7 +920,7 @@ lelseif1: /*Vacio*/
                                                     }
                                                     bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
                                                                                            driver.tablaSimbolos.exitScope();
-                                                                                         }
+                                                                                         };
 
 /**
  * Regla utilizada para el manejo de errores de los selectores de bloques e
@@ -847,6 +930,13 @@ errorif : exp   {}
         | error {};
 
 llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+                                                    if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){
+                                                        std::string msg ("Undefined function '");
+                                                        msg += $1->identificador;
+                                                        msg += "'";
+                                                        driver.error(yylloc,msg);
+                                                        error_state = 1;
+                                                    }
                                                  }
               /*Errores*/
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/};
@@ -875,104 +965,122 @@ lvarovalor2: lvarovalor2 ',' exp     {
                                      };
 
 /*Aqui no es necesario poner nada. Revisar esto.*/
-exp: expbin       {  
-                  }
-   | expun        {  
-                  } 
+exp: expAritmetica       {  
+                         }
+   | expBool             {  
+                         } 
    | valor        {  
                   }
-   | identificador    { 
+   | identificador    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
+                            std::string msg ("Undeclared identifier '");
+                            msg += $1->identificador;
+                            msg += "'";
+                            driver.error(yylloc,msg);
+                            error_state = 1;
+                        }
                       }
    | '(' exp ')'  { 
                   }
    /*Errores*/
-   | '(' error ')'  {};
+   | '(' error ')'  {}
+   | llamadafuncion {}
+   | identificador { Symbol * id;
+                     if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                        std::string msg ("Undeclared identifier '");
+                        msg += $1->identificador;
+                        msg += "'";
+                        driver.error(yylloc,msg);
+                        error_state = 1;
+                      } else {
+                            if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
+                            std::string msg2 ("The ");
+                            msg2 += id->sym_catg;
+                            msg2 += "  ";
+                            msg2 += id->sym_name;
+                            msg2 += " is not a record nor an union";
+                            driver.error(yylloc,msg2);
+                            error_state = 1;
+                        } else {
+                            Symbol* structure;
+                            structure = driver.tablaSimbolos.lookup(id->type);
+                            attribute_scope = structure->fieldScope;
+                        }
+                      } 
+
+                    } lAccesoAtributos {
+                                       }
+    | identificador lcorchetesExp     { Symbol * id;
+                                        if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $1->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;
+                                        }
+                                      };
 
 /*Faltan pruebas*/
-expbin: exp AND exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("and"));
+expBool: exp AND exp          { 
                              }
       | exp OR exp           { 
-                               $$ = new ExpBin(*$1,*$3,std::string("or"));
                              }
       | exp COMPARISON exp   { int cmpv = $2;
-                               ExpBin *eb;
+                               //ExpBin *eb;
                                switch(cmpv){
                                     case 1:
-                                        eb = new ExpBin(*$1,*$3,std::string(">"));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string(">"));
+                                        //$$ = eb;
                                         break;
                                     case 2:
-                                        eb = new ExpBin(*$1,*$3,std::string("<"));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string("<"));
+                                        //$$ = eb;
                                         break;
                                     case 3:
-                                        eb = new ExpBin(*$1,*$3,std::string("<="));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string("<="));
+                                        //$$ = eb;
                                         break;
                                     case 4:
-                                        eb = new ExpBin(*$1,*$3,std::string(">="));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string(">="));
+                                        //$$ = eb;
                                         break;
                                     case 5:
-                                        eb = new ExpBin(*$1,*$3,std::string("="));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string("="));
+                                        //$$ = eb;
                                         break;
                                     case 6:
-                                        eb = new ExpBin(*$1,*$3,std::string("!="));
-                                        $$ = eb;
+                                        //eb = new ExpBin(*$1,*$3,std::string("!="));
+                                        //$$ = eb;
                                         break;
                                }
                              }
-      | exp UFO exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("<=>"));
-                             }
-      | exp '+' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("+"));
-                             }
-      | exp '-' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("-"));
-                             }
-      | exp '*' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("*"));
-                             }
-      | exp '/' exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("/"));
-                             }
-      | exp DIV exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("div"));
-                             }
-      | exp MOD exp          { 
-                               $$ =  new ExpBin(*$1,*$3,std::string("mod"));
-                             }
-      | exp POW exp          { 
-                               $$ = new ExpBin(*$1,*$3,std::string("**"));
-                             }
-      | identificador '.' identificador { 
-                             	          $$ = new ExpBin(*$1,*$3,std::string("."));
-                                        };
+      | NOT exp               { 
+                             };
+      
 
-/* Revisar si hay que poner new string */
-expun: NOT exp               { std::string str = std::string("not");
-                               ExpUn* tmp = new ExpUn(*$2, &str);
-                               $$ = tmp; 
-                             }
-     | '-' exp %prec UMINUS  { std::string str = std::string("-");
-                               ExpUn* tmp = new ExpUn(*$2, &str);
-                               $$ = tmp; 
-                             }
-     | exp PLUSPLUS          { std::string str = std::string("++sufijo");
-                               ExpUn* tmp = new ExpUn(*$1, &str);
-                               $$ = tmp; 
-                             }
-     | exp MINUSMINUS        { std::string str = std::string("--sufijo");
-                               ExpUn* tmp = new ExpUn(*$1, &str);
-                               $$ = tmp;
-                             }
-     | identificador lcorchetes { Exp id = *$1;
-                                  ExpUn* tmp = new ExpUn(id, $2);
-                                  $$ = tmp;
-                                };
+
+expAritmetica: '-' exp %prec UMINUS  {  
+                                     }
+             | exp PLUSPLUS          {  
+                                     }
+             | exp MINUSMINUS        { 
+                                     }
+             | exp UFO exp           { 
+                                     }
+             | exp '+' exp           { 
+                                     }
+             | exp '-' exp           { 
+                                     }
+             | exp '*' exp           { 
+                                     }
+             | exp '/' exp           { 
+                                     }
+             | exp DIV exp           { 
+                                     }
+             | exp MOD exp           { 
+                                     }
+             | exp POW exp           { 
+                                     };
+
 /*Funciona*/
 valor: BOOL     { 
                   $$ = new Bool($1);
@@ -1034,6 +1142,35 @@ larreglo: larreglo ',' exp      {
         /*Errores*/
         | larreglo ',' error    { $$ = $1; }
         | error                 { LArreglo *tmp = new LArreglo(); };
+
+lAccesoAtributos: '.' identificador { Symbol* id;
+                                      if ((id = driver.tablaSimbolos.lookup($2->identificador,attribute_scope)) == 0){
+                                            std::string msg ("Undeclared identifier '");
+                                            msg += $2->identificador;
+                                            msg += "'";
+                                            driver.error(yylloc,msg);
+                                            error_state = 1;               
+                                     } else if ((id->sym_catg.compare("unionVar") == 0) || id->sym_catg.compare("recordVar") == 0){
+                                            Symbol* structure;
+                                            structure = driver.tablaSimbolos.lookup(id->type,attribute_scope);
+                                            if (structure != 0) attribute_scope = structure->fieldScope;
+                                     }
+                                    }
+                | lAccesoAtributos '.' identificador {
+                                                        Symbol* id;
+                                                        if ((id = driver.tablaSimbolos.lookup($3->identificador,attribute_scope)) == 0){
+                                                            std::string msg ("Undeclared identifier '");
+                                                            msg += $3->identificador;
+                                                            msg += "'";
+                                                            driver.error(yylloc,msg);
+                                                            error_state = 1;               
+                                                        } else if ((id->sym_catg.compare("unionVar") == 0) || id->sym_catg.compare("recordVar") == 0){
+                                                            Symbol* structure;
+                                                            structure = driver.tablaSimbolos.lookup(id->type,attribute_scope);
+                                                            if (structure != 0)  attribute_scope = structure->fieldScope;
+                                                        }
+
+                                                     };
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

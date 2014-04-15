@@ -9,7 +9,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Ruben Serradas, 
+ *         Author:  Ruben Serradas, Michael Woo
  *
  * =====================================================================================
  */

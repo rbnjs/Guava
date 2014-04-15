@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
+ *         Author:  Ruben Serradas, Michael Woo
  *   Organization:  
  *
  * =====================================================================================
@@ -32,6 +32,33 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     fieldScope = 0;
     line = linea;
     column = columna;
+    if (catg.compare("reference")){
+        referencia  = true;
+        if ( name.compare("real") ){
+            contenido.referencia.real = 0;
+        } else if ( name.compare("integer") ){
+            contenido.referencia.integer = 0;
+        } else if ( name.compare("boolean") ){
+            contenido.referencia.boolean = 0;
+        } else if ( name.compare("character") ){
+            contenido.referencia.ch = 0;
+        } else {
+            contenido.referencia.str = 0;
+        }
+    } else{
+        referencia = false;
+        if ( name.compare("real") ){
+            contenido.valor.real = 0.0;
+        } else if ( name.compare("integer") ){
+            contenido.valor.integer = 0;
+        } else if ( name.compare("boolean") ){
+            contenido.valor.boolean = false;
+        } else if ( name.compare("character") ){
+            contenido.valor.ch =' ';
+        } else {
+            contenido.valor.str = new std::string("");
+        }
+    }
 }
 /**
  * Constructor para arreglo 
@@ -87,11 +114,19 @@ void Symbol::show(std::string identacion){
     if (size == 0){
         std::cout << identacion << "Name: " + sym_name;
         std::cout << " Category: " +sym_catg;
+        std::cout << " Line: ";
+        std::cout << line;
+        std::cout << " Column: ";
+        std::cout << column;
         std::cout << " Type: "+ type << '\n';
     } else{
         std::cout << identacion << "Name: " + sym_name;
         std::cout << " Category: " +sym_catg;
         std::cout << " Type: " +type ;
+        std::cout << " Line: ";
+        std::cout << line;
+        std::cout << " Column: ";
+        std::cout << column;
         std::cout << " Max Index: "; 
         for (int i = 0; i != size; i++){
             std::cout << "[" << arreglo[i] << "] ";

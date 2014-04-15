@@ -1,7 +1,8 @@
 declare {
-  String h = "Hola Mundo";
+  string h;
 }
 
 function void main() {
+  h := "Hola Mundo";
   print(h);
 }

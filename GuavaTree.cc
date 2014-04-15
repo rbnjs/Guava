@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
+ *         Author:  Ruben Serradas, Michael Woo 
  *   Organization:  
  *
  * =====================================================================================
@@ -81,66 +81,82 @@ void Tipo::show(std::string s) {
 
 /* Class Valor */
 
-Valor::Valor(Valor* v): Exp(this) {
-    *valor = *v;
+Valor::Valor(){}
+
+Valor::Valor(float f) {
+    valor.real = f;
 }
 
-Valor::Valor(): Exp() {
-    valor = 0;
+Valor::Valor(int i) {
+    valor.integer = i;
+}
+
+Valor::Valor(char c) {
+    valor.ch = c;
+}
+
+Valor::Valor(std::string s) {
+    valor.str = &s;
+}
+
+Valor::Valor(bool b){
+    valor.boolean;
+}
+
+Valor::Valor(LArreglo* l){
+    valor.listaA = l;
 }
 
 Valor::~Valor() {
 }
 
 void Valor::show(std::string s) {
-    valor->show(s);
 } 
 
 
 /* Class Real */
 
-Real::Real(float f){
-    real = f;
+Real::Real(float f):Valor(f){
 }
 
 Real::~Real() {}
 
 void Real::show(std::string s) {
-    std::cout << s << "Real: " << real << '\n';
+    std::cout << s << "Real: " << valor.real << '\n';
 }
 
 
 /* Class Integer */
 
-Integer::Integer(): Valor(){
-    integer = 0; 
+Integer::Integer(): Valor(0){
 }
 
-Integer::Integer(int i): Valor(), integer(i) {}
+Integer::Integer(int i): Valor(i) {}
 
 Integer::~Integer() {}
 
+int Integer::getValor(){return valor.integer;}
+
 void Integer::show(std::string s) {
-    std::cout << s << "Entero: " << integer << '\n';
+    std::cout << s << "Entero: " << valor.integer << '\n';
 } 
 
 
 /* Class Char */
 
-Char::Char(char c): Valor(), ch(c) {
+Char::Char(char c): Valor(c){
 }
 
 Char::~Char() {}
 
 void Char::show(std::string s) {
-    std::cout << s << "Caracter: " << ch << '\n';
+    std::cout << s << "Caracter: " << valor.ch << '\n';
 }
 
 
 /* Class String */
-
-String::String(char* s): Valor() {
-    str = std::string(s);
+  
+String::String(char* s): Valor(*(new std::string(s))) {
 }
 
 String::String(std::string s):Valor(), str(s) {
@@ -155,13 +171,13 @@ void String::show(std::string s){
 
 /* Class Bool */
 
-Bool::Bool(bool b2): Valor(), b(b2){
+Bool::Bool(bool b2): Valor(b2){
 }
 
 Bool::~Bool(){}
 
 void Bool::show(std::string s){
-    std::cout << s << "Booleano: " << b << '\n';
+    std::cout << s << "Booleano: " << valor.boolean << '\n';
 }
 
 
@@ -411,10 +427,10 @@ void LArreglo::show(std::string s) {}
 /* Class Arreglo */
 
 Arreglo::Arreglo():Valor(){
-    listaA = 0;
+    valor.listaA = 0;
 }
 
-Arreglo::Arreglo(LArreglo* l):Valor(),listaA(l) {
+Arreglo::Arreglo(LArreglo* l):Valor(l){
 }
     
 Arreglo::~Arreglo() { 

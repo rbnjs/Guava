@@ -36,6 +36,7 @@ public:
     void insert(std::string,std::string,int,std::string,int,int);          /* Inserta simbolo */
     void insert(std::string,std::string,int,std::string,int,int,int*,int); /* Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int,int);      /* Agrega una estructura a la tabla */
+    void insert_type(std::string,std::string,std::string);
     int newScope();                                                        /* Aumenta en uno el alcance. */
     int enterScope();                                                      /* Entra un nuevo alcance  */
     int exitScope();                                                       /* Sale del alcance  */

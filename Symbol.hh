@@ -47,17 +47,17 @@ typedef union {
  */
 class Symbol{
 public:
-    std::string sym_name; /* Nombre del simbolo */
-    std::string sym_catg; /* Categoria del simbolo */
-    int scope;            /* Identificador del scope del simbolo */
-    std::string type;
-    int *arreglo;
-    int size;
-    int fieldScope;
-    int line;
-    int column;
-    ValorSimbolo contenido;
-    bool referencia;
+    std::string sym_name;   /* Nombre del simbolo */
+    std::string sym_catg;   /* Categoria del simbolo */
+    int scope;              /* Identificador del scope del simbolo */
+    std::string type;       /* DEPRECATED */ 
+    int *arreglo;           /* Dimensiones del arreglo */
+    int size;               /* Tamaño del arreglo */
+    int fieldScope;         /* Alcance de los simbolos de una estructura, union o funcion */
+    int line;               /* Linea en la que fue encontrado el simbolo */ 
+    int column;             /* Columna en la que fue encontrado el simbolo */ 
+    ValorSimbolo contenido; /* Contenido del simbolo */
+    bool referencia;        /* Nos dice si el simbolo es una referencia o no. */  
 
     /**
      * Constructor de la clase Symbol para variable.
@@ -78,7 +78,7 @@ public:
 
     /**
      * Destructor de la clase Symbol.
-     * */
+     */
     ~Symbol();
 
     /**

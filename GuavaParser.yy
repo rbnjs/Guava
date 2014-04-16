@@ -949,36 +949,36 @@ lelseif1: /*Vacio*/
 
 
 selectorifLoop: IF '(' errorif ')' THEN '{' { 
-                                          driver.tablaSimbolos.enterScope();   
-                                          identacion += "  ";
-                                        }
-                                        bloquedeclare listainstruccionesLoop '}' lelseifLoop { /**$$ = SelectorIf($3,$8,$9,$11);*/
-                                                                                        driver.tablaSimbolos.exitScope();
-                                                                                        identacion.erase(0,2);
-                                                                                    
-                                                                                 }
-           | IF '(' errorif ')' THEN instruccionLoop ';'                             { //*$$ = SelectorIf($3,$6,0); 
-                                                                                 }
-           | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'            { //*$$ = SelectorIf($3,$6,$8); 
-                                                                                 };
+                                              driver.tablaSimbolos.enterScope();   
+                                              identacion += "  ";
+                                            }
+                                           bloquedeclare listainstruccionesLoop '}' lelseifLoop { /**$$ = SelectorIf($3,$8,$9,$11);*/
+                                                                                                  driver.tablaSimbolos.exitScope();
+                                                                                                  identacion.erase(0,2);
+                                                                                                }
+           | IF '(' errorif ')' THEN instruccionLoop ';'                                        { 
+                                                                                                 //*$$ = SelectorIf($3,$6,0); 
+                                                                                                }
+           | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'                       { //*$$ = SelectorIf($3,$6,$8); 
+                                                                                                };
 
 
 lelseifLoop: /* Vacio */                                                               { //*$$ = LElseIf(); 
                                                                                    }
-       | lelseifLoop1 ELSE '{' { 
-                             driver.tablaSimbolos.enterScope();   
-                           }
-                           bloquedeclare listainstruccionesLoop '}'                              { /**$$ = LElseIf(*$4,*$5); */
-                                                                                               driver.tablaSimbolos.exitScope();
-                                                                                             };
+           | lelseifLoop1 ELSE '{' { 
+                                   driver.tablaSimbolos.enterScope();   
+                                   }
+                                 bloquedeclare listainstruccionesLoop '}'  { 
+                                                                             driver.tablaSimbolos.exitScope();
+                                                                           };
 
 lelseifLoop1: /*Vacio*/
         | lelseifLoop1 ELSE IF '(' errorif ')' THEN '{' { 
-                                                      driver.tablaSimbolos.enterScope();   
-                                                    }
-                                                    bloquedeclare listainstruccionesLoop '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
-                                                                                           driver.tablaSimbolos.exitScope();
-                                                                                         };
+                                                          driver.tablaSimbolos.enterScope();   
+                                                        }
+                                                      bloquedeclare listainstruccionesLoop '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
+                                                                                                driver.tablaSimbolos.exitScope();
+                                                                                               };
 
 /**
  * Regla utilizada para el manejo de errores de los selectores de bloques e
@@ -996,7 +996,6 @@ llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identi
                                                         error_state = 1;
                                                     }
                                                  }
-              /*Errores*/
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/};
 
 
@@ -1015,14 +1014,12 @@ lvarovalor2: lvarovalor2 ',' exp     {
                                        tmp->append(*$1);
                                        $$ = tmp; 
                                      }
-           /*Errores*/
            | lvarovalor2 ',' error   {}
            | error                   {
                                        LVaroValor *tmp = new LVaroValor();
                                        $$ = tmp;
                                      };
 
-/*Aqui no es necesario poner nada. Revisar esto.*/
 exp: expAritmetica       {  
                          }
    | expBool             {  
@@ -1032,7 +1029,6 @@ exp: expAritmetica       {
    | expID        {} 
    | '(' exp ')'  { 
                   }
-   /*Errores*/
    | '(' error ')'  {}
    | llamadafuncion {};
       

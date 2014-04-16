@@ -21,7 +21,22 @@
 GuavaDriver::GuavaDriver ()
   : trace_scanning (false), trace_parsing (false)
 {
+    TypeS* integer = new TypeInt();
+    TypeS* real = new TypeReal();
+    TypeS* error = new TypeError();
+    TypeS* boolean = new TypeBool();
+    TypeS* character = new TypeChar();
+    TypeS* string = new TypeString();
+    TypeS* voidt = new TypeVoid(); 
+    
     tablaSimbolos = *(new GuavaSymTable());
+    tablaSimbolos.insert_type(std::string("integer"),std::string("type"),0,integer);
+    tablaSimbolos.insert_type(std::string("real"),std::string("type"),0,real);
+    tablaSimbolos.insert_type(std::string("error"),std::string("type"),0,error);
+    tablaSimbolos.insert_type(std::string("boolean"),std::string("type"),0,boolean);
+    tablaSimbolos.insert_type(std::string("character"),std::string("type"),0,character);
+    tablaSimbolos.insert_type(std::string("string"),std::string("type"),0,string);
+    tablaSimbolos.insert_type(std::string("void"),std::string("type"),0,voidt);
 }
 /**
  * Destructor de la clase GuavaDriver 

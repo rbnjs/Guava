@@ -68,6 +68,11 @@ void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string 
     this->insert(*nuevo);
 }
 
+void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
+    Symbol* nuevo = new Symbol(name,catg,sc,type);
+    this->insert(*nuevo);
+}
+
 /**
  * Busca el simbolo a ser evaluado.
  * 

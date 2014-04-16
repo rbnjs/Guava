@@ -19,6 +19,7 @@
 #include <iostream>
 #include "Symbol.hh"
 Symbol::Symbol(){}
+
 /**
  * Constructor de la clase Symbol.
  */
@@ -26,13 +27,16 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     this->sym_name = name;
     this->sym_catg = catg;
     this->scope = scop;
+
     this->type = s;
+
     size = 0;
     arreglo = 0;
     fieldScope = 0;
     line = linea;
     column = columna;
-    if (catg.compare("reference")){
+
+    /*if (catg.compare("reference")){
         referencia  = true;
         if ( name.compare("real") ){
             contenido.referencia.real = 0;
@@ -58,8 +62,9 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
         } else {
             contenido.valor.str = new std::string("");
         }
-    }
+    }*/
 }
+
 /**
  * Constructor para arreglo 
  */
@@ -74,6 +79,7 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     line = linea;
     column = columna;
 }
+
 /**
  * Constructor para estructuras.
  */
@@ -88,7 +94,10 @@ Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int lin
     column = columna;
     line =  linea;
 }
-
+/**
+ * Constructor para types
+ */
+Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type): sym_name(name), sym_catg (catg), scope(s), true_type(type) {}
 
 /**  
  * Destructor de la clase Symbol.

@@ -17,6 +17,7 @@
  */
 
 #include <string>
+#include <map>
 #include "Types.hh"
 
 
@@ -51,6 +52,7 @@ public:
     std::string sym_catg;   /* Categoria del simbolo */
     int scope;              /* Identificador del scope del simbolo */
     std::string type;       /* DEPRECATED */ 
+
     int *arreglo;           /* Dimensiones del arreglo */
     int size;               /* Tamaño del arreglo */
     int fieldScope;         /* Alcance de los simbolos de una estructura, union o funcion */
@@ -58,6 +60,10 @@ public:
     int column;             /* Columna en la que fue encontrado el simbolo */ 
     ValorSimbolo contenido; /* Contenido del simbolo */
     bool referencia;        /* Nos dice si el simbolo es una referencia o no. */  
+    bool symbol_type;       /* Nos dice si el simbolo es un tipo */
+
+    TypeS* true_type;
+    std::map<std::string, std::list<Symbol> >::iterator type_pointer; 
 
     /**
      * Constructor de la clase Symbol para variable.
@@ -73,6 +79,11 @@ public:
      * Constructor para estructuras.
      */
     Symbol(std::string,std::string,int,std::string,int,int,int);
+
+    /**
+     * Constructor para tipos
+     */
+    Symbol(std::string,std::string,int,TypeS*);
 
     Symbol();
 

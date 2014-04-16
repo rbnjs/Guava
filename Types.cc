@@ -39,6 +39,8 @@ bool TypeReal::is_structure() { return false; }
 
 bool TypeReal::is_union() { return false; }
 
+bool TypeReal::is_void(){ return false;  }
+
 /* class TypeInt */
 
 TypeInt::TypeInt(){}
@@ -59,6 +61,8 @@ bool TypeInt::is_func(){ return false; }
 bool TypeInt::is_structure() { return false; }
 
 bool TypeInt::is_union() { return false; }
+
+bool TypeInt::is_void(){ return false;  }
 
 /* class TypeError */
 
@@ -81,6 +85,8 @@ bool TypeError::is_structure() { return false; }
 
 bool TypeError::is_union() { return false; }
 
+bool TypeError::is_void(){ return false;  }
+
 /* class TypeBool */
 TypeBool::TypeBool(){}
 
@@ -102,6 +108,7 @@ bool TypeBool::is_structure() { return false; }
 
 bool TypeBool::is_union() { return false; }
 
+bool TypeBool::is_void(){ return false;  }                                                                                                                                               
 /* class TypeChar */
 
 TypeChar::TypeChar(){}
@@ -124,6 +131,7 @@ bool TypeChar::is_structure() { return false; }
 
 bool TypeChar::is_union() { return false; }
 
+bool TypeChar::is_void(){ return false;  }                                                                                                                                               
 /* class TypeString */
 
 TypeString::TypeString(){}
@@ -145,6 +153,8 @@ bool TypeString::is_func(){ return false; }
 bool TypeString::is_structure() { return false; }
 
 bool TypeString::is_union() { return false; }
+
+bool TypeString::is_void(){ return false;  }                                                                                                                                             
 
 /* class TypeFunction */
 
@@ -168,6 +178,7 @@ bool TypeFunction::is_structure() { return false; }
 
 bool TypeFunction::is_union() { return false; }
 
+bool TypeFunction::is_void(){ return false;  }                                                                                                                                           
 /* class TypeStructure */
 
 TypeStructure::TypeStructure(std::list<TypeS*> la): atributos(la){}
@@ -190,6 +201,7 @@ bool TypeStructure::is_structure() { return true; }
 
 bool TypeStructure::is_union() { return false; }
 
+bool TypeStructure::is_void(){ return false;  }                                                                                                                                                 
 /* class TypeUnion */
 
 TypeUnion::TypeUnion(std::list<TypeS*> la):atributos(la){}
@@ -212,4 +224,28 @@ bool TypeUnion::is_structure() { return false; }
 
 bool TypeUnion::is_union() { return true; }
 
+bool TypeUnion::is_void(){ return false;  }
 
+/* class TypeVoid */
+
+TypeVoid::TypeVoid(){}
+
+TypeVoid::~TypeVoid(){}
+
+bool TypeVoid::is_numeric(){ return false; }
+
+bool TypeVoid::is_error(){ return false; }
+
+bool TypeVoid::is_bool(){ return false; }
+
+bool TypeVoid::is_char(){ return false; }
+
+bool TypeVoid::is_str(){ return false; }
+
+bool TypeVoid::is_func(){ return false;}
+
+bool TypeVoid::is_structure(){return false; }
+
+bool TypeVoid::is_union(){ return false; }
+
+bool TypeVoid::is_void(){ return true;  }                                                                                                  

@@ -81,6 +81,76 @@ int declare_scope;
 int error_state;
 std::string identacion ("");
 
+/*AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII CODIGO :3*/
+std::string reportar_existencia(Symbol *s, std::string id) {
+    std::stringstream linea, columna;
+    std::string msg("variable name: '");
+    msg += id;
+    msg += "' already used in line: ";
+    linea << s->column;
+    msg += columna.str();
+    error_state = 1;
+    return msg;
+}
+
+/* $4 -> vars ; $2 -> t*/
+void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
+    std::list<Identificador> l = vars->get_list();
+    std::list<Identificador>::iterator it = l.begin();
+    int scope,line, column;
+    Symbol *s;
+
+    for(it; it!=l.end(); ++it) {
+        s = d->tablaSimbolos.simple_lookup(it->identificador);
+        if(s != 0)
+            d->error(loc,reportar_existencia(s,it->identificador));
+        else {
+            scope = d->tablaSimbolos.currentScope();
+            line = it->line;
+            column = it->column;
+            d->tablaSimbolos.insert(it->identificador,estilo,scope,t->tipo,line,column);
+        }
+    }
+}
+
+/* $3 -> LVarArreglo vars ; $1 -> Tipo t*/
+
+/*Cosas que usan el driver
+ *
+ * int scop = drvier.tablaSimbolos.currentScope();
+ * Symbol *tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador)
+ * driver.tablaSimbolos.insert(it.first.identificador,std::string("array"),scop,t->tipo,line,column,arreglo,size);
+ */
+void insertar_simboloArreglo(LVarArreglo *vars, Tipo *t, GuavaDriver *d, const yy::location& loc) {
+    std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
+    std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
+    std::list<Integer>::iterator itInt;
+    std::pair<Identificador, LCorchetes> par;
+    int size, scope, line, column;
+    int *arreglo;
+    Symbol *s;
+
+    for(it; it != l.end(); ++it) {
+        par = *it;
+        s = d->tablaSimbolos.simple_lookup(par.first.identificador);
+        if(s != 0)
+            d->error(loc,reportar_existencia(s,par.first.identificador));
+        else {
+            size = par.second.lista.size();
+            arreglo = new int[size];
+            itInt = par.second.lista.begin();
+            for(int i=0; i != size; i++) {
+                arreglo[i] = itInt->getValor();
+                ++itInt;
+            }
+            scope = d->tablaSimbolos.currentScope();
+            line = par.first.line;
+            column = par.first.column;
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,t->tipo,line,column,arreglo,size);
+        }
+    }
+}
+
 }
 
 %token            END       0 "end of block" 
@@ -171,288 +241,27 @@ bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1);
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 
-lvariables: lvariables  tipo REFERENCE lvar ';'         {
-                                                            std::list<Identificador> l = $4->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it; it != l.end(); ++it){
-                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                               if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$2->tipo,line,column); 
-                                                            }
+lvariables: lvariables tipo REFERENCE lvar ';'          { insertar_simboloSimple($4,$2,std::string("reference"),&driver,yylloc); }
+          | tipo REFERENCE lvar ';'                     { insertar_simboloSimple($3,$1,std::string("reference"),&driver,yylloc); }
+          | lvariables tipo lvar ';'                    { insertar_simboloSimple($3,$2,std::string("value"),&driver,yylloc); }
+          | tipo lvar ';'                               { insertar_simboloSimple($2,$1,std::string("value"),&driver,yylloc); } 
+          | tipo ARRAY lvararreglo ';'                  { insertar_simboloArreglo($3,$1,&driver,yylloc); } 
+          | lvariables tipo ARRAY lvararreglo ';'       { insertar_simboloArreglo($4,$2,&driver,yylloc); }
+          | identificador UNION lvar ';'                { Tipo t = Tipo($1->identificador);
+                                                          insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
-          | tipo REFERENCE lvar ';'                     { 
-                                                            std::list<Identificador> l = $3->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("reference"),scop,$1->tipo,line,column); 
-                                                            }
+          | lvariables identificador UNION lvar ';'     { Tipo t = Tipo($2->identificador);
+                                                          insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); }
+          | identificador RECORD lvar ';'               { Tipo t = Tipo($1->identificador);
+                                                          insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
-          | lvariables tipo lvar ';'                    {
-                                                            std::list<Identificador> l = $3->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$2->tipo,line,column);
-                                                            }
+          | lvariables identificador RECORD lvar ';'    { Tipo t = Tipo($2->identificador);
+                                                          insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
-          | tipo lvar ';'                               {   
-                                                            std::list<Identificador> l = $2->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                                driver.tablaSimbolos.insert(it->identificador, std::string("value"),scop,$1->tipo,line,column);
-                                                            }
-                                                        }
-          | tipo ARRAY lvararreglo ';'                  {  
-                                                            std::list<std::pair <Identificador, LCorchetes> > l = $3->get_list();
-                                                            std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                               std::pair <Identificador, LCorchetes> par (*it);
-
-                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += par.first.identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int size (par.second.lista.size());
-                                                               int *arreglo = new int[par.second.lista.size()];
-                                                               std::list<Integer>::iterator itInt (par.second.lista.begin());
-                                                               for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->getValor();
-                                                                    ++itInt;
-                                                               }
-                                                               int line = par.first.line;
-                                                               int column = par.first.column;
-                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$1->tipo
-                                                                                            ,line,column,arreglo,size); 
-                                                            }
-                                                        }
-          | lvariables tipo ARRAY lvararreglo ';'      { 
-                                                            std::list<std::pair <Identificador, LCorchetes> > l = $4->get_list();
-                                                            std::list<std::pair <Identificador, LCorchetes> >::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                               std::pair <Identificador, LCorchetes> par (*it);
-                                                               Symbol * tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += par.first.identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int size (par.second.lista.size());
-                                                               int *arreglo = new int[size];
-                                                               std::list<Integer>::iterator itInt (par.second.lista.begin());
-                                                               for (int i = 0; i != size ; i++){
-                                                                    arreglo[i] = itInt->getValor();
-                                                                    ++itInt;
-                                                               }
-                                                               int line = par.first.line;
-                                                               int column = par.first.column;
-                                                               driver.tablaSimbolos.insert(par.first.identificador,std::string("array"),scop,$2->tipo
-                                                                                            ,line,column,arreglo,size); 
-                                                            }
-                                                        }
-          | identificador UNION lvar ';'              {
-                                                            std::list<Identificador> l = $3->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar"),scop,
-                                                               $1->identificador,line,column);  
-                                                            }
-                                                        }
-          | lvariables  identificador   UNION lvar ';'  {
-                                                            std::list<Identificador> l = $4->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->column;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("unionVar")
-                                                               ,scop,$2->identificador,line,column); 
-                                                            }
-                                                        }
-          | identificador   RECORD lvar ';'             {
-                                                            std::list<Identificador> l = $3->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar"),scop
-                                                               ,$1->identificador,line,column); 
-                                                            }
-                                                        }
-          | lvariables identificador RECORD lvar ';'   {
-                                                            std::list<Identificador> l = $4->get_list();
-                                                            std::list<Identificador>::iterator it = l.begin();
-                                                            int scop = driver.tablaSimbolos.currentScope();
-                                                            for (it ; it != l.end(); ++it){
-                                                                Symbol * tmp = driver.tablaSimbolos.simple_lookup(it->identificador);
-                                                                if (tmp != 0){
-                                                                    std::stringstream linea,columna;
-                                                                    std::string msg ("variable name '");
-                                                                    msg += it->identificador;
-                                                                    msg += "' already used in line: ";
-                                                                    linea << tmp->line;
-                                                                    msg += linea.str();
-                                                                    msg += " column: ";
-                                                                    columna << tmp->column;
-                                                                    msg += columna.str();
-                                                                    driver.error(yylloc,msg);
-                                                                    error_state = 1;
-                                                                    continue;
-                                                               }
-
-                                                               int line = it->line;
-                                                               int column = it->column;
-                                                               driver.tablaSimbolos.insert(it->identificador,std::string("recordVar")
-                                                               ,scop,$2->identificador,line,column); 
-                                                            }
-                                                        }
-          | lvariables  union ';'                       {
-                                                        }
-          | lvariables  record  ';'                     { 
-                                                        }
-          | union  ';'                                  { 
-                                                        }
-          | record ';'                                  { 
-                                                        }
+          | lvariables  union ';'                       {}
+          | lvariables  record  ';'                     {}
+          | union  ';'                                  {}
+          | record ';'                                  {}
           /*Errores*/
           | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
           | tipo REFERENCE lvar error ';'               {/*Caracteres inesperados luego de lista de declaraciones*/};
@@ -512,6 +321,7 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
             | lvararreglo ',' identificador lcorchetes { $1->append(*$3,*$4);
                                                          $$ = $1;
                                                        }
+            /*Errores*/
             | error lcorchetes                         { LVarArreglo* tmp = new LVarArreglo();
                                                          $$ = tmp;
                                                        }
@@ -674,6 +484,7 @@ lparam2: tipo identificador               { $$ = new LParam();
                                             driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo,line,column);
                                             $$ = $1;
                                           }
+        
         | tipo error                      {/*$$ = LParam();*/}
         | tipo REFERENCE error            {/*$$ = LParam():*/}
         | lparam2 ',' tipo error          {}
@@ -1140,7 +951,6 @@ expAritmetica: '-' exp %prec UMINUS  {
                                      }
              | exp POW exp           { 
                                      };
-
 
 /*Funciona*/
 valor: BOOL     { 

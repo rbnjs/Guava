@@ -187,3 +187,21 @@ public :
 private:
     std::list<TypeS*> atributos;
 };
+
+class TypeArray:public TypeS{
+public :
+    TypeArray(TypeS*,int, int*);
+    ~TypeUnion();
+    bool is_numeric() ; 
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+private:
+    TypeS* tipo;
+    int size;
+    int* dimensiones;
+}

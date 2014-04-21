@@ -249,3 +249,27 @@ bool TypeVoid::is_structure(){return false; }
 bool TypeVoid::is_union(){ return false; }
 
 bool TypeVoid::is_void(){ return true;  }                                                                                                  
+
+/* class TypeArray */
+
+TypeArray::TypeArray(TypeS* t, int s, int* d ): tipo(t), size(s), dimensiones(d){}
+
+TypeArray::~TypeArray(){}
+
+bool TypeArray::is_numeric(){ return false; }
+
+bool TypeArray::is_error(){ return false; }
+
+bool TypeArray::is_bool(){ return false; }
+
+bool TypeArray::is_char(){ return false; }
+
+bool TypeArray::is_str(){ return false; }
+
+bool TypeArray::is_func(){ return false;}
+
+bool TypeArray::is_structure(){return false; }
+
+bool TypeArray::is_union(){ return false; }
+
+bool TypeArray::is_void(){ return false;  }

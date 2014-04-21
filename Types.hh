@@ -16,7 +16,10 @@
  * =====================================================================================
  */
 #include <list>
-
+// Consideraciones:
+// Falta is_array()
+// Falta TypeArray
+// Faltan funciones para ver que hay adentro del tipo
 class TypeS{
 public :
     virtual bool is_numeric() = 0; 

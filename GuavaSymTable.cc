@@ -52,7 +52,12 @@ void GuavaSymTable::insert(Symbol elem) {
     }
 }
 /* Inserta un simbolo */
-void GuavaSymTable::insert(std::string name, std::string catg, int sc, std::string type,int line, int column){
+void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column){
+   Symbol* nuevo = new Symbol(name, catg, sc, type,line,column); 
+   this->insert(*nuevo);
+}
+
+void GuavaSymTable::insert(std::string name, std::string catg, int sc,std::string type,int line, int column){
    Symbol* nuevo = new Symbol(name, catg, sc, type,line,column); 
    this->insert(*nuevo);
 }
@@ -172,7 +177,7 @@ int GuavaSymTable::currentScope(){
  * Muestra el contenido de la tabla de simbolos.
  * */
 void GuavaSymTable::show(int scope, std::string identacion){
-    std::map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
+    std::unordered_map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
     for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
         std::list<Symbol>::iterator itList = itTabla->second.begin();
         for (itList ; itList != itTabla->second.end() ; ++itList){
@@ -183,3 +188,8 @@ void GuavaSymTable::show(int scope, std::string identacion){
 }
 
 /* falta la funcion update */
+
+
+std::unordered_map<std::string, std::list<Symbol> >::iterator GuavaSymTable::find(std::string s){
+    return tabla.find(s);
+}

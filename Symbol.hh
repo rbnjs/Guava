@@ -17,7 +17,7 @@
  */
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "Types.hh"
 
 
@@ -56,19 +56,21 @@ public:
     int *arreglo;           /* Dimensiones del arreglo */
     int size;               /* Tamaño del arreglo */
     int fieldScope;         /* Alcance de los simbolos de una estructura, union o funcion */
+
     int line;               /* Linea en la que fue encontrado el simbolo */ 
     int column;             /* Columna en la que fue encontrado el simbolo */ 
-    ValorSimbolo contenido; /* Contenido del simbolo */
     bool referencia;        /* Nos dice si el simbolo es una referencia o no. */  
+    ValorSimbolo contenido; /* Contenido del simbolo */
     bool symbol_type;       /* Nos dice si el simbolo es un tipo */
-
-    TypeS* true_type;
-    std::map<std::string, std::list<Symbol> >::iterator type_pointer; 
-
+    TypeS* true_type;       /* Tipo correcto */
+    Symbol* type_pointer;   /* Apuntador a tipo */
+    
     /**
-     * Constructor de la clase Symbol para variable.
+     * Constructor de la clase Symbol para variable. Deprecado
      */
     Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna);
+
+    Symbol(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna);
 
     /**
      * Constructor para arreglo 

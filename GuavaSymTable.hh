@@ -19,6 +19,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <unordered_map>
 
 /**
  * Declaracion de la clase para la tabla de simbolos.
@@ -26,14 +27,15 @@
 class GuavaSymTable{
 public:
     std::list<int> pila;                                  /* Pila de alcances */
-    std::map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
+    std::unordered_map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
     int alcance;                                          /* Alcance en numeros. */
 
     GuavaSymTable();                                      /* Constructor de la clase */
     ~GuavaSymTable();                                     /*  Destructor */
 
     void insert(Symbol elem);                                              /* Inserta un simbolo a la tabla */
-    void insert(std::string,std::string,int,std::string,int,int);          /* Inserta simbolo */
+    void insert(std::string,std::string,int,std::string,int,int); /* Agrega un arreglo a la tabla */
+    void insert(std::string,std::string,int,Symbol*,int,int);          /* Inserta simbolo */
     void insert(std::string,std::string,int,std::string,int,int,int*,int); /* Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int,int);      /* Agrega una estructura a la tabla */
     void insert_type(std::string,std::string,int,TypeS*);
@@ -45,5 +47,6 @@ public:
     Symbol* lookup(std::string, int);                                      /* Busca un simbolo con un scope determinado */
     Symbol* simple_lookup(std::string elem);                               /* Busca un simbolo en el alcance actual */
     void show(int,std::string);                                            /* Muestra la tabla */
+    std::unordered_map<std::string, std::list<Symbol> >::iterator find(std::string);
 
 };

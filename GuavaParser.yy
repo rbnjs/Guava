@@ -81,7 +81,6 @@ int declare_scope;
 int error_state;
 std::string identacion ("");
 
-/*AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII CODIGO :3*/
 std::string reportar_existencia(Symbol *s, std::string id) {
     std::stringstream linea, columna;
     std::string msg("variable name: '");
@@ -100,6 +99,8 @@ void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver
     int scope,line, column;
     Symbol *s;
 
+    Symbol *p=  d->tablaSimbolos.lookup(t->tipo);
+
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
         if(s != 0)
@@ -108,9 +109,20 @@ void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver
             scope = d->tablaSimbolos.currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,estilo,scope,t->tipo,line,column);
+            d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column);
         }
     }
+}
+
+void insertar_simboloSimple(std::string identificador, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
+    int scope,line, column;
+    Symbol *s;
+
+    Symbol *p=  d->tablaSimbolos.lookup(t->tipo);
+    line = loc.begin.line;
+    column = loc.begin.column;
+    scope = d->tablaSimbolos.currentScope();
+    d->tablaSimbolos.insert(identificador,estilo,scope,p,line,column);
 }
 
 /* $3 -> LVarArreglo vars ; $1 -> Tipo t*/
@@ -462,26 +474,18 @@ lparam: /* Vacio */          { $$ = new LParam();
                              } 
 
 lparam2: tipo identificador               { $$ = new LParam(); 
-                                            int line = yylloc.begin.line;
-                                            int column = yylloc.begin.column;
-                                            driver.tablaSimbolos.insert($2->identificador,std::string("value"),current_scope,$1->tipo,line,column);
+                                            insertar_simboloSimple($2->identificador,$1,std::string("value"),&driver,yylloc);
                                           } 
         | tipo REFERENCE identificador    { $$ = new LParam();
-                                            int line = yylloc.begin.line;
-                                            int column = yylloc.begin.column;
-                                            driver.tablaSimbolos.insert($3->identificador,std::string("reference"),current_scope,$1->tipo,line,column);
+                                            insertar_simboloSimple($3->identificador,$1,std::string("value"),&driver,yylloc);
                                           } 
         | lparam2 ',' tipo identificador  { 
-                                            int line = yylloc.begin.line;
-                                            int column = yylloc.begin.column;
-                                            driver.tablaSimbolos.insert($4->identificador,std::string("value"),current_scope,$3->tipo,line,column);
+                                            insertar_simboloSimple($4->identificador,$3,std::string("value"),&driver,yylloc);
                                             $$ = $1;
                                           }
         | lparam2 ',' tipo REFERENCE 
                       identificador       { 
-                                            int line = yylloc.begin.line;
-                                            int column = yylloc.begin.column;
-                                            driver.tablaSimbolos.insert($5->identificador,std::string("reference"),current_scope,$3->tipo,line,column);
+                                            insertar_simboloSimple($5->identificador,$3,std::string("value"),&driver,yylloc);
                                             $$ = $1;
                                           }
         
@@ -878,9 +882,10 @@ expID: identificador    { if (driver.tablaSimbolos.lookup($1->identificador) == 
                             driver.error(yylloc,msg2);
                             error_state = 1;
                         } else {
-                            Symbol* structure;
-                            structure = driver.tablaSimbolos.lookup(id->type);
-                            attribute_scope = structure->fieldScope;
+                            // DEBE HACERSE DE OTRA MANERA CON EL CAMBIO DE TIPOS
+                            //Symbol* structure;
+                            //structure = driver.tablaSimbolos.lookup(id->type);
+                            //attribute_scope = structure->fieldScope;
                         }
                       } 
 

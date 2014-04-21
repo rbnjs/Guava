@@ -23,6 +23,7 @@
  */
 GuavaSymTable::GuavaSymTable(){
     alcance = 0;
+    this->pila.push_front(alcance);
 }
 
 GuavaSymTable::~GuavaSymTable(){

@@ -253,10 +253,8 @@ bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1);
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 
-lvariables: lvariables tipo REFERENCE lvar ';'          { insertar_simboloSimple($4,$2,std::string("reference"),&driver,yylloc); }
-          | tipo REFERENCE lvar ';'                     { insertar_simboloSimple($3,$1,std::string("reference"),&driver,yylloc); }
-          | lvariables tipo lvar ';'                    { insertar_simboloSimple($3,$2,std::string("value"),&driver,yylloc); }
-          | tipo lvar ';'                               { insertar_simboloSimple($2,$1,std::string("value"),&driver,yylloc); } 
+lvariables: lvariables tipo lvar ';'                    { insertar_simboloSimple($3,$2,std::string("var"),&driver,yylloc); }
+          | tipo lvar ';'                               { insertar_simboloSimple($2,$1,std::string("var"),&driver,yylloc); } 
           | tipo ARRAY lvararreglo ';'                  { insertar_simboloArreglo($3,$1,&driver,yylloc); } 
           | lvariables tipo ARRAY lvararreglo ';'       { insertar_simboloArreglo($4,$2,&driver,yylloc); }
           | identificador UNION lvar ';'                { Tipo t = Tipo($1->identificador);
@@ -275,8 +273,7 @@ lvariables: lvariables tipo REFERENCE lvar ';'          { insertar_simboloSimple
           | union  ';'                                  {}
           | record ';'                                  {}
           /*Errores*/
-          | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/}
-          | tipo REFERENCE lvar error ';'               {/*Caracteres inesperados luego de lista de declaraciones*/};
+          | tipo lvar error ';'                         {/*Error en la declaracion del tipo y modo de la variable*/};
 
 union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                 int fsc = driver.tablaSimbolos.enterScope();

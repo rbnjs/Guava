@@ -40,8 +40,8 @@ public :
 
 class TypeReal :public TypeS{
 public :
-    TypeReal();
     ~TypeReal();
+    static TypeReal* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -56,12 +56,16 @@ public :
     TypeS* get_tipo();
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeReal();
+private:
+   static TypeReal* instance;
 };
 
 class TypeInt :public TypeS{
 public :
-    TypeInt();
     ~TypeInt();
+    static TypeInt* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -76,12 +80,16 @@ public :
     TypeS* get_tipo();
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeInt();
+private:
+   static TypeInt* instance;
 };
 
 class TypeError :public TypeS{
 public:
-    TypeError();
     ~TypeError();
+    static TypeError* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -96,12 +104,16 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeError();
+private:
+   static TypeError* instance;
 };
 
 class TypeVoid :public TypeS{
 public:
-    TypeVoid();
     ~TypeVoid();
+    TypeVoid* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -116,12 +128,16 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeVoid();
+private:
+    static TypeVoid* instance;
 };
 
 class TypeBool:public TypeS{
 public:
-    TypeBool();
     ~TypeBool();
+    TypeBool* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -136,11 +152,14 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeBool();
+private:
+    static TypeBool* instance;
 };
 
 class TypeChar:public TypeS{
 public:
-    TypeChar();
     ~TypeChar();
     bool is_int() ; 
     bool is_real ();
@@ -156,11 +175,16 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeChar();
+private:
+    static TypeChar* instance;
 };
+
 class TypeString:public TypeS{
 public:
-    TypeString();
     ~TypeString();
+    static TypeString* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -175,6 +199,10 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
+protected:
+    TypeString();
+private:
+    static TypeString* instance;
 };
 
 class TypeFunction:public TypeS{

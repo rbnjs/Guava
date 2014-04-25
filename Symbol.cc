@@ -69,6 +69,18 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     column = columna;
 }
 
+Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* s,int linea, int columna, int* array,int tam){
+    this->sym_name = name;
+    this->sym_catg = catg;
+    this->scope = scop;
+    type_pointer = s;
+    size = tam;
+    arreglo = array;
+    fieldScope = 0;   
+    line = linea;
+    column = columna;
+}
+
 /**
  * Constructor para estructuras.
  */

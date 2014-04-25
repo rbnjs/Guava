@@ -23,7 +23,7 @@ GuavaDriver::GuavaDriver ()
 {
     TypeS* integer = new TypeInt();
     TypeS* real = new TypeReal();
-    TypeS* error = new TypeError();
+    TypeS* error = TypeError::Instance();
     TypeS* boolean = new TypeBool();
     TypeS* character = new TypeChar();
     TypeS* string = new TypeString();

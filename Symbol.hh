@@ -76,6 +76,8 @@ public:
      * Constructor para arreglo 
      */
     Symbol(std::string, std::string, int, std::string,int,int, int*,int); 
+    
+    Symbol(std::string, std::string, int, Symbol*,int,int, int*,int); 
    
     /**
      * Constructor para estructuras.

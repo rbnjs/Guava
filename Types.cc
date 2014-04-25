@@ -98,7 +98,18 @@ std::list<TypeS*> TypeInt::get_atributos(){
 
 /* class TypeError */
 
+TypeError* TypeError::instance = 0;
+
 TypeError::TypeError(){}
+
+TypeError* TypeError::Instance(){
+    if (instance == 0){
+        instance = new TypeError();
+        return instance;
+    } 
+    return instance;
+}
+
 
 TypeError::~TypeError(){}
 

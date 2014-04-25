@@ -471,18 +471,18 @@ lparam: /* Vacio */          { $$ = new LParam();
                              } 
 
 lparam2: tipo identificador               { $$ = new LParam(); 
-                                            insertar_simboloSimple($2->identificador,$1,std::string("value"),&driver,yylloc);
+                                            insertar_simboloSimple($2->identificador,$1,std::string("param"),&driver,yylloc);
                                           } 
         | tipo REFERENCE identificador    { $$ = new LParam();
-                                            insertar_simboloSimple($3->identificador,$1,std::string("value"),&driver,yylloc);
+                                            insertar_simboloSimple($3->identificador,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
         | lparam2 ',' tipo identificador  { 
-                                            insertar_simboloSimple($4->identificador,$3,std::string("value"),&driver,yylloc);
+                                            insertar_simboloSimple($4->identificador,$3,std::string("param"),&driver,yylloc);
                                             $$ = $1;
                                           }
         | lparam2 ',' tipo REFERENCE 
                       identificador       { 
-                                            insertar_simboloSimple($5->identificador,$3,std::string("value"),&driver,yylloc);
+                                            insertar_simboloSimple($5->identificador,$3,std::string("param"),&driver,yylloc);
                                             $$ = $1;
                                           }
         

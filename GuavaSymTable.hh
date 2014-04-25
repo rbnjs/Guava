@@ -36,7 +36,8 @@ public:
     void insert(Symbol elem);                                              /* Inserta un simbolo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int);          /* Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,Symbol*,int,int);              /* Inserta simbolo */
-    void insert(std::string,std::string,int,std::string,int,int,int*,int); /* Agrega un arreglo a la tabla */
+    void insert(std::string,std::string,int,Symbol*,int,int,int*,int); /* Agrega un arreglo a la tabla */
+    void insert(std::string,std::string,int,std::string,int,int,int*,int); /* DEPRECADO Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int,int);      /* Agrega una estructura a la tabla */
     void insert_type(std::string,std::string,int,TypeS*);
     int newScope();                                                        /* Aumenta en uno el alcance. */

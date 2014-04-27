@@ -19,9 +19,17 @@
 #include "Types.hh"
 
 /* class TypeReal  */
+TypeReal* TypeReal::instance = 0;
 
 TypeReal::TypeReal() { }
 TypeReal::~TypeReal() { }
+
+TypeReal* TypeReal::Instance() {
+    if(instance == 0)
+        instance = new TypeReal();
+
+    return instance;
+}
 
 bool TypeReal::is_int() { return false; }
 
@@ -59,8 +67,18 @@ std::list<TypeS*> TypeReal::get_atributos(){
 
 /* class TypeInt */
 
+TypeInt* TypeInt::instance = 0;
+
 TypeInt::TypeInt(){}
 TypeInt::~TypeInt(){}
+
+
+TypeInt* TypeInt::Instance() {
+    if(instance == 0)
+        instance = new TypeInt();
+
+    return instance;
+}
 
 bool TypeInt::is_int() { return true; }
 
@@ -148,9 +166,20 @@ std::list<TypeS*> TypeError::get_atributos(){
 }
 
 /* class TypeBool */
+
+TypeBool* TypeBool::instance = 0;
+
 TypeBool::TypeBool(){}
 
 TypeBool::~TypeBool(){}
+
+
+TypeBool* TypeBool::Instance() {
+    if(instance == 0)
+       instance = new TypeBool();
+
+    return instance;
+}
 
 bool TypeBool::is_int() { return false; }
 
@@ -187,10 +216,18 @@ std::list<TypeS*> TypeBool::get_atributos(){
 }
 
 /* class TypeChar */
+TypeChar* TypeChar::instance = 0;
 
 TypeChar::TypeChar(){}
 
 TypeChar::~TypeChar(){}
+
+TypeChar* TypeChar::Instance() {
+    if(instance == 0)
+        instance = new TypeChar();
+
+    return instance;
+}
 
 bool TypeChar::is_int() { return false; }
 
@@ -228,9 +265,18 @@ std::list<TypeS*> TypeChar::get_atributos(){
 
 /* class TypeString */
 
+TypeString* TypeString::instance = 0;
+
 TypeString::TypeString(){}
 
 TypeString::~TypeString(){}
+
+TypeString* TypeString::Instance() {
+    if(instance == 0)
+        instance = new TypeString();
+
+    return instance;
+}
 
 bool TypeString::is_int() { return false; }
 
@@ -387,9 +433,19 @@ std::list<TypeS*> TypeUnion::get_atributos(){
 
 /* class TypeVoid */
 
+TypeVoid* TypeVoid::instance = 0;
+
 TypeVoid::TypeVoid(){}
 
 TypeVoid::~TypeVoid(){}
+
+TypeVoid* TypeVoid::Instance() {
+    if(instance == 0)
+        instance = new TypeVoid();
+
+    return instance;
+}
+
 
 bool TypeVoid::is_int(){ return false; }
 

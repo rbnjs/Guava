@@ -113,7 +113,7 @@ private:
 class TypeVoid :public TypeS{
 public:
     ~TypeVoid();
-    TypeVoid* Instance();
+    static TypeVoid* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -137,7 +137,7 @@ private:
 class TypeBool:public TypeS{
 public:
     ~TypeBool();
-    TypeBool* Instance();
+    static TypeBool* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -161,6 +161,7 @@ private:
 class TypeChar:public TypeS{
 public:
     ~TypeChar();
+    static TypeChar* Instance();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;

@@ -4,15 +4,16 @@
 
 declare {
   integer array a[1][1];
-  integer a,a;
+  integer a,1,a,1,a;
 }
 
 function void main() {
   declare {
     integer a;
+    integer b;
   }
   mi_funcion(a,1+b,true and f);
-  for(i;i<50;i++) {
+  for(i;i<main;i++) {
     declare {
       integer n;
     }

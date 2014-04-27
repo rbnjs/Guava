@@ -21,14 +21,14 @@
 GuavaDriver::GuavaDriver ()
   : trace_scanning (false), trace_parsing (false)
 {
-    TypeS* integer = new TypeInt();
-    TypeS* real = new TypeReal();
+    TypeS* integer = TypeInt::Instance();
+    TypeS* real = TypeReal::Instance();
     TypeS* error = TypeError::Instance();
-    TypeS* boolean = new TypeBool();
-    TypeS* character = new TypeChar();
-    TypeS* string = new TypeString();
-    TypeS* voidt = new TypeVoid(); 
-    
+    TypeS* boolean = TypeBool::Instance();
+    TypeS* character = TypeChar::Instance();
+    TypeS* string = TypeString::Instance();
+    TypeS* voidt = TypeVoid::Instance(); 
+
     tablaSimbolos = *(new GuavaSymTable());
     tablaSimbolos.insert_type(std::string("integer"),std::string("type"),0,integer);
     tablaSimbolos.insert_type(std::string("real"),std::string("type"),0,real);

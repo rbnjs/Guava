@@ -1,0 +1,167 @@
+lvariables : lvariables tipo REFERENCE lvar ';' LISTO
+           | tipo REFERENCE lvar ';' LISTO
+           | lvariables tipo lvar ';' LISTO
+           | tipo lvar ';' LISTO
+           | tipo ARRAY lvararreglo ';' LISTO
+           | lvariables tipo ARRAY lvararreglo ';' LISTO
+           | identificador UNION lvar ';' LISTO
+           | lvariables identificador UNION lvar ';' LISTO
+           | identificador RECORD lvar ';' LISTO
+           | lvariables identificador RECORD lvar ';' LISTO
+           | lvariables union ';' LISTO
+           | lvariables record ';' LISTO
+           | union ';' LISTO
+           | record ';' LISTO
+          
+Los errores son  manejarlos en la lista de identificadores.
+Aqui:
+
+lvar : identificador
+     | lvar ',' identificador
+
+error : lvar ',' error    <- Este error solo se reporta el primero, si en la
+                             la lista de identificadores hay mas de un error
+                             seguido no se reportan todos.
+
+______________________________
+
+lvararreglo : identificador lcorchetes LISTO
+            | lvararreglo ',' identificador lcorchetes LISTO
+
+error : error lcorchetes
+      | lvararreglo ',' error lcorchetes
+
+lcorchetes : [ INTEGER ]
+           | lcorchetes [ INTEGER ]
+
+error : [ error ]
+      | lcorchetes [ error ]
+
+_______________________________
+
+funcionmain : FUNCTION TYPE_VOID MAIN () { bloquedeclare listainstrucciones }
+
+error : FUNCTION TYPE_VOID MAIN ( error )
+
+Para este error debe de cambiarse el error diciendo que "no se esperaban 
+argumentos".
+
+______________________________
+
+funcion : FUNCTION tipo identificador ( lparam ) { bloquedeclare listainstrucciones RETURN exp ; }
+        | FUNCTION TYPE_VOID identificador ( lparam ) { bloquedeclare listainstrucciones }
+
+Los errores de la lista de parametros son manejados en la regla lparam.
+Aqui:
+
+lparam : /*Vacio*/ LISTO
+       | lparam2
+
+lparam2 : tipo identificador lparam3 LISTO
+
+lparam3 : 
+        | ',' tipo identificador lparam3
+
+error : error
+      | error , lparam2
+
+Los errores del cuerpo de las funciones son manejados en la lista de 
+instrucciones.
+Aqui:
+
+listainstrucciones : /*Vacio*/
+                   | instruccion ; listainstrucciones1 LISTO
+                   | instruccion1 listainstrucciones1 LISTO
+
+listainstrucciones1 : /*Vacio*/
+                    | listainstrucciones1 intruccion ; LISTO
+                    | listainstrucciones1 instruccion1 LISTO
+
+Para un manejo mas especifico los errores seran manejados en las instrucciones
+especificas.
+Aqui:
+
+instruccion : asignacion LISTO
+            | llamadafuncion LISTO
+            | MINUSMINUS identificador LISTO
+            | identificador MINUSMINUS LISTO
+            | PLUSPLUS identificador LISTO
+            | identificador PLUSPLUS LISTO
+            | entradasalida LISTO
+
+error : error identificador
+      | identificador error   <- Los errores que provengan de reglas de menor
+                                 precedencia que estas no seran reportados.
+                                 Esto puede ser, precisamente, por la
+                                 mayor precedencia de estas sobre las
+                                 derivadas. Digamos que una regla A tiene
+                                 mayor precedencia que B si B es derivable de
+                                 A.
+
+asignacion : identificador ASSIGN exp
+           | identificador lcorchetes ASSIGN exp
+           | idetificador . identificador ASSIGN exp
+
+error : error ASSIGN exp
+
+llamadafuncion : identificador ( lvarovalor ) LISTO
+
+error : error ( lvarovalor )
+
+lvarovalor : /*Vacio*/
+            | lvarovalor2
+
+lvarovalor2 : exp LISTO
+            | lvarovalor2 , exp LISTO
+
+error : error
+      | lvarovalor2 , error <- Para estos errores solo se reportan los 2
+                               primeros.
+
+instruccion1 : loopfor LISTO
+             | loopwhile LISTO
+             | selectorif LISTO
+
+/*Notar que para las iteraciones acotadas la variable a iterar debe de estar
+  inicializada.*/
+loopfor : FOR ( identificador ; exp ; asignacion ) { bloquedeclare listainstrucciones }
+        | FOR ( identificador ; exp ; exp ) { bloquedeclare listainstrucciones }
+
+error : FOR ( error ; exp ; errorloopfor ) { bloquedeclare listainstrucciones }
+      | FOR ( identificador ; error ; errorloopfor ) { bloquedeclare listainstrucciones }
+
+loopwhile : WHILE ( exp ) DO { bloquedeclare listainstrucciones }
+          | DO { bloquedeclare listainstrucciones } WHILE ( exp )
+
+error : WHILE ( error ) DO { bloquedeclare listainstrucciones }
+      | DO { bloquedeclare listainstrucciones } WHILE ( error )
+
+selectorif : IF ( exp ) THEN { bloquedeclare listainstrucciones } lelseif
+           | IF ( exp ) THEN instruccion ;
+           | IF ( exp ) THEN instruccion else instruccion ;
+
+lelseif : /*Vacio*/
+        | lelseif1 ELSE { bloquedeclare listainstrucciones }
+
+lelseif1 : /*Vacio*/
+         | lelseif1 ELSE IF ( exp ) THEN { bloquedeclare listainstrucciones }
+
+error : Convertir todo 'exp' en 'errorif', donde errorif es:
+
+errorif : exp
+        | error
+
+______________________________________
+
+exp : expbin
+    | expun
+    | valor
+    | identificador
+    | ( exp )
+
+El manejo de errores para expresiones se realiza, en gran medida, en aquellas
+reglas que necesiten de esta.
+
+error: ( error )
+
+

@@ -56,3 +56,9 @@ real en Guava equivale a un float en C++.
    De aqui puede existir cualquier tipo de asignacion, lo que no garantiza que
    se cumpla la condicion de que la variable de iteracion itere sobre si misma,
    valga la redundancia.
+
+10- Una funcion como parametros puede recibir una estructura tipo union o
+record? De ser afirmativa la respuesta, debe de agregarse la regla.
+
+11- La instruccion de print no podria imprimir lo que retorna una funcion?
+Es decir, se puede tener: print(mi_funcion());?

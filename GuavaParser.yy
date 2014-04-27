@@ -92,7 +92,6 @@ std::string reportar_existencia(Symbol *s, std::string id) {
     return msg;
 }
 
-/* $4 -> vars ; $2 -> t*/
 void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();
@@ -124,8 +123,6 @@ void insertar_simboloSimple(std::string identificador, Tipo *t, std::string esti
     scope = d->tablaSimbolos.currentScope();
     d->tablaSimbolos.insert(identificador,estilo,scope,p,line,column);
 }
-
-/* $3 -> LVarArreglo vars ; $1 -> Tipo t*/
 
 /*Cosas que usan el driver
  *

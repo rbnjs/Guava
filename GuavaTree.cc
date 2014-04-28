@@ -68,8 +68,9 @@ void Identificador::show(std::string s) {
 
 Tipo::Tipo() {}
 
-Tipo::Tipo(std::string t) {
+Tipo::Tipo(std::string t, TypeS* t2) {
     tipo = t;
+    tipoS = t2;
 }
 
 Tipo::~Tipo() {}
@@ -328,87 +329,63 @@ std::list<Identificador> LVar::get_list(){
 
 void LVar::show(std::string s) {} 
 
-/* Class Estructura */
-
-Estructura::Estructura() { 
-    estructura = 0; 
-}
-
-Estructura::Estructura(Estructura* e){
-    *estructura = *e;
-}
-
-Estructura::~Estructura() { 
-    delete estructura; 
-}
-
-void Estructura::show(std::string s) {} 
-
 /* Class LVariables */
 
 LVariables::LVariables() {}
 
-LVariables::LVariables(Tipo tipo, LVar v, LVariables *listaVariables) {
-    t = tipo;
-    listaIds = v;
-    listaVar = listaVariables;
+LVariables::LVariables(TypeS* t, LVar* v): tipo(t),listaIds(v){
 }
 
-LVariables::LVariables(Tipo tipo, LVarArreglo va, LVariables *listaVariables) {
-    t = tipo;
-    listaIdsAr = va;
-    listaVar = listaVariables;
+LVariables::LVariables(TypeS* t, LVarArreglo* va): tipo(t),listaIdsAr(va) {
 }
     
-/*Caso definicion de Uniones*/
-LVariables::LVariables(Estructura e, LVariables *listaVariables) {
-    estructura = e;
-    listaVar = listaVariables;
+//Caso definicion de Uniones
+LVariables::LVariables(Estructura* e): estructura(e) {
 }
 
 LVariables::~LVariables() { 
-    delete this->listaVar;
+    delete this;
 }
 
 void LVariables::show(std::string s) {} 
 
+
+
 /* Class Record */
 
-Record::Record() {
-    Estructura();
-    lista = 0;
+Record::Record():lista(0) {
 }
 
-Record::Record(Identificador i, LVariables* l) {
-    Estructura();
-    id = i;
-    *lista = *l;
+Record::Record(Identificador i, LVariables* l):id(i),lista(l) {
 }
 
 Record::~Record() {
-    delete lista;
+    delete this;
 }
 
 void Record::show(std::string s) {} 
 
+LVariables* Record::get_lvar(){ return lista; }
+
+Identificador Record::get_id(){ return id; }
+
 /* Class Union */
 
-Union::Union() {
-    Estructura();
-    lista = 0;
+Union::Union():lista(0) {
 }
 
-Union::Union(Identificador i, LVariables* l) {
-    Estructura();
-    id = i;
-    *lista = *l;
+Union::Union(Identificador i, LVariables* l):id(i),lista(l) {
 }
 
 Union::~Union() {
-    delete lista;
+    delete this;
 }
 
 void Union::show(std::string s) {} 
+
+LVariables* Union::get_lvar(){ return lista; }
+
+Identificador Union::get_id(){ return id; }
 
 /* Class LArreglo */
 

@@ -31,10 +31,9 @@
  * 5- Se debe definir de abajo hacia arriba, sino la compilacion no funcionara.
  *
  */
-
-#include "GuavaSymTable.hh"
-#include <list>
-#include <utility>
+# include "GuavaSymTable.hh"
+# include <list>
+# include <utility>
 
 /**
  * Clase que define las expresiones del lenguaje.
@@ -85,9 +84,10 @@ public:
 class Tipo{
 public:
     std::string tipo;
+    TypeS* tipoS;
     
     Tipo();
-    Tipo(std::string);   
+    Tipo(std::string,TypeS* t = 0);   
     ~Tipo();
     
     virtual void show(std::string);
@@ -310,13 +310,8 @@ public:
  */
 class Estructura{
 public:
-    Estructura* estructura;
-    
-    Estructura();
-    Estructura(Estructura*);
-    ~Estructura();
-    
-    virtual void show(std::string);
+    virtual Identificador get_id() = 0;
+    virtual void show(std::string) = 0;
 };
 
 /**
@@ -327,38 +322,28 @@ public:
  */
 class LVariables {
 public:
-    Tipo t;                 /*Tipo de las variables a declarar */
-    int modo;               /*Modo de pasaje de la variable: Por referencia=1, por valor=0*/
+    TypeS* tipo;                   /*Tipo de las variables a declarar */
 
-    LVar listaIds;          /* Lista de identificadores de variables */
-    LVarArreglo listaIdsAr; /* Lista de identificadores de variables de tipo arreglo */
-    Estructura estructura;  /* Este define a una union o registro. */
-    LVariables* listaVar;    /* En caso de declarar mas de una lista de variables. */
+    LVar* listaIds;           /* Lista de identificadores de variables */
+    LVarArreglo* listaIdsAr;  /* Lista de identificadores de variables de tipo arreglo */
+    Estructura* estructura;   /* Este define a una union o registro. */
+    LVariables* listaVar;     /* En caso de declarar mas de una lista de variables. */
 
     /*Constructores*/
     LVariables();
 
     /*Caso en el que se declaran variables simples*/
-    LVariables(Tipo, LVar, LVariables *);
+    LVariables(TypeS*, LVar*);
 
     /*Caso en el que se declaran variables de tipo arreglo*/
-    LVariables(Tipo, LVarArreglo, LVariables *);
+    LVariables(TypeS*, LVarArreglo*);
 
-    /*Para el caso en que se declaran uniones y records, simplemente no se
-     *podria poner que el Tipo t = Union o Record o el ID de la estructura?
-     *VER OBSERVACION 4
-     */
-    
     /*Caso definicion de Records y Unions*/
-    LVariables(Estructura, LVariables *);
+    LVariables(Estructura*);
 
     ~LVariables();
     
     void show(std::string);
-    /*Investigar: Como realizar la verificacion si los tipos de listas de
-     *            variables son diferentes? No es como python que por ser
-     *            debilmente tipado una misma verificacion servia para todo.
-     */
 };
 
 /**
@@ -368,14 +353,15 @@ public:
  */
 class Record:public Estructura{
 public:
-    Identificador id;     /* Nombre del record. */
-    LVariables* lista;             /* Lista de variables. */
-    
     Record();
     Record(Identificador, LVariables*);
     ~Record();    
-    
+    LVariables* get_lvar();
+    Identificador get_id();
     void show(std::string);
+private:
+    Identificador id;              /* Nombre del record. */
+    LVariables* lista;             /* Lista de variables. */
 };
 
 /**
@@ -384,14 +370,15 @@ public:
  */
 class Union:public Estructura{
 public:
-    Identificador id;   /* Nombre del union. */
-    LVariables* lista;  /* Lista de variables. */
-    
     Union();
     Union(Identificador, LVariables*);
     ~Union();   
-
+    LVariables* get_lvar();
+    Identificador get_id();
     void show(std::string);
+private:
+    Identificador id;   /* Nombre del union. */
+    LVariables* lista;  /* Lista de variables. */
 };
 
 

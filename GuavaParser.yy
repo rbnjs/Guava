@@ -92,6 +92,14 @@ std::string reportar_existencia(Symbol *s, std::string id) {
     return msg;
 }
 
+std::string tipo_no_existe(std::string id){
+    std::string msg("Type '");
+    msg += id;
+    msg += "' wasn't declared or doesn't exists in current context";
+    error_state = 1;
+    return msg;
+}
+
 /* $4 -> vars ; $2 -> t*/
 void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
@@ -114,15 +122,18 @@ void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver
     }
 }
 
-void insertar_simboloSimple(std::string identificador, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
+void insertar_simboloSimple(Identificador* identificador, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     int scope,line, column;
     Symbol *s;
 
     Symbol *p=  d->tablaSimbolos.lookup(t->tipo);
+    if (p == 0) d->error(loc,tipo_no_existe(t->tipo));
     line = loc.begin.line;
     column = loc.begin.column;
     scope = d->tablaSimbolos.currentScope();
-    d->tablaSimbolos.insert(identificador,estilo,scope,p,line,column);
+    s = d->tablaSimbolos.simple_lookup(identificador->identificador);
+    if (s != 0) d->error(loc,reportar_existencia(s,identificador->identificador)); 
+    d->tablaSimbolos.insert(identificador->identificador,estilo,scope,p,line,column);
 }
 
 /* $3 -> LVarArreglo vars ; $1 -> Tipo t*/
@@ -471,18 +482,18 @@ lparam: /* Vacio */          { $$ = new LParam();
                              } 
 
 lparam2: tipo identificador               { $$ = new LParam(); 
-                                            insertar_simboloSimple($2->identificador,$1,std::string("param"),&driver,yylloc);
+                                            insertar_simboloSimple($2,$1,std::string("param"),&driver,yylloc);
                                           } 
         | tipo REFERENCE identificador    { $$ = new LParam();
-                                            insertar_simboloSimple($3->identificador,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
+                                            insertar_simboloSimple($3,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
         | lparam2 ',' tipo identificador  { 
-                                            insertar_simboloSimple($4->identificador,$3,std::string("param"),&driver,yylloc);
+                                            insertar_simboloSimple($4,$3,std::string("param"),&driver,yylloc);
                                             $$ = $1;
                                           }
         | lparam2 ',' tipo REFERENCE 
                       identificador       { 
-                                            insertar_simboloSimple($5->identificador,$3,std::string("param"),&driver,yylloc);
+                                            insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
                                             $$ = $1;
                                           }
         

@@ -66,18 +66,18 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
     
     /**
-     * Constructor de la clase Symbol para variable. Deprecado
+     * Constructor de la clase Symbol para variable.
      */
-    Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna);
+    Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna); // Este ya no sirve
 
-    Symbol(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna);
+    Symbol(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna); // Variable que hace referencia a un tipo
 
     /**
      * Constructor para arreglo 
      */
     Symbol(std::string, std::string, int, std::string,int,int, int*,int); 
     
-    Symbol(std::string, std::string, int, Symbol*,int,int, int*,int); 
+    //Symbol(std::string, std::string, int, TypeS*,int,int, int*,int); //Constructor para arreglos
    
     /**
      * Constructor para estructuras.

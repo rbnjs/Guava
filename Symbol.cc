@@ -36,23 +36,20 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string p,int l
     column = columna;
 
 }
-/**
- * Constructor de la clase Symbol.
- */
+
 Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* p,int linea, int columna) {
     sym_name = name;
     sym_catg = catg;
     scope = scop;
 
     type_pointer = p;
-    true_type = NULL;
+    true_type = 0;
     size = 0;
     arreglo = 0;
     fieldScope = 0;
     line = linea;
     column = columna;
 }
-
 
 /**
  * Constructor para arreglo 
@@ -64,18 +61,7 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     this->type = s;
     size = tam;
     arreglo = array;
-    fieldScope = 0;   
-    line = linea;
-    column = columna;
-}
-
-Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* s,int linea, int columna, int* array,int tam){
-    this->sym_name = name;
-    this->sym_catg = catg;
-    this->scope = scop;
-    type_pointer = s;
-    size = tam;
-    arreglo = array;
+    true_type = 0;
     fieldScope = 0;   
     line = linea;
     column = columna;
@@ -91,10 +77,13 @@ Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int lin
     this->type = s;
     size = 0;
     arreglo = 0;
+    true_type = 0;
     fieldScope = fsc;   
     column = columna;
     line =  linea;
 }
+
+
 /**
  * Constructor para types
  */

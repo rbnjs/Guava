@@ -228,6 +228,7 @@ private :
 
 class TypeStructure :public TypeS{
 public :
+    TypeStructure();
     TypeStructure(std::list<TypeS*>);
     ~TypeStructure();
     bool is_int() ; 
@@ -250,6 +251,7 @@ private :
 
 class TypeUnion :public TypeS{
 public :
+    TypeUnion();
     TypeUnion(std::list<TypeS*>);
     ~TypeUnion();
     bool is_int() ; 

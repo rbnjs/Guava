@@ -300,16 +300,20 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                         }
           | identificador UNION lvar ';'                { 
                                                           Tipo t = Tipo($1->identificador);
+                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
           | lvariables identificador UNION lvar ';'     { 
                                                           Tipo t = Tipo($2->identificador);
+                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
           | identificador RECORD lvar ';'               { Tipo t = Tipo($1->identificador);
+                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
           | lvariables identificador RECORD lvar ';'    { Tipo t = Tipo($2->identificador);
+                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
           | lvariables  union ';'                       {
@@ -335,11 +339,10 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                         };
 
 union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
-                                int fsc = driver.tablaSimbolos.enterScope();
-                                int line = yylloc.begin.line;
-                                int column = yylloc.begin.column;
-                                driver.tablaSimbolos.insert($2->identificador,std::string("union"),n,std::string("unionType"),line,column,fsc);
-                                identacion += "  ";
+                                 int fsc = driver.tablaSimbolos.enterScope();
+                                 TypeUnion* structure = new TypeUnion();
+                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure,fsc); 
+                                 identacion += "  ";
                                }
                               lvariables '}' {  if (!error_state) {
                                                     identacion.erase(0,2);
@@ -353,9 +356,8 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
 record: RECORD identificador '{'{
                                  int n = driver.tablaSimbolos.currentScope();
                                  int fsc = driver.tablaSimbolos.enterScope();
-                                 int line = yylloc.begin.line;
-                                 int column = yylloc.begin.column;
-                                 driver.tablaSimbolos.insert($2->identificador,std::string("record"),n,std::string("recordType"),line,column,fsc);
+                                 TypeStructure* structure = new TypeStructure();
+                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure,fsc); 
                                  identacion += "  ";
                                 } 
                                 lvariables '}' { if (!error_state) {

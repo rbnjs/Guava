@@ -26,9 +26,9 @@
  */
 class GuavaSymTable{
 public:
-    std::list<int> pila;                                  /* Pila de alcances */
+    std::list<int> pila;                                            /* Pila de alcances */
     std::unordered_map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
-    int alcance;                                          /* Alcance en numeros. */
+    int alcance;                                                    /* Alcance en numeros. */
 
     GuavaSymTable();                                      /* Constructor de la clase */
     ~GuavaSymTable();                                     /*  Destructor */
@@ -36,10 +36,15 @@ public:
     void insert(Symbol elem);                                              /* Inserta un simbolo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int);          /* Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,Symbol*,int,int);              /* Inserta simbolo */
-    void insert(std::string,std::string,int,Symbol*,int,int,int*,int);     /* Agrega un arreglo a la tabla */
+
+    void insert(std::string,std::string,int,Symbol*,int,int,int*,int);     /* Agrega un arreglo a la tabla. Desactualizado, sera eliminado. */
+
+    void insert(std::string,std::string,int,TypeS*,int,int);               /* Agrega un arreglo a la tabla. */
+
     void insert(std::string,std::string,int,std::string,int,int,int*,int); /* DEPRECADO Agrega un arreglo a la tabla */
     void insert(std::string,std::string,int,std::string,int,int,int);      /* Agrega una estructura a la tabla */
-    void insert_type(std::string,std::string,int,TypeS*);
+    void insert_type(std::string,std::string,int,TypeS*);                  /* Agrega un tipo basico a la tabla */
+    void insert_type(std::string, std::string, int, TypeS*, int);          /* Agrega un tipo record o union a la tabla */
     int newScope();                                                        /* Aumenta en uno el alcance. */
     int enterScope();                                                      /* Entra un nuevo alcance  */
     int exitScope();                                                       /* Sale del alcance  */

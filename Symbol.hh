@@ -51,6 +51,7 @@ public:
     std::string sym_name;   /* Nombre del simbolo */
     std::string sym_catg;   /* Categoria del simbolo */
     int scope;              /* Identificador del scope del simbolo */
+
     std::string type;       /* DEPRECATED */ 
 
     int *arreglo;           /* Dimensiones del arreglo */
@@ -70,14 +71,20 @@ public:
      */
     Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna); // Este ya no sirve
 
+    /**
+     * Constructor para variable.
+     */
     Symbol(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna); // Variable que hace referencia a un tipo
 
     /**
-     * Constructor para arreglo 
+     * Constructor para arreglos. Desactualizado, sera eliminado. 
      */
     Symbol(std::string, std::string, int, std::string,int,int, int*,int); 
     
-    //Symbol(std::string, std::string, int, TypeS*,int,int, int*,int); //Constructor para arreglos
+    /**
+     * Constructor para arreglos.
+     */
+    Symbol(std::string, std::string, int, TypeS*,int,int); 
    
     /**
      * Constructor para estructuras.
@@ -85,9 +92,15 @@ public:
     Symbol(std::string,std::string,int,std::string,int,int,int);
 
     /**
-     * Constructor para tipos
+     * Constructor para tipos primitivos basicos.
      */
     Symbol(std::string,std::string,int,TypeS*);
+    
+    /**
+     * Constructor para estructuras o uniones.
+     */
+    Symbol(std::string,std::string,int,TypeS*, int);
+    
 
     Symbol();
 

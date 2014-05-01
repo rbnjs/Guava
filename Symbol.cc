@@ -66,6 +66,11 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
     line = linea;
     column = columna;
 }
+/**
+ * Constructor para arreglo actualizado.
+ */
+Symbol(std::string name, std::string catg,
+       int scop, TypeS* type,int linea,int columna): sym_name(name),sym_catg(catg),scope(scop),true_type(type),line(linea),column(columna){} 
 
 /**
  * Constructor para estructuras.
@@ -88,6 +93,11 @@ Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int lin
  * Constructor para types
  */
 Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type): sym_name(name), sym_catg (catg), scope(s), true_type(type) {}
+
+/**
+ * Constructor para records y unions
+ */
+Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type, int fsc): sym_name(name), sym_catg (catg), scope(s), true_type(type), fieldScope(fsc) {}
 
 /**  
  * Destructor de la clase Symbol.

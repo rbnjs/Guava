@@ -353,6 +353,8 @@ std::list<TypeS*> TypeFunction::get_atributos(){
 
 /* class TypeStructure */
 
+TypeStructure::TypeStructure(){}
+
 TypeStructure::TypeStructure(std::list<TypeS*> la): atributos(la){}
 
 TypeStructure::~TypeStructure(){}
@@ -392,6 +394,8 @@ std::list<TypeS*> TypeStructure::get_atributos(){
 
 
 /* class TypeUnion */
+
+TypeUnion::TypeUnion(){}
 
 TypeUnion::TypeUnion(std::list<TypeS*> la):atributos(la){}
 

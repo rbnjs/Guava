@@ -69,7 +69,7 @@ Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int l
 /**
  * Constructor para arreglo actualizado.
  */
-Symbol(std::string name, std::string catg,
+Symbol::Symbol(std::string name, std::string catg,
        int scop, TypeS* type,int linea,int columna): sym_name(name),sym_catg(catg),scope(scop),true_type(type),line(linea),column(columna){} 
 
 /**

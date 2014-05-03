@@ -74,8 +74,8 @@ void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string 
 /**
  * Agrega un arreglo a la tabla. Actualizada.
  */
-void insert(std::string name,std::string catg,int,TypeS* t,int li,int co){
-    Symbol* nuevo = new Symbol(name,catg,t,li,co);
+void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li,int co){
+    Symbol* nuevo = new Symbol(name,catg,scop,t,li,co);
     this->insert(*nuevo);
 }
 

@@ -31,7 +31,6 @@ TypeVoid* TypeVoid::void_instance = 0;
 //Faltaria definir para las uniones y records.
 
 /* class TypeReal  */
-TypeReal* TypeReal::instance = 0;
 
 TypeReal* TypeReal::Instance() {
     if(real_instance == 0)
@@ -40,7 +39,17 @@ TypeReal* TypeReal::Instance() {
     return real_instance;
 }
 
-bool TypeReal::is_real() { return true; }
+bool TypeReal::is_real()      { return true; }
+bool TypeReal::is_int()       { return false; }
+bool TypeReal::is_error()     { return false; }
+bool TypeReal::is_bool()      { return false; }
+bool TypeReal::is_char()      { return false; }
+bool TypeReal::is_str()       { return false; }
+bool TypeReal::is_func()      { return false; }
+bool TypeReal::is_structure() { return false; }
+bool TypeReal::is_union()     { return false; }
+bool TypeReal::is_void()      { return false; }
+bool TypeReal::is_reference() { return false; }
 
 TypeS* TypeReal::get_tipo() { return 0; }
 
@@ -63,7 +72,17 @@ TypeInt* TypeInt::Instance() {
     return int_instance;
 }
 
-bool TypeInt::is_int() { return true; }
+bool TypeInt::is_real()      { return false; }
+bool TypeInt::is_int()       { return true; }
+bool TypeInt::is_error()     { return false; }
+bool TypeInt::is_bool()      { return false; }
+bool TypeInt::is_char()      { return false; }
+bool TypeInt::is_str()       { return false; }
+bool TypeInt::is_func()      { return false; }
+bool TypeInt::is_structure() { return false; }
+bool TypeInt::is_union()     { return false; }
+bool TypeInt::is_void()      { return false; }
+bool TypeInt::is_reference() { return false; }
 
 TypeS* TypeInt::get_tipo() { return 0; }
 
@@ -86,7 +105,17 @@ TypeError* TypeError::Instance() {
     return error_instance;
 }
 
-bool TypeError::is_error() { return true; }
+bool TypeError::is_real()      { return false; }
+bool TypeError::is_int()       { return false; }
+bool TypeError::is_error()     { return true; }
+bool TypeError::is_bool()      { return false; }
+bool TypeError::is_char()      { return false; }
+bool TypeError::is_str()       { return false; }
+bool TypeError::is_func()      { return false; }
+bool TypeError::is_structure() { return false; }
+bool TypeError::is_union()     { return false; }
+bool TypeError::is_void()      { return false; }
+bool TypeError::is_reference() { return false; }
 
 TypeS* TypeError::get_tipo() { return 0; }
 
@@ -109,7 +138,17 @@ TypeBool* TypeBool::Instance() {
     return bool_instance;
 }
 
-bool TypeBool::is_bool() { return true; } 
+bool TypeBool::is_real()      { return false; }
+bool TypeBool::is_int()       { return false; }
+bool TypeBool::is_error()     { return false; }
+bool TypeBool::is_bool()      { return true; }
+bool TypeBool::is_char()      { return false; }
+bool TypeBool::is_str()       { return false; }
+bool TypeBool::is_func()      { return false; }
+bool TypeBool::is_structure() { return false; }
+bool TypeBool::is_union()     { return false; }
+bool TypeBool::is_void()      { return false; }
+bool TypeBool::is_reference() { return false; }
 
 TypeS* TypeBool::get_tipo() { return 0; }
 
@@ -124,7 +163,6 @@ std::list<TypeS*> TypeBool::get_atributos(){
 }
 
 /* class TypeChar */
-TypeChar* TypeChar::instance = 0;
 
 TypeChar* TypeChar::Instance() {
     if(char_instance == 0)
@@ -132,8 +170,17 @@ TypeChar* TypeChar::Instance() {
 
     return char_instance;
 }
-
-bool TypeChar::is_char() { return true; }
+bool TypeChar::is_real()      { return false; }
+bool TypeChar::is_int()       { return false; }
+bool TypeChar::is_error()     { return false; }
+bool TypeChar::is_bool()      { return false; }
+bool TypeChar::is_char()      { return true; }
+bool TypeChar::is_str()       { return false; }
+bool TypeChar::is_func()      { return false; }
+bool TypeChar::is_structure() { return false; }
+bool TypeChar::is_union()     { return false; }
+bool TypeChar::is_void()      { return false; }
+bool TypeChar::is_reference() { return false; }
 
 TypeS* TypeChar::get_tipo() { return 0; }
 
@@ -156,7 +203,17 @@ TypeString* TypeString::Instance() {
     return string_instance;
 }
 
-bool TypeString::is_str() { return true; }
+bool TypeString::is_real()      { return false; }
+bool TypeString::is_int()       { return false; }
+bool TypeString::is_error()     { return false; }
+bool TypeString::is_bool()      { return false; }
+bool TypeString::is_char()      { return false; }
+bool TypeString::is_str()       { return true; }
+bool TypeString::is_func()      { return false; }
+bool TypeString::is_structure() { return false; }
+bool TypeString::is_union()     { return false; }
+bool TypeString::is_void()      { return false; }
+bool TypeString::is_reference() { return false; }
 
 TypeS* TypeString::get_tipo() { return 0; }
 
@@ -174,7 +231,17 @@ std::list<TypeS*> TypeString::get_atributos(){
 
 TypeFunction::TypeFunction(TypeS* r,std::list<TypeS*> lp):tipo (r),parametros(lp){}
 
-bool TypeFunction::is_func(){ return true; }
+bool TypeFunction::is_real()      { return false; }
+bool TypeFunction::is_int()       { return false; }
+bool TypeFunction::is_error()     { return false; }
+bool TypeFunction::is_bool()      { return false; }
+bool TypeFunction::is_char()      { return false; }
+bool TypeFunction::is_str()       { return false; }
+bool TypeFunction::is_func()      { return true; }
+bool TypeFunction::is_structure() { return false; }
+bool TypeFunction::is_union()     { return false; }
+bool TypeFunction::is_void()      { return false; }
+bool TypeFunction::is_reference() { return false; }
 
 TypeS* TypeFunction::get_tipo() { return tipo; }
 
@@ -193,7 +260,17 @@ TypeStructure::TypeStructure(){}
 
 TypeStructure::TypeStructure(std::list<TypeS*> la): atributos(la){}
 
+bool TypeStructure::is_real()      { return false; }
+bool TypeStructure::is_int()       { return false; }
+bool TypeStructure::is_error()     { return false; }
+bool TypeStructure::is_bool()      { return false; }
+bool TypeStructure::is_char()      { return false; }
+bool TypeStructure::is_str()       { return false; }
+bool TypeStructure::is_func()      { return false; }
 bool TypeStructure::is_structure() { return true; }
+bool TypeStructure::is_union()     { return false; }
+bool TypeStructure::is_void()      { return false; }
+bool TypeStructure::is_reference() { return false; }
 
 TypeS* TypeStructure::get_tipo() { return 0; }
 
@@ -212,7 +289,17 @@ TypeUnion::TypeUnion(){}
 
 TypeUnion::TypeUnion(std::list<TypeS*> la):atributos(la){}
 
-bool TypeUnion::is_union() { return true; }
+bool TypeUnion::is_real()      { return false; }
+bool TypeUnion::is_int()       { return false; }
+bool TypeUnion::is_error()     { return false; }
+bool TypeUnion::is_bool()      { return false; }
+bool TypeUnion::is_char()      { return false; }
+bool TypeUnion::is_str()       { return false; }
+bool TypeUnion::is_func()      { return false; }
+bool TypeUnion::is_structure() { return false; }
+bool TypeUnion::is_union()     { return true; }
+bool TypeUnion::is_void()      { return false; }
+bool TypeUnion::is_reference() { return false; }
 
 TypeS* TypeUnion::get_tipo() { return 0; }
 
@@ -235,7 +322,17 @@ TypeVoid* TypeVoid::Instance() {
     return void_instance;
 }
 
-bool TypeVoid::is_void(){ return true;  }                                                                                                  
+bool TypeVoid::is_real()      { return false; }
+bool TypeVoid::is_int()       { return false; }
+bool TypeVoid::is_error()     { return false; }
+bool TypeVoid::is_bool()      { return false; }
+bool TypeVoid::is_char()      { return false; }
+bool TypeVoid::is_str()       { return false; }
+bool TypeVoid::is_func()      { return false; }
+bool TypeVoid::is_structure() { return false; }
+bool TypeVoid::is_union()     { return false; }
+bool TypeVoid::is_void()      { return true; }
+bool TypeVoid::is_reference() { return false; }
 
 TypeS* TypeVoid::get_tipo() { return 0; }
 
@@ -270,6 +367,16 @@ std::list<TypeS*> TypeArray::get_atributos(){
 
 TypeReference::TypeReference(TypeS* t): referencia(t){}
 
+bool TypeReference::is_real()      { return false; }
+bool TypeReference::is_int()       { return false; }
+bool TypeReference::is_error()     { return false; }
+bool TypeReference::is_bool()      { return false; }
+bool TypeReference::is_char()      { return false; }
+bool TypeReference::is_str()       { return false; }
+bool TypeReference::is_func()      { return false; }
+bool TypeReference::is_structure() { return false; }
+bool TypeReference::is_union()     { return false; }
+bool TypeReference::is_void()      { return false; }
 bool TypeReference::is_reference() { return true; }
 
 TypeS* TypeReference::get_tipo() { return referencia; }

@@ -63,6 +63,16 @@ public :
     ~TypeInt();
     static TypeInt* Instance();
     bool is_int() ; 
+    bool is_real ();
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+    bool is_void();
+    bool is_reference();   
     TypeS* get_tipo();
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_atributos();
@@ -259,17 +269,6 @@ class TypeArray:public TypeS{
 public :
     TypeArray(TypeS*,int, int*);
     ~TypeArray();
-    bool is_int() ; 
-    bool is_real ();
-    bool is_error() ;
-    bool is_bool() ;
-    bool is_char() ;
-    bool is_str() ;
-    bool is_func() ;
-    bool is_structure() ;
-    bool is_union() ;
-    bool is_void();
-    bool is_reference();
     TypeS* get_tipo();
     std::list<TypeS*> get_atributos();
     std::pair<int,int*> get_dimensiones();

@@ -113,7 +113,6 @@ Symbol* obtener_tipo(std::string t, GuavaDriver *d){
 }
 
 /* $4 -> vars ; $2 -> t*/
->>>>>>> f71685a9b4c442b4364e89f9ade8c9227fc5e860
 void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();

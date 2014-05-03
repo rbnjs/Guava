@@ -16,10 +16,7 @@
  * =====================================================================================
  */
 #include <list>
-// Consideraciones:
-// Falta is_array()
-// Falta TypeArray
-// Faltan funciones para ver que hay adentro del tipo
+
 class TypeS{
 public :
     virtual bool is_int() { return false; }; 
@@ -214,6 +211,7 @@ private :
 
 class TypeStructure :public TypeS{
 public :
+    TypeStructure();
     TypeStructure(std::list<TypeS*>);
     ~TypeStructure();
     bool is_int() ; 
@@ -236,6 +234,7 @@ private :
 
 class TypeUnion :public TypeS{
 public :
+    TypeUnion();
     TypeUnion(std::list<TypeS*>);
     ~TypeUnion();
     bool is_int() ; 

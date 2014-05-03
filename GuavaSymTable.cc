@@ -63,19 +63,39 @@ void GuavaSymTable::insert(std::string name, std::string catg, int sc,std::strin
    this->insert(*nuevo);
 }
 
-/* Inserta un arreglo */
+/**
+ * Inserta un arreglo. Esta funcion sera eliminada.
+ */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo,int line,int column, int* arreglo,int size){    
     Symbol* nuevo = new Symbol(name,catg,sc,tipo,line,column,arreglo,size);
     this->insert(*nuevo);
 }
+
+/**
+ * Agrega un arreglo a la tabla. Actualizada.
+ */
+void insert(std::string name,std::string catg,int,TypeS* t,int li,int co){
+    Symbol* nuevo = new Symbol(name,catg,t,li,co);
+    this->insert(*nuevo);
+}
+
 /* Inserta una estructura */
 void GuavaSymTable::insert(std::string name,std::string catg,int sc,std::string tipo,int line,int column, int fsc){    
     Symbol* nuevo = new Symbol(name,catg,sc,tipo,line,column,fsc);
     this->insert(*nuevo);
 }
-
+/**
+ * Inserta un tipo simple.
+ */
 void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
     Symbol* nuevo = new Symbol(name,catg,sc,type);
+    this->insert(*nuevo);
+}
+/**
+ * Inserta un record o union.
+ */
+void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type, int fsc){
+    Symbol* nuevo = new Symbol(name,catg,sc,type,fsc);
     this->insert(*nuevo);
 }
 

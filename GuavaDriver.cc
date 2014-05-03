@@ -28,7 +28,7 @@ GuavaDriver::GuavaDriver ()
     TypeS* character = TypeChar::Instance();
     TypeS* string = TypeString::Instance();
     TypeS* voidt = TypeVoid::Instance(); 
-
+    
     tablaSimbolos = *(new GuavaSymTable());
     tablaSimbolos.insert_type(std::string("integer"),std::string("type"),0,integer);
     tablaSimbolos.insert_type(std::string("real"),std::string("type"),0,real);

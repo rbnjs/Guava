@@ -31,6 +31,7 @@ TypeVoid* TypeVoid::void_instance = 0;
 //Faltaria definir para las uniones y records.
 
 /* class TypeReal  */
+TypeReal* TypeReal::instance = 0;
 
 TypeReal* TypeReal::Instance() {
     if(real_instance == 0)
@@ -123,6 +124,7 @@ std::list<TypeS*> TypeBool::get_atributos(){
 }
 
 /* class TypeChar */
+TypeChar* TypeChar::instance = 0;
 
 TypeChar* TypeChar::Instance() {
     if(char_instance == 0)
@@ -187,6 +189,8 @@ std::list<TypeS*> TypeFunction::get_atributos(){
 
 /* class TypeStructure */
 
+TypeStructure::TypeStructure(){}
+
 TypeStructure::TypeStructure(std::list<TypeS*> la): atributos(la){}
 
 bool TypeStructure::is_structure() { return true; }
@@ -203,6 +207,8 @@ std::list<TypeS*> TypeStructure::get_atributos(){
 }
 
 /* class TypeUnion */
+
+TypeUnion::TypeUnion(){}
 
 TypeUnion::TypeUnion(std::list<TypeS*> la):atributos(la){}
 

@@ -24,6 +24,8 @@
 GuavaSymTable::GuavaSymTable(){
     alcance = 0;
     this->pila.push_front(alcance);
+
+    std::cout << "\n\nEstuve aqui\n\n";
 }
 
 GuavaSymTable::~GuavaSymTable(){

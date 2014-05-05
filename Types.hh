@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include <list>
+#include <string>
+
 
 class TypeS{
 public :
@@ -31,6 +33,7 @@ public :
     virtual bool is_void() { return false; };
     virtual bool is_reference() { return false; };
     virtual TypeS* get_tipo()=0;
+    virtual std::string get_name() { return "defaulttype"; };
     virtual std::pair<int,int*> get_dimensiones()=0;
     virtual std::list<TypeS*> get_atributos()=0; 
 };
@@ -51,6 +54,7 @@ public :
     bool is_void();
     bool is_reference();
     TypeS* get_tipo();
+    std::string get_name();
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_atributos();
 private:
@@ -74,6 +78,7 @@ public :
     bool is_void();
     bool is_reference();   
     TypeS* get_tipo();
+    std::string get_name();
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_atributos();
 private:
@@ -98,6 +103,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeError(){};
@@ -121,6 +127,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeVoid(){};
@@ -144,6 +151,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeBool(){};
@@ -167,6 +175,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeChar(){};
@@ -190,6 +199,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeString(){};
@@ -213,6 +223,7 @@ public:
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private :
     TypeS* tipo;
@@ -237,6 +248,7 @@ public :
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private :
     std::list<TypeS*> atributos;
@@ -260,6 +272,7 @@ public :
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     std::list<TypeS*> atributos;
@@ -270,6 +283,7 @@ public :
     TypeArray(TypeS*,int, int*);
     ~TypeArray();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
     std::pair<int,int*> get_dimensiones();
 private:
@@ -295,6 +309,7 @@ public :
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
+    std::string get_name();
     std::list<TypeS*> get_atributos();
 private:
     TypeS* referencia;   

@@ -57,7 +57,8 @@ class GuavaDriver;
     Arreglo *classArreglo;
     LArreglo *classLArreglo;
     LCorchetes *classLCorchetes;
-    Tipo *classTipo;
+    TypeS *classTipo;
+    //Tipo *classTipo;
     BloqueDeclare *classBloqueDeclare;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
@@ -113,14 +114,14 @@ Symbol* obtener_tipo(std::string t, GuavaDriver *d){
 }
 
 /* $4 -> vars ; $2 -> t*/
-void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
+void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();
     int scope,line, column;
     Symbol *s;
 
-    Symbol *p=  obtener_tipo(t->tipo,d);
-    if (p == 0) d->error(loc,tipo_no_existe(t->tipo));
+    Symbol *p=  obtener_tipo(t->get_name(),d);
+    if (p == 0) d->error(loc,tipo_no_existe(t->get_name()));
 
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
@@ -135,12 +136,12 @@ void insertar_simboloSimple(LVar *vars, Tipo *t, std::string estilo, GuavaDriver
     }
 }
 
-void insertar_simboloSimple(Identificador* identificador, Tipo *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
+void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     int scope,line, column;
     Symbol *s;
 
-    Symbol *p=  d->tablaSimbolos.lookup(t->tipo);
-    if (p == 0) d->error(loc,tipo_no_existe(t->tipo));
+    Symbol *p=  d->tablaSimbolos.lookup(t->get_name());
+    if (p == 0) d->error(loc,tipo_no_existe(t->get_name()));
 
     line = loc.begin.line;
     column = loc.begin.column;
@@ -156,7 +157,7 @@ void insertar_simboloSimple(Identificador* identificador, Tipo *t, std::string e
  * Symbol *tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador)
  * driver.tablaSimbolos.insert(it.first.identificador,std::string("array"),scop,t->tipo,line,column,arreglo,size);
  */
-void insertar_simboloArreglo(LVarArreglo *vars, Tipo *t, GuavaDriver *d, const yy::location& loc) {
+void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
     std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
     std::list<Integer>::iterator itInt;
@@ -181,7 +182,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, Tipo *t, GuavaDriver *d, const y
             scope = d->tablaSimbolos.currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,t->tipo,line,column,arreglo,size);
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,t->get_name(),line,column,arreglo,size);
         }
     }
 }
@@ -220,7 +221,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, Tipo *t, GuavaDriver *d, const y
 %left ','
 /* Clases correspondientes. */
 %type <classValor> valor
-%type <classExp> exp
+%type <classExp> exp expID
 %type <int> expBool         /* Tipo */
 %type <int> expAritmetica /* Falta el tipo para esto. */
 %type <classLlamadaFuncion> llamadafuncion 
@@ -277,21 +278,21 @@ bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1);
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
 
-lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new LVariables($2->tipoS,$3);
+lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new LVariables($2,$3);
                                                           $1->listaVar = tmp;
                                                           $$ = $1;
                                                           insertar_simboloSimple($3,$2,std::string("var"),&driver,yylloc); 
                                                         }
           | tipo lvar ';'                               { 
-                                                          $$ = new LVariables($1->tipoS,$2);
+                                                          $$ = new LVariables($1,$2);
                                                           insertar_simboloSimple($2,$1,std::string("var"),&driver,yylloc); 
                                                         } 
           | tipo ARRAY lvararreglo ';'                  { 
-                                                          $$ = new LVariables($1->tipoS,$3);
+                                                          $$ = new LVariables($1,$3);
                                                           insertar_simboloArreglo($3,$1,&driver,yylloc); 
                                                         } 
           | lvariables tipo ARRAY lvararreglo ';'       { 
-                                                          LVariables *tmp = new LVariables($2->tipoS, $4);
+                                                          LVariables *tmp = new LVariables($2, $4);
                                                           $1->listaVar = tmp;
                                                           $$ = $1;
                                                           insertar_simboloArreglo($4,$2,&driver,yylloc); 
@@ -299,20 +300,20 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
           | identificador UNION lvar ';'                { 
                                                           Tipo t = Tipo($1->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
+                                                          //insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
           | lvariables identificador UNION lvar ';'     { 
                                                           Tipo t = Tipo($2->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); 
+                                                          //insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
           | identificador RECORD lvar ';'               { Tipo t = Tipo($1->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
+                                                          //insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
           | lvariables identificador RECORD lvar ';'    { Tipo t = Tipo($2->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
+                                                          //insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
           | lvariables  union ';'                       {
                                                           LVariables * tmp = new LVariables($2);
@@ -464,7 +465,7 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                            int line = yylloc.begin.line;
                                            int column = yylloc.begin.column;
                                            driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->tipo,line,column,current_scope);
+                                                                    ,$2->get_name(),line,column,current_scope);
                                            identacion += "  ";
                                          } lparam ')' '{' 
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
@@ -504,7 +505,7 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                                           int line = yylloc.begin.line;
                                                           int column = yylloc.begin.column;
                                                           driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->tipo,line,column,current_scope);
+                                                                    ,$2->get_name(),line,column,current_scope);
                                                           identacion += "  ";
                                                         }
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
@@ -904,13 +905,20 @@ exp: expAritmetica       {
    | llamadafuncion {};
       
 
-expID: identificador    { if (driver.tablaSimbolos.lookup($1->identificador) == 0){
-                            std::string msg ("Undeclared identifier '");
-                            msg += $1->identificador;
-                            msg += "'";
-                            driver.error(yylloc,msg);
-                            error_state = 1;
-                        }
+expID: identificador   {    Symbol* id;
+                            TypeS* tipo;
+                            if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0) {
+                                std::string msg ("Undeclared identifier '");
+                                msg += $1->identificador;
+                                msg += "'";
+                                driver.error(yylloc,msg);
+                                error_state = 1;
+                            }
+                            else {
+                                $$ = new Exp();
+                                tipo = id->type_pointer->true_type;
+                                $$->tipo = tipo;
+                            }
                        }
      | identificador lcorchetesExp     { Symbol * id;
                                         if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
@@ -1016,38 +1024,50 @@ expAritmetica: '-' exp %prec UMINUS  {
 /*Funciona*/
 valor: BOOL     { 
                   $$ = new Bool($1);
+                  $$->tipo = TypeBool::Instance();
                 }
      | STRING   { 
                   $$ = new String($1);
+                  $$->tipo = TypeString::Instance();
                 }
      | CHAR     { 
                   $$ = new Char($1);
+                  $$->tipo = TypeChar::Instance();
                 }
      | INTEGER  { 
                   $$ = new Integer($1);
+                  $$->tipo = TypeInt::Instance();
                 }
      | REAL     { 
                   $$ = new Real($1);
+                  $$->tipo = TypeReal::Instance();
                 }
      | arreglo  {
                   $$ = $1;
                 }
 
 /*Funciona*/
+
+/* PRUEBA CON LA NUEVA FORMA DE USAR TIPOS*/
 tipo: TYPE_REAL     { 
-                      $$ = new Tipo(*(new std::string("real")), TypeReal::Instance() );
+                      $$ = TypeReal::Instance();
+                      //$$ = new Tipo(*(new std::string("real")), TypeReal::Instance() );
                     }
      | TYPE_INTEGER { 
-                      $$ = new Tipo(*(new std::string("integer")), TypeInt::Instance() );
+                      $$ = TypeInt::Instance();
+                      //$$ = new Tipo(*(new std::string("integer")), TypeInt::Instance() );
                     }
      | TYPE_BOOLEAN { 
-                      $$ = new Tipo(*(new std::string("boolean")), TypeBool::Instance() );
+                      $$ = TypeBool::Instance();
+                      //$$ = new Tipo(*(new std::string("boolean")), TypeBool::Instance() );
                     }
      | TYPE_CHAR    { 
-                      $$ = new Tipo(*(new std::string("character")), TypeChar::Instance() );
+                      $$ = TypeChar::Instance();
+                      //$$ = new Tipo(*(new std::string("character")), TypeChar::Instance() );
                     }
      | TYPE_STRING  { 
-                      $$ = new Tipo(*(new std::string("string")), TypeString::Instance() );
+                      $$ = TypeString::Instance();
+                      //$$ = new Tipo(*(new std::string("string")), TypeString::Instance() );
                     };
 
 

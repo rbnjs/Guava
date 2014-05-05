@@ -40,6 +40,7 @@
  */
 class Exp{
 public:
+    TypeS* tipo;
     Exp* exp;
     
     Exp();
@@ -92,6 +93,7 @@ public:
     
     virtual void show(std::string);
 };
+
 /**
  * Define la estructuracion de los arreglos de datos en el lenguaje.
  */
@@ -118,8 +120,13 @@ typedef union {
 /**
  * Describe valores constantes del lenguaje.
  */
+
+/*Si valor tendra de componente Tipo, no basta con tener un solo constructor
+ *que enlace el token con el tipo determinado?
+ */
 class Valor{
 public:
+    TypeS* tipo;
     ValorU valor;
 
     Valor();
@@ -248,6 +255,7 @@ public:
  */
 class Instruccion{
 public:
+    TypeS* tipo;
     Instruccion* instruccion;
     
     Instruccion();
@@ -263,6 +271,7 @@ public:
  */
 class ListaInstrucciones{
 public:
+    TypeS* tipo;
     Instruccion* instruccion;
     ListaInstrucciones* listainstrucciones;
     
@@ -527,6 +536,7 @@ public:
  */
 class LVaroValor{
 public:
+    TypeS* tipo;
     std::list<Exp> lvarovalor;
     LVaroValor();
     void append(Exp e);
@@ -569,6 +579,7 @@ public:
  */
 class LParam{
 public:
+    TypeS* tipo;
     std::list<std::pair<Tipo, Identificador> > lParam;
 
     LParam();
@@ -584,6 +595,8 @@ public:
  */
 class Funcion{
 public:
+    TypeS* tipoS;
+    //Revisar si luego de agregar ^ el parametro de abajo no hace falta.
     Tipo tipo;
     Identificador identificador;
     LParam parametros; 

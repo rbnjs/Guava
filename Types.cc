@@ -10,7 +10,7 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Ruben Serradas 
+ *         Author: Ruben Serradas, Michael Woo
  *   Organization: USB 
  *
  * =====================================================================================
@@ -53,6 +53,8 @@ bool TypeReal::is_reference() { return false; }
 
 TypeS* TypeReal::get_tipo() { return 0; }
 
+std::string TypeReal::get_name() { return std::string("real"); }
+
 std::pair<int,int*> TypeReal::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -85,6 +87,8 @@ bool TypeInt::is_void()      { return false; }
 bool TypeInt::is_reference() { return false; }
 
 TypeS* TypeInt::get_tipo() { return 0; }
+
+std::string TypeInt::get_name() { return std::string("integer"); }
 
 std::pair<int,int*> TypeInt::get_dimensiones(){
     std::pair<int,int*> p; 
@@ -119,6 +123,8 @@ bool TypeError::is_reference() { return false; }
 
 TypeS* TypeError::get_tipo() { return 0; }
 
+std::string TypeError::get_name() { return std::string("error"); }
+
 std::pair<int,int*> TypeError::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -152,6 +158,8 @@ bool TypeBool::is_reference() { return false; }
 
 TypeS* TypeBool::get_tipo() { return 0; }
 
+std::string TypeBool::get_name() { return std::string("boolean"); }
+
 std::pair<int,int*> TypeBool::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -183,6 +191,8 @@ bool TypeChar::is_void()      { return false; }
 bool TypeChar::is_reference() { return false; }
 
 TypeS* TypeChar::get_tipo() { return 0; }
+
+std::string TypeChar::get_name() { return std::string("character"); }
 
 std::pair<int,int*> TypeChar::get_dimensiones(){
     std::pair<int,int*> p; 
@@ -217,6 +227,8 @@ bool TypeString::is_reference() { return false; }
 
 TypeS* TypeString::get_tipo() { return 0; }
 
+std::string TypeString::get_name() { return std::string("String"); }
+
 std::pair<int,int*> TypeString::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -244,6 +256,8 @@ bool TypeFunction::is_void()      { return false; }
 bool TypeFunction::is_reference() { return false; }
 
 TypeS* TypeFunction::get_tipo() { return tipo; }
+
+std::string TypeFunction::get_name() { return std::string("function"); }
 
 std::pair<int,int*> TypeFunction::get_dimensiones(){
     std::pair<int,int*> p; 
@@ -274,6 +288,8 @@ bool TypeStructure::is_reference() { return false; }
 
 TypeS* TypeStructure::get_tipo() { return 0; }
 
+std::string TypeStructure::get_name() { return std::string(""); }
+
 std::pair<int,int*> TypeStructure::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -302,6 +318,8 @@ bool TypeUnion::is_void()      { return false; }
 bool TypeUnion::is_reference() { return false; }
 
 TypeS* TypeUnion::get_tipo() { return 0; }
+
+std::string TypeUnion::get_name() { return std::string(""); }
 
 std::pair<int,int*> TypeUnion::get_dimensiones(){
     std::pair<int,int*> p; 
@@ -336,6 +354,8 @@ bool TypeVoid::is_reference() { return false; }
 
 TypeS* TypeVoid::get_tipo() { return 0; }
 
+std::string TypeVoid::get_name() { return std::string("void"); }
+
 std::pair<int,int*> TypeVoid::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
@@ -352,6 +372,8 @@ TypeArray::TypeArray(TypeS* t, int s, int* d ): tipo(t), size(s), dimensiones(d)
 
 TypeS* TypeArray::get_tipo() { return tipo; }
 
+std::string TypeArray::get_name() { return std::string(""); }
+
 std::pair<int,int*> TypeArray::get_dimensiones(){
     std::pair<int,int*> p; 
     p.first = size;
@@ -363,6 +385,7 @@ std::list<TypeS*> TypeArray::get_atributos(){
     std::list<TypeS*> r;
     return r;
 }
+
 /* class Reference */
 
 TypeReference::TypeReference(TypeS* t): referencia(t){}
@@ -380,6 +403,8 @@ bool TypeReference::is_void()      { return false; }
 bool TypeReference::is_reference() { return true; }
 
 TypeS* TypeReference::get_tipo() { return referencia; }
+
+std::string TypeReference::get_name() { return std::string(""); }
 
 std::pair<int,int*> TypeReference::get_dimensiones(){
     std::pair<int,int*> p; 

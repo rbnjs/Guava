@@ -9,6 +9,12 @@
 # include <sstream>
 # include <list>
 # include <utility>
+
+
+# include <typeinfo>
+
+
+
 # include "GuavaTree.hh"
 class GuavaDriver;
 }
@@ -915,7 +921,7 @@ expID: identificador   {    Symbol* id;
                                 error_state = 1;
                             }
                             else {
-                                $$ = new Exp();
+                                $$ = new Identificador($1->identificador);
                                 tipo = id->type_pointer->true_type;
                                 $$->tipo = tipo;
                             }
@@ -960,11 +966,22 @@ expID: identificador   {    Symbol* id;
 
 
 /*Faltan pruebas*/
-expBool: exp AND exp          { 
+expBool: exp AND exp         { if ($1->tipo == TypeBool::Instance() &&
+                                   $3->tipo == TypeBool::Instance())
+                               {
+                               }
+                               else {
+                               }
                              }
-      | exp OR exp           { 
+      | exp OR exp           { if ($1->tipo == TypeBool::Instance() &&
+                                   $3->tipo == TypeBool::Instance())
+                               {
+                               }
+                               else {
+                               }
                              }
-      | exp COMPARISON exp   { int cmpv = $2;
+      | exp COMPARISON exp   { //FALTA TRABAJAR ESTA REGLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                               int cmpv = $2;
                                //ExpBin *eb;
                                switch(cmpv){
                                     case 1:
@@ -993,32 +1010,92 @@ expBool: exp AND exp          {
                                         break;
                                }
                              }
-      | NOT exp               { 
+      | NOT exp              { if ($2->tipo == TypeBool::Instance())
+                               {
+                               }
+                               else {
+                               }
                              };
       
 
 
-expAritmetica: '-' exp %prec UMINUS  {  
+expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
+                                           $2->tipo == TypeReal::Instance())
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp PLUSPLUS          {  
+             | exp PLUSPLUS          { if ($1->tipo == TypeInt::Instance())
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp MINUSMINUS        { 
+             | exp MINUSMINUS        { if ($1->tipo == TypeInt::Instance())
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp UFO exp           { 
+             | exp UFO exp           { if ($1->tipo == $3->tipo &&
+                                           ($1->tipo == TypeInt::Instance() ||
+                                            $1->tipo == TypeReal::Instance()))
+                                       {
+                                        // El tipo de esta expresion es integer, recordar que UFO devuelve -1,0,1.
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp '+' exp           { 
+             | exp '+' exp           { if ($1->tipo == $3->tipo && 
+                                           ($1->tipo == TypeInt::Instance() ||
+                                            $1->tipo == TypeReal::Instance()))
+                                       {
+                                       }
+                                       else {
+                                        //AKI VA LA ASIGNACION A TIPO_ERROR LALALALALALALALA
+                                       }
                                      }
-             | exp '-' exp           { 
+             | exp '-' exp           { if ($1->tipo == $3->tipo &&
+                                           ($1->tipo == TypeInt::Instance() ||
+                                            $1->tipo == TypeReal::Instance()))
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp '*' exp           { 
+             | exp '*' exp           { if ($1->tipo == $3->tipo &&
+                                           ($1->tipo == TypeInt::Instance() ||
+                                            $1->tipo == TypeReal::Instance()))
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp '/' exp           { 
+             | exp '/' exp           { if ($1->tipo == $3->tipo &&
+                                           ($1->tipo == TypeInt::Instance() ||
+                                            $1->tipo == TypeReal::Instance()))
+                                       {
+                                        //El tipo de esta expresion debe de ser real, recordar que es division REAL
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp DIV exp           { 
+             | exp DIV exp           { if ($1->tipo == $3->tipo &&
+                                           $1->tipo == TypeInt::Instance())
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp MOD exp           { 
+             | exp MOD exp           { if ($1->tipo == $3->tipo &&
+                                           $1->tipo == TypeInt::Instance())
+                                       {
+                                       }
+                                       else {
+                                       }
                                      }
-             | exp POW exp           { 
+             | exp POW exp           { //OJO: Se puede aplicar exponenciacion a numeros reales?
                                      };
 
 /*Funciona*/

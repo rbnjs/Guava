@@ -227,9 +227,9 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
 %left ','
 /* Clases correspondientes. */
 %type <classValor> valor
-%type <classExp> exp expID
-%type <int> expBool         /* Tipo */
-%type <int> expAritmetica /* Falta el tipo para esto. */
+%type <classExp> exp expID /*ESTO ES NUEVO, VER QUE COMENTE ABAJO*/ expBool expAritmetica
+//%type <int> expBool         /* Tipo */
+//%type <int> expAritmetica /* Falta el tipo para esto. */
 %type <classLlamadaFuncion> llamadafuncion 
 %type <classSelectorIf> selectorif selectorifLoop 
 %type <classLoopWhile> loopwhile 
@@ -898,17 +898,13 @@ lvarovalor2: lvarovalor2 ',' exp     {
                                        $$ = tmp;
                                      };
 
-exp: expAritmetica       {  
-                         }
-   | expBool             {  
-                         } 
-   | valor        {  
-                  }
-   | expID        {} 
-   | '(' exp ')'  { 
-                  }
-   | '(' error ')'  {}
-   | llamadafuncion {};
+exp: expAritmetica  { $$ = $1; }
+   | expBool        { $$ = $1; } 
+   | valor          { $$ = $1; }
+   | expID          { $$ = $1; } 
+   | '(' exp ')'    { $$ = $2; }
+   | llamadafuncion { $$ = $1; }
+   | '(' error ')'  {};
       
 
 expID: identificador   {    Symbol* id;
@@ -935,14 +931,14 @@ expID: identificador   {    Symbol* id;
                                             error_state = 1;
                                         }
                                       }
-      | identificador { Symbol * id;
-                     if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
-                        std::string msg ("Undeclared identifier '");
-                        msg += $1->identificador;
-                        msg += "'";
-                        driver.error(yylloc,msg);
-                        error_state = 1;
-                      } else {
+     | identificador { Symbol * id;
+                       if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
+                         std::string msg ("Undeclared identifier '");
+                         msg += $1->identificador;
+                         msg += "'";
+                         driver.error(yylloc,msg);
+                         error_state = 1;
+                       } else {
                             if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
                             std::string msg2 ("The ");
                             msg2 += id->sym_catg;
@@ -963,55 +959,61 @@ expID: identificador   {    Symbol* id;
                                        };
 
  
-
-
 /*Faltan pruebas*/
 expBool: exp AND exp         { if ($1->tipo == TypeBool::Instance() &&
                                    $3->tipo == TypeBool::Instance())
-                               {
+                               { $$ = new ExpBin($1,$3,std::string("AND"));
+                                 $$->tipo = $1->tipo;
                                }
                                else {
                                }
                              }
-      | exp OR exp           { if ($1->tipo == TypeBool::Instance() &&
+       | exp OR exp          { if ($1->tipo == TypeBool::Instance() &&
                                    $3->tipo == TypeBool::Instance())
-                               {
+                               { $$ = new ExpBin($1,$3,std::string("OR"));
+                                 $$->tipo = $1->tipo;
                                }
                                else {
                                }
                              }
-      | exp COMPARISON exp   { //FALTA TRABAJAR ESTA REGLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                               int cmpv = $2;
-                               //ExpBin *eb;
-                               switch(cmpv){
-                                    case 1:
-                                        //eb = new ExpBin(*$1,*$3,std::string(">"));
-                                        //$$ = eb;
-                                        break;
-                                    case 2:
-                                        //eb = new ExpBin(*$1,*$3,std::string("<"));
-                                        //$$ = eb;
-                                        break;
-                                    case 3:
-                                        //eb = new ExpBin(*$1,*$3,std::string("<="));
-                                        //$$ = eb;
-                                        break;
-                                    case 4:
-                                        //eb = new ExpBin(*$1,*$3,std::string(">="));
-                                        //$$ = eb;
-                                        break;
-                                    case 5:
-                                        //eb = new ExpBin(*$1,*$3,std::string("="));
-                                        //$$ = eb;
-                                        break;
-                                    case 6:
-                                        //eb = new ExpBin(*$1,*$3,std::string("!="));
-                                        //$$ = eb;
-                                        break;
+       | exp COMPARISON exp  { if ($1->tipo == $3->tipo &&
+                                   ($1->tipo == TypeInt::Instance() ||
+                                    $1->tipo == TypeReal::Instance())) {
+                                 int cmpv = $2;
+                                 switch(cmpv){
+                                      case 1:
+                                          $$ = new ExpBin(*$1,*$3,std::string(">"));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                      case 2:
+                                          $$ = new ExpBin(*$1,*$3,std::string("<"));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                      case 3:
+                                          $$ = new ExpBin(*$1,*$3,std::string("<="));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                      case 4:
+                                          $$ = new ExpBin(*$1,*$3,std::string(">="));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                      case 5:
+                                          $$ = new ExpBin(*$1,*$3,std::string("="));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                      case 6:
+                                          $$ = new ExpBin(*$1,*$3,std::string("!="));
+                                          $$->tipo = TypeBool::Instance();
+                                          break;
+                                 }
+                               }
+                               else {
                                }
                              }
-      | NOT exp              { if ($2->tipo == TypeBool::Instance())
-                               {
+       | NOT exp             { if ($2->tipo == TypeBool::Instance())
+                               { std::string * op = new std::string("NOT");
+                                 $$ = new ExpUn(*$2,op);
+                                 $$->tipo = $2->tipo;
                                }
                                else {
                                }
@@ -1021,19 +1023,25 @@ expBool: exp AND exp         { if ($1->tipo == TypeBool::Instance() &&
 
 expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                            $2->tipo == TypeReal::Instance())
-                                       {
+                                       { std::string * op = new std::string("-");
+                                         $$ = new ExpUn(*$2,op);
+                                         $$->tipo = $2->tipo;
                                        }
                                        else {
                                        }
                                      }
              | exp PLUSPLUS          { if ($1->tipo == TypeInt::Instance())
-                                       {
+                                       { std::string * op = new std::string("++");
+                                         $$ = new ExpUn(*$1,op);
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }
                                      }
              | exp MINUSMINUS        { if ($1->tipo == TypeInt::Instance())
-                                       {
+                                       { std::string * op = new std::string("--");
+                                         $$ = new ExpUn(*$1,op);
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }
@@ -1041,7 +1049,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
              | exp UFO exp           { if ($1->tipo == $3->tipo &&
                                            ($1->tipo == TypeInt::Instance() ||
                                             $1->tipo == TypeReal::Instance()))
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("<=>"));
+                                         $$->tipo = TypeInt::Instance();
                                         // El tipo de esta expresion es integer, recordar que UFO devuelve -1,0,1.
                                        }
                                        else {
@@ -1050,7 +1059,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
              | exp '+' exp           { if ($1->tipo == $3->tipo && 
                                            ($1->tipo == TypeInt::Instance() ||
                                             $1->tipo == TypeReal::Instance()))
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("+"));
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                         //AKI VA LA ASIGNACION A TIPO_ERROR LALALALALALALALA
@@ -1059,7 +1069,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
              | exp '-' exp           { if ($1->tipo == $3->tipo &&
                                            ($1->tipo == TypeInt::Instance() ||
                                             $1->tipo == TypeReal::Instance()))
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("-"));
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }
@@ -1067,7 +1078,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
              | exp '*' exp           { if ($1->tipo == $3->tipo &&
                                            ($1->tipo == TypeInt::Instance() ||
                                             $1->tipo == TypeReal::Instance()))
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("*"));
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }
@@ -1075,7 +1087,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
              | exp '/' exp           { if ($1->tipo == $3->tipo &&
                                            ($1->tipo == TypeInt::Instance() ||
                                             $1->tipo == TypeReal::Instance()))
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("/"));
+                                         $$->tipo = $1->tipo;
                                         //El tipo de esta expresion debe de ser real, recordar que es division REAL
                                        }
                                        else {
@@ -1083,14 +1096,16 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                      }
              | exp DIV exp           { if ($1->tipo == $3->tipo &&
                                            $1->tipo == TypeInt::Instance())
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("DIV"));
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }
                                      }
              | exp MOD exp           { if ($1->tipo == $3->tipo &&
                                            $1->tipo == TypeInt::Instance())
-                                       {
+                                       { $$ = new ExpBin(*$1,*$3,std::string("MOD"));
+                                         $$->tipo = $1->tipo;
                                        }
                                        else {
                                        }

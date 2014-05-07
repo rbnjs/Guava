@@ -124,7 +124,7 @@ typedef union {
 /*Si valor tendra de componente Tipo, no basta con tener un solo constructor
  *que enlace el token con el tipo determinado?
  */
-class Valor{
+class Valor:public Exp{
 public:
     TypeS* tipo;
     ValorU valor;
@@ -227,7 +227,7 @@ class ExpUn:public Exp{
 public:
     Exp exp;
     LCorchetes* corchetes;
-    std::string* operacion;
+    std::string *operacion;
     
     ExpUn(Exp, std::string*);
     ExpUn(Exp, LCorchetes*);    

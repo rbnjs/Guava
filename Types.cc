@@ -390,6 +390,8 @@ std::list<TypeS*> TypeArray::get_atributos(){
 
 TypeReference::TypeReference(TypeS* t): referencia(t){}
 
+TypeReference::~TypeReference(){}
+
 bool TypeReference::is_real()      { return false; }
 bool TypeReference::is_int()       { return false; }
 bool TypeReference::is_error()     { return false; }

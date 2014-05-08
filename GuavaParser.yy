@@ -127,7 +127,10 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
     Symbol *s;
 
     Symbol *p=  obtener_tipo(t->get_name(),d);
-    if (p == 0) d->error(loc,tipo_no_existe(t->get_name()));
+    if (p == 0) {
+        d->error(loc,tipo_no_existe(t->get_name()));
+        return;
+    }
 
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
@@ -172,6 +175,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
     int *arreglo;
     Symbol *s;
 
+
     for(it; it != l.end(); ++it) {
         par = *it;
         s = d->tablaSimbolos.simple_lookup(par.first.identificador);
@@ -185,14 +189,42 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
                 arreglo[i] = itInt->getValor();
                 ++itInt;
             }
+            TypeArray* arr = new TypeArray(t,size,arreglo); // Tipo de arreglo con la información concerniente.
+            TypeReference* reference = new TypeReference(arr);  // La variable a guardar es una referencia al tipo arreglo.
             scope = d->tablaSimbolos.currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,t->get_name(),line,column,arreglo,size);
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,reference,line,column);
         }
     }
 }
+// No he terminado.
+void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estilo,GuavaDriver *d, const yy::location& loc){
+    std::list<Identificador> l = vars->get_list();
+    std::list<Identificador>::iterator it = l.begin();
+    int scope,line, column;
+    Symbol *s;
 
+    Symbol *p=  obtener_tipo(*tipo,d);
+    if (p == 0) { 
+        d->error(loc,tipo_no_existe(*tipo));
+        return;
+    }
+    TypeReference reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
+
+    for(it; it!=l.end(); ++it) {
+        s = d->tablaSimbolos.simple_lookup(it->identificador);
+        if(s != 0)
+            d->error(loc,reportar_existencia(s,it->identificador));
+        else {
+            scope = d->tablaSimbolos.currentScope();
+            line = it->line;
+            column = it->column;
+            //d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column);
+        }
+    }
+
+}
 
 }
 
@@ -304,20 +336,18 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           insertar_simboloArreglo($4,$2,&driver,yylloc); 
                                                         }
           | identificador UNION lvar ';'                { 
-                                                          Tipo t = Tipo($1->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           //insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
           | lvariables identificador UNION lvar ';'     { 
-                                                          Tipo t = Tipo($2->identificador);
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           //insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); 
                                                         }
-          | identificador RECORD lvar ';'               { Tipo t = Tipo($1->identificador);
+          | identificador RECORD lvar                   {
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           //insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }
-          | lvariables identificador RECORD lvar ';'    { Tipo t = Tipo($2->identificador);
+          | lvariables identificador RECORD lvar ';'    { 
                                                           // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
                                                           //insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
                                                         }

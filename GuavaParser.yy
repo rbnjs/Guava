@@ -227,10 +227,10 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
 %left ','
 /* Clases correspondientes. */
 %type <classValor> valor
-%type <classExp> exp expID /*ESTO ES NUEVO, VER QUE COMENTE ABAJO*/ expBool expAritmetica
+%type <classExp> exp expID /*ESTO ES NUEVO, VER QUE COMENTE ABAJO*/ expBool expAritmetica llamadafuncion
 //%type <int> expBool         /* Tipo */
 //%type <int> expAritmetica /* Falta el tipo para esto. */
-%type <classLlamadaFuncion> llamadafuncion 
+//%type <classLlamadaFuncion> llamadafuncion 
 %type <classSelectorIf> selectorif selectorifLoop 
 %type <classLoopWhile> loopwhile 
 %type <classLoopFor> loopfor 
@@ -903,7 +903,7 @@ exp: expAritmetica  { $$ = $1; }
    | valor          { $$ = $1; }
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
-   | llamadafuncion { $$ = $1; }
+   | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
    | '(' error ')'  {};
       
 

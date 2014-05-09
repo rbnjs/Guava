@@ -198,7 +198,9 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         }
     }
 }
-// No he terminado.
+/**
+ * Inserta una lista de variables de tipo estructura a la tabla
+ */
 void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estilo,GuavaDriver *d, const yy::location& loc){
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();
@@ -210,7 +212,7 @@ void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estil
         d->error(loc,tipo_no_existe(*tipo));
         return;
     }
-    TypeReference reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
+    TypeReference *reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
 
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
@@ -220,7 +222,7 @@ void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estil
             scope = d->tablaSimbolos.currentScope();
             line = it->line;
             column = it->column;
-            //d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column);
+            d->tablaSimbolos.insert(it->identificador,*estilo,scope,reference,line,column);
         }
     }
 

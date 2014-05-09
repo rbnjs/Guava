@@ -52,28 +52,13 @@ Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* p,int linea
 }
 
 /**
- * Constructor para arreglo 
- */
-Symbol::Symbol(std::string name, std::string catg, int scop, std::string s,int linea, int columna, int* array,int tam){
-    this->sym_name = name;
-    this->sym_catg = catg;
-    this->scope = scop;
-    this->type = s;
-    size = tam;
-    arreglo = array;
-    true_type = 0;
-    fieldScope = 0;   
-    line = linea;
-    column = columna;
-}
-/**
- * Constructor para arreglo actualizado.
+ * Constructor para simbolo de variable arreglo o estructura.
  */
 Symbol::Symbol(std::string name, std::string catg,
        int scop, TypeS* type,int linea,int columna): sym_name(name),sym_catg(catg),scope(scop),true_type(type),line(linea),column(columna){} 
 
 /**
- * Constructor para estructuras.
+ * Eliminar: Constructor para estructuras.
  */
 Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int linea, int columna,int fsc){
     this->sym_name = name;
@@ -87,7 +72,6 @@ Symbol::Symbol(std::string name,std::string catg ,int scop,std::string s,int lin
     column = columna;
     line =  linea;
 }
-
 
 /**
  * Constructor para types

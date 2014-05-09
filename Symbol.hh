@@ -76,10 +76,6 @@ public:
      */
     Symbol(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna); // Variable que hace referencia a un tipo
 
-    /**
-     * Constructor para arreglos. Desactualizado, sera eliminado. 
-     */
-    Symbol(std::string, std::string, int, std::string,int,int, int*,int); 
     
     /**
      * Constructor para arreglos.
@@ -87,9 +83,14 @@ public:
     Symbol(std::string, std::string, int, TypeS*,int,int); 
    
     /**
-     * Constructor para estructuras.
+     * Constructor para estructuras. Desactualizado, eliminar.
      */
     Symbol(std::string,std::string,int,std::string,int,int,int);
+    
+    /**
+     * Constructor para estructuras. 
+     */
+    Symbol(std::string,std::string,int,TypeS*,int,int,int);
 
     /**
      * Constructor para tipos primitivos basicos.

@@ -250,12 +250,12 @@ public :
     TypeS* get_tipo();
     std::string get_name();
     std::list<TypeS*> get_atributos();
-private :
     std::list<TypeS*> atributos;
 };
 
 class TypeUnion :public TypeS{
 public :
+    std::list<TypeS*> atributos;
     TypeUnion();
     TypeUnion(std::list<TypeS*>);
     ~TypeUnion();
@@ -274,8 +274,6 @@ public :
     TypeS* get_tipo();
     std::string get_name();
     std::list<TypeS*> get_atributos();
-private:
-    std::list<TypeS*> atributos;
 };
 
 class TypeArray:public TypeS{

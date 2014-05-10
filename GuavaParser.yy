@@ -489,7 +489,10 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                  driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure,fsc); 
                                  identacion += "  ";
                                }
-                              lvariables '}' {  
+                              lvariables '}' {  Symbol *tmp0 = obtener_tipo($2->identificador,&driver);
+                                                TypeUnion* type = (TypeUnion*) tmp0->true_type;
+                                                std::list<TypeS*> type_list = $5->get_type_list();
+                                                type->atributos = type_list;
                                                 if (!error_state) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << $2->identificador << " {\n";
@@ -506,7 +509,11 @@ record: RECORD identificador '{'{
                                  driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure,fsc); 
                                  identacion += "  ";
                                 } 
-                                lvariables '}' { if (!error_state) {
+                                lvariables '}' { Symbol *tmp0 = obtener_tipo($2->identificador,&driver);
+                                                 TypeStructure* type = (TypeStructure*) tmp0->true_type;
+                                                 std::list<TypeS*> type_list = $5->get_type_list();
+                                                 type->atributos = type_list;
+                                                 if (!error_state) {
                                                    std::cout << identacion << "Union " << $2->identificador << " {\n";
                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
                                                    std::cout << identacion <<"}\n";
@@ -699,11 +706,11 @@ lparam2: tipo identificador               { $$ = new LParam();
         | lparam2 ',' tipo REFERENCE error  {};
 
 
-listainstrucciones: /* Vacio */                        { //*$$ = ListaInstrucciones(); 
+listainstrucciones: /* Vacio */                        { //$$ = ListaInstrucciones(); 
                                                        }
-                  |listainstrucciones instruccion ';'  { //*$$ = ListaInstrucciones($1,$3); 
+                  |listainstrucciones instruccion ';'  { //$$ = ListaInstrucciones($1,$3); 
                                                        }
-                  | listainstrucciones instruccion1    { //*$$ = ListaInstrucciones($1,$2); 
+                  | listainstrucciones instruccion1    { //$$ = ListaInstrucciones($1,$2); 
                                                        };
 
 instruccion: asignacion     { 

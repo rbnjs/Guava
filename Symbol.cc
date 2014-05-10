@@ -111,6 +111,7 @@ void Symbol::show(std::string identacion){
         std::cout << line;
         std::cout << " Column: ";
         std::cout << column;
+        std::cout << '\n';
     } else{
         std::cout << identacion << "Name: " + sym_name;
         std::cout << " Category: " +sym_catg;

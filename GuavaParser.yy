@@ -1096,7 +1096,6 @@ expID: identificador   {    Symbol* id;
                                 driver.error(yylloc,msg2);
                                 error_state = 1;
                             } else {
-                                // DEBE HACERSE DE OTRA MANERA CON EL CAMBIO DE TIPOS
                                 //Symbol* structure;
                                 //structure = driver.tablaSimbolos.lookup(id->type);
                                 //attribute_scope = structure->fieldScope;

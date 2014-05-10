@@ -350,9 +350,10 @@ LVariables::LVariables(Estructura* e): estructura(e) {
 std::list<TypeS*> LVariables::get_type_list(){
    LVariables *tmp = this;
    std::list<TypeS*> result;
-   do{
+   while (tmp != 0){
        result.push_back(tipo); 
-   }while (tmp->listaVar != 0);
+       tmp = tmp->listaVar;
+    }
    return result;
 }
 

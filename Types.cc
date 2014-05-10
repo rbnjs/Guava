@@ -227,7 +227,7 @@ bool TypeString::is_reference() { return false; }
 
 TypeS* TypeString::get_tipo() { return 0; }
 
-std::string TypeString::get_name() { return std::string("String"); }
+std::string TypeString::get_name() { return std::string("string"); }
 
 std::pair<int,int*> TypeString::get_dimensiones(){
     std::pair<int,int*> p; 

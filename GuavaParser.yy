@@ -99,11 +99,25 @@ std::string reportar_existencia(Symbol *s, std::string id) {
     error_state = 1;
     return msg;
 }
-
+/**
+ * Retorna un mensaje de que
+ * el tipo id no existe.
+ */
 std::string tipo_no_existe(std::string id){
     std::string msg("Type '");
     msg += id;
     msg += "' wasn't declared or doesn't exists in current context";
+    error_state = 1;
+    return msg;
+}
+/**
+ * Retorna un mensaje de que el id
+ * no es un tipo en verdad.
+ */
+std::string no_es_tipo(std::string id){
+    std::string msg("Identifier '");
+    msg += id;
+    msg += "' is not a type.";
     error_state = 1;
     return msg;
 }
@@ -119,7 +133,10 @@ Symbol* obtener_tipo(std::string t, GuavaDriver *d){
     return s;
 }
 
-/* $4 -> vars ; $2 -> t*/
+/**
+ * Inserta un simbolo simple.
+ * $4 -> vars ; $2 -> t
+ */
 void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();
@@ -144,7 +161,9 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
         }
     }
 }
-
+/**
+ * Inserta una sola variable simple.
+ */
 void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     int scope,line, column;
     Symbol *s;
@@ -156,12 +175,16 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
     column = loc.begin.column;
     scope = d->tablaSimbolos.currentScope();
     s = d->tablaSimbolos.simple_lookup(identificador->identificador);
-    if (s != 0) d->error(loc,reportar_existencia(s,identificador->identificador)); 
+    if (s != 0) {
+        d->error(loc,reportar_existencia(s,identificador->identificador));
+        return;
+    }
     d->tablaSimbolos.insert(identificador->identificador,estilo,scope,p,line,column);
 }
 
-/*Cosas que usan el driver
- *
+/**
+ * Inserta una variable arreglo.
+ * Cosas que usan el driver:
  * int scop = drvier.tablaSimbolos.currentScope();
  * Symbol *tmp = driver.tablaSimbolos.simple_lookup(par.first.identificador)
  * driver.tablaSimbolos.insert(it.first.identificador,std::string("array"),scop,t->tipo,line,column,arreglo,size);
@@ -198,22 +221,34 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         }
     }
 }
+
+TypeS* obtener_referencia_tipo(std::string tipo ,GuavaDriver *d, const yy::location& loc){
+    Symbol *p=  obtener_tipo(tipo,d);
+    if (p == 0) { 
+        d->error(loc,tipo_no_existe(tipo));
+        return 0;
+    }
+    if (p->true_type == 0) { 
+        d->error(loc,no_es_tipo(tipo));
+        return 0;
+    }
+    TypeReference *reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
+    return reference;
+}
+
 /**
  * Inserta una lista de variables de tipo estructura a la tabla
+ * y retorna el tipo de esta.
  */
-void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estilo,GuavaDriver *d, const yy::location& loc){
+TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estilo,GuavaDriver *d, const yy::location& loc){
     std::list<Identificador> l = vars->get_list();
     std::list<Identificador>::iterator it = l.begin();
     int scope,line, column;
     Symbol *s;
 
-    Symbol *p=  obtener_tipo(*tipo,d);
-    if (p == 0) { 
-        d->error(loc,tipo_no_existe(*tipo));
-        return;
-    }
-    TypeReference *reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
-
+    TypeS* reference = obtener_referencia_tipo(tipo,d,loc);
+    if (reference == 0) return 0;
+    
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
         if(s != 0)
@@ -222,10 +257,52 @@ void insertar_simboloEstructura(LVar *vars, std::string* tipo,std::string* estil
             scope = d->tablaSimbolos.currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,*estilo,scope,reference,line,column);
+            d->tablaSimbolos.insert(it->identificador,estilo,scope,reference,line,column);
         }
     }
+    return reference;
+}
+/**
+ * Inserta una variable arreglo de estructura
+ * El arreglo de estructura es un arreglo de variables que hacen
+ * referencia a las estructuras. A su vez la variable arreglo
+ * es una referencia al arreglo.
+ */
+TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, GuavaDriver *d, const yy::location& loc) {
+    std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
+    std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
+    std::list<Integer>::iterator itInt;
+    std::pair<Identificador, LCorchetes> par;
+    int size, scope, line, column;
+    int *arreglo;
+    Symbol *s;
 
+    TypeS* reference0 = obtener_referencia_tipo(t,d,loc); // Referencia al tipo t
+    if (reference0 == 0) return 0;
+
+    for(it; it != l.end(); ++it) {
+        par = *it;
+        s = d->tablaSimbolos.simple_lookup(par.first.identificador);
+        if(s != 0)
+            d->error(loc,reportar_existencia(s,par.first.identificador));
+        else {
+            size = par.second.lista.size();
+            arreglo = new int[size];
+            itInt = par.second.lista.begin();
+            for(int i=0; i != size; i++) {
+                arreglo[i] = itInt->getValor();
+                ++itInt;
+            }
+            
+            TypeArray* arr = new TypeArray(reference0,size,arreglo); // Tipo de arreglo con la información concerniente.
+            TypeReference* reference = new TypeReference(arr);  // La variable a guardar es una referencia al tipo arreglo.
+            scope = d->tablaSimbolos.currentScope();
+            line = par.first.line;
+            column = par.first.column;
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,reference,line,column);
+        }
+    }
+    return reference0;
 }
 
 /**
@@ -342,30 +419,47 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           insertar_simboloSimple($2,$1,std::string("var"),&driver,yylloc); 
                                                         } 
           | tipo ARRAY lvararreglo ';'                  { 
-                                                          $$ = new LVariables($1,$3);
                                                           insertar_simboloArreglo($3,$1,&driver,yylloc); 
+                                                          $$ = new LVariables($1,$3);
                                                         } 
           | lvariables tipo ARRAY lvararreglo ';'       { 
+                                                          insertar_simboloArreglo($4,$2,&driver,yylloc); 
                                                           LVariables *tmp = new LVariables($2, $4);
                                                           $1->listaVar = tmp;
                                                           $$ = $1;
-                                                          insertar_simboloArreglo($4,$2,&driver,yylloc); 
                                                         }
+          | identificador ARRAY lvararreglo ';'         {
+                                                          TypeS* tmp = insertar_simboloArregloEstructura($3,$1->identificador,&driver,yylloc);
+                                                          LVariables *tmpLV = new LVariables(tmp,$3);
+                                                          $$ = tmpLV;
+                                                        } 
+          | lvariables identificador ARRAY lvararreglo ';' { 
+                                                             TypeS* tmp = insertar_simboloArregloEstructura($4,$2->identificador,&driver,yylloc);
+                                                             LVariables *tmpLV = new LVariables(tmp,$4);
+                                                             $1->listaVar = tmpLV;
+                                                             $$ = $1;
+                                                           }
           | identificador UNION lvar ';'                { 
-                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          //insertar_simboloSimple($3,&t,std::string("unionVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("unionVar"),&driver,yylloc); 
+                                                         LVariables *tmpLV = new LVariables(tmp,$3); 
+                                                         $$ = tmpLV;
                                                         }
           | lvariables identificador UNION lvar ';'     { 
-                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          //insertar_simboloSimple($4,&t,std::string("unionVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("unionVar"),&driver,yylloc); 
+                                                         LVariables *tmpLV = new LVariables(tmp,$4); 
+                                                         $1->listaVar = tmpLV;
+                                                         $$ = $1;
                                                         }
           | identificador RECORD lvar                   {
-                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          //insertar_simboloSimple($3,&t,std::string("recordVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordVar"),&driver,yylloc); 
+                                                         LVariables *tmpLV = new LVariables(tmp,$3); 
+                                                         $$ = tmpLV;
                                                         }
           | lvariables identificador RECORD lvar ';'    { 
-                                                          // No es exactamente un simbolo simple. Ya que es una REFERENCIA al tipo identificador.
-                                                          //insertar_simboloSimple($4,&t,std::string("recordVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("recordVar"),&driver,yylloc); 
+                                                         LVariables *tmpLV = new LVariables(tmp,$4); 
+                                                         $1->listaVar = tmpLV;
+                                                         $$ = $1;
                                                         }
           | lvariables  union ';'                       {
                                                           LVariables * tmp = new LVariables($2);

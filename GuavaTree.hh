@@ -351,6 +351,8 @@ public:
     LVariables(Estructura*);
 
     ~LVariables();
+
+    std::list<TypeS*> get_type_list();
     
     void show(std::string);
 };

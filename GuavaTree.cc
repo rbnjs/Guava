@@ -331,16 +331,29 @@ void LVar::show(std::string s) {}
 
 /* Class LVariables */
 
-LVariables::LVariables() {}
+LVariables::LVariables():listaVar(0) {}
 
-LVariables::LVariables(TypeS* t, LVar* v): tipo(t),listaIds(v){
+LVariables::LVariables(TypeS* t, LVar* v): tipo(t),listaIds(v),listaVar(0){
 }
 
-LVariables::LVariables(TypeS* t, LVarArreglo* va): tipo(t),listaIdsAr(va) {
+LVariables::LVariables(TypeS* t, LVarArreglo* va): tipo(t),listaIdsAr(va),listaVar(0) {
 }
     
-//Caso definicion de Uniones
+/**
+ *Caso definicion de Uniones
+ */
 LVariables::LVariables(Estructura* e): estructura(e) {
+}
+/**
+ * Obtiene una lista de tipos.
+ */
+std::list<TypeS*> LVariables::get_type_list(){
+   LVariables *tmp = this;
+   std::list<TypeS*> result;
+   do{
+       result.push_back(tipo); 
+   }while (tmp->listaVar != 0);
+   return result;
 }
 
 LVariables::~LVariables() { 

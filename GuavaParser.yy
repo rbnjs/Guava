@@ -475,7 +475,8 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                  driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure,fsc); 
                                  identacion += "  ";
                                }
-                              lvariables '}' {  if (!error_state) {
+                              lvariables '}' {  
+                                                if (!error_state) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << $2->identificador << " {\n";
                                                     driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 

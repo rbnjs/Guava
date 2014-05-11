@@ -232,6 +232,8 @@ private :
 
 class TypeStructure :public TypeS{
 public :
+    std::list<TypeS*> atributos;
+    std::string nombre;
     TypeStructure();
     TypeStructure(std::list<TypeS*>);
     ~TypeStructure();
@@ -250,12 +252,12 @@ public :
     TypeS* get_tipo();
     std::string get_name();
     std::list<TypeS*> get_atributos();
-    std::list<TypeS*> atributos;
 };
 
 class TypeUnion :public TypeS{
 public :
     std::list<TypeS*> atributos;
+    std::string nombre;
     TypeUnion();
     TypeUnion(std::list<TypeS*>);
     ~TypeUnion();

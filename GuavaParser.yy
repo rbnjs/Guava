@@ -89,6 +89,41 @@ int declare_scope;
 int error_state;
 std::string identacion ("");
 
+/**
+ * Avisa si la variable es de categoria estructura.
+ */
+bool es_estructura(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc){
+    if ((categoria.compare("unionVar") != 0) && categoria.compare("recordVar") != 0){
+        std::string msg2 ("The ");
+        msg2 += categoria;
+        msg2 += "  ";
+        msg2 += nombre;
+        msg2 += " is not a record nor an union";
+        driver->error(loc,msg2);
+        error_state = 1;
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Reporta cuando una variable se trata de usar y esta no 
+ * estaba declarada.
+ */
+Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc){
+    Symbol* id;
+    if ((id = driver->tablaSimbolos.lookup(name)) == 0) {
+        std::string msg ("Undeclared identifier '");
+        msg += name;
+        msg += "'";
+        driver->error(loc,msg);
+        error_state = 1;
+        return id;
+    }
+    return 0;
+}
+
 std::string reportar_existencia(Symbol *s, std::string id) {
     std::stringstream linea, columna;
     std::string msg("variable name: '");
@@ -99,6 +134,7 @@ std::string reportar_existencia(Symbol *s, std::string id) {
     error_state = 1;
     return msg;
 }
+
 /**
  * Retorna un mensaje de que
  * el tipo id no existe.
@@ -486,6 +522,7 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
 union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                  int fsc = driver.tablaSimbolos.enterScope();
                                  TypeUnion* structure = new TypeUnion();
+                                 structure->nombre = $2->identificador;
                                  driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure,fsc); 
                                  identacion += "  ";
                                }
@@ -506,6 +543,7 @@ record: RECORD identificador '{'{
                                  int n = driver.tablaSimbolos.currentScope();
                                  int fsc = driver.tablaSimbolos.enterScope();
                                  TypeStructure* structure = new TypeStructure();
+                                 structure->nombre = $2->identificador;
                                  driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure,fsc); 
                                  identacion += "  ";
                                 } 
@@ -571,14 +609,14 @@ lcorchetesExp: '[' exp ']'               {}
              |  lcorchetesExp '[' error ']' {}
 
 
-lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);
+lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);*/
                                            }
-          | lfunciones1 funcionmain        { //*$$ = LFunciones(*$2,$1);  
+          | lfunciones1 funcionmain        { /*$$ = LFunciones(*$2,$1); */ 
                                            }
 
-lfunciones1: funcion              { //*$$ = LFunciones(*$1,0);
+lfunciones1: funcion              { /*$$ = LFunciones(*$1,0);*/
                                   }
-           | lfunciones1 funcion  { //*$$ = LFunciones(*$2,$1);
+           | lfunciones1 funcion  { /*$$ = LFunciones(*$2,$1);*/
                                   }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
@@ -1055,53 +1093,25 @@ exp: expAritmetica  { $$ = $1; }
    | '(' error ')'  {};
       
 
-expID: identificador   {    Symbol* id;
-                            TypeS* tipo;
-                            if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0) {
-                                std::string msg ("Undeclared identifier '");
-                                msg += $1->identificador;
-                                msg += "'";
-                                driver.error(yylloc,msg);
-                                error_state = 1;
-                            }
-                            else {
+expID: identificador   { TypeS* tipo;
+                         Symbol* id;
+                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc))  != 0) {
                                 $$ = new Identificador($1->identificador);
                                 tipo = id->type_pointer->true_type;
                                 $$->tipo = tipo;
-                            }
+                         }
                        }
-     | identificador lcorchetesExp    { Symbol * id;
-                                        if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
-                                            std::string msg ("Undeclared identifier '");
-                                            msg += $1->identificador;
-                                            msg += "'";
-                                            driver.error(yylloc,msg);
-                                            error_state = 1;
-                                        }
+     | identificador lcorchetesExp    {
+                                        variable_no_declarada($1->identificador,&driver, yylloc);
                                       }
      | identificador { Symbol * id;
-                       if ((id = driver.tablaSimbolos.lookup($1->identificador)) == 0){
-                         std::string msg ("Undeclared identifier '");
-                         msg += $1->identificador;
-                         msg += "'";
-                         driver.error(yylloc,msg);
-                         error_state = 1;
-                       } else {
-                            if ((id->sym_catg.compare("unionVar") != 0) && id->sym_catg.compare("recordVar") != 0){
-                                std::string msg2 ("The ");
-                                msg2 += id->sym_catg;
-                                msg2 += "  ";
-                                msg2 += id->sym_name;
-                                msg2 += " is not a record nor an union";
-                                driver.error(yylloc,msg2);
-                                error_state = 1;
-                            } else {
+                       if ((id = variable_no_declarada($1->identificador,&driver,yylloc)) != 0){
+                            if (es_estructura(id->sym_catg, $1->identificador,&driver,yylloc)){
                                 //Symbol* structure;
                                 //structure = driver.tablaSimbolos.lookup(id->type);
                                 //attribute_scope = structure->fieldScope;
                             }
                         } 
-
                     } lAccesoAtributos {
                                        };
 

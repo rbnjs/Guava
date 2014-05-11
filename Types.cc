@@ -288,7 +288,7 @@ bool TypeStructure::is_reference() { return false; }
 
 TypeS* TypeStructure::get_tipo() { return 0; }
 
-std::string TypeStructure::get_name() { return std::string(""); }
+std::string TypeStructure::get_name() { return nombre; }
 
 std::pair<int,int*> TypeStructure::get_dimensiones(){
     std::pair<int,int*> p; 
@@ -319,7 +319,7 @@ bool TypeUnion::is_reference() { return false; }
 
 TypeS* TypeUnion::get_tipo() { return 0; }
 
-std::string TypeUnion::get_name() { return std::string(""); }
+std::string TypeUnion::get_name() { return nombre; }
 
 std::pair<int,int*> TypeUnion::get_dimensiones(){
     std::pair<int,int*> p; 

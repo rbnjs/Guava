@@ -9,16 +9,18 @@
 # include <sstream>
 # include <list>
 # include <utility>
-
-
 # include <typeinfo>
-
-
-
 # include "GuavaTree.hh"
 class GuavaDriver;
 }
-
+%{
+/* Aqui definimos el tamaño de todos los tipos basicos. */ 
+#define SIZE_REFERENCE 8
+#define SIZE_INT       4
+#define SIZE_CHAR      1
+#define SIZE_REAL      8
+#define SIZE_BOOL      1
+%}
 %parse-param { GuavaDriver& driver }
 %lex-param   { GuavaDriver& driver }
 
@@ -84,15 +86,16 @@ class GuavaDriver;
 %code {
 # include "GuavaDriver.hh"
 int current_scope;
-int attribute_scope;  //Este podra ser eliminado
+int attribute_scope;  
 int declare_scope;
 int error_state;
 std::string identacion ("");
 
 /**
- * Avisa si la variable es de categoria estructura.
+ * Avisa si la variable es de categoria estructura
+ * e imprime .
  */
-bool es_estructura(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc){
+bool es_estructura_error(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc){
     if ((categoria.compare("unionVar") != 0) && categoria.compare("recordVar") != 0){
         std::string msg2 ("The ");
         msg2 += categoria;
@@ -104,6 +107,13 @@ bool es_estructura(std::string categoria,std::string nombre ,  GuavaDriver* driv
         return false;
     }
     return true;
+}
+/**
+ * Indica si una categoria es igual a unionVar
+ * o recordVar
+ */
+bool es_estructura(std::string categoria){
+    return ((categoria.compare("unionVar") == 0) || categoria.compare("recordVar") == 0);
 }
 
 
@@ -139,7 +149,10 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
     }
     return id;
 }
-
+/**
+ * Retorna el error de que una variable ya ha sido
+ * declarada.
+ */
 std::string reportar_existencia(Symbol *s, std::string id) {
     std::stringstream linea, columna;
     std::string msg("variable name: '");
@@ -273,7 +286,10 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         }
     }
 }
-
+/**
+ * Dado un tipo "tipo", busca en la tabla ese tipo y
+ * retorna un TypeS* referencia a este.
+ */
 TypeS* obtener_referencia_tipo(std::string tipo ,GuavaDriver *d, const yy::location& loc){
     Symbol *p=  obtener_tipo(tipo,d);
     if (p == 0) { 
@@ -358,7 +374,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
 }
 
 /**
- *
+ * Retorna un mensaje de error de tipos.
  */
 std::string mensaje_error_tipos(std::string esperado, std::string encontrado) {
     std::string msg ("Type error: expected '");
@@ -370,10 +386,27 @@ std::string mensaje_error_tipos(std::string esperado, std::string encontrado) {
     
     return msg;
 }
-
+/**
+ * Dereferencia un TypeS* tipo Referencia.
+ * Funciona como un & en C/C++
+ */
 TypeS* dereference(TypeS* referencia){
     TypeS* tmp = referencia->get_tipo();
     return tmp;
+}
+/**
+ * Dado un tipo basico, retorna el tamaño de este.
+ * En caso de que TypeS* sea otra cosa aparte de un tipo basico
+ * se retorna -1.
+ *
+ */
+int tamano_tipo_basico(TypeS* t){
+    if (t->is_bool()) return SIZE_BOOL;
+    if (t->is_real()) return SIZE_REAL;
+    if (t->is_int()) return SIZE_INT;
+    if (t->is_char()) return SIZE_CHAR;
+    if (t->is_reference()) return SIZE_REFERENCE;
+    return -1; 
 }
 
 }
@@ -1068,7 +1101,7 @@ expID: identificador   { TypeS* tipo;
      | identificador { Symbol * id;
                        Identificador *prueba = $1;
                        if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc)) != 0){
-                            if (es_estructura(id->sym_catg, $1->identificador,&driver,yylloc)){
+                            if (es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
                                 Symbol* structure;
                                 structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name());
                                 attribute_scope = structure->fieldScope;
@@ -1364,9 +1397,10 @@ larreglo: larreglo ',' exp      {
         | larreglo ',' error    { $$ = $1; }
         | error                 { LArreglo *tmp = new LArreglo(); };
 
+
 lAccesoAtributos: '.' identificador { Symbol* id;
                                         if ((id = variable_no_declarada($2->identificador,&driver,yylloc,attribute_scope)) != 0){
-                                            if (es_estructura(id->sym_catg, $2->identificador,&driver,yylloc)){
+                                            if (es_estructura(id->sym_catg)){
                                                 Symbol* structure;
                                                 structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name(),attribute_scope);
                                                 if (structure != 0) attribute_scope = structure->fieldScope;
@@ -1376,6 +1410,11 @@ lAccesoAtributos: '.' identificador { Symbol* id;
                 | lAccesoAtributos '.' identificador {
                                                         Symbol* id;
                                                         if ((id = variable_no_declarada($3->identificador,&driver,yylloc,attribute_scope)) != 0){
+                                                            if (es_estructura(id->sym_catg)){
+                                                                Symbol* structure;
+                                                                structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name(),attribute_scope);
+                                                                if (structure != 0) attribute_scope = structure->fieldScope;
+                                                            }
                                                         }
                                                      };
 

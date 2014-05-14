@@ -272,7 +272,7 @@ std::list<TypeS*> TypeFunction::get_atributos(){
 
 TypeStructure::TypeStructure(){}
 
-TypeStructure::TypeStructure(std::list<TypeS*> la): atributos(la){}
+TypeStructure::TypeStructure(std::list<TypeS*> la,std::string n = ""): atributos(la), nombre(n){}
 
 bool TypeStructure::is_real()      { return false; }
 bool TypeStructure::is_int()       { return false; }
@@ -303,7 +303,7 @@ std::list<TypeS*> TypeStructure::get_atributos(){
 
 TypeUnion::TypeUnion(){}
 
-TypeUnion::TypeUnion(std::list<TypeS*> la):atributos(la){}
+TypeUnion::TypeUnion(std::list<TypeS*> la , std::string n = ""):atributos(la), nombre(n){}
 
 bool TypeUnion::is_real()      { return false; }
 bool TypeUnion::is_int()       { return false; }

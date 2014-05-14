@@ -235,7 +235,7 @@ public :
     std::list<TypeS*> atributos;
     std::string nombre;
     TypeStructure();
-    TypeStructure(std::list<TypeS*>);
+    TypeStructure(std::list<TypeS*>, std::string n );
     ~TypeStructure();
     bool is_int() ; 
     bool is_real ();
@@ -259,7 +259,7 @@ public :
     std::list<TypeS*> atributos;
     std::string nombre;
     TypeUnion();
-    TypeUnion(std::list<TypeS*>);
+    TypeUnion(std::list<TypeS*>, std::string n);
     ~TypeUnion();
     bool is_int() ; 
     bool is_real ();

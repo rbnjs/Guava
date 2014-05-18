@@ -672,11 +672,11 @@ void LlamadaFuncion::show(std::string s){
 
 LParam::LParam(){}
 
-void LParam::append(Tipo t, Identificador id){
-    std::pair<Tipo, Identificador> par (t,id);
+void LParam::append(TypeS* t, Identificador* id){
+    std::pair<TypeS*, Identificador*> par (t,id);
     lParam.push_back(par);
 }
-std::list<std::pair<Tipo,Identificador> > LParam::get_list(){
+std::list<std::pair<TypeS*,Identificador*> > LParam::get_list(){
     return lParam;
 }
 

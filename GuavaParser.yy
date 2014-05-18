@@ -20,6 +20,7 @@ class GuavaDriver;
 #define SIZE_CHAR      1
 #define SIZE_REAL      8
 #define SIZE_BOOL      1
+#define WORD           4
 %}
 %parse-param { GuavaDriver& driver }
 %lex-param   { GuavaDriver& driver }
@@ -373,6 +374,19 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
     return reference0;
 }
 
+void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d,int current_scope, const yy::location& loc){
+    std::list<std::pair<TypeS*,Identificador*> > lista = lp->get_list();
+    std::list <TypeS*> parametros;
+    std::pair<TypeS*, Identificador*> par;
+    std::list<std::pair<TypeS*,Identificador*> >::iterator it = lista.begin();
+    for ( it ; it != lista.end(); ++it){
+        par = *it;
+        parametros.push_front(par.first); 
+    }
+    TypeS* function = new TypeFunction(tipo,parametros);
+    d->tablaSimbolos.insert_type(id->identificador,std::string("function"),0,function, current_scope);
+}
+
 /**
  * Retorna un mensaje de error de tipos.
  */
@@ -395,17 +409,49 @@ TypeS* dereference(TypeS* referencia){
     return tmp;
 }
 /**
+ * "Encaja" el tamaño dado de un TypeS
+ * en la palabra.
+ */
+int encajar_en_palabra(int tam){
+    if (tam % WORD == 0) return tam;
+    return (tam + (WORD - (tam % WORD)));  
+}
+
+/**
  * Dado un tipo basico, retorna el tamaño de este.
  * En caso de que TypeS* sea otra cosa aparte de un tipo basico
  * se retorna -1.
- *
  */
-int tamano_tipo_basico(TypeS* t){
+int tamano_tipo(TypeS* t){
     if (t->is_bool()) return SIZE_BOOL;
     if (t->is_real()) return SIZE_REAL;
     if (t->is_int()) return SIZE_INT;
     if (t->is_char()) return SIZE_CHAR;
     if (t->is_reference()) return SIZE_REFERENCE;
+
+    if (t->is_structure()){
+        int result = 0;
+        TypeS* tmp;
+        std::list<TypeS*> atributos = t->get_atributos(); 
+        while (!atributos.empty()){
+            tmp = atributos.front();
+            result += encajar_en_palabra(tamano_tipo(tmp));
+            atributos.pop_front();
+        }
+        return result;
+    }
+
+    if (t->is_union()){
+        int result = 0;
+        TypeS* tmp;
+        std::list<TypeS*> atributos = t->get_atributos();
+        while (!atributos.empty()){
+            tmp = atributos.front();
+            int tmp_size = encajar_en_palabra(tamano_tipo(tmp));
+            result = (result < tmp_size  ? tmp_size : result);
+            atributos.pop_front();
+        }
+    }
     return -1; 
 }
 
@@ -674,10 +720,13 @@ lfunciones1: funcion              { /*$$ = LFunciones(*$1,0);*/
                                   }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                   TypeS* function = new TypeFunction(TypeVoid::Instance());
                                                    int line = yylloc.begin.line;
                                                    int column = yylloc.begin.column;
-                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,std::string("void")
-                                                   ,line,column,current_scope);
+                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
+                                                                                    0,function,line,column, current_scope);
+                                                   /*driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,std::string("void")
+                                                   ,line,column,current_scope);*/
                                                    identacion += "  ";
                                                  } 
                                                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
@@ -695,10 +744,6 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
           | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
-                                                        int line = yylloc.begin.line;
-                                                        int column = yylloc.begin.column;
-                                                        driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,
-                                                        std::string("void"),line,column,current_scope);
                                                         identacion += "  ";
                                                       } 
                                                      bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
@@ -707,13 +752,13 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                                                             }
 
 
-funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.enterScope();
-                                           int line = yylloc.begin.line;
-                                           int column = yylloc.begin.column;
-                                           driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->get_name(),line,column,current_scope);
-                                           identacion += "  ";
-                                         } lparam ')' '{' 
+funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); }
+                                         lparam { 
+                                                  insertar_funcion($2,$3,$6,&driver,current_scope,yylloc); 
+                                                  /*driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
+                                                                    ,$2->get_name(),line,column,current_scope);*/
+                                                  identacion += "  ";
+                                                 } ')' '{' 
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
                                                                                                                             ,*$5,*$9,*$10,*$12);*/ 
                                                                                                              if (!error_state) {
@@ -726,49 +771,40 @@ funcion: FUNCTION tipo identificador '(' { current_scope = driver.tablaSimbolos.
                                                                                                              }
                                                                                                            }
 
-        | FUNCTION TYPE_VOID identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); 
-                                                  int line = yylloc.begin.line;
-                                                  int column = yylloc.begin.column;
-                                                  driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                ,std::string("void"),line,column,current_scope);
-                                                   identacion += "  ";
-                                                 } lparam ')' '{' bloquedeclare listainstrucciones '}'     { /*Tipo v = Tipo(std::string("void"));
-                                                                                                              *$$ = Funcion(v,Identificador(std::string($3)),
-                                                                                                                            *$5,*$9,*$10,0);*/
-                                                                                                              if (!error_state) {
-                                                                                                                std::cout << $3->identificador << "{\n";
-                                                                                                                std::cout << "Parametros y variables:\n";
-                                                                                                                driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                                std::cout << "}\n";
-                                                                                                                driver.tablaSimbolos.exitScope();
-                                                                                                                identacion.erase(0,2);
-                                                                                                              }
-                                                                                                            }
+        | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); } 
+                                               lparam  {  
+                                                         TypeS* v = TypeVoid::Instance();
+                                                         insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 
+                                                         identacion += "  ";
+                                                       } ')' '{' bloquedeclare listainstrucciones '}'
+                                                                                                      { 
+                                                                                                        if (!error_state) {
+                                                                                                            std::cout << $3->identificador << "{\n";
+                                                                                                            std::cout << "Parametros y variables:\n";
+                                                                                                            driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                                            std::cout << "}\n";
+                                                                                                            driver.tablaSimbolos.exitScope();
+                                                                                                            identacion.erase(0,2);
+                                                                                                        }
+                                                                                                      }
 
 /*Errores*/
 /*Mala especificacion del encabezado de la funcion*/
         | FUNCTION tipo identificador '(' error ')' '{' { current_scope =  driver.tablaSimbolos.enterScope(); 
-                                                          int line = yylloc.begin.line;
-                                                          int column = yylloc.begin.column;
-                                                          driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->get_name(),line,column,current_scope);
                                                           identacion += "  ";
                                                         }
-                                                       bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                             ,*$5,*$9,*$10,*$12); */ 
+                                                       bloquedeclare listainstrucciones RETURN exp ';' '}' {  
                                                                                                            }
 
 /*Mala especificacion del encabezado de la funcion*/
         | FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                                int line = yylloc.begin.line;
                                                                int column = yylloc.begin.column;
-                                                               driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,std::string("void"),line,column,current_scope);
+                                                               /*driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
+                                                                    ,std::string("void"),line,column,current_scope);*/
                                                                identacion += "  ";
                                                              }
-                                                            bloquedeclare listainstrucciones '}'           { /*Tipo v = Tipo(std::string("void"));
-                                                                                                             *$$ = Funcion(v,Identificador(std::string($3)),
-                                                                                                             *$5,*$9,*$10,0);*/
+                                                            bloquedeclare listainstrucciones '}'           { 
                                                                                                             };
 /*LISTO*/
 lparam: /* Vacio */          { $$ = new LParam(); 
@@ -776,26 +812,32 @@ lparam: /* Vacio */          { $$ = new LParam();
       | lparam2              { 
                              } 
 
-lparam2: tipo identificador               { $$ = new LParam(); 
+lparam2: tipo identificador               { LParam* tmp = new LParam(); 
+                                            tmp->append($1,$2);
+                                            $$ = tmp;
                                             insertar_simboloSimple($2,$1,std::string("param"),&driver,yylloc);
                                           } 
-        | tipo REFERENCE identificador    { $$ = new LParam();
+        | tipo REFERENCE identificador    { LParam* tmp = new LParam(); 
+                                            tmp->append($1,$3);
+                                            $$ = tmp;
                                             insertar_simboloSimple($3,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
         | lparam2 ',' tipo identificador  { 
-                                            insertar_simboloSimple($4,$3,std::string("param"),&driver,yylloc);
+                                            $1->append($3,$4);
                                             $$ = $1;
+                                            insertar_simboloSimple($4,$3,std::string("param"),&driver,yylloc);
                                           }
         | lparam2 ',' tipo REFERENCE 
                       identificador       { 
-                                            insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
+                                            $1->append($3,$5);
                                             $$ = $1;
+                                            insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
                                           }
         
-        | tipo error                      {/*$$ = LParam();*/}
-        | tipo REFERENCE error            {/*$$ = LParam():*/}
-        | lparam2 ',' tipo error          {}
-        | lparam2 ',' tipo REFERENCE error  {};
+        | tipo error                        { $$ = new LParam();    }
+        | tipo REFERENCE error              { $$ = new LParam();    }
+        | lparam2 ',' tipo error            { $$ = new LParam();    }
+        | lparam2 ',' tipo REFERENCE error  { $$ = new LParam();    };
 
 
 listainstrucciones: /* Vacio */                        { //$$ = ListaInstrucciones(); 

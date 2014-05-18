@@ -581,12 +581,11 @@ public:
  */
 class LParam{
 public:
-    TypeS* tipo;
-    std::list<std::pair<Tipo, Identificador> > lParam;
+    std::list<std::pair<TypeS*, Identificador*> > lParam;
 
     LParam();
-    void append(Tipo, Identificador);
-    std::list<std::pair<Tipo,Identificador> > get_list();
+    void append(TypeS*, Identificador*);
+    std::list<std::pair<TypeS*,Identificador*> > get_list();
     ~LParam();
     
     void show(std::string);

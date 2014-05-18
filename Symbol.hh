@@ -55,7 +55,7 @@ public:
     std::string type;       /* DEPRECATED */ 
 
     int *arreglo;           /* Dimensiones del arreglo */
-    int size;               /* Tamaño del arreglo */
+    int dimensiones;         /* Tamaño de las dimensiones del arreglo */
     int fieldScope;         /* Alcance de los simbolos de una estructura, union o funcion */
 
     int line;               /* Linea en la que fue encontrado el simbolo */ 
@@ -66,10 +66,6 @@ public:
     TypeS* true_type;       /* Tipo correcto */
     Symbol* type_pointer;   /* Apuntador a tipo */
     
-    /**
-     * Constructor de la clase Symbol para variable.
-     */
-    Symbol(std::string name, std::string catg, int scop, std::string type, int linea, int columna); // Este ya no sirve
 
     /**
      * Constructor para variable.
@@ -82,13 +78,9 @@ public:
      */
     Symbol(std::string, std::string, int, TypeS*,int,int); 
    
-    /**
-     * Constructor para estructuras. Desactualizado, eliminar.
-     */
-    Symbol(std::string,std::string,int,std::string,int,int,int);
     
     /**
-     * Constructor para estructuras. 
+     * Constructor para estructuras y funciones. 
      */
     Symbol(std::string,std::string,int,TypeS*,int,int,int);
 
@@ -98,7 +90,7 @@ public:
     Symbol(std::string,std::string,int,TypeS*);
     
     /**
-     * Constructor para estructuras o uniones.
+     * Constructor para estructuras, uniones y funciones.
      */
     Symbol(std::string,std::string,int,TypeS*, int);
     

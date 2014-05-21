@@ -21,33 +21,12 @@
 #include "Types.hh"
 
 
-typedef union {
-    float* real;
-    std::string* str;
-    int* integer;
-    char* ch;
-    bool* boolean;   
-} Referencia;
-
-typedef union {
-    float real;
-    int integer;
-    char ch;
-    std::string * str;
-    bool boolean;
-    
-} ValorUnion;
-
-typedef union {
-    ValorUnion valor;
-    Referencia referencia;
-} ValorSimbolo;
-
 /** 
  * Clase simbolo de Guava.
  */
 class Symbol{
 public:
+
     std::string sym_name;   /* Nombre del simbolo */
     std::string sym_catg;   /* Categoria del simbolo */
     int scope;              /* Identificador del scope del simbolo */
@@ -61,8 +40,9 @@ public:
     int line;               /* Linea en la que fue encontrado el simbolo */ 
     int column;             /* Columna en la que fue encontrado el simbolo */ 
     bool referencia;        /* Nos dice si el simbolo es una referencia o no. */  
-    ValorSimbolo contenido; /* Contenido del simbolo */
+
     bool symbol_type;       /* Nos dice si el simbolo es un tipo */
+
     TypeS* true_type;       /* Tipo correcto */
     Symbol* type_pointer;   /* Apuntador a tipo */
     

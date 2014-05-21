@@ -205,3 +205,68 @@ void GuavaSymTable::show(int scope, std::string identacion){
 std::unordered_map<std::string, std::list<Symbol> >::iterator GuavaSymTable::find(std::string s){
     return tabla.find(s);
 }
+
+
+
+/* class TypeStructure */
+
+TypeStructure::TypeStructure(){}
+
+TypeStructure::TypeStructure(std::list<TypeS*> la,std::string n = ""): atributos(la), nombre(n){}
+
+bool TypeStructure::is_real()      { return false; }
+bool TypeStructure::is_int()       { return false; }
+bool TypeStructure::is_error()     { return false; }
+bool TypeStructure::is_bool()      { return false; }
+bool TypeStructure::is_char()      { return false; }
+bool TypeStructure::is_str()       { return false; }
+bool TypeStructure::is_func()      { return false; }
+bool TypeStructure::is_structure() { return true; }
+bool TypeStructure::is_union()     { return false; }
+bool TypeStructure::is_void()      { return false; }
+bool TypeStructure::is_reference() { return false; }
+
+TypeS* TypeStructure::get_tipo() { return 0; }
+
+std::string TypeStructure::get_name() { return nombre; }
+
+std::pair<int,int*> TypeStructure::get_dimensiones(){
+    std::pair<int,int*> p; 
+    return p;
+}
+
+std::list<TypeS*> TypeStructure::get_atributos(){
+    return atributos;
+}
+
+/* class TypeUnion */
+
+TypeUnion::TypeUnion(){}
+
+TypeUnion::TypeUnion(std::list<TypeS*> la , std::string n = ""):atributos(la), nombre(n){}
+
+bool TypeUnion::is_real()      { return false; }
+bool TypeUnion::is_int()       { return false; }
+bool TypeUnion::is_error()     { return false; }
+bool TypeUnion::is_bool()      { return false; }
+bool TypeUnion::is_char()      { return false; }
+bool TypeUnion::is_str()       { return false; }
+bool TypeUnion::is_func()      { return false; }
+bool TypeUnion::is_structure() { return false; }
+bool TypeUnion::is_union()     { return true; }
+bool TypeUnion::is_void()      { return false; }
+bool TypeUnion::is_reference() { return false; }
+
+TypeS* TypeUnion::get_tipo() { return 0; }
+
+std::string TypeUnion::get_name() { return nombre; }
+
+std::pair<int,int*> TypeUnion::get_dimensiones(){
+    std::pair<int,int*> p; 
+    return p;
+}
+
+std::list<TypeS*> TypeUnion::get_atributos(){
+    return atributos;
+}
+

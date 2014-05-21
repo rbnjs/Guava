@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include <list>
+#include <unordered_map>
 #include <string>
 
 
@@ -231,53 +232,7 @@ private :
     std::list<TypeS*> parametros;
 };
 
-class TypeStructure :public TypeS{
-public :
-    std::list<TypeS*> atributos;
-    std::string nombre;
-    TypeStructure();
-    TypeStructure(std::list<TypeS*>, std::string n );
-    ~TypeStructure();
-    bool is_int() ; 
-    bool is_real ();
-    bool is_error() ;
-    bool is_bool() ;
-    bool is_char() ;
-    bool is_str() ;
-    bool is_func() ;
-    bool is_structure() ;
-    bool is_union() ;
-    bool is_void();
-    bool is_reference();
-    std::pair<int,int*> get_dimensiones();
-    TypeS* get_tipo();
-    std::string get_name();
-    std::list<TypeS*> get_atributos();
-};
 
-class TypeUnion :public TypeS{
-public :
-    std::list<TypeS*> atributos;
-    std::string nombre;
-    TypeUnion();
-    TypeUnion(std::list<TypeS*>, std::string n);
-    ~TypeUnion();
-    bool is_int() ; 
-    bool is_real ();
-    bool is_error() ;
-    bool is_bool() ;
-    bool is_char() ;
-    bool is_str() ;
-    bool is_func() ;
-    bool is_structure() ;
-    bool is_union() ;
-    bool is_void();
-    bool is_reference();
-    std::pair<int,int*> get_dimensiones();
-    TypeS* get_tipo();
-    std::string get_name();
-    std::list<TypeS*> get_atributos();
-};
 
 class TypeArray:public TypeS{
 public :

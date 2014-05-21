@@ -26,12 +26,12 @@
  */
 class GuavaSymTable{
 public:
-    std::list<int> pila;                                            /* Pila de alcances */
-    std::unordered_map<std::string, std::list<Symbol> > tabla;      /* Tabla que representa la tabla de simbolos. */
-    int alcance;                                                    /* Alcance en numeros. */
+    std::list<int> pila;                                                  /* Pila de alcances */
+    std::unordered_map<std::string, std::list<Symbol> > tabla;            /* Tabla que representa la tabla de simbolos. */
+    int alcance;                                                          /* Alcance en numeros. */
 
-    GuavaSymTable();                                      /* Constructor de la clase */
-    ~GuavaSymTable();                                     /*  Destructor */
+    GuavaSymTable();                                                       /* Constructor de la clase */
+    ~GuavaSymTable();                                                      /*  Destructor */
 
     void insert(Symbol elem);                                              /* Inserta un simbolo a la tabla */
     void insert(std::string,std::string,int,Symbol*,int,int);              /* Inserta simbolo */
@@ -50,3 +50,56 @@ public:
     std::unordered_map<std::string, std::list<Symbol> >::iterator find(std::string);
 
 };
+
+class TypeStructure :public TypeS{
+public :
+    std::list<TypeS*> atributos;
+    std::string nombre;
+    int size;
+    TypeStructure();
+    TypeStructure(std::list<TypeS*>, std::string n );
+    ~TypeStructure();
+    bool is_int() ; 
+    bool is_real ();
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+    bool is_void();
+    bool is_reference();
+    std::pair<int,int*> get_dimensiones();
+    TypeS* get_tipo();
+    std::string get_name();
+    std::list<TypeS*> get_atributos();
+};
+
+class TypeUnion :public TypeS{
+public :
+    std::list<TypeS*> atributos;
+    std::string nombre;
+    int size;
+    std::list<int> offsets;
+    TypeUnion();
+    TypeUnion(std::list<TypeS*>, std::string n);
+    ~TypeUnion();
+    bool is_int() ; 
+    bool is_real ();
+    bool is_error() ;
+    bool is_bool() ;
+    bool is_char() ;
+    bool is_str() ;
+    bool is_func() ;
+    bool is_structure() ;
+    bool is_union() ;
+    bool is_void();
+    bool is_reference();
+    std::pair<int,int*> get_dimensiones();
+    TypeS* get_tipo();
+    std::string get_name();
+    std::list<TypeS*> get_atributos();
+};
+
+

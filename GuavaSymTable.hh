@@ -34,11 +34,11 @@ public:
     ~GuavaSymTable();                                                      /*  Destructor */
 
     void insert(Symbol elem);                                              /* Inserta un simbolo a la tabla */
-    void insert(std::string,std::string,int,Symbol*,int,int);              /* Inserta simbolo */
-    void insert(std::string,std::string,int,TypeS*,int,int);               /* Agrega un arreglo a la tabla. */
-    void insert(std::string,std::string,int,TypeS*,int,int,int);           /* Agrega una funcion a la tabla. */
+
+    void insert(std::string,std::string,int,Symbol*,int,int,int);          /* Inserta simbolo */
+    void insert(std::string,std::string,int,TypeS*,int,int,int);           /* Agrega un arreglo a la tabla. */
     void insert_type(std::string,std::string,int,TypeS*);                  /* Agrega un tipo basico a la tabla */
-    void insert_type(std::string, std::string, int, TypeS*, int);          /* Agrega un tipo record o union a la tabla */
+
     int newScope();                                                        /* Aumenta en uno el alcance. */
     int enterScope();                                                      /* Entra un nuevo alcance  */
     int exitScope();                                                       /* Sale del alcance  */
@@ -53,11 +53,11 @@ public:
 
 class TypeStructure :public TypeS{
 public :
-    std::list<TypeS*> atributos;
+    GuavaSymTable* atributos;
     std::string nombre;
     int size;
     TypeStructure();
-    TypeStructure(std::list<TypeS*>, std::string n );
+    TypeStructure(std::string n);
     ~TypeStructure();
     bool is_int() ; 
     bool is_real ();

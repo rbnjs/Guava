@@ -33,10 +33,11 @@ public :
     virtual bool is_union() { return false; };
     virtual bool is_void() { return false; };
     virtual bool is_reference() { return false; };
+    virtual bool is_array() { return false; }
     virtual TypeS* get_tipo()=0;
     virtual std::string get_name() { return "defaulttype"; };
     virtual std::pair<int,int*> get_dimensiones()=0;
-    virtual std::list<TypeS*> get_atributos()=0; 
+    virtual std::list<TypeS*> get_parametros()  { std::list<TypeS*> s; return s; } 
 };
 
 class TypeReal :public TypeS{
@@ -57,7 +58,7 @@ public :
     TypeS* get_tipo();
     std::string get_name();
     std::pair<int,int*> get_dimensiones();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeReal(){};
     static TypeReal* real_instance;
@@ -81,7 +82,7 @@ public :
     TypeS* get_tipo();
     std::string get_name();
     std::pair<int,int*> get_dimensiones();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeInt(){};
     static TypeInt* int_instance;
@@ -105,7 +106,7 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeError(){};
     static TypeError* error_instance;
@@ -129,7 +130,7 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeVoid(){};
     static TypeVoid* void_instance;
@@ -153,7 +154,6 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
 private:
     TypeBool(){};
     static TypeBool* bool_instance;
@@ -177,7 +177,7 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeChar(){};
     static TypeChar* char_instance;
@@ -201,7 +201,7 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeString(){};
     static TypeString* string_instance;
@@ -224,9 +224,10 @@ public:
     bool is_void();
     bool is_reference();
     std::pair<int,int*> get_dimensiones();
+    std::list<TypeS*> get_parametros();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private :
     TypeS* tipo;
     std::list<TypeS*> parametros;
@@ -240,7 +241,7 @@ public :
     ~TypeArray();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    bool is_array(); 
     std::pair<int,int*> get_dimensiones();
 private:
     TypeS* tipo;
@@ -266,7 +267,7 @@ public :
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    std::list<TypeS*> get_atributos();
+    
 private:
     TypeS* referencia;   
 };

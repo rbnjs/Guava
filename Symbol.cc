@@ -24,41 +24,20 @@ Symbol::Symbol(){}
 /**
  * Constructor para variable
  */
-Symbol::Symbol(std::string name, std::string catg, int scop, Symbol* p,int linea, int columna) {
-    sym_name = name;
-    sym_catg = catg;
-    scope = scop;
-
-    type_pointer = p;
-    true_type = 0;
-    dimensiones = 0;
-    arreglo = 0;
-    fieldScope = 0;
-    line = linea;
-    column = columna;
-}
+Symbol::Symbol(std::string name, std::string catg, 
+               int scop, Symbol* p,int linea, int columna, 
+               int offset_): sym_name(name), sym_catg(catg), scope(scop), 
+                             true_type(0), type_pointer(p), line(linea), column(columna), offset(offset_){}
 
 /**
- * Constructor para simbolo de variable arreglo o estructura.
+ * Constructor para tipos basicos, estructuras, uniones y arreglos.
  */
 Symbol::Symbol(std::string name, std::string catg,
-       int scop, TypeS* type,int linea,int columna): sym_name(name),sym_catg(catg),scope(scop),true_type(type),line(linea),column(columna){} 
+               int scop, TypeS* type,int linea,
+               int columna, int offset_): sym_name(name),sym_catg(catg),
+                                                 scope(scop),true_type(type), type_pointer(0),
+                                                 line(linea),column(columna), offset(offset_){} 
 
-/**
- * Constructor para types
- */
-Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type): sym_name(name), sym_catg (catg), scope(s), true_type(type) {}
-
-/**
- * Constructor para tipos records y unions
- */
-Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type, int fsc): sym_name(name), sym_catg (catg), scope(s), true_type(type), fieldScope(fsc) {}
-
-/**
- * Constructor para funciones.
- */
-Symbol::Symbol(std::string name, std::string catg,int s,TypeS* type,int li, int col ,int fsc): 
-                    sym_name(name), sym_catg (catg), scope(s), true_type(type), fieldScope(fsc),line(li),column(col)  {}
 
 /**  
  * Destructor de la clase Symbol.
@@ -80,28 +59,36 @@ bool Symbol::compare(std::string s, int sc){
     return ((this->sym_name.compare(s) == 0) && this->scope == sc);
 }
 
-void Symbol::show(std::string identacion){
-    if (dimensiones == 0){
-        std::cout << identacion << "Name: " + sym_name;
-        std::cout << " Category: " +sym_catg;
-        std::cout << " Line: ";
-        std::cout << line;
-        std::cout << " Column: ";
-        std::cout << column;
-        std::cout << '\n';
-    } else{
-        std::cout << identacion << "Name: " + sym_name;
-        std::cout << " Category: " +sym_catg;
-        std::cout << " Line: ";
-        std::cout << line;
-        std::cout << " Column: ";
-        std::cout << column;
-        /*  std::cout << " Max Index: "; 
-        for (int i = 0; i != dimensiones; i++){
-            std::cout << "[" << arreglo[i] << "] ";
-        }*/
-        std::cout <<'\n';
+std::string to_string(TypeS* t){
+    if (t->is_func()){
+        std::string result ("(");
+        std::list<TypeS*> tmp = t->get_parametros();
+        while (!tmp.empty()){
+            TypeS* parametro = tmp.front();
+            result += to_string(parametro);
+            result += ", ";
+            tmp.pop_front();
+        }
+        result += ") ->";
+        result += to_string(t->get_tipo());
+        return result;
     }
+    return t->get_name();
 }
 
-
+/**
+ * Impresion del simbolo.
+ * Falta imprimir todo bien.
+ */
+void Symbol::show(std::string identacion){
+        std::cout << identacion << "Name: " + sym_name;
+        std::cout << " Category: " +sym_catg;
+        std::cout << " Line: ";
+        std::cout << line;
+        std::cout << " Column: ";
+        std::cout << column;
+        std::cout << " Type: " + ( (true_type != 0) ? to_string(true_type) : to_string(this->type_pointer->true_type) );
+        std::cout << " Offset: ";
+        std::cout << offset;
+        std::cout << "\n";
+}

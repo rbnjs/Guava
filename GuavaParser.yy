@@ -86,11 +86,14 @@ class GuavaDriver;
 
 %code {
 # include "GuavaDriver.hh"
+/* Variables globales. */
 int current_scope;
 int attribute_scope;  
 int declare_scope;
 int error_state;
 std::string identacion ("");
+int offset_actual;
+std::list<GuavaSymTable*> tabla_actual;
 
 /**
  * Avisa si la variable es de categoria estructura
@@ -198,6 +201,43 @@ Symbol* obtener_tipo(std::string t, GuavaDriver *d){
     if (s->true_type == 0) return 0;
     return s;
 }
+/**
+ * "Encaja" el tamaño dado de un TypeS
+ * en la palabra.
+ */
+int encajar_en_palabra(int tam){
+    if (tam % WORD == 0) return tam;
+    return (tam + (WORD - (tam % WORD)));  
+}
+
+/**
+ * Dado un tipo basico, retorna el tamaño de este.
+ * En caso de que TypeS* sea otra cosa aparte de un tipo basico
+ * se retorna -1.
+ */
+int tamano_tipo(TypeS* t){
+    if (t->is_bool()) return SIZE_BOOL;
+    if (t->is_real()) return SIZE_REAL;
+    if (t->is_int()) return SIZE_INT;
+    if (t->is_char()) return SIZE_CHAR;
+    if (t->is_reference()) return SIZE_REFERENCE;
+
+    if (t->is_structure()){
+        int result = 0;
+        TypeS* tmp;
+        return result;
+    }
+
+    if (t->is_union()){
+        int result = 0;
+        TypeS* tmp;
+        return result;
+    }
+    if (t->is_array()){
+       return 0; 
+    }
+    return -1; 
+}
 
 /**
  * Inserta un simbolo simple.
@@ -223,7 +263,8 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
             scope = d->tablaSimbolos.currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column);
+            d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column,offset_actual);
+            offset_actual += tamano_tipo(t); 
         }
     }
 }
@@ -245,7 +286,8 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
         d->error(loc,reportar_existencia(s,identificador->identificador));
         return;
     }
-    d->tablaSimbolos.insert(identificador->identificador,estilo,scope,p,line,column);
+    d->tablaSimbolos.insert(identificador->identificador,estilo,scope,p,line,column, offset_actual);
+    offset_actual += tamano_tipo(t); 
 }
 
 /**
@@ -279,19 +321,19 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
                 ++itInt;
             }
             TypeArray* arr = new TypeArray(t,size,arreglo); // Tipo de arreglo con la información concerniente.
-            TypeReference* reference = new TypeReference(arr);  // La variable a guardar es una referencia al tipo arreglo.
             scope = d->tablaSimbolos.currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,reference,line,column);
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset_actual);
+            offset_actual += tamano_tipo(arr); 
         }
     }
 }
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y
- * retorna un TypeS* referencia a este.
+ * retorna un TypeS*.
  */
-TypeS* obtener_referencia_tipo(std::string tipo ,GuavaDriver *d, const yy::location& loc){
+TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& loc){
     Symbol *p=  obtener_tipo(tipo,d);
     if (p == 0) { 
         d->error(loc,tipo_no_existe(tipo));
@@ -301,8 +343,7 @@ TypeS* obtener_referencia_tipo(std::string tipo ,GuavaDriver *d, const yy::locat
         d->error(loc,no_es_tipo(tipo));
         return 0;
     }
-    TypeReference *reference = new TypeReference(p->true_type); // La variable es una referencia al tipo.
-    return reference;
+    return p->true_type;
 }
 
 /**
@@ -315,9 +356,9 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
     int scope,line, column;
     Symbol *s;
 
-    TypeS* reference = obtener_referencia_tipo(tipo,d,loc);
+    TypeS* reference = obtener_tipo_real(tipo,d,loc);
     if (reference == 0) return 0;
-    
+
     for(it; it!=l.end(); ++it) {
         s = d->tablaSimbolos.simple_lookup(it->identificador);
         if(s != 0)
@@ -326,7 +367,8 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
             scope = d->tablaSimbolos.currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,estilo,scope,reference,line,column);
+            d->tablaSimbolos.insert(it->identificador,estilo,scope,reference,line,column, offset_actual);
+            offset_actual += tamano_tipo(reference); 
         }
     }
     return reference;
@@ -346,7 +388,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
     int *arreglo;
     Symbol *s;
 
-    TypeS* reference0 = obtener_referencia_tipo(t,d,loc); // Referencia al tipo t
+    TypeS* reference0 = obtener_tipo_real(t,d,loc); 
     if (reference0 == 0) return 0;
 
     for(it; it != l.end(); ++it) {
@@ -364,11 +406,10 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             }
             
             TypeArray* arr = new TypeArray(reference0,size,arreglo); // Tipo de arreglo con la información concerniente.
-            TypeReference* reference = new TypeReference(arr);  // La variable a guardar es una referencia al tipo arreglo.
             scope = d->tablaSimbolos.currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,reference,line,column);
+            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset_actual);
         }
     }
     return reference0;
@@ -384,7 +425,7 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
         parametros.push_front(par.first); 
     }
     TypeS* function = new TypeFunction(tipo,parametros);
-    d->tablaSimbolos.insert_type(id->identificador,std::string("function"),0,function, current_scope);
+    d->tablaSimbolos.insert_type(id->identificador,std::string("function"),0,function);
 }
 
 /**
@@ -408,52 +449,7 @@ TypeS* dereference(TypeS* referencia){
     TypeS* tmp = referencia->get_tipo();
     return tmp;
 }
-/**
- * "Encaja" el tamaño dado de un TypeS
- * en la palabra.
- */
-int encajar_en_palabra(int tam){
-    if (tam % WORD == 0) return tam;
-    return (tam + (WORD - (tam % WORD)));  
-}
 
-/**
- * Dado un tipo basico, retorna el tamaño de este.
- * En caso de que TypeS* sea otra cosa aparte de un tipo basico
- * se retorna -1.
- */
-int tamano_tipo(TypeS* t){
-    if (t->is_bool()) return SIZE_BOOL;
-    if (t->is_real()) return SIZE_REAL;
-    if (t->is_int()) return SIZE_INT;
-    if (t->is_char()) return SIZE_CHAR;
-    if (t->is_reference()) return SIZE_REFERENCE;
-
-    if (t->is_structure()){
-        int result = 0;
-        TypeS* tmp;
-        std::list<TypeS*> atributos = t->get_atributos(); 
-        while (!atributos.empty()){
-            tmp = atributos.front();
-            result += encajar_en_palabra(tamano_tipo(tmp));
-            atributos.pop_front();
-        }
-        return result;
-    }
-
-    if (t->is_union()){
-        int result = 0;
-        TypeS* tmp;
-        std::list<TypeS*> atributos = t->get_atributos();
-        while (!atributos.empty()){
-            tmp = atributos.front();
-            int tmp_size = encajar_en_palabra(tamano_tipo(tmp));
-            result = (result < tmp_size  ? tmp_size : result);
-            atributos.pop_front();
-        }
-    }
-    return -1; 
-}
 
 }
 
@@ -527,6 +523,7 @@ program: bloqueprincipal { //*$$ = Program(*$1);
                          };
 
 bloqueprincipal: { 
+                  tabla_actual.push_front(&driver.tablaSimbolos);
                   driver.tablaSimbolos.enterScope(); 
                  } 
                  bloquedeclare lfunciones  { //*$$ = new BloquePrincipal(*$2, *$3);
@@ -541,6 +538,7 @@ bloqueprincipal: {
 bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
                                           }
              | { declare_scope = driver.tablaSimbolos.currentScope(); 
+                 offset_actual = 0;
                }
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
@@ -623,13 +621,10 @@ union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
                                  int fsc = driver.tablaSimbolos.enterScope();
                                  TypeUnion* structure = new TypeUnion();
                                  structure->nombre = $2->identificador;
-                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure,fsc); 
+                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure); 
                                  identacion += "  ";
                                }
-                              lvariables '}' {  Symbol *tmp0 = obtener_tipo($2->identificador,&driver);
-                                                TypeUnion* type = (TypeUnion*) tmp0->true_type;
-                                                std::list<TypeS*> type_list = $5->get_type_list();
-                                                type->atributos = type_list;
+                              lvariables '}' { 
                                                 if (!error_state) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << $2->identificador << " {\n";
@@ -644,13 +639,10 @@ record: RECORD identificador '{'{
                                  int fsc = driver.tablaSimbolos.enterScope();
                                  TypeStructure* structure = new TypeStructure();
                                  structure->nombre = $2->identificador;
-                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure,fsc); 
+                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure); 
                                  identacion += "  ";
                                 } 
-                                lvariables '}' { Symbol *tmp0 = obtener_tipo($2->identificador,&driver);
-                                                 TypeStructure* type = (TypeStructure*) tmp0->true_type;
-                                                 std::list<TypeS*> type_list = $5->get_type_list();
-                                                 type->atributos = type_list;
+                                lvariables '}' { 
                                                  if (!error_state) {
                                                    std::cout << identacion << "Union " << $2->identificador << " {\n";
                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
@@ -1144,10 +1136,8 @@ expID: identificador   { TypeS* tipo;
                        Identificador *prueba = $1;
                        if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc)) != 0){
                             if (es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                Symbol* structure;
-                                structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name());
-                                attribute_scope = structure->fieldScope;
-                            }
+                                /* Codigo */
+                           }
                         } 
                     } lAccesoAtributos {
                                        };
@@ -1443,9 +1433,7 @@ larreglo: larreglo ',' exp      {
 lAccesoAtributos: '.' identificador { Symbol* id;
                                         if ((id = variable_no_declarada($2->identificador,&driver,yylloc,attribute_scope)) != 0){
                                             if (es_estructura(id->sym_catg)){
-                                                Symbol* structure;
-                                                structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name(),attribute_scope);
-                                                if (structure != 0) attribute_scope = structure->fieldScope;
+                                                /* Codigo */
                                             }
                                         }
                                     }
@@ -1453,9 +1441,7 @@ lAccesoAtributos: '.' identificador { Symbol* id;
                                                         Symbol* id;
                                                         if ((id = variable_no_declarada($3->identificador,&driver,yylloc,attribute_scope)) != 0){
                                                             if (es_estructura(id->sym_catg)){
-                                                                Symbol* structure;
-                                                                structure = driver.tablaSimbolos.lookup(dereference(id->true_type)->get_name(),attribute_scope);
-                                                                if (structure != 0) attribute_scope = structure->fieldScope;
+                                                                /* Codigo. */
                                                             }
                                                         }
                                                      };

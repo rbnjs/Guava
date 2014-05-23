@@ -60,10 +60,6 @@ std::pair<int,int*> TypeReal::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeReal::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeInt */
 
@@ -95,10 +91,6 @@ std::pair<int,int*> TypeInt::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeInt::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeError */
 
@@ -130,10 +122,6 @@ std::pair<int,int*> TypeError::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeError::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeBool */
 
@@ -165,10 +153,6 @@ std::pair<int,int*> TypeBool::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeBool::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeChar */
 
@@ -199,10 +183,6 @@ std::pair<int,int*> TypeChar::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeChar::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeString */
 
@@ -234,10 +214,6 @@ std::pair<int,int*> TypeString::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeString::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeFunction */
 
@@ -266,7 +242,7 @@ std::pair<int,int*> TypeFunction::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeFunction::get_atributos(){
+std::list<TypeS*> TypeFunction::get_parametros(){
     return parametros;
 }
 
@@ -300,14 +276,12 @@ std::pair<int,int*> TypeVoid::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeVoid::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class TypeArray */
 
 TypeArray::TypeArray(TypeS* t, int s, int* d ): tipo(t), size(s), dimensiones(d){}
+
+bool TypeArray::is_array() { return true; } 
 
 TypeS* TypeArray::get_tipo() { return tipo; }
 
@@ -320,10 +294,6 @@ std::pair<int,int*> TypeArray::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeArray::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}
 
 /* class Reference */
 
@@ -352,7 +322,3 @@ std::pair<int,int*> TypeReference::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeReference::get_atributos(){
-    std::list<TypeS*> r;
-    return r;
-}

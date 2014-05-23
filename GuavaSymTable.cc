@@ -53,40 +53,26 @@ void GuavaSymTable::insert(Symbol elem) {
     }
 }
 /* Inserta un simbolo */
-void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column){
-   Symbol* nuevo = new Symbol(name, catg, sc, type,line,column); 
+void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
+   Symbol* nuevo = new Symbol(name, catg, sc, type,line,column, offset); 
    this->insert(*nuevo);
 }
 
 
 /**
- * Agrega una variable arreglo o estructura a la tabla. Actualizada.
+ * Agrega una variable arreglo o estructura a la tabla.
  */
-void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li,int co){
-    Symbol* nuevo = new Symbol(name,catg,scop,t,li,co);
+void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li = 0,int co = 0, int offset = 0 ){
+    Symbol* nuevo = new Symbol(name,catg,scop,t,li,co, offset);
     this->insert(*nuevo);
 }
 
-/**
- * Inserta una funcion a la tabla.
- */
-void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li,int co, int fsc){
-    Symbol* nuevo = new Symbol(name,catg,scop,t,li,co,fsc);
-    this->insert(*nuevo);
-}
 
 /**
  * Inserta un tipo simple.
  */
 void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
     Symbol* nuevo = new Symbol(name,catg,sc,type);
-    this->insert(*nuevo);
-}
-/**
- * Inserta un record o union.
- */
-void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type, int fsc){
-    Symbol* nuevo = new Symbol(name,catg,sc,type,fsc);
     this->insert(*nuevo);
 }
 
@@ -210,9 +196,9 @@ std::unordered_map<std::string, std::list<Symbol> >::iterator GuavaSymTable::fin
 
 /* class TypeStructure */
 
-TypeStructure::TypeStructure(){}
+TypeStructure::TypeStructure(){ atributos = new GuavaSymTable();}
 
-TypeStructure::TypeStructure(std::list<TypeS*> la,std::string n = ""): atributos(la), nombre(n){}
+TypeStructure::TypeStructure(std::string n = ""):nombre(n){ atributos = new GuavaSymTable(); }
 
 bool TypeStructure::is_real()      { return false; }
 bool TypeStructure::is_int()       { return false; }
@@ -235,9 +221,6 @@ std::pair<int,int*> TypeStructure::get_dimensiones(){
     return p;
 }
 
-std::list<TypeS*> TypeStructure::get_atributos(){
-    return atributos;
-}
 
 /* class TypeUnion */
 
@@ -264,9 +247,5 @@ std::string TypeUnion::get_name() { return nombre; }
 std::pair<int,int*> TypeUnion::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
-}
-
-std::list<TypeS*> TypeUnion::get_atributos(){
-    return atributos;
 }
 

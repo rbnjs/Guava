@@ -1,3 +1,5 @@
+// LOS NUMEROS NO LOS ESTA RECONOCIENDOOOOOOOOOO :'(
+
 %skeleton "lalr1.cc" /* -*- C++ -*- */
 %require "2.6"
 /*%require "2.6.90.8-d4fe"*/
@@ -1228,7 +1230,9 @@ lvarovalor2: lvarovalor2 ',' exp     {
 
 exp: expAritmetica  { $$ = $1; }
    | expBool        { $$ = $1; } 
-   | valor          { $$ = $1; }
+   | valor          { $$ = $1;
+                      std::cout << "\n\nHola, soy un valor y valgo: " << ($1->tipo->get_name()) << "\n\n";
+                    }
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
    | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
@@ -1326,6 +1330,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                        { std::string * op = new std::string("-");
                                          $$ = new ExpUn(*$2,op);
                                          $$->tipo = $2->tipo;
+
+                                         std::cout<<"\n\nHOLIXXXXXXXXXXXXXXX estoy en menos unario\n\n";
                                        }
                                        else {
                                        }
@@ -1441,11 +1447,11 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                        }
                                        else {
                                          if ($1->tipo != TypeInt::Instance()) {
-                                            std::string msg = mensaje_error_tipos("integer'",$1->tipo->get_name());
+                                            std::string msg = mensaje_error_tipos("integer",$1->tipo->get_name());
                                             driver.error(yylloc,msg);
                                          }
                                          else {
-                                            std::string msg = mensaje_error_tipos("integer'",$3->tipo->get_name());
+                                            std::string msg = mensaje_error_tipos("integer",$3->tipo->get_name());
                                             driver.error(yylloc,msg);
                                          }
                                          $$->tipo = TypeError::Instance();
@@ -1458,17 +1464,35 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                        }
                                        else {
                                          if ($1->tipo != TypeInt::Instance()) {
-                                            std::string msg = mensaje_error_tipos("integer'",$1->tipo->get_name());
-                                            driver.error(yylloc,msg);
+                                             std::string msg = mensaje_error_tipos("integer",$1->tipo->get_name());
+                                             driver.error(yylloc,msg);
                                          }
                                          else {
-                                            std::string msg = mensaje_error_tipos("integer'",$3->tipo->get_name());
-                                            driver.error(yylloc,msg);
+                                             std::string msg = mensaje_error_tipos("integer",$3->tipo->get_name());
+                                             driver.error(yylloc,msg);
                                          }
                                          $$->tipo = TypeError::Instance();
                                        }
                                      }
-             | exp POW exp           { //OJO: Se puede aplicar exponenciacion a numeros reales?
+             | exp POW exp           { //El exponente sera integer, la base integer o real.
+                                       $$ = new ExpBin(*$1,*$3,std::string("**"));
+                                       if ($3->tipo == TypeInt::Instance()) {
+                                           if($1->tipo == TypeInt::Instance() ||
+                                              $1->tipo == TypeReal::Instance()) {
+                                              $$->tipo = $1->tipo;
+                                           }
+                                           else {
+                                               std::string msg = mensaje_error_tipos("integer' or 'real",$3->tipo->get_name());
+                                               driver.error(yylloc,msg);
+                                               $$->tipo = TypeError::Instance();
+                                           }
+                                       }
+                                       else {
+                                           std::string msg = mensaje_error_tipos("integer",$3->tipo->get_name());
+                                           driver.error(yylloc,msg);
+                                           $$->tipo = TypeError::Instance();
+                                       }
+                                     
                                      };
 
 /*Funciona*/
@@ -1501,23 +1525,18 @@ valor: BOOL     {
 /* PRUEBA CON LA NUEVA FORMA DE USAR TIPOS*/
 tipo: TYPE_REAL     { 
                       $$ = TypeReal::Instance();
-                      //$$ = new Tipo(*(new std::string("real")), TypeReal::Instance() );
                     }
      | TYPE_INTEGER { 
                       $$ = TypeInt::Instance();
-                      //$$ = new Tipo(*(new std::string("integer")), TypeInt::Instance() );
                     }
      | TYPE_BOOLEAN { 
                       $$ = TypeBool::Instance();
-                      //$$ = new Tipo(*(new std::string("boolean")), TypeBool::Instance() );
                     }
      | TYPE_CHAR    { 
                       $$ = TypeChar::Instance();
-                      //$$ = new Tipo(*(new std::string("character")), TypeChar::Instance() );
                     }
      | TYPE_STRING  { 
                       $$ = TypeString::Instance();
-                      //$$ = new Tipo(*(new std::string("string")), TypeString::Instance() );
                     };
 
 

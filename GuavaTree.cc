@@ -25,9 +25,6 @@
 Identificador::Identificador(){
 }
 
-Identificador::Identificador(std::string i):identificador(i) {
-}
-
 Identificador::~Identificador() {}
 
 void Identificador::show(std::string s) {

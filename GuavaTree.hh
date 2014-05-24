@@ -52,9 +52,12 @@ public:
     std::string identificador;
     int line;
     int column;
+    TypeS* tipo;
     
+    TypeS* get_tipo() { return tipo; }; 
     Identificador();
-    Identificador(std::string); 
+    Identificador(std::string s, TypeS* t = 0): identificador(s), tipo(t){
+    }
     ~Identificador();
     
     virtual void show(std::string);

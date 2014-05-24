@@ -195,11 +195,13 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
         for (itList ; itList != itTabla->second.end() ; ++itList){
             Symbol tmp = *itList;
             if (tmp.scope == sc ){
-                if (tmp.true_type != 0) result.push_front(tmp.true_type);
-                else {
-                    Symbol *tmp2 = tmp.type_pointer;
-                    if (tmp2->true_type == 0) continue;
-                    result.push_front(tmp2->true_type);
+                if (tmp.sym_catg != "unionType" && tmp.sym_catg != "recordType"){
+                    if (tmp.true_type != 0) result.push_front(tmp.true_type);
+                    else {
+                        Symbol *tmp2 = tmp.type_pointer;
+                        if (tmp2->true_type == 0) continue;
+                        result.push_front(tmp2->true_type);
+                    }
                 }
             }
         }

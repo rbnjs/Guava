@@ -1048,11 +1048,10 @@ asignacion: expID ASSIGN exp  {
             | expID ASSIGN error {};
 
 
-/*Esto hay que cambiarlo.*/
-entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
+entradasalida: READ '(' exp ')' { //*$$ = EntradaSalida(0, *$3); 
                                        }
-             | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
-                                         };
+             | PRINT '(' exp ')'  { //*$$ = EntradaSalida(1, *$3); 
+                                  };
 
 loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   
@@ -1571,7 +1570,14 @@ lAccesoAtributos: '.' identificador {
                 | lAccesoAtributos '.' identificador {
                                                         $1->append($3);
                                                         $$ = $1;
-                                                     };
+                                                     }
+                | lAccesoAtributos '.' identificador lcorchetesExp {
+                                                                    $1->append($3);
+                                                                    $$ = $1;
+                                                                   }
+                | '.' identificador lcorchetesExp                  {
+                                                                     $$ = new LAccesoAtributos($2);
+                                                                   }
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

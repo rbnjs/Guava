@@ -1,0 +1,24 @@
+declare{
+    record Element{
+        character array name[2];
+        integer atomic_number;
+        real atomic_weight;
+        boolean metallic;
+        union Variant{
+            record naturally_ocurring{
+                string source;
+                real prevalence;
+            };
+            naturally_ocurring record n;
+            real lifetime;
+        };
+        boolean n_u;
+        Variant union variant;
+    };
+    Element record e;
+    integer hola;
+}
+function void main(){
+    e.name[0] := 'a';
+    e.atomic_number := 8;
+}

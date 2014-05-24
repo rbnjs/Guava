@@ -48,107 +48,6 @@ void Tipo::show(std::string s) {
 }
 
 
-/* Class Valor */
-
-Valor::Valor(){}
-
-Valor::Valor(float f) {
-    valor.real = f;
-}
-
-Valor::Valor(int i) {
-    valor.integer = i;
-}
-
-Valor::Valor(char c) {
-    valor.ch = c;
-}
-
-Valor::Valor(std::string* s) {
-    valor.str = s;
-}
-
-Valor::Valor(bool b){
-    valor.boolean = b;
-}
-
-Valor::Valor(LArreglo* l){
-    valor.listaA = l;
-}
-
-Valor::~Valor() {
-}
-
-void Valor::show(std::string s) {
-} 
-
-
-/* Class Real */
-
-Real::Real(float f):Valor(f){
-}
-
-Real::~Real() {}
-
-void Real::show(std::string s) {
-    std::cout << s << "Real: " << valor.real << '\n';
-}
-
-
-/* Class Integer */
-
-Integer::Integer(): Valor(0){
-}
-
-Integer::Integer(int i): Valor(i) {}
-
-Integer::~Integer() {}
-
-int Integer::getValor(){return valor.integer;}
-
-void Integer::show(std::string s) {
-    std::cout << s << "Entero: " << valor.integer << '\n';
-} 
-
-
-/* Class Char */
-
-Char::Char(char c): Valor(c){
-}
-
-Char::~Char() {}
-
-void Char::show(std::string s) {
-    std::cout << s << "Caracter: " << valor.ch << '\n';
-}
-
-
-/* Class String */
-  
-String::String(char* s): Valor(new std::string(s)) {
-}
-
-String::String(std::string* s):Valor(s){
-}
-
-String::~String() {}
-
-void String::show(std::string s){
-}
-
-
-/* Class Bool */
-
-Bool::Bool(bool b2): Valor(b2){
-}
-
-Bool::~Bool(){}
-
-void Bool::show(std::string s){
-    std::cout << s << "Booleano: " << valor.boolean << '\n';
-}
-
-
 /* Class LCorchetes */
 
 LCorchetes::LCorchetes() {
@@ -365,11 +264,10 @@ void LArreglo::show(std::string s) {}
 
 /* Class Arreglo */
 
-Arreglo::Arreglo():Valor(){
-    valor.listaA = 0;
+Arreglo::Arreglo(){
 }
 
-Arreglo::Arreglo(LArreglo* l):Valor(l){
+Arreglo::Arreglo(LArreglo* la_):la(la_){
 }
     
 Arreglo::~Arreglo() { 

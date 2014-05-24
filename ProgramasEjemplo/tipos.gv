@@ -1,0 +1,10 @@
+declare {
+    integer a,b,c;
+    character d;
+    real e;
+}
+
+function void main() {
+    a := 1;
+    b := a+e;
+}

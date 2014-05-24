@@ -1046,11 +1046,10 @@ asignacion: expID ASSIGN exp  {
             | expID ASSIGN error {};
 
 
-/*Esto hay que cambiarlo.*/
-entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3); 
+entradasalida: READ '(' exp ')' { //*$$ = EntradaSalida(0, *$3); 
                                        }
-             | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
-                                         };
+             | PRINT '(' exp ')'  { //*$$ = EntradaSalida(1, *$3); 
+                                  };
 
 loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   

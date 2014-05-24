@@ -18,6 +18,7 @@
 #include <string>
 #include <iostream>
 #include "Symbol.hh"
+#include <sstream>
 
 Symbol::Symbol(){}
 
@@ -71,6 +72,19 @@ std::string to_string(TypeS* t){
         }
         result += ") -> ";
         result += to_string(t->get_tipo());
+        return result;
+    }
+    if (t->is_array()){
+        std::string result ("array( ");
+        std::pair<int,int*> par = t->get_dimensiones();
+        for (int i = 0 ; i < par.first ; i++ ){
+            std::ostringstream convert;
+            convert << par.second[i];
+            result += "[" + convert.str();
+            result += " ]"; 
+        }
+        result += ", "+ t->get_name();
+        result += ")";
         return result;
     }
     return t->get_name();

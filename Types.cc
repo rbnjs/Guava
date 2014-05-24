@@ -285,7 +285,7 @@ bool TypeArray::is_array() { return true; }
 
 TypeS* TypeArray::get_tipo() { return tipo; }
 
-std::string TypeArray::get_name() { return std::string(""); }
+std::string TypeArray::get_name() { return tipo->get_name(); }
 
 std::pair<int,int*> TypeArray::get_dimensiones(){
     std::pair<int,int*> p; 

@@ -219,11 +219,12 @@ int encajar_en_palabra(int tam){
  * se retorna -1.
  */
 int tamano_tipo(TypeS* t){
-    if (t->is_bool()) return SIZE_BOOL;
-    if (t->is_real()) return SIZE_REAL;
-    if (t->is_int()) return SIZE_INT;
-    if (t->is_char()) return SIZE_CHAR;
-    if (t->is_reference()) return SIZE_REFERENCE;
+    if (t->is_bool()) return encajar_en_palabra(SIZE_BOOL);
+    if (t->is_real()) return encajar_en_palabra(SIZE_REAL);
+    if (t->is_int()) return encajar_en_palabra(SIZE_INT);
+    if (t->is_char()) return encajar_en_palabra(SIZE_CHAR);
+    if (t->is_reference()) return encajar_en_palabra(SIZE_REFERENCE);
+    if (t->is_str()) return encajar_en_palabra(SIZE_REFERENCE);
     int result;
 
     if (t->is_structure()){
@@ -246,7 +247,7 @@ int tamano_tipo(TypeS* t){
         std::list<TypeS*> list = u->atributos->get_types(0);
         while (!list.empty()){
             tmp = list.front();
-            result = std::max(result, tamano_tipo(tmp));
+            result = std::max(result, encajar_en_palabra(tamano_tipo(tmp)));
             list.pop_front();
         }
         return result;
@@ -290,10 +291,14 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
             line = it->line;
             column = it->column;
             int offset = offset_actual.front();
-            offset_actual.pop_front();
-            tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
-            offset += tamano_tipo(t); 
-            offset_actual.push_front(offset);
+            if (offset != -1){
+                offset_actual.pop_front();
+                tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+                offset += tamano_tipo(t); 
+                offset_actual.push_front(offset);
+            } else {
+                tabla->insert(it->identificador,estilo,scope,p,line,column,0);
+            }
         }
     }
 }
@@ -318,10 +323,15 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
         return;
     }
     int offset = offset_actual.front();
-    offset_actual.pop_front();
-    tabla->insert(identificador->identificador,estilo,scope,p,line,column, offset);
-    offset += tamano_tipo(t); 
-    offset_actual.push_front(offset);
+
+    if (offset != -1){
+        offset_actual.pop_front();
+        tabla->insert(identificador->identificador,estilo,scope,p,line,column,offset);
+        offset += tamano_tipo(t); 
+        offset_actual.push_front(offset);
+    } else {
+            tabla->insert(identificador->identificador,estilo,scope,p,line,column,0);
+    }
 }
 
 /**
@@ -361,10 +371,14 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             line = par.first.line;
             column = par.first.column;
             int offset = offset_actual.front();
-            offset_actual.pop_front();
-            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
-            offset += tamano_tipo(t); 
-            offset_actual.push_front(offset);
+            if (offset != -1){
+                offset_actual.pop_front();
+                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+                offset += tamano_tipo(t); 
+                offset_actual.push_front(offset);
+            } else {
+                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+            }
         }
     }
 }
@@ -411,10 +425,14 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
             line = it->line;
             column = it->column;
             int offset = offset_actual.front();
-            offset_actual.pop_front();
-            tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
-            offset += tamano_tipo(reference); 
-            offset_actual.push_front(offset);
+            if (offset != -1){
+                offset_actual.pop_front();
+                tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
+                offset += tamano_tipo(reference); 
+                offset_actual.push_front(offset);
+            } else {
+                tabla->insert(it->identificador,estilo,scope,reference,line,column, 0);
+            }
         }
     }
     return reference;
@@ -458,10 +476,14 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             line = par.first.line;
             column = par.first.column;
             int offset = offset_actual.front();
-            offset_actual.pop_front();
-            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
-            offset += tamano_tipo(reference0); 
-            offset_actual.push_front(offset);
+            if (offset != -1){
+                offset_actual.pop_front();
+                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
+                offset += tamano_tipo(reference0); 
+                offset_actual.push_front(offset);
+            } else {
+                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, 0);
+            }
         }
     }
     return reference0;
@@ -714,7 +736,7 @@ union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
                                  tabla->insert_type($2->identificador, std::string("unionType"),n,structure); 
                                  tabla_actual.push_front(structure->atributos);
                                  identacion += "  ";
-                                 offset_actual.push_front(0);
+                                 offset_actual.push_front(-1);
                                }
                               lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();

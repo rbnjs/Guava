@@ -5,6 +5,6 @@ declare {
 }
 
 function void main() {
-    a := 1;
+    a := 1 + 2;
     b := a+e;
 }

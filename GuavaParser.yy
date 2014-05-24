@@ -1213,12 +1213,12 @@ lvarovalor: /* Vacio */   {
                           };      
           
 lvarovalor2: lvarovalor2 ',' exp     { 
-                                      $1->append(*$3);
+                                      $1->append($3);
                                       $$ = $1;
                                      }
            | exp                     {
                                        LVaroValor *tmp = new LVaroValor();
-                                       tmp->append(*$1);
+                                       tmp->append($1);
                                        $$ = tmp; 
                                      }
            | lvarovalor2 ',' error   {}
@@ -1230,7 +1230,6 @@ lvarovalor2: lvarovalor2 ',' exp     {
 exp: expAritmetica  { $$ = $1; }
    | expBool        { $$ = $1; } 
    | valor          { $$ = $1;
-                      std::cout << "\n\nHola, soy un valor y valgo: " << ($1->tipo->get_name()) << "\n\n";
                     }
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
@@ -1372,8 +1371,8 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                        else {
                                          if ($1->tipo != TypeInt::Instance() &&
                                              $1->tipo != TypeReal::Instance()) {
-                                            std::string msg = mensaje_error_tipos("integer' or 'real",$1->tipo->get_name());
-                                            driver.error(yylloc,msg);
+                                             std::string msg = mensaje_error_tipos("integer' or 'real",$1->tipo->get_name());
+                                             driver.error(yylloc,msg);
                                          }
                                          else {
                                             std::string msg = mensaje_error_tipos("integer' or 'real",$3->tipo->get_name());
@@ -1494,7 +1493,6 @@ expAritmetica: '-' exp %prec UMINUS  { if ($2->tipo == TypeInt::Instance() ||
                                      
                                      };
 
-/*Funciona*/
 valor: BOOL     { 
                   $$ = new Bool($1);
                   $$->tipo = TypeBool::Instance();

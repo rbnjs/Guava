@@ -40,27 +40,8 @@
  */
 class Exp{
 public:
-    TypeS* tipo;
-    Exp* exp;
-    
-    Exp();
-    Exp(Exp*);
-    ~Exp();
-    
-    virtual void show(std::string);
-};
-
-/**
- * Describe las expresiones parentizadas.
- */
-class ExpParentizada: public Exp{
-public:
-    Exp exp;
-
-    ExpParentizada(Exp);    
-    ~ExpParentizada();
-    
-    virtual void show(std::string);
+    TypeS* get_tipo() { return 0; }; 
+    virtual void show(std::string) = 0;
 };
 
 /**
@@ -99,10 +80,10 @@ public:
  */
 class LArreglo{
 public:
-    std::list<Exp> larr;
+    std::list<Exp*> larr;
 
     LArreglo();
-    void append(Exp);
+    void append(Exp*);
     ~LArreglo();
     
     void show(std::string);
@@ -133,9 +114,11 @@ public:
     Valor(float);
     Valor(int);
     Valor(char);
-    Valor(std::string);
+    Valor(std::string*);
     Valor(bool);
     Valor(LArreglo*);
+
+    TypeS* get_tipo() { return tipo; }
 
     ~Valor();
 
@@ -149,6 +132,7 @@ class Real: public Valor{
 public:
     
     Real(float);    
+    float get_valor() { return valor.real; };
     ~Real();
     
     virtual void show(std::string);
@@ -171,9 +155,9 @@ public:
  */
 class Char: public Valor{
 public:
-    char ch;
     
     Char(char);
+    char get_valor() { return valor.ch; } 
     ~Char();
     
     virtual void show(std::string);
@@ -184,10 +168,10 @@ public:
  */
 class String: public Valor{
 public:
-    std::string str;
 
     String(char*);    
-    String(std::string);    
+    String(std::string*);    
+    std::string* get_valor(){ return valor.str; } 
     ~String();
     
     virtual void show(std::string);
@@ -198,9 +182,9 @@ public:
  */
 class Bool: public Valor{
 public:
-    bool b;
     
     Bool(bool);    
+    bool  get_valor() { return valor.boolean; }
     ~Bool();
     
     virtual void show(std::string);
@@ -225,13 +209,15 @@ public:
  */
 class ExpUn:public Exp{
 public:
-    Exp exp;
+    Exp* exp;
+    TypeS* tipo;
     LCorchetes* corchetes;
     std::string *operacion;
     
-    ExpUn(Exp, std::string*);
-    ExpUn(Exp, LCorchetes*);    
+    ExpUn(Exp*, std::string*);
+    ExpUn(Exp*, LCorchetes*);    
     ~ExpUn();
+    TypeS* get_tipo() { return tipo;}
 
     virtual void show(std::string);
 };
@@ -241,11 +227,14 @@ public:
  */
 class ExpBin: public Exp{
 public:
-    Exp exp1,exp2;
+    TypeS* tipo;
+    Exp* exp1;
+    Exp* exp2;
     std::string operacion;
     ExpBin(); 
-    ExpBin(Exp,Exp,std::string);
+    ExpBin(Exp*,Exp*,std::string);
     ~ExpBin();
+    TypeS* get_tipo() { return tipo;}
     
     virtual void show(std::string);
 };
@@ -255,14 +244,8 @@ public:
  */
 class Instruccion{
 public:
-    TypeS* tipo;
-    Instruccion* instruccion;
-    
-    Instruccion();
-    Instruccion(Instruccion*);
-    ~Instruccion();
-    
-    virtual void show(std::string);
+    TypeS* get_tipo(); 
+    virtual void show(std::string) = 0;
 };
 
 /**
@@ -432,7 +415,7 @@ public:
     LElseIf* lelseif;
 
     LElseIf();
-    LElseIf(Exp, BloqueDeclare, ListaInstrucciones, LElseIf*);
+    LElseIf(Exp*, BloqueDeclare, ListaInstrucciones, LElseIf*);
     LElseIf(BloqueDeclare, ListaInstrucciones);
     ~LElseIf();
 
@@ -445,16 +428,18 @@ public:
  */
 class SelectorIf: public Instruccion{
 public:
-    Exp exp;
+    TypeS* tipo;
+    Exp* exp;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
     Instruccion* instruccion1; 
     Instruccion* instruccion2;
     LElseIf* lelseif;
     
-    SelectorIf(Exp, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
-    SelectorIf(Exp, Instruccion*, Instruccion*);    
+    SelectorIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
+    SelectorIf(Exp*, Instruccion*, Instruccion*);    
     ~SelectorIf(); 
+    TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
 };
@@ -464,11 +449,13 @@ public:
  */
 class LoopWhile: public Instruccion{
 public:
-    Exp exp;
-    BloqueDeclare declaraciones;
-    ListaInstrucciones listainstrucciones;
+    Exp* exp;
+    TypeS* tipo;
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listainstrucciones;
 
-    LoopWhile(Exp, BloqueDeclare, ListaInstrucciones);
+    LoopWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
+    TypeS* get_tipo() { return tipo; } 
     ~LoopWhile();
 
     void show(std::string);
@@ -480,18 +467,20 @@ public:
  */
 class Asignacion: public Instruccion{
 public:
-    Identificador identificador;
+    Identificador* identificador;
     Identificador* identificador2;
+    TypeS* tipo;
     LCorchetes* lcorchetes;
     Arreglo* arreglo;
     Exp* exp;
 
     Asignacion();
-    Asignacion(Identificador, Exp);
-    Asignacion(Identificador, LCorchetes, Exp);
-    Asignacion(Identificador,Identificador,Exp);
-    Asignacion(Identificador, Arreglo);
+    Asignacion(Identificador*, Exp*);
+    Asignacion(Identificador*, LCorchetes*, Exp*);
+    Asignacion(Identificador*,Identificador*,Exp*);
+    Asignacion(Identificador*, Arreglo*);
     ~Asignacion();
+    TypeS* get_tipo() { return tipo; } 
 
     void show(std::string);
 };
@@ -501,16 +490,18 @@ public:
  */
 class LoopFor: public Instruccion{
 public:
-    Identificador identificador;
-    Exp exp;
+    Identificador* identificador;
+    TypeS* tipo;
+    Exp* exp;
     Asignacion* asignacion;
     Exp* exp2;
-    BloqueDeclare declaraciones;
-    ListaInstrucciones listainstrucciones;
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listainstrucciones;
 
-    LoopFor(Identificador, Exp, Exp, BloqueDeclare, ListaInstrucciones);
-    LoopFor(Identificador, Exp, Asignacion, BloqueDeclare, ListaInstrucciones);
+    LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
+    LoopFor(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopFor();  
+    TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
 };
@@ -539,9 +530,9 @@ public:
 class LVaroValor{
 public:
     TypeS* tipo;
-    std::list<Exp> lvarovalor;
+    std::list<Exp*> lvarovalor;
     LVaroValor();
-    void append(Exp e);
+    void append(Exp* e);
     ~LVaroValor();        
     
     void show(std::string);

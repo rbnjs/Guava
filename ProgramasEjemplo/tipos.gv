@@ -6,5 +6,5 @@ declare {
 
 function void main() {
     a := 1;
-    b := a+e;
+    b := a<=>d;
 }

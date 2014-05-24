@@ -93,7 +93,7 @@ int attribute_scope;
 int declare_scope;
 int error_state;
 std::string identacion ("");
-int offset_actual;
+std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 
 /**
@@ -289,8 +289,11 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
             scope = tabla->currentScope();
             line = it->line;
             column = it->column;
-            tabla->insert(it->identificador,estilo,scope,p,line,column,offset_actual);
-            offset_actual += tamano_tipo(t); 
+            int offset = offset_actual.front();
+            offset_actual.pop_front();
+            tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+            offset += tamano_tipo(t); 
+            offset_actual.push_front(offset);
         }
     }
 }
@@ -314,8 +317,11 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
         d->error(loc,reportar_existencia(s,identificador->identificador));
         return;
     }
-    tabla->insert(identificador->identificador,estilo,scope,p,line,column, offset_actual);
-    offset_actual += tamano_tipo(t); 
+    int offset = offset_actual.front();
+    offset_actual.pop_front();
+    tabla->insert(identificador->identificador,estilo,scope,p,line,column, offset);
+    offset += tamano_tipo(t); 
+    offset_actual.push_front(offset);
 }
 
 /**
@@ -354,8 +360,11 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;
-            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset_actual);
-            offset_actual += tamano_tipo(arr); 
+            int offset = offset_actual.front();
+            offset_actual.pop_front();
+            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+            offset += tamano_tipo(t); 
+            offset_actual.push_front(offset);
         }
     }
 }
@@ -401,8 +410,11 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
             scope = tabla->currentScope();
             line = it->line;
             column = it->column;
-            tabla->insert(it->identificador,estilo,scope,reference,line,column, offset_actual);
-            offset_actual += tamano_tipo(reference); 
+            int offset = offset_actual.front();
+            offset_actual.pop_front();
+            tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
+            offset += tamano_tipo(reference); 
+            offset_actual.push_front(offset);
         }
     }
     return reference;
@@ -445,7 +457,11 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;
-            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset_actual);
+            int offset = offset_actual.front();
+            offset_actual.pop_front();
+            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
+            offset += tamano_tipo(reference0); 
+            offset_actual.push_front(offset);
         }
     }
     return reference0;
@@ -593,14 +609,14 @@ void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
 /*%destructor { delete $$; } ID*/
 %% /* Reglas */
 
-program: bloqueprincipal { //*$$ = Program(*$1); 
+program: bloqueprincipal { //$$ = Program(*$1); 
                          };
 
 bloqueprincipal: { 
                   tabla_actual.push_front(&driver.tablaSimbolos);
                   driver.tablaSimbolos.enterScope(); 
                  } 
-                 bloquedeclare lfunciones  { //*$$ = new BloquePrincipal(*$2, *$3);
+                 bloquedeclare lfunciones  { //$$ = new BloquePrincipal(*$2, *$3);
                                              if (!error_state) {
                                                 std::cout << "Funciones: " << '\n';
                                                 driver.tablaSimbolos.show(0,identacion+ "  ");
@@ -612,7 +628,7 @@ bloqueprincipal: {
 bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
                                           }
              | { declare_scope = driver.tablaSimbolos.currentScope(); 
-                 offset_actual = 0;
+                 offset_actual.push_front(0);
                }
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
@@ -698,6 +714,7 @@ union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
                                  tabla->insert_type($2->identificador, std::string("unionType"),n,structure); 
                                  tabla_actual.push_front(structure->atributos);
                                  identacion += "  ";
+                                 offset_actual.push_front(0);
                                }
                               lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
@@ -707,6 +724,7 @@ union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
                                                     tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                     std::cout << identacion <<"}\n";
                                                 }
+                                                offset_actual.pop_front();
                                                 tabla_actual.pop_front();
                                              }
 
@@ -718,6 +736,7 @@ record: RECORD identificador '{'{
                                  tabla->insert_type($2->identificador, std::string("recordType"),n,structure); 
                                  tabla_actual.push_front(structure->atributos);
                                  identacion += "  ";
+                                 offset_actual.push_front(0);
                                 } 
                                 lvariables '}' { 
                                                  GuavaSymTable* tabla = tabla_actual.front();
@@ -727,6 +746,7 @@ record: RECORD identificador '{'{
                                                    std::cout << identacion <<"}\n";
                                                    identacion.erase(0,2);
                                                  }
+                                                offset_actual.pop_front();
                                                  tabla_actual.pop_front();
                                                }
 

@@ -66,10 +66,10 @@ std::string to_string(TypeS* t){
         while (!tmp.empty()){
             TypeS* parametro = tmp.front();
             result += to_string(parametro);
-            result += ", ";
             tmp.pop_front();
+            result += (!tmp.empty() ? ", " : "");
         }
-        result += ") ->";
+        result += ") -> ";
         result += to_string(t->get_tipo());
         return result;
     }

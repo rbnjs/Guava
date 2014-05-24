@@ -166,7 +166,9 @@ int GuavaSymTable::exitScope(){
         return -1;
     }
 }
-
+/**
+ * Retorna el entorno actual
+ */
 int GuavaSymTable::currentScope(){
     return pila.front();
 }
@@ -185,20 +187,32 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
-/* falta la funcion update */
-
-
-std::unordered_map<std::string, std::list<Symbol> >::iterator GuavaSymTable::find(std::string s){
-    return tabla.find(s);
+std::list<TypeS*> GuavaSymTable::get_types(int sc){
+    std::list<TypeS*> result;
+    std::unordered_map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
+    for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
+        std::list<Symbol>::iterator itList = itTabla->second.begin();
+        for (itList ; itList != itTabla->second.end() ; ++itList){
+            Symbol tmp = *itList;
+            if (tmp.scope == sc ){
+                if (tmp.true_type != 0) result.push_front(tmp.true_type);
+                else {
+                    Symbol *tmp2 = tmp.type_pointer;
+                    if (tmp2->true_type == 0) continue;
+                    result.push_front(tmp2->true_type);
+                }
+            }
+        }
+    }
+    return result;
 }
-
 
 
 /* class TypeStructure */
 
 TypeStructure::TypeStructure(){ atributos = new GuavaSymTable();}
 
-TypeStructure::TypeStructure(std::string n = ""):nombre(n){ atributos = new GuavaSymTable(); }
+TypeStructure::TypeStructure(std::string n ):nombre(n){ atributos = new GuavaSymTable(); }
 
 bool TypeStructure::is_real()      { return false; }
 bool TypeStructure::is_int()       { return false; }
@@ -224,9 +238,9 @@ std::pair<int,int*> TypeStructure::get_dimensiones(){
 
 /* class TypeUnion */
 
-TypeUnion::TypeUnion(){}
+TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }
 
-TypeUnion::TypeUnion(std::list<TypeS*> la , std::string n = ""):atributos(la), nombre(n){}
+TypeUnion::TypeUnion(std::string n ):nombre(n){ atributos = new GuavaSymTable();}
 
 bool TypeUnion::is_real()      { return false; }
 bool TypeUnion::is_int()       { return false; }

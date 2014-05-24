@@ -106,7 +106,6 @@ public:
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
-    
 private:
     TypeError(){};
     static TypeError* error_instance;

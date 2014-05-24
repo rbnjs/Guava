@@ -47,8 +47,7 @@ public:
     Symbol* lookup(std::string, int);                                      /* Busca un simbolo con un scope determinado */
     Symbol* simple_lookup(std::string elem);                               /* Busca un simbolo en el alcance actual */
     void show(int,std::string);                                            /* Muestra la tabla */
-    std::unordered_map<std::string, std::list<Symbol> >::iterator find(std::string);
-
+    std::list<TypeS*> get_types(int sc);                                   /* Obtiene todos los tipos de un alcance determinado. */
 };
 
 class TypeStructure :public TypeS{
@@ -78,12 +77,12 @@ public :
 
 class TypeUnion :public TypeS{
 public :
-    std::list<TypeS*> atributos;
+    GuavaSymTable* atributos;
     std::string nombre;
     int size;
     std::list<int> offsets;
     TypeUnion();
-    TypeUnion(std::list<TypeS*>, std::string n);
+    TypeUnion(std::string n);
     ~TypeUnion();
     bool is_int() ; 
     bool is_real ();

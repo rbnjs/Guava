@@ -655,4 +655,25 @@ public:
 
     virtual void show(std::string);
 }; 
+/**
+ * Clase para hacer la revision de LAccesoAtributos.
+ */
+class LAccesoAtributos{
+    std::list<Identificador*> lista;  
+public:
+    LAccesoAtributos(){}
 
+    LAccesoAtributos(Identificador* i){
+        lista.push_front(i);
+    }
+
+    ~LAccesoAtributos(){}
+
+    void append(Identificador* i){
+        lista.push_front(i);
+    }
+    
+    std::list<Identificador*> get_list(){
+        return lista;
+    }
+};

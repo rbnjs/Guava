@@ -10,6 +10,7 @@
 # include <list>
 # include <utility>
 # include <typeinfo>
+# include <algorithm>
 # include "GuavaTree.hh"
 class GuavaDriver;
 }
@@ -72,7 +73,7 @@ class GuavaDriver;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
     Identificador *classIdentificador;
-
+    LAccesoAtributos *classLAccesoAtributos;
     /*ExpParentizada *classExpParentizada;
     Real *classReal;
     Integer *classInteger;
@@ -125,9 +126,10 @@ bool es_estructura(std::string categoria){
  * Reporta cuando una variable se trata de usar y esta no 
  * estaba declarada.
  */
-Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc){
+Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t){
     Symbol* id;
-    if ((id = driver->tablaSimbolos.lookup(name)) == 0) {
+    if ((id = t->lookup(name)) == 0) {
+        std::cout << "1 \n";
         std::string msg ("Undeclared identifier '");
         msg += name;
         msg += "'";
@@ -137,13 +139,14 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
     }
     return id;
 }
+
 /**
  * Reporta cuando una variable se trata de usar y esta no 
  * estaba declarada con un scope determinado.
  */
-Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, int scope){
+Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, int scope, GuavaSymTable* t){
     Symbol* id;
-    if ((id = driver->tablaSimbolos.lookup(name, scope )) == 0) {
+    if ((id = t->lookup(name, scope )) == 0) {
         std::string msg ("Undeclared identifier '");
         msg += name;
         msg += "'";
@@ -195,8 +198,8 @@ std::string no_es_tipo(std::string id){
  * Funcion que dado una instancia de la clase Tipo
  * y la tabla de simbolos retorna la direccion en donde esta el tipo.
  */
-Symbol* obtener_tipo(std::string t, GuavaDriver *d){
-    Symbol *s = d->tablaSimbolos.lookup(t);
+Symbol* obtener_tipo(std::string str, GuavaDriver *d, GuavaSymTable* t){
+    Symbol *s = t->lookup(str);
     if (s == 0) return 0;
     if (s->true_type == 0) return 0;
     return s;
@@ -221,20 +224,41 @@ int tamano_tipo(TypeS* t){
     if (t->is_int()) return SIZE_INT;
     if (t->is_char()) return SIZE_CHAR;
     if (t->is_reference()) return SIZE_REFERENCE;
+    int result;
 
     if (t->is_structure()){
-        int result = 0;
+        result = 0;
         TypeS* tmp;
+        TypeStructure *s = (TypeStructure*) t;
+        std::list<TypeS*> list = s->atributos->get_types(0);
+        while (!list.empty()){
+            tmp = list.front();
+            result += encajar_en_palabra(tamano_tipo(tmp));
+            list.pop_front();
+        }
         return result;
     }
 
     if (t->is_union()){
-        int result = 0;
+        result = 0;
         TypeS* tmp;
+        TypeUnion* u = (TypeUnion*) t;
+        std::list<TypeS*> list = u->atributos->get_types(0);
+        while (!list.empty()){
+            tmp = list.front();
+            result = std::max(result, tamano_tipo(tmp));
+            list.pop_front();
+        }
         return result;
     }
+
     if (t->is_array()){
-       return 0; 
+        std::pair<int, int*> dimensiones = t->get_dimensiones();
+        result = 1;
+        for (int i = 0 ; i < dimensiones.first; ++i){
+            result *= dimensiones.second[i];
+        }
+        return (result * encajar_en_palabra(tamano_tipo(t->get_tipo())) ); 
     }
     return -1; 
 }
@@ -249,7 +273,9 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
     int scope,line, column;
     Symbol *s;
 
-    Symbol *p=  obtener_tipo(t->get_name(),d);
+    GuavaSymTable *tabla = tabla_actual.front();
+
+    Symbol *p=  obtener_tipo(t->get_name(),d, &d->tablaSimbolos);
     if (p == 0) {
         d->error(loc,tipo_no_existe(t->get_name()));
         return;
@@ -260,10 +286,10 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
         else {
-            scope = d->tablaSimbolos.currentScope();
+            scope = tabla->currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,estilo,scope,p,line,column,offset_actual);
+            tabla->insert(it->identificador,estilo,scope,p,line,column,offset_actual);
             offset_actual += tamano_tipo(t); 
         }
     }
@@ -275,18 +301,20 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
     int scope,line, column;
     Symbol *s;
 
-    Symbol *p=  d->tablaSimbolos.lookup(t->get_name());
-    if (p == 0) d->error(loc,tipo_no_existe(t->get_name()));
+    GuavaSymTable *tabla = tabla_actual.front();
+
+    Symbol *p =  d->tablaSimbolos.lookup(t->get_name());
+    if (p == 0)  d->error(loc,tipo_no_existe(t->get_name()));
 
     line = loc.begin.line;
     column = loc.begin.column;
-    scope = d->tablaSimbolos.currentScope();
+    scope = tabla->currentScope();
     s = d->tablaSimbolos.simple_lookup(identificador->identificador);
     if (s != 0) {
         d->error(loc,reportar_existencia(s,identificador->identificador));
         return;
     }
-    d->tablaSimbolos.insert(identificador->identificador,estilo,scope,p,line,column, offset_actual);
+    tabla->insert(identificador->identificador,estilo,scope,p,line,column, offset_actual);
     offset_actual += tamano_tipo(t); 
 }
 
@@ -306,25 +334,27 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
     int *arreglo;
     Symbol *s;
 
+    GuavaSymTable *tabla = tabla_actual.front();
 
     for(it; it != l.end(); ++it) {
         par = *it;
-        s = d->tablaSimbolos.simple_lookup(par.first.identificador);
+        s = tabla->simple_lookup(par.first.identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,par.first.identificador));
         else {
             size = par.second.lista.size();
             arreglo = new int[size];
             itInt = par.second.lista.begin();
+
             for(int i=0; i != size; i++) {
                 arreglo[i] = itInt->getValor();
                 ++itInt;
             }
             TypeArray* arr = new TypeArray(t,size,arreglo); // Tipo de arreglo con la información concerniente.
-            scope = d->tablaSimbolos.currentScope();
+            scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset_actual);
+            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset_actual);
             offset_actual += tamano_tipo(arr); 
         }
     }
@@ -332,18 +362,21 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y
  * retorna un TypeS*.
+ * Revisa los tipos basicos en la tabla de Driver.
+ * Revisa otros tipos en t.
  */
-TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& loc){
-    Symbol *p=  obtener_tipo(tipo,d);
-    if (p == 0) { 
+TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& loc, GuavaSymTable* t){
+    Symbol *p1 = obtener_tipo(tipo,d, t);
+
+    if (p1 == 0) { 
         d->error(loc,tipo_no_existe(tipo));
         return 0;
     }
-    if (p->true_type == 0) { 
+    if (p1->true_type == 0) { 
         d->error(loc,no_es_tipo(tipo));
         return 0;
     }
-    return p->true_type;
+    if (p1 != 0 && p1->true_type != 0) return p1->true_type;
 }
 
 /**
@@ -356,7 +389,8 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
     int scope,line, column;
     Symbol *s;
 
-    TypeS* reference = obtener_tipo_real(tipo,d,loc);
+    GuavaSymTable *tabla = tabla_actual.front();
+    TypeS* reference = obtener_tipo_real(tipo,d,loc, tabla);
     if (reference == 0) return 0;
 
     for(it; it!=l.end(); ++it) {
@@ -364,15 +398,16 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
         else {
-            scope = d->tablaSimbolos.currentScope();
+            scope = tabla->currentScope();
             line = it->line;
             column = it->column;
-            d->tablaSimbolos.insert(it->identificador,estilo,scope,reference,line,column, offset_actual);
+            tabla->insert(it->identificador,estilo,scope,reference,line,column, offset_actual);
             offset_actual += tamano_tipo(reference); 
         }
     }
     return reference;
 }
+
 /**
  * Inserta una variable arreglo de estructura
  * El arreglo de estructura es un arreglo de variables que hacen
@@ -388,7 +423,8 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
     int *arreglo;
     Symbol *s;
 
-    TypeS* reference0 = obtener_tipo_real(t,d,loc); 
+    GuavaSymTable *tabla = tabla_actual.front();
+    TypeS* reference0 = obtener_tipo_real(t,d,loc, tabla); 
     if (reference0 == 0) return 0;
 
     for(it; it != l.end(); ++it) {
@@ -406,15 +442,17 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             }
             
             TypeArray* arr = new TypeArray(reference0,size,arreglo); // Tipo de arreglo con la información concerniente.
-            scope = d->tablaSimbolos.currentScope();
+            scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;
-            d->tablaSimbolos.insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset_actual);
+            tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset_actual);
         }
     }
     return reference0;
 }
-
+/**
+ * Inserta una funcion a la tabla.
+ */
 void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d,int current_scope, const yy::location& loc){
     std::list<std::pair<TypeS*,Identificador*> > lista = lp->get_list();
     std::list <TypeS*> parametros;
@@ -425,7 +463,8 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
         parametros.push_front(par.first); 
     }
     TypeS* function = new TypeFunction(tipo,parametros);
-    d->tablaSimbolos.insert_type(id->identificador,std::string("function"),0,function);
+    GuavaSymTable *tabla = tabla_actual.front();
+    tabla->insert_type(id->identificador,std::string("function"),0,function);
 }
 
 /**
@@ -441,6 +480,7 @@ std::string mensaje_error_tipos(std::string esperado, std::string encontrado) {
     
     return msg;
 }
+
 /**
  * Dereferencia un TypeS* tipo Referencia.
  * Funciona como un & en C/C++
@@ -449,7 +489,40 @@ TypeS* dereference(TypeS* referencia){
     TypeS* tmp = referencia->get_tipo();
     return tmp;
 }
+/**
+ * Verifica que el acceso que se quiere realizar tiene sentido.
+ */
+void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+    if (id->true_type != 0){
+        GuavaSymTable* tabla;
+        TypeS* tipo = id->true_type; 
+        if (tipo->is_structure()){
+            TypeStructure* estructura = (TypeStructure*) tipo;
+            tabla = estructura->atributos;
+        } else{
+            TypeUnion* estructura = (TypeUnion*) tipo;
+            tabla = estructura->atributos;
+        }
+        if (la.empty()) return;
+        Identificador* identificador = la.front();
+        Symbol *tmp; 
+        la.pop_front();
 
+        //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
+
+        if (( tmp = variable_no_declarada(identificador->identificador, driver, loc, tabla) ) != 0){
+           verificar_acceso_atributos(tmp,la, driver, loc ); 
+        }     
+
+    } else{
+        if (la.empty()) return;
+        Identificador* identificador = la.front();
+        Symbol *tmp; 
+        la.pop_front();
+
+        variable_no_declarada(identificador->identificador, driver, loc, &driver->tablaSimbolos);
+    }
+}
 
 }
 
@@ -488,6 +561,7 @@ TypeS* dereference(TypeS* referencia){
 //%type <int> expBool         /* Tipo */
 //%type <int> expAritmetica /* Falta el tipo para esto. */
 //%type <classLlamadaFuncion> llamadafuncion 
+%type <classLAccesoAtributos> lAccesoAtributos
 %type <classSelectorIf> selectorif selectorifLoop 
 %type <classLoopWhile> loopwhile 
 %type <classLoopFor> loopfor 
@@ -617,39 +691,43 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           $$ = new LVariables();
                                                         };
 
-union: UNION identificador '{' { int n = driver.tablaSimbolos.currentScope();
-                                 int fsc = driver.tablaSimbolos.enterScope();
-                                 TypeUnion* structure = new TypeUnion();
+union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
                                  structure->nombre = $2->identificador;
-                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("unionType"),n,structure); 
+                                 GuavaSymTable *tabla = tabla_actual.front();
+                                 int n = tabla->currentScope();
+                                 tabla->insert_type($2->identificador, std::string("unionType"),n,structure); 
+                                 tabla_actual.push_front(structure->atributos);
                                  identacion += "  ";
                                }
                               lvariables '}' { 
+                                                GuavaSymTable* tabla = tabla_actual.front();
                                                 if (!error_state) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << $2->identificador << " {\n";
-                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
+                                                    tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                     std::cout << identacion <<"}\n";
-                                                    driver.tablaSimbolos.exitScope(); 
                                                 }
+                                                tabla_actual.pop_front();
                                              }
 
 record: RECORD identificador '{'{
-                                 int n = driver.tablaSimbolos.currentScope();
-                                 int fsc = driver.tablaSimbolos.enterScope();
                                  TypeStructure* structure = new TypeStructure();
                                  structure->nombre = $2->identificador;
-                                 driver.tablaSimbolos.insert_type($2->identificador, std::string("recordType"),n,structure); 
+                                 GuavaSymTable *tabla = tabla_actual.front();
+                                 int n = tabla->currentScope();
+                                 tabla->insert_type($2->identificador, std::string("recordType"),n,structure); 
+                                 tabla_actual.push_front(structure->atributos);
                                  identacion += "  ";
                                 } 
                                 lvariables '}' { 
+                                                 GuavaSymTable* tabla = tabla_actual.front();
                                                  if (!error_state) {
                                                    std::cout << identacion << "Union " << $2->identificador << " {\n";
-                                                   driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+ "  "); 
+                                                   tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                    std::cout << identacion <<"}\n";
                                                    identacion.erase(0,2);
-                                                   driver.tablaSimbolos.exitScope();
                                                  }
+                                                 tabla_actual.pop_front();
                                                }
 
 lvar: identificador           { LVar *tmp = new LVar();
@@ -717,8 +795,6 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    int column = yylloc.begin.column;
                                                    driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
                                                                                     0,function,line,column, current_scope);
-                                                   /*driver.tablaSimbolos.insert(std::string("main"),std::string("function"),0,std::string("void")
-                                                   ,line,column,current_scope);*/
                                                    identacion += "  ";
                                                  } 
                                                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
@@ -747,8 +823,6 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
 funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); }
                                          lparam { 
                                                   insertar_funcion($2,$3,$6,&driver,current_scope,yylloc); 
-                                                  /*driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,$2->get_name(),line,column,current_scope);*/
                                                   identacion += "  ";
                                                  } ')' '{' 
                                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
@@ -792,8 +866,6 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
         | FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                                int line = yylloc.begin.line;
                                                                int column = yylloc.begin.column;
-                                                               /*driver.tablaSimbolos.insert($3->identificador,std::string("function"),0
-                                                                    ,std::string("void"),line,column,current_scope);*/
                                                                identacion += "  ";
                                                              }
                                                             bloquedeclare listainstrucciones '}'           { 
@@ -844,19 +916,19 @@ instruccion: asignacion     {
            | llamadafuncion { 
                             }
            | MINUSMINUS identificador  { 
-                                         if (variable_no_declarada($2->identificador,&driver,yylloc) != 0){
+                                         if (variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$2, 0);
                                          }
                                        }
-           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc) != 0){
+           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$1, 1); 
                                          }
                                        }
-           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc) != 0){
+           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$2, 2); 
                                          }
                                        }
-           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc) != 0){
+           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$1, 3); 
                                          }
                                        }
@@ -888,19 +960,19 @@ instruccionLoop: asignacion     {
            | llamadafuncion     { 
                                 }
            | MINUSMINUS identificador  {
-                                         if ( variable_no_declarada($2->identificador,&driver,yylloc) != 0){
+                                         if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$2, 0);
                                          }
                                        }
-           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc) != 0){
+           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$1, 1); 
                                          }
                                        }
-           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc) != 0){
+           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$2, 2); 
                                          }
                                        }
-           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc) != 0){
+           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
                                             $$ = new PlusMinus(*$1, 3); 
                                          }
                                        }
@@ -938,7 +1010,7 @@ entradasalida: READ '(' lvarovalor ')' { //*$$ = EntradaSalida(0, *$3);
              | PRINT '(' lvarovalor ')'  { //*$$ = EntradaSalida(1, *$3); 
                                          };
 
-loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc); 
+loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   
                                                                       identacion += "  "; 
                                                                     }
@@ -959,7 +1031,7 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_n
                                                       bloquedeclare listainstruccionesLoop '}' { /*Identificador id = Identificador(std::string($3));
                                                                                               *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
                                                                                            }
-       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc);
+       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front());
                                                                    }
                                                                  bloquedeclare listainstruccionesLoop '}' { /*Identificador id = Identificador(std::string($3));
                                                                                                          *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
@@ -1123,23 +1195,25 @@ exp: expAritmetica  { $$ = $1; }
 
 expID: identificador   { TypeS* tipo;
                          Symbol* id;
-                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc))  != 0) {
+                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                                 $$ = new Identificador($1->identificador);
                                 tipo = id->type_pointer->true_type;
                                 $$->tipo = tipo;
                          }
                        }
      | identificador lcorchetesExp    {
-                                        variable_no_declarada($1->identificador,&driver, yylloc);
+                                        variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front());
                                       }
-     | identificador { Symbol * id;
-                       Identificador *prueba = $1;
-                       if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc)) != 0){
-                            if (es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                /* Codigo */
-                           }
-                        } 
-                    } lAccesoAtributos {
+     | identificador lAccesoAtributos { 
+                                        Symbol * id;
+                                        Identificador *prueba = $1;
+                                        if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            if (es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
+                                                std::list<Identificador*> tmp = $2->get_list();
+                                                tmp.pop_front();
+                                                verificar_acceso_atributos(id, tmp, &driver,yylloc) ;
+                                            }
+                                        }
                                        };
 
  
@@ -1430,20 +1504,12 @@ larreglo: larreglo ',' exp      {
         | error                 { LArreglo *tmp = new LArreglo(); };
 
 
-lAccesoAtributos: '.' identificador { Symbol* id;
-                                        if ((id = variable_no_declarada($2->identificador,&driver,yylloc,attribute_scope)) != 0){
-                                            if (es_estructura(id->sym_catg)){
-                                                /* Codigo */
-                                            }
-                                        }
+lAccesoAtributos: '.' identificador { 
+                                      $$ = new LAccesoAtributos($2);
                                     }
                 | lAccesoAtributos '.' identificador {
-                                                        Symbol* id;
-                                                        if ((id = variable_no_declarada($3->identificador,&driver,yylloc,attribute_scope)) != 0){
-                                                            if (es_estructura(id->sym_catg)){
-                                                                /* Codigo. */
-                                                            }
-                                                        }
+                                                        $1->append($3);
+                                                        $$ = $1;
                                                      };
 
 identificador: ID { std::string str =  std::string($1);

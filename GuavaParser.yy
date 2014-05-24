@@ -1552,7 +1552,14 @@ lAccesoAtributos: '.' identificador {
                 | lAccesoAtributos '.' identificador {
                                                         $1->append($3);
                                                         $$ = $1;
-                                                     };
+                                                     }
+                | lAccesoAtributos '.' identificador lcorchetesExp {
+                                                                    $1->append($3);
+                                                                    $$ = $1;
+                                                                   }
+                | '.' identificador lcorchetesExp                  {
+                                                                     $$ = new LAccesoAtributos($2);
+                                                                   }
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

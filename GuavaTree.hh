@@ -244,7 +244,7 @@ class ExpBin: public Exp{
  */
 class Instruccion{
     public:
-        virtual TypeS* get_tipo() { return 0; } 
+        virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
         virtual void show(std::string) = 0;
 };
 
@@ -492,6 +492,24 @@ public:
 };
 
 /**
+ * clase que guarda la asignacion, exp
+ * o si alguna de esta tiene un error.
+ */
+class ErrorLoopFor{
+    bool error;
+public:
+    Asignacion* asign;
+    Exp* exp;
+    ErrorLoopFor(): error(true){}
+    ErrorLoopFor(Asignacion* a): asign (a), exp(0){}
+    ErrorLoopFor(Exp* e): exp(e), asign(0){}
+    ~ErrorLoopFor(){
+        delete this;
+    }
+    bool is_error(){ return error; }
+};
+
+/**
  * Clase que describe los bloques de instrucciones con iteraciones acotadas.
  */
 class LoopFor: public Instruccion{
@@ -553,6 +571,11 @@ public:
     Exp* argumento;
 
     EntradaSalida(int, Exp*);
+    TypeS* get_tipo(){
+        TypeS* error = (TypeS*) TypeError::Instance();
+        if (argumento->get_tipo() ==  error ) return TypeError::Instance();
+        return TypeVoid::Instance();
+    }
     ~EntradaSalida();
 
     void show(std::string);

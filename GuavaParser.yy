@@ -68,21 +68,14 @@ class GuavaDriver;
     LArreglo *classLArreglo;
     LCorchetes *classLCorchetes;
     TypeS *classTipo;
-    //Tipo *classTipo;
     BloqueDeclare *classBloqueDeclare;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
     Identificador *classIdentificador;
     LAccesoAtributos *classLAccesoAtributos;
-    /*ExpParentizada *classExpParentizada;
-    Real *classReal;
-    Integer *classInteger;
-    Char *classChar;
-    String *classString;
-    Bool *classBool;
-    Estructura *classEstructura;*/
     PlusMinus *classPlusMinus;
     Program *classProgram;
+    ErrorLoopFor* classErrorLoopFor; 
 };
 
 %code {
@@ -623,6 +616,7 @@ void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
 %type <classLArreglo> larreglo
 %type <classLCorchetes> lcorchetes
 %type <classTipo> tipo
+%type <classErrorLoopFor> errorloopfor
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
 %type <classProgram> program
@@ -1046,26 +1040,40 @@ asignacion: expID ASSIGN exp  {
                                 }
             | expID ASSIGN error {};
 
-
-entradasalida: READ '(' exp ')' { //*$$ = EntradaSalida(0, *$3); 
-                                       }
-             | PRINT '(' exp ')'  { //*$$ = EntradaSalida(1, *$3); 
+/* Estas verificaciones se hacen a tiempo de ejecucion. */
+entradasalida: READ '(' exp ')'   {
+                                    EntradaSalida* tmp = new EntradaSalida(0,$3);  
+                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                         std::string msg = mensaje_error_tipos("type","error");
+                                         driver.error(yylloc,msg);
+                                        
+                                    }
+                                    $$ = tmp;
+                                  }
+             | PRINT '(' exp ')'  { 
+                                   EntradaSalida* tmp = new EntradaSalida(1,$3);  
+                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                         std::string msg = mensaje_error_tipos("type","error");
+                                         driver.error(yylloc,msg);
+                                        
+                                    }
+                                    $$ = tmp;
                                   };
 
 loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   
                                                                       identacion += "  "; 
                                                                     }
-                                                            bloquedeclare listainstruccionesLoop '}' { /*Identificador id = Identificador(std::string($3));
-                                                                                                    *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
-                                                                                                    if (!error_state) {
-                                                                                                      std::cout << identacion << "for {\n";
-                                                                                                      int cscope = driver.tablaSimbolos.currentScope();
-                                                                                                      driver.tablaSimbolos.show(cscope,identacion+ "  ");
-                                                                                                      std::cout << identacion << "}\n";
-                                                                                                      driver.tablaSimbolos.exitScope();
-                                                                                                      identacion.erase(0,2);
-                                                                                                    }
+                                                            bloquedeclare listainstruccionesLoop '}' { 
+                                                                                                        //LoopFor* tmp = new LoopFor() 
+                                                                                                        if (!error_state) {
+                                                                                                            std::cout << identacion << "for {\n";
+                                                                                                            int cscope = driver.tablaSimbolos.currentScope();
+                                                                                                            driver.tablaSimbolos.show(cscope,identacion+ "  ");
+                                                                                                            std::cout << identacion << "}\n";
+                                                                                                            driver.tablaSimbolos.exitScope();
+                                                                                                            identacion.erase(0,2);
+                                                                                                        }
                                                                                                  }
        /*Errores*/
        | FOR '(' error ';' expBool ';' errorloopfor ')' '{' { 
@@ -1125,18 +1133,18 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                           driver.tablaSimbolos.enterScope();   
                                           identacion += "  ";
                                         }
-                                        bloquedeclare listainstrucciones '}' lelseif { /**$$ = SelectorIf($3,$8,$9,$11);*/
+                                        bloquedeclare listainstrucciones '}' lelseif { 
                                                                                         driver.tablaSimbolos.exitScope();
                                                                                         identacion.erase(0,2);
                                                                                     
                                                                                  }
-           | IF '(' errorif ')' THEN instruccion ';'                             { //*$$ = SelectorIf($3,$6,0); 
+           | IF '(' errorif ')' THEN instruccion ';'                             { 
                                                                                  }
-           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'            { //*$$ = SelectorIf($3,$6,$8); 
+           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'            { 
                                                                                  };
 
 
-lelseif: /* Vacio */                                                               { //*$$ = LElseIf(); 
+lelseif: /* Vacio */                                                               { 
                                                                                    }
        | lelseif1 ELSE '{' { 
                              driver.tablaSimbolos.enterScope();   

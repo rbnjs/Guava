@@ -1228,8 +1228,7 @@ lvarovalor2: lvarovalor2 ',' exp     {
 
 exp: expAritmetica  { $$ = $1; }
    | expBool        { $$ = $1; } 
-   | valor          { $$ = $1;
-                    }
+   | valor          { $$ = $1; }
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
    | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
@@ -1240,7 +1239,8 @@ expID: identificador   { TypeS* tipo;
                          Symbol* id;
                          if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                                 tipo = id->type_pointer->true_type;
-                                $$ = new Identificador($1->identificador, tipo);
+                                Identificador* tmp = new Identificador($1->identificador, tipo);
+                                $$ = tmp;
                          }
                        }
      | identificador lcorchetesExp    {
@@ -1260,80 +1260,108 @@ expID: identificador   { TypeS* tipo;
 
  
 /*Faltan pruebas*/
-expBool: exp AND exp         { if ($1->get_tipo() == TypeBool::Instance() &&
+expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
+                               if ($1->get_tipo() == TypeBool::Instance() &&
                                    $3->get_tipo() == TypeBool::Instance())
-                               { ExpBin* tmp  = new ExpBin($1,$3,std::string("AND"));
-                                 tmp->tipo = $1->get_tipo();
-                                 $$ = tmp;
-                               }
-                               /////////////////////////////////////////////////////////////////////////////////////
-                               else if ($1->get_tipo != TypeBool::Instance()) {
-                                 std::string msg = mensaje_error_tipos("boolean");
-                               }
-                               /////////////////////////////////////////////////////////////////////////////////////
-                             }
-       | exp OR exp          { if ($1->get_tipo() == TypeBool::Instance() &&
-                                   $3->get_tipo() == TypeBool::Instance())
-                               { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
-                                 tmp->tipo = $1->get_tipo();
-                                 $$ = tmp;
+                               { tmp->tipo = $1->get_tipo();
+                               } 
+                               else if ($1->get_tipo() != TypeBool::Instance()) {
+                                 std::string msg = mensaje_error_tipos("boolean",$1->get_tipo()->get_name());
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
                                }
                                else {
+                                 std::string msg = mensaje_error_tipos("boolean",$3->get_tipo()->get_name());
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
                                }
+                               $$ = tmp;
                              }
-       | exp COMPARISON exp  { if ($1->get_tipo() == $3->get_tipo() &&
+       | exp OR exp          { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
+                               if ($1->get_tipo() == TypeBool::Instance() &&
+                                   $3->get_tipo() == TypeBool::Instance())
+                               { tmp->tipo = $1->get_tipo();
+                               } 
+                               else if ($1->get_tipo() != TypeBool::Instance()) {
+                                 std::string msg = mensaje_error_tipos("boolean",$1->get_tipo()->get_name());
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
+                               }
+                               else {
+                                 std::string msg = mensaje_error_tipos("boolean",$3->get_tipo()->get_name());
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
+                               }
+                               $$ = tmp;
+                             }
+       | exp COMPARISON exp  { ExpBin* tmp;
+                               if ($1->get_tipo() == $3->get_tipo() &&
                                    ($1->get_tipo() == TypeInt::Instance() ||
                                     $1->get_tipo() == TypeReal::Instance())) {
                                  int cmpv = $2;
-                                 ExpBin* tmp;
                                  switch(cmpv){
                                       case 1:
                                           tmp = new ExpBin($1,$3,std::string(">"));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                       case 2:
                                           tmp = new ExpBin($1,$3,std::string("<"));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                       case 3:
                                           tmp = new ExpBin($1,$3,std::string("<="));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                       case 4:
                                           tmp = new ExpBin($1,$3,std::string(">="));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                       case 5:
                                           tmp = new ExpBin($1,$3,std::string("="));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                       case 6:
                                           tmp = new ExpBin($1,$3,std::string("!="));
-                                          tmp->tipo = TypeBool::Instance();
-                                          $$ = tmp;
                                           break;
                                  }
+                                 tmp->tipo = TypeBool::Instance();
+                               } 
+                               else if ($1->get_tipo() != $3->get_tipo() &&
+                                        ($1->get_tipo() == TypeInt::Instance() &&
+                                         $3->get_tipo() == TypeReal::Instance()) ||
+                                        ($1->get_tipo() == TypeReal::Instance() &&
+                                         $3->get_tipo() == TypeInt::Instance())) {
+                                 std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
+                                 std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
                                }
                                else {
+                                 if ($1->get_tipo() != TypeInt::Instance() &&
+                                     $1->get_tipo() != TypeReal::Instance()) {
+                                     Exp* hola = $1;
+                                     std::cout << "";
+                                     std::string msg = mensaje_error_tipos("integer' or 'real",$1->get_tipo()->get_name());
+                                     driver.error(yylloc,msg);
+                                 }
+                                 else {
+                                   std::string msg = mensaje_error_tipos("integer' or 'real",$3->get_tipo()->get_name());
+                                   driver.error(yylloc,msg);
+                                 }
+                                 tmp->tipo = TypeError::Instance();
                                }
+                               $$ = tmp;
+
                              }
-       | NOT exp             { if ($2->get_tipo() == TypeBool::Instance())
-                               { std::string * op = new std::string("NOT");
-                                 ExpUn* tmp = new ExpUn($2,op);
-                                 tmp->tipo = $2->get_tipo();
+       | NOT exp             { std::string * op = new std::string("NOT");
+                               ExpUn* tmp = new ExpUn($2,op);
+                               if ($2->get_tipo() == TypeBool::Instance())
+                               { tmp->tipo = $2->get_tipo();
                                }
                                else {
+                                 std::string msg = mensaje_error_tipos("boolean",$2->get_tipo()->get_name());
+                                 driver.error(yylloc,msg);
+                                 tmp->tipo = TypeError::Instance();
                                }
+                               $$ = tmp;
                              };
-      
 
-
-expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
+expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        ExpUn* tmp = new ExpUn($2,op);
                                        if ($2->get_tipo() == TypeInt::Instance() ||
                                            $2->get_tipo() == TypeReal::Instance())
@@ -1399,11 +1427,11 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                            std::string msg = mensaje_error_tipos("integer' or 'real",$3->get_tipo()->get_name());
                                            driver.error(yylloc,msg);
                                          }
-                                         tmp->tipo() =  TypeError::Instance();
+                                         tmp->tipo = TypeError::Instance();
                                        }
                                        $$ = tmp;
                                      }
-             | exp '+' exp           { ExpBin* tmp = new ExpBin(*$1,*$3,std::string("+"));
+             | exp '+' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("+"));
                                        if ($1->get_tipo() == $3->get_tipo() && 
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1415,7 +1443,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("+"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -1435,7 +1463,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                        }
                                        $$ = tmp;
                                      }
-             | exp '-' exp           { ExpBin* tmp = new ExpBin(*$1,*$3,std::string("-"));
+             | exp '-' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("-"));
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1447,7 +1475,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("-"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -1465,7 +1493,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                        }
                                        $$ = tmp;
                                      }
-             | exp '*' exp           { ExpBin* tmp = new ExpBin(*$1,*$3,std::string("*"));
+             | exp '*' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("*"));
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1477,7 +1505,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("*"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -1495,7 +1523,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                        }
                                        $$ = tmp;
                                      }
-             | exp '/' exp           { ExpBin* tmp = new ExpBin(*$1,*$3,std::string("/"));
+             | exp '/' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("/"));
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1507,7 +1535,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("/"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }

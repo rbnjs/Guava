@@ -61,6 +61,14 @@ LCorchetes::~LCorchetes() {
 }
 
 void LCorchetes::show(std::string s) {
+   for (std::list<int>::iterator it = lista.begin();
+        it != lista.end() ;
+        ++it
+       ) {
+            std::cout << "[" ;
+            std::cout << *it;
+            std::cout << "]";
+       }
 }
 
 
@@ -125,8 +133,8 @@ ListaInstrucciones::~ListaInstrucciones() {
 }
 
 void ListaInstrucciones::show(std::string s) {
-    if (instruccion != 0) instruccion->show(s);
     if (listainstrucciones != 0) listainstrucciones->show(s);
+    if (instruccion != 0) instruccion->show(s);
 }
 
 
@@ -152,6 +160,18 @@ LVarArreglo::~LVarArreglo() {
 }
 
 void LVarArreglo::show(std::string s) {
+   std::cout << s <<"Lista de Variables de Arreglo: "; 
+
+   for (std::list<std::pair <Identificador, LCorchetes> >::iterator it = lista.begin();
+        it != lista.end() ; 
+        ++it)
+        {
+            std::pair<Identificador, LCorchetes> tmp = *it;
+            std::cout << tmp.first.identificador << " ";
+            tmp.second.show("");
+            std::cout << " ";
+       }
+       std::cout <<std::endl;
 }
 
 
@@ -174,7 +194,18 @@ std::list<Identificador> LVar::get_list(){
     return lista;
 }
 
-void LVar::show(std::string s) {} 
+void LVar::show(std::string s) {
+    std::cout << s <<"Variables: ";
+    for (std::list<Identificador>::iterator it = lista.begin();
+         it != lista.end();
+         ++it
+        ){
+            Identificador tmp = *it;
+            std::cout << tmp.identificador;
+            std::cout << " ";
+        }
+        std::cout << "\n";
+} 
 
 /* Class LVariables */
 
@@ -260,7 +291,17 @@ void LArreglo::append(Exp* e){
 LArreglo::~LArreglo() {
 }
 
-void LArreglo::show(std::string s) {} 
+void LArreglo::show(std::string s) {
+   std::cout << s <<"[\n"; 
+   for ( std::list<Exp*>::iterator it = larr.begin();
+         it != larr.end();
+         ++it
+       ){
+            Exp* tmp = *it;
+            tmp->show(s+ "  ");
+       }
+    std::cout << "]\n";
+} 
 
 /* Class Arreglo */
 
@@ -295,14 +336,14 @@ LElseIf::LElseIf() {
     lelseif = 0;
 }
 
-LElseIf::LElseIf(Exp* e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0) {
+LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif = 0) {
     exp = e;
     declaraciones = d;
     listainstrucciones = li;
-    *lelseif = *lif;
+    lelseif = lif;
 }
 
-LElseIf::LElseIf(BloqueDeclare d, ListaInstrucciones li) {
+LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li) {
     exp = 0;
     lelseif = 0;
     declaraciones = d;
@@ -313,21 +354,33 @@ LElseIf::~LElseIf() {
     delete this;
 }
 
-void LElseIf::show(std::string s) {} 
+void LElseIf::show(std::string s) {
+    if (exp == 0 || lelseif == 0){
+        std::cout << s << "Else :\n";
+        listainstrucciones->show(s+ "  ");
+    } else{
+        std::cout << s << "Else If: \n";
+        exp->show(s+"  ");
+        std::cout << s << "Then: \n";
+        listainstrucciones->show(s+ "  ");
+    }
+} 
 
 /* Class SelectorIf */
 
 SelectorIf::SelectorIf(Exp* e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0) {
     exp = e;
-    *declaraciones = *d;
-    *listainstrucciones = *l;
-    *lelseif = *lif;
+    declaraciones = d;
+    listainstrucciones = l;
+    lelseif = lif;
+    instruccion1 = 0;
+    instruccion2 = 0;
 }
 
 SelectorIf::SelectorIf(Exp* e, Instruccion* i, Instruccion* i2 = 0) {
     exp = e;
-    *instruccion1 = *i;
-    *instruccion2 = *i2;
+    instruccion1 = i;
+    instruccion2 = i2;
     listainstrucciones = 0;
     declaraciones = 0;
 }
@@ -403,14 +456,14 @@ Asignacion::~Asignacion() {
 }
 
 void Asignacion::show(std::string s) {
-    /*  std::cout << s << "Asignacion: \n";
-    identificador.show(s + "  ");
+    std::cout << s << "Asignacion: \n";
+    identificador->show(s + "  ");
     if (identificador2 != 0) identificador2->show(s+"  "); 
     if (lcorchetes != 0) lcorchetes->show(s+"  ");
-    if (exp == 0){
+    if (exp != 0){
         exp->show(s+"  ");
     }
-    if (arreglo != 0) arreglo->show(s+ "  ");*/
+    if (arreglo != 0) arreglo->show(s+ "  ");
 } 
 
 
@@ -472,23 +525,38 @@ LVaroValor::~LVaroValor() {
 }
 
 void LVaroValor::show(std::string s) {
+    std::cout << "Lista de Valores o Variables: \n";
+    for (std::list<Exp*>::iterator it = lvarovalor.begin();
+         it != lvarovalor.end();
+         ++it
+        ){
+            Exp* tmp = *it;
+            tmp->show(s+ "  ");
+        }
 } 
 
 
 /* Class EntradaSalida */
 
-EntradaSalida::EntradaSalida(int t, LVaroValor lv) {
+EntradaSalida::EntradaSalida(int t,Exp* lv) {
     tipo = t;
     argumento = lv;
 }
 
 EntradaSalida::~EntradaSalida() {}
 
-void EntradaSalida::show(std::string s) {}
+void EntradaSalida::show(std::string s) {
+    if (tipo == 0){
+        std::cout << s << "Read: \n";
+    } else {
+        std::cout << s << "Print: \n";
+    }
+    argumento->show(s + "  ");
+}
 
 /* Class LlamadaFuncion */
 
-LlamadaFuncion::LlamadaFuncion(Identificador i, LVaroValor lv) {
+LlamadaFuncion::LlamadaFuncion(Identificador* i, LVaroValor* lv) {
     id = i;
     lvarovalor = lv;
 }
@@ -497,10 +565,9 @@ LlamadaFuncion::~LlamadaFuncion() {}
 
 void LlamadaFuncion::show(std::string s){
     std::cout << s << "Llamada Funcion : ";
-    id.show(s);
+    id->show(s);
     std::cout << s << "Argumentos: \n";
-    //if (lvarovalor != 0) 
-    lvarovalor.show(s+ "  ");
+    lvarovalor->show(s+ "  ");
 } 
 
 
@@ -520,6 +587,15 @@ LParam::~LParam() {
 }
 
 void LParam::show(std::string s) {
+    std::cout << s << "Parametros: \n";
+    for (std::list<std::pair<TypeS*, Identificador*> >::iterator it = lParam.begin();
+         it != lParam.end();
+         ++it
+        ){
+            std::pair<TypeS*, Identificador*> tmp = *it;
+            std::cout<<  "Tipo: " << tmp.first->get_name() << " , Identificador: " << tmp.second->identificador;
+            std::cout << std::endl;
+        }
 } 
 
 
@@ -549,7 +625,10 @@ void Funcion::show(std::string s) {
     parametros.show(s+"  ");
     std::cout << s << "Instrucciones: \n";
     listaI.show(s+ "  ");
-    if (retorno != 0) retorno->show(s+"  ");
+    if (retorno != 0) {
+        std::cout << s << "Retorna: \n";
+        retorno->show(s+"  ");
+    }
 } 
 
 

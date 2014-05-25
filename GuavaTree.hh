@@ -415,13 +415,13 @@ public:
 class LElseIf{
 public:
     Exp* exp;
-    BloqueDeclare declaraciones;
-    ListaInstrucciones listainstrucciones;
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listainstrucciones;
     LElseIf* lelseif;
 
     LElseIf();
-    LElseIf(Exp*, BloqueDeclare, ListaInstrucciones, LElseIf*);
-    LElseIf(BloqueDeclare, ListaInstrucciones);
+    LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
+    LElseIf(BloqueDeclare*, ListaInstrucciones*);
     ~LElseIf();
 
     void show(std::string);
@@ -549,9 +549,9 @@ public:
 class EntradaSalida: public Instruccion {
 public:
     int tipo; /*0 para entrada: read; 1 para salida: print*/
-    LVaroValor argumento;
+    Exp* argumento;
 
-    EntradaSalida(int, LVaroValor);
+    EntradaSalida(int, Exp*);
     ~EntradaSalida();
 
     void show(std::string);
@@ -563,10 +563,10 @@ public:
 
 class LlamadaFuncion: public Instruccion{
 public:
-    Identificador id; /* Identificador de la funcion */
-    LVaroValor lvarovalor;     /* Lista de variables o valores. */
+    Identificador* id; /* Identificador de la funcion */
+    LVaroValor* lvarovalor;     /* Lista de variables o valores. */
 
-    LlamadaFuncion(Identificador, LVaroValor);
+    LlamadaFuncion(Identificador*, LVaroValor*);
     ~LlamadaFuncion();
     
     void show(std::string);

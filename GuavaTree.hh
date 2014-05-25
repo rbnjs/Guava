@@ -425,6 +425,7 @@ public:
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     LElseIf(BloqueDeclare*, ListaInstrucciones*);
     ~LElseIf();
+    TypeS* get_tipo(){return tipo;}
 
     void show(std::string);
 };

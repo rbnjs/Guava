@@ -603,7 +603,7 @@ void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
 %type <classInstruccion> instruccion1 instruccionLoop1
 %type <classListaInstrucciones> listainstrucciones listainstruccionesLoop
 %type <classLParam> lparam lparam2
-%type <classLElseIf> lelseif lelseifLoop
+%type <classLElseIf> lelseif lelseifLoop lelseif1 lelseifLoop1
 %type <classFuncion> funcion funcionmain
 %type <classLFunciones> lfunciones
 %type <classLVariables> lvariables
@@ -1243,16 +1243,41 @@ lelseif: /* Vacio */                                                            
                              driver.tablaSimbolos.enterScope();   
                            }
                            bloquedeclare listainstrucciones '}'                              { 
-                                                                                                 
+                                                                                                LElseIf* result; 
+                                                                                                if ( $1->get_tipo() == TypeError::Instance()
+                                                                                                  || $6->get_tipo() == TypeError::Instance() ){
+                                                                                                    result = new LElseIf(true);
+                                                                                                    std::string msg = mensaje_error_tipos("error","void");
+                                                                                                    driver.error(yylloc,msg);
+                                                                                                } else {
+                                                                                                    result = new LElseIf($5,$6);
+                                                                                                    result->lelseif = $1;
+                                                                                                }
+                                                                                                $$ = result;
                                                                                                 driver.tablaSimbolos.exitScope();
                                                                                              };
 
-lelseif1: /*Vacio*/
+
+lelseif1: /*Vacio*/                                                                      {
+                                                                                             $$ = new LElseIf(false);
+                                                                                         } 
         | lelseif1 ELSE IF '(' errorif ')' THEN '{' { 
                                                       driver.tablaSimbolos.enterScope();   
                                                     }
-                                                    bloquedeclare listainstrucciones '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
-                                                                                           driver.tablaSimbolos.exitScope();
+                                                    bloquedeclare listainstrucciones '}' {
+                                                                                            LElseIf* result; 
+                                                                                            if ( $1->get_tipo() == TypeError::Instance()
+                                                                                              || $5->get_error()
+                                                                                              || $11->get_tipo() == TypeError::Instance()
+                                                                                               ) {
+                                                                                                result = new LElseIf(true);
+                                                                                                std::string msg = mensaje_error_tipos("error","void");
+                                                                                                driver.error(yylloc,msg);
+                                                                                            } else {
+                                                                                                result = new LElseIf($5->exp,$10,$11,$1);
+                                                                                            }
+                                                                                            $$ = result;
+                                                                                            driver.tablaSimbolos.exitScope();
                                                                                          };
 
 
@@ -1260,32 +1285,93 @@ selectorifLoop: IF '(' errorif ')' THEN '{' {
                                               driver.tablaSimbolos.enterScope();   
                                               identacion += "  ";
                                             }
-                                           bloquedeclare listainstruccionesLoop '}' lelseifLoop { /**$$ = SelectorIf($3,$8,$9,$11);*/
-                                                                                                  driver.tablaSimbolos.exitScope();
-                                                                                                  identacion.erase(0,2);
+                                           bloquedeclare listainstruccionesLoop '}' lelseifLoop {
+                                                                                                  ErrorBoolExp* err_exp = $3;
+                                                                                                  SelectorIf * result;
+                                                                                                  if (err_exp->get_error()
+                                                                                                      || $9->get_tipo() == TypeError::Instance()
+                                                                                                     ){
+                                                                                                        result = new SelectorIf(); 
+                                                                                                        std::string msg = mensaje_error_tipos("error","void");
+                                                                                                        driver.error(yylloc,msg);
+                                                                                                    } else{
+                                                                                                        result = new SelectorIf(err_exp->exp,$8,$9,$11);
+                                                                                                    }
+                                                                                                    $$ = result;
+                                                                                                    driver.tablaSimbolos.exitScope();
+                                                                                                    identacion.erase(0,2);
                                                                                                 }
            | IF '(' errorif ')' THEN instruccionLoop ';'                                        { 
-                                                                                                 //*$$ = SelectorIf($3,$6,0); 
+                                                                                                    ErrorBoolExp* err_exp = $3;
+                                                                                                    SelectorIf * result;
+                                                                                                    if (err_exp->get_error()
+                                                                                                        || $6->get_tipo() == TypeError::Instance()
+                                                                                                        ){
+                                                                                                            result = new SelectorIf(); 
+                                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                                            driver.error(yylloc,msg);
+                                                                                                    } else{
+                                                                                                        result = new SelectorIf(err_exp->exp,$6,0);
+                                                                                                    }
+                                                                                                    $$ = result;
                                                                                                 }
-           | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'                       { //*$$ = SelectorIf($3,$6,$8); 
+           | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'                       {
+                                                                                                    ErrorBoolExp* err_exp = $3;
+                                                                                                    SelectorIf * result;
+                                                                                                    if (err_exp->get_error()){
+                                                                                                        result = new SelectorIf(); 
+                                                                                                        std::string msg = mensaje_error_tipos("error","void");
+                                                                                                        driver.error(yylloc,msg);
+                                                                                                    } else{
+                                                                                                        result = new SelectorIf(err_exp->exp,$6,$8);
+                                                                                                    }
+                                                                                                    $$ = result;
                                                                                                 };
 
 
-lelseifLoop: /* Vacio */                                                               { //*$$ = LElseIf(); 
+lelseifLoop: /* Vacio */                                                           {
+                                                                                     $$ = new LElseIf(false);
                                                                                    }
            | lelseifLoop1 ELSE '{' { 
                                    driver.tablaSimbolos.enterScope();   
                                    }
-                                 bloquedeclare listainstruccionesLoop '}'  { 
-                                                                             driver.tablaSimbolos.exitScope();
-                                                                           };
+                                   bloquedeclare listainstruccionesLoop '}'  { 
+                                                                                LElseIf* result; 
+                                                                                if ( $1->get_tipo() == TypeError::Instance()
+                                                                                   || $6->get_tipo() == TypeError::Instance() ){
+                                                                                    result = new LElseIf(true);
+                                                                                    std::string msg = mensaje_error_tipos("error","void");
+                                                                                    driver.error(yylloc,msg);
+                                                                                } else {
+                                                                                    result = new LElseIf($5,$6);
+                                                                                    result->lelseif = $1;
+                                                                                }
+                                                                                $$ = result;
+                                                                                driver.tablaSimbolos.exitScope();
+                                                                             };
 
-lelseifLoop1: /*Vacio*/
+
+
+lelseifLoop1: /*Vacio*/                                                                           {
+                                                                                                    $$ = new LElseIf(false);
+                                                                                                  }
         | lelseifLoop1 ELSE IF '(' errorif ')' THEN '{' { 
                                                           driver.tablaSimbolos.enterScope();   
                                                         }
-                                                      bloquedeclare listainstruccionesLoop '}' { /**$$ = LElseIf($4,*$9,*$10,$12);*/
-                                                                                                driver.tablaSimbolos.exitScope();
+                                                      bloquedeclare listainstruccionesLoop '}' { 
+                                                                                                    LElseIf* result; 
+                                                                                                    if ( $1->get_tipo() == TypeError::Instance()
+                                                                                                        || $5->get_error()
+                                                                                                        || $11->get_tipo() == TypeError::Instance()
+                                                                                                        ) {
+                                                                                                        result = new LElseIf(true);
+                                                                                                        std::string msg = mensaje_error_tipos("error","void");
+                                                                                                        driver.error(yylloc,msg);
+                                                                                                    } else {
+                                                                                                        result = new LElseIf($5->exp,$10,$11,$1);
+                                                                                                    }
+                                                                                                    $$ = result;
+                                                                                                    driver.tablaSimbolos.exitScope();
                                                                                                };
 
 /**
@@ -1299,7 +1385,7 @@ errorif : expBool   {
                         $$ = new ErrorBoolExp();
                     };
 
-llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
+llamadafuncion: identificador '(' lvarovalor ')' { 
                                                     if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){
                                                         std::string msg ("Undefined function '");
                                                         msg += $1->identificador;
@@ -1308,7 +1394,8 @@ llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identi
                                                         error_state = 1;
                                                     }
                                                  }
-              | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/};
+              | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
+                                                 };
 
 
 lvarovalor: /* Vacio */   { 

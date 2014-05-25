@@ -76,6 +76,7 @@ class GuavaDriver;
     PlusMinus *classPlusMinus;
     Program *classProgram;
     ErrorLoopFor* classErrorLoopFor; 
+    ErrorBoolExp* classErrorBoolExp;
 };
 
 %code {
@@ -621,6 +622,7 @@ void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
 %type <classBloquePrincipal> bloqueprincipal
 %type <classProgram> program
 %type <classEntradaSalida> entradasalida
+%type <classErrorBoolExp> errorloopwhile errorif
 
 %start program
 /*%destructor { delete $$; } ID*/
@@ -1043,7 +1045,8 @@ asignacion: expID ASSIGN exp  {
 /* Estas verificaciones se hacen a tiempo de ejecucion. */
 entradasalida: READ '(' exp ')'   {
                                     EntradaSalida* tmp = new EntradaSalida(0,$3);  
-                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                    if (tmp->get_tipo() == TypeError::Instance() 
+                                       ){
                                          std::string msg = mensaje_error_tipos("type","error");
                                          driver.error(yylloc,msg);
                                         
@@ -1064,8 +1067,27 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_n
                                                                       driver.tablaSimbolos.enterScope();   
                                                                       identacion += "  "; 
                                                                     }
-                                                            bloquedeclare listainstruccionesLoop '}' { 
-                                                                                                        //LoopFor* tmp = new LoopFor() 
+                                                            bloquedeclare listainstruccionesLoop '}' {  ErrorLoopFor* asign_exp = $7;
+                                                                                                        LoopFor* tmp;
+                                                                                                        if (asign_exp->is_error()
+                                                                                                           || $3->get_tipo() == TypeError::Instance()
+                                                                                                           || $5->get_tipo() == TypeError::Instance()
+                                                                                                           ){
+                                                                                                            tmp = new LoopFor();
+                                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                                            driver.error(yylloc,msg);
+                                                                                                        } else{
+                                                                                                            if (asign_exp->exp != 0){
+                                                                                                                tmp = new 
+                                                                                                                LoopFor($3, $5,asign_exp->exp,$11,$12);
+                                                                                                                tmp->tipo = TypeVoid::Instance();
+                                                                                                            } else {
+                                                                                                                tmp = new 
+                                                                                                                LoopFor($3, $5,asign_exp->asign,$11,$12);
+                                                                                                                tmp->tipo = TypeVoid::Instance();
+                                                                                                            }
+                                                                                                        }
+                                                                                                        $$ = tmp;
                                                                                                         if (!error_state) {
                                                                                                             std::cout << identacion << "for {\n";
                                                                                                             int cscope = driver.tablaSimbolos.currentScope();
@@ -1077,22 +1099,28 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_n
                                                                                                  }
        /*Errores*/
        | FOR '(' error ';' expBool ';' errorloopfor ')' '{' { 
-                                                        }
-                                                      bloquedeclare listainstruccionesLoop '}' { /*Identificador id = Identificador(std::string($3));
-                                                                                              *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
-                                                                                           }
+                                                            }
+                                                      bloquedeclare listainstruccionesLoop '}' { 
+                                                                                                 $$ = new LoopFor();
+                                                                                               }
        | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front());
                                                                    }
-                                                                 bloquedeclare listainstruccionesLoop '}' { /*Identificador id = Identificador(std::string($3));
-                                                                                                         *$$ = LoopFor(id,$5,*$7,*$11,*$12);*/ 
-                                                                                                      };
+                                                                 bloquedeclare listainstruccionesLoop '}' { 
+                                                                                                            $$ = new LoopFor();
+                                                                                                          };
 /**
  * Regla utilizada en el manejo de errores del encabezado de una iteracion
  * acotada
  */
-errorloopfor : asignacion {}
-             | exp        {}
-             | error      {};
+errorloopfor : asignacion {
+                            $$ = new ErrorLoopFor($1);
+                          }
+             | exp        {
+                            $$ = new ErrorLoopFor($1);
+                          }
+             | error      {
+                            $$ = new ErrorLoopFor();
+                          };
 
 
 /*LISTO*/
@@ -1100,57 +1128,123 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                  driver.tablaSimbolos.enterScope();   
                                                  identacion += "  ";
                                                }
-                                             bloquedeclare listainstruccionesLoop '}' { /**$$ = LoopWhile($3,*$8,*$9); */
-                                                                                    if (!error_state) {
-                                                                                      std::cout << identacion << "while {\n"; 
-                                                                                      driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
-                                                                                      std::cout << identacion << "}\n ";
-                                                                                      driver.tablaSimbolos.exitScope();
-                                                                                      identacion.erase(0,2);
-                                                                                    }
-                                                                                  }
+                                              bloquedeclare listainstruccionesLoop '}' { 
+                                                                                         LoopWhile* result;
+                                                                                         ErrorBoolExp* exp_bool = $3;
+                                                                                         if (exp_bool->get_error()
+                                                                                            || $9->get_tipo() == TypeError::Instance() 
+                                                                                            ){
+                                                                                            result = new LoopWhile();
+                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                            driver.error(yylloc,msg);
+                                                                                         } else{
+                                                                                            result = new LoopWhile(exp_bool->exp,$8,$9);
+                                                                                         }
+                                                                                         $$ = result;
+                                                                                         if (!error_state) {
+                                                                                            std::cout << identacion << "while {\n"; 
+                                                                                            driver.
+                                                                                            tablaSimbolos.show(driver.
+                                                                                                    tablaSimbolos.currentScope(),identacion+"  ");
+                                                                                            std::cout << identacion << "}\n ";
+                                                                                            driver.tablaSimbolos.exitScope();
+                                                                                            identacion.erase(0,2);
+                                                                                        }
+                                                                                       }
          | DO '{' { 
                    driver.tablaSimbolos.enterScope();   
                    identacion += "  ";
                   } 
-                   bloquedeclare listainstruccionesLoop '}' WHILE '(' errorloopwhile ')' { /**$$ = LoopWhile($9,*$4,*$5); */
-                                                                                       if (!error_state) {
-                                                                                         std::cout << identacion << "while {\n";
-                                                                                         driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
-                                                                                         std::cout << identacion << "}\n ";
+                   bloquedeclare listainstruccionesLoop '}' WHILE '(' errorloopwhile ')' { 
+                                                                                            LoopWhile* result;
+                                                                                            ErrorBoolExp* exp_bool = $9;
+                                                                                            if (exp_bool->get_error()
+                                                                                               || $5->get_tipo() == TypeError::Instance() 
+                                                                                               ){
+                                                                                                result = new LoopWhile();
+                                                                                                std::string msg = mensaje_error_tipos("error","void");
+                                                                                                driver.error(yylloc,msg);
+                                                                                            } else{
+                                                                                                result = new LoopWhile(exp_bool->exp,$4,$5);
+                                                                                            }
+                                                                                            $$ = result;
+                                                                                            if (!error_state) {
+                                                                                                std::cout << identacion << "while {\n";
+                                                                                                driver.tablaSimbolos.show(driver.
+                                                                                                            tablaSimbolos.currentScope(),identacion+"  ");
+                                                                                                std::cout << identacion << "}\n ";
 
-                                                                                         driver.tablaSimbolos.exitScope();
-                                                                                         identacion.erase(0,2);
-                                                                                       }
-                                                                                     };
+                                                                                                driver.tablaSimbolos.exitScope();
+                                                                                                identacion.erase(0,2);
+                                                                                            }
+                                                                                        };
 /**
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
-errorloopwhile : expBool    {}
-               | error  {};
+errorloopwhile : expBool    {
+                               $$ = new ErrorBoolExp($1); 
+                            }
+               | error      {
+                                $$ = new ErrorBoolExp();
+                            };
 
 selectorif: IF '(' errorif ')' THEN '{' { 
                                           driver.tablaSimbolos.enterScope();   
                                           identacion += "  ";
                                         }
                                         bloquedeclare listainstrucciones '}' lelseif { 
+                                                                                        ErrorBoolExp* err_exp = $3;
+                                                                                        SelectorIf * result;
+                                                                                        if (err_exp->get_error()
+                                                                                            || $9->get_tipo() == TypeError::Instance()
+                                                                                           ){
+                                                                                            result = new SelectorIf(); 
+                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                            driver.error(yylloc,msg);
+                                                                                        } else{
+                                                                                            result = new SelectorIf(err_exp->exp,$8,$9,$11);
+                                                                                        }
+                                                                                        $$ = result;
                                                                                         driver.tablaSimbolos.exitScope();
                                                                                         identacion.erase(0,2);
-                                                                                    
-                                                                                 }
-           | IF '(' errorif ')' THEN instruccion ';'                             { 
-                                                                                 }
-           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'            { 
-                                                                                 };
+                                                                                     }
+           | IF '(' errorif ')' THEN instruccion ';'                                 { 
+                                                                                        ErrorBoolExp* err_exp = $3;
+                                                                                        SelectorIf * result;
+                                                                                        if (err_exp->get_error()
+                                                                                            || $6->get_tipo() == TypeError::Instance()
+                                                                                           ){
+                                                                                            result = new SelectorIf(); 
+                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                            driver.error(yylloc,msg);
+                                                                                        } else{
+                                                                                            result = new SelectorIf(err_exp->exp,$6,0);
+                                                                                        }
+                                                                                        $$ = result;
+                                                                                     }
+           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';'                { 
+                                                                                        ErrorBoolExp* err_exp = $3;
+                                                                                        SelectorIf * result;
+                                                                                        if (err_exp->get_error()){
+                                                                                            result = new SelectorIf(); 
+                                                                                            std::string msg = mensaje_error_tipos("error","void");
+                                                                                            driver.error(yylloc,msg);
+                                                                                        } else{
+                                                                                            result = new SelectorIf(err_exp->exp,$6,$8);
+                                                                                        }
+                                                                                        $$ = result;
+                                                                                     };
 
 
 lelseif: /* Vacio */                                                               { 
+                                                                                     $$ = new LElseIf(false);
                                                                                    }
        | lelseif1 ELSE '{' { 
                              driver.tablaSimbolos.enterScope();   
                            }
-                           bloquedeclare listainstrucciones '}'                              { /**$$ = LElseIf(*$4,*$5); */
-                                                                                               driver.tablaSimbolos.exitScope();
+                           bloquedeclare listainstrucciones '}'                              { 
+                                                                                                 
+                                                                                                driver.tablaSimbolos.exitScope();
                                                                                              };
 
 lelseif1: /*Vacio*/
@@ -1198,8 +1292,12 @@ lelseifLoop1: /*Vacio*/
  * Regla utilizada para el manejo de errores de los selectores de bloques e
  * instrucciones if-then-else.
  */
-errorif : expBool   {}
-        | error     {};
+errorif : expBool   {
+                        $$ = new ErrorBoolExp($1);
+                    }
+        | error     {
+                        $$ = new ErrorBoolExp();
+                    };
 
 llamadafuncion: identificador '(' lvarovalor ')' { //*$$ = LlamadaFuncion(Identificador(std::string($1)),*$3); 
                                                     if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){

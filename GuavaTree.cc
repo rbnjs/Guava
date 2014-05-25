@@ -331,9 +331,14 @@ void BloqueDeclare::show(std::string s) {}
 
 /* Class LElseIf */
 
-LElseIf::LElseIf() {
+LElseIf::LElseIf(bool error) {
     exp = 0;
     lelseif = 0;
+    if (error){
+        tipo = TypeError::Instance();
+    } else{
+        tipo = TypeVoid::Instance();
+    }
 }
 
 LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif = 0) {
@@ -341,6 +346,7 @@ LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif 
     declaraciones = d;
     listainstrucciones = li;
     lelseif = lif;
+    tipo = TypeVoid::Instance();
 }
 
 LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li) {
@@ -348,6 +354,7 @@ LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li) {
     lelseif = 0;
     declaraciones = d;
     listainstrucciones = li;
+    tipo = TypeVoid::Instance();
 }
 
 LElseIf::~LElseIf() {
@@ -375,6 +382,7 @@ SelectorIf::SelectorIf(Exp* e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, 
     lelseif = lif;
     instruccion1 = 0;
     instruccion2 = 0;
+    tipo = TypeVoid::Instance();
 }
 
 SelectorIf::SelectorIf(Exp* e, Instruccion* i, Instruccion* i2 = 0) {
@@ -383,6 +391,7 @@ SelectorIf::SelectorIf(Exp* e, Instruccion* i, Instruccion* i2 = 0) {
     instruccion2 = i2;
     listainstrucciones = 0;
     declaraciones = 0;
+    tipo = TypeVoid::Instance();
 }
 
 SelectorIf::~SelectorIf() {
@@ -405,6 +414,7 @@ LoopWhile::LoopWhile(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li) {
     exp = e;
     declaraciones = bd;
     listainstrucciones = li;
+    tipo = TypeVoid::Instance();
 }
 
 LoopWhile::~LoopWhile() {}
@@ -476,6 +486,7 @@ LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstr
     exp2 = e2;
     declaraciones = d;
     listainstrucciones = l;
+    tipo = TypeVoid::Instance();
 }
 
 LoopFor::LoopFor(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l) {
@@ -485,6 +496,7 @@ LoopFor::LoopFor(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, L
     exp2 = 0;
     declaraciones = d;
     listainstrucciones = l;
+    tipo = TypeVoid::Instance();
 }
 
 LoopFor::~LoopFor() {

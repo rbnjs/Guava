@@ -261,7 +261,7 @@ class ListaInstrucciones{
         ListaInstrucciones();
         ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
         ~ListaInstrucciones();
-
+        TypeS* get_tipo() { return tipo; }
         void show(std::string);
 };
 
@@ -415,12 +415,13 @@ public:
  */
 class LElseIf{
 public:
+    TypeS* tipo;
     Exp* exp;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
     LElseIf* lelseif;
 
-    LElseIf();
+    LElseIf(bool);
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     LElseIf(BloqueDeclare*, ListaInstrucciones*);
     ~LElseIf();
@@ -441,13 +442,25 @@ public:
     Instruccion* instruccion1; 
     Instruccion* instruccion2;
     LElseIf* lelseif;
-    
+
+    SelectorIf(): tipo(TypeError::Instance()), exp(0), declaraciones(0), listainstrucciones(0),instruccion1(0),instruccion2(0),lelseif(0){} 
     SelectorIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     SelectorIf(Exp*, Instruccion*, Instruccion*);    
     ~SelectorIf(); 
     TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
+};
+
+class ErrorBoolExp{
+bool error;
+public:
+    Exp* exp;
+    ErrorBoolExp(Exp* e): exp(e), error(false) { }
+    ErrorBoolExp(): error(true), exp(0){}
+    ~ErrorBoolExp() { delete this; }
+    bool get_error(){ return error; }
+
 };
 
 /**
@@ -459,7 +472,7 @@ public:
     TypeS* tipo;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
-
+    LoopWhile(): exp(0), tipo(TypeError::Instance()), declaraciones(0), listainstrucciones(0){}
     LoopWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
     TypeS* get_tipo() { return tipo; } 
     ~LoopWhile();
@@ -522,6 +535,7 @@ public:
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
 
+    LoopFor():identificador(0), tipo (TypeError::Instance()), exp (0), asignacion(0), exp2(0), declaraciones(0),listainstrucciones(0){}
     LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
     LoopFor(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopFor();  
@@ -597,6 +611,9 @@ public:
     void show(std::string);
 };
 
+/**
+ * Clase que determina las instrucciones Continue/Break.
+ */
 class ContinueBreak: public Instruccion{
 public:
     TypeS* tipo;

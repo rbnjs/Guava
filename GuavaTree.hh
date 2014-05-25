@@ -40,7 +40,7 @@
  */
 class Exp{
 public:
-    TypeS* get_tipo() { return 0; }; 
+    virtual TypeS* get_tipo() { return 0; }; 
     virtual void show(std::string) = 0;
 };
 
@@ -92,14 +92,6 @@ public:
     void show(std::string);
 };
 
-typedef union {
-    float real;
-    std::string* str;
-    int integer;
-    char ch;
-    bool boolean;
-    LArreglo* listaA;
-} ValorU;
 
 /**
  * Describe valores constantes del lenguaje.
@@ -110,22 +102,17 @@ typedef union {
  */
 class Valor:public Exp{
 public:
-    TypeS* tipo;
-    ValorU valor;
 
-    Valor();
-    Valor(float);
-    Valor(int);
-    Valor(char);
-    Valor(std::string*);
-    Valor(bool);
-    Valor(LArreglo*);
+    
+    virtual TypeS* get_tipo() { return 0; }
+    virtual bool is_real() { return false; }
+    virtual bool is_int() { return false; }
+    virtual bool is_char() { return false; }
+    virtual bool is_str() { return false; }
+    virtual bool is_array() { return false; }
+    virtual bool is_bool() { return false; }
 
-    TypeS* get_tipo() { return tipo; }
-
-    ~Valor();
-
-    virtual void show(std::string);
+    virtual void show(std::string) = 0;
 };
 
 /**
@@ -133,12 +120,18 @@ public:
  */
 class Real: public Valor{
 public:
+   TypeS* tipo; 
+   float valor;
+
+    bool is_real() { return true; }
+    Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
+    }
+    float get_valor() { return valor; };
+    TypeS* get_tipo() { return tipo; }
+    ~Real(){
+    }
     
-    Real(float);    
-    float get_valor() { return valor.real; };
-    ~Real();
-    
-    virtual void show(std::string);
+    void show(std::string){}
 };
 
 /**
@@ -146,11 +139,14 @@ public:
  */
 class Integer:public Valor{
 public:
-    Integer();
-    Integer(int);    
-    int getValor();
-    ~Integer();
-    virtual void show(std::string);
+    int valor;
+    TypeS* tipo;
+    bool is_int() { return true; }
+    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}   
+    int getValor() {return valor;}
+    TypeS* get_tipo() { return tipo; }
+    ~Integer(){}
+    void show(std::string){}
 };
 
 /**
@@ -158,12 +154,16 @@ public:
  */
 class Char: public Valor{
 public:
+    char valor;
+    TypeS* tipo;
     
-    Char(char);
-    char get_valor() { return valor.ch; } 
-    ~Char();
+    bool is_char() { return true; }
+    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+    char get_valor() { return valor; } 
+    ~Char(){}
+    TypeS* get_tipo() { return tipo; }
     
-    virtual void show(std::string);
+    void show(std::string){}
 };
 
 /**
@@ -171,13 +171,17 @@ public:
  */
 class String: public Valor{
 public:
+    std::string* valor;
+    TypeS* tipo;
 
-    String(char*);    
-    String(std::string*);    
-    std::string* get_valor(){ return valor.str; } 
-    ~String();
+    bool is_str() { return true; }
+    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {}
+    String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+    std::string* get_valor(){ return valor; } 
+    TypeS* get_tipo() { return tipo; }
+    ~String(){}
     
-    virtual void show(std::string);
+    void show(std::string){}
 };
 
 /**
@@ -185,12 +189,17 @@ public:
  */
 class Bool: public Valor{
 public:
+    bool valor;
+    TypeS* tipo;
     
-    Bool(bool);    
-    bool  get_valor() { return valor.boolean; }
+    bool is_bool() { return false; }
+
+    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}  
+    bool  get_valor() { return valor; }
+    TypeS* get_tipo() { return tipo; }
     ~Bool();
     
-    virtual void show(std::string);
+    void show(std::string){}
 };
 
 /**
@@ -384,7 +393,9 @@ private:
  */
 class Arreglo:public Valor{
 public:
+    LArreglo* la;
 
+    bool is_array() { return true; }
     Arreglo();
     Arreglo(LArreglo*);    
     ~Arreglo();

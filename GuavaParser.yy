@@ -805,11 +805,11 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
 
 lcorchetes: '[' INTEGER ']'         { 
                                       LCorchetes *nuevo =  new LCorchetes();
-                                      nuevo->append(*(new Integer($2)));
+                                      nuevo->append(*(new Integer($2,TypeInt::Instance())));
                                       $$ = nuevo;
                                     }
           | lcorchetes '[' INTEGER ']' { 
-                                         $1->append(*(new Integer($3)));
+                                         $1->append(*(new Integer($3, TypeInt::Instance())));
                                          $$ = $1; 
                                        }
           /*Errores*/
@@ -1422,6 +1422,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                        else {
                                          if ($1->get_tipo() != TypeInt::Instance() &&
                                              $1->get_tipo() != TypeReal::Instance()) {
+                                             Exp* hola = $1;
+                                             std::cout << "";
                                              std::string msg = mensaje_error_tipos("integer' or 'real",$1->get_tipo()->get_name());
                                              driver.error(yylloc,msg);
                                          }
@@ -1581,24 +1583,24 @@ expAritmetica: '-' exp %prec UMINUS  { std::tring * op = new std::string("-");
                                      };
 
 valor: BOOL     { 
-                  $$ = new Bool($1);
-                  $$->tipo = TypeBool::Instance();
+                  Valor* v = new Bool($1,TypeBool::Instance());
+                  $$ = v;
                 }
      | STRING   { 
-                  $$ = new String($1);
-                  $$->tipo = TypeString::Instance();
+                  Valor* v = new String($1,TypeString::Instance());
+                  $$ = v;
                 }
      | CHAR     { 
-                  $$ = new Char($1);
-                  $$->tipo = TypeChar::Instance();
+                  Valor* v = new Char($1,TypeChar::Instance());
+                  $$ = v;
                 }
      | INTEGER  { 
-                  $$ = new Integer($1);
-                  $$->tipo = TypeInt::Instance();
+                  Valor* v  = new Integer($1,TypeInt::Instance());
+                  $$ = v;
                 }
      | REAL     { 
-                  $$ = new Real($1);
-                  $$->tipo = TypeReal::Instance();
+                  Valor* v = new Real($1,TypeReal::Instance());
+                  $$ = v;
                 }
      | arreglo  {
                   $$ = $1;

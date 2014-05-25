@@ -53,7 +53,7 @@ void Tipo::show(std::string s) {
 LCorchetes::LCorchetes() {
 }
 
-void LCorchetes::append(Integer e){
+void LCorchetes::append(int e){
     lista.push_back(e);
 }
 
@@ -80,15 +80,15 @@ ExpUn::ExpUn(Exp* e1, LCorchetes* lc) {
 
 ExpUn::~ExpUn() {
     //delete corchetes;
-    //delete operacion; 
+    if (operacion != 0) delete operacion; 
 }
 
 void ExpUn::show(std::string s) {
     std::cout << s << "Expresion Unaria: \n";
     std::cout << s << "Exp: \n";
     exp->show(s+" ");
-    if (operacion != 0) std::cout << s << "Operador: " << *operacion;
     if (corchetes != 0) corchetes->show(s+ "  ");
+    if (operacion != 0) std::cout << s << "Operador: " << *operacion;
 } 
 
 
@@ -271,11 +271,12 @@ Arreglo::Arreglo(LArreglo* la_):la(la_){
 }
     
 Arreglo::~Arreglo() { 
-    /* MEMORY LEAK -> Revisar  */
-    //delete listaA;
 }
 
-void Arreglo::show(std::string) {}
+void Arreglo::show(std::string s) {
+    std::cout <<  s << "Arreglo: \n";
+    la->show(s+ "  ");
+}
 
 /* Class BloqueDeclare */
 

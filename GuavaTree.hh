@@ -16,21 +16,6 @@
  * =====================================================================================
  */
 
-/**
- * PARTE DE OBSERVACIONES:
- * 1- Para la regla de lvariables: tipo no puede ser void, no puede existir
- *    una variable que sea de tipo void.
- * 2- Para la regla de lcorchetes: Esta regla es para la declaracion de
- *    arreglos, estamos permitiendo que entre corchetes pueda existir una
- *    exp, solo puede ser una expresion si esta retorna un valor integer.
- *    Lo dejaremos asi y lo verificamos en la verificacion estatica de tipos?
- *    O lo cambiaremos a solo expresiones de tipo integer?
- * 3- Me tienes que explicar la regla de arreglo y larreglo.
- * 4- Podemos considerar las uniones y records como tipo o son los IDs de
- *    cada uno los que definen el nombre del tipo?
- * 5- Se debe definir de abajo hacia arriba, sino la compilacion no funcionara.
- *
- */
 # include "GuavaSymTable.hh"
 # include <list>
 # include <utility>
@@ -82,14 +67,16 @@ public:
  * Define la estructuracion de los arreglos de datos en el lenguaje.
  */
 class LArreglo{
-public:
-    std::list<Exp*> larr;
+    public:
+        std::list<Exp*> larr;
 
-    LArreglo();
-    void append(Exp*);
-    ~LArreglo();
-    
-    void show(std::string);
+        LArreglo();
+        void append(Exp*);
+        ~LArreglo();
+        int size(){ return larr.size(); }
+        TypeS* get_tipo() { return larr.front()->get_tipo(); }
+
+        void show(std::string);
 };
 
 
@@ -101,163 +88,163 @@ public:
  *que enlace el token con el tipo determinado?
  */
 class Valor:public Exp{
-public:
+    public:
 
-    
-    virtual TypeS* get_tipo() { return 0; }
-    virtual bool is_real() { return false; }
-    virtual bool is_int() { return false; }
-    virtual bool is_char() { return false; }
-    virtual bool is_str() { return false; }
-    virtual bool is_array() { return false; }
-    virtual bool is_bool() { return false; }
 
-    virtual void show(std::string) = 0;
+        virtual TypeS* get_tipo() { return 0; }
+        virtual bool is_real() { return false; }
+        virtual bool is_int() { return false; }
+        virtual bool is_char() { return false; }
+        virtual bool is_str() { return false; }
+        virtual bool is_array() { return false; }
+        virtual bool is_bool() { return false; }
+
+        virtual void show(std::string) = 0;
 };
 
 /**
  * Clase que define los numeros reales dentro del lenguaje.
  */
 class Real: public Valor{
-public:
-   TypeS* tipo; 
-   float valor;
+    public:
+        TypeS* tipo; 
+        float valor;
 
-    bool is_real() { return true; }
-    Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
-    }
-    float get_valor() { return valor; };
-    TypeS* get_tipo() { return tipo; }
-    ~Real(){
-    }
-    
-    void show(std::string){}
+        bool is_real() { return true; }
+        Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
+        }
+        float get_valor() { return valor; };
+        TypeS* get_tipo() { return tipo; }
+        ~Real(){
+        }
+
+        void show(std::string){}
 };
 
 /**
  * Clase que define los numeros enteros dentro del lenguaje.
  */
 class Integer:public Valor{
-public:
-    int valor;
-    TypeS* tipo;
-    bool is_int() { return true; }
-    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}   
-    int getValor() {return valor;}
-    TypeS* get_tipo() { return tipo; }
-    ~Integer(){}
-    void show(std::string){}
+    public:
+        int valor;
+        TypeS* tipo;
+        bool is_int() { return true; }
+        Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}   
+        int getValor() {return valor;}
+        TypeS* get_tipo() { return tipo; }
+        ~Integer(){}
+        void show(std::string){}
 };
 
 /**
  * Clase que define los caracteres del lenguaje.
  */
 class Char: public Valor{
-public:
-    char valor;
-    TypeS* tipo;
-    
-    bool is_char() { return true; }
-    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
-    char get_valor() { return valor; } 
-    ~Char(){}
-    TypeS* get_tipo() { return tipo; }
-    
-    void show(std::string){}
+    public:
+        char valor;
+        TypeS* tipo;
+
+        bool is_char() { return true; }
+        Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+        char get_valor() { return valor; } 
+        ~Char(){}
+        TypeS* get_tipo() { return tipo; }
+
+        void show(std::string){}
 };
 
 /**
  * Clase que define las cadenas de caracteres del lenguaje.
  */
 class String: public Valor{
-public:
-    std::string* valor;
-    TypeS* tipo;
+    public:
+        std::string* valor;
+        TypeS* tipo;
 
-    bool is_str() { return true; }
-    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {}
-    String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
-    std::string* get_valor(){ return valor; } 
-    TypeS* get_tipo() { return tipo; }
-    ~String(){}
-    
-    void show(std::string){}
+        bool is_str() { return true; }
+        String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {}
+        String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+        std::string* get_valor(){ return valor; } 
+        TypeS* get_tipo() { return tipo; }
+        ~String(){}
+
+        void show(std::string){}
 };
 
 /**
  * Clase que define el tipo de datos booleanos.
  */
 class Bool: public Valor{
-public:
-    bool valor;
-    TypeS* tipo;
-    
-    bool is_bool() { return false; }
+    public:
+        bool valor;
+        TypeS* tipo;
 
-    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}  
-    bool  get_valor() { return valor; }
-    TypeS* get_tipo() { return tipo; }
-    ~Bool();
-    
-    void show(std::string){}
+        bool is_bool() { return false; }
+
+        Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}  
+        bool  get_valor() { return valor; }
+        TypeS* get_tipo() { return tipo; }
+        ~Bool();
+
+        void show(std::string){}
 };
 
 /**
  * Clase que define la estructura de un arreglo, indicando sus dimensiones.
  */
 class LCorchetes{
-public:
-    std::list<Integer> lista;
-        
-    LCorchetes();
-    void append(Integer);
-    ~LCorchetes();
-        
-    void show(std::string);
+    public:
+        std::list<int> lista;
+
+        LCorchetes();
+        void append(int);
+        ~LCorchetes();
+
+        void show(std::string);
 };
 
 /**
  * Define las expresiones unarias del lenguajes.
  */
 class ExpUn:public Exp{
-public:
-    Exp* exp;
-    TypeS* tipo;
-    LCorchetes* corchetes;
-    std::string *operacion;
-    
-    ExpUn(Exp*, std::string*);
-    ExpUn(Exp*, LCorchetes*);    
-    ~ExpUn();
-    TypeS* get_tipo() { return tipo;}
+    public:
+        Exp* exp;
+        TypeS* tipo;
+        LCorchetes* corchetes;
+        std::string *operacion;
 
-    virtual void show(std::string);
+        ExpUn(Exp*, std::string*);
+        ExpUn(Exp*, LCorchetes*);    
+        ~ExpUn();
+        TypeS* get_tipo() { return tipo;}
+
+        virtual void show(std::string);
 };
 
 /**
  * Define las expresiones binarias del lenguaje.
  */
 class ExpBin: public Exp{
-public:
-    TypeS* tipo;
-    Exp* exp1;
-    Exp* exp2;
-    std::string operacion;
-    ExpBin(); 
-    ExpBin(Exp*,Exp*,std::string);
-    ~ExpBin();
-    TypeS* get_tipo() { return tipo;}
-    
-    virtual void show(std::string);
+    public:
+        TypeS* tipo;
+        Exp* exp1;
+        Exp* exp2;
+        std::string operacion;
+        ExpBin(); 
+        ExpBin(Exp*,Exp*,std::string);
+        ~ExpBin();
+        TypeS* get_tipo() { return tipo;}
+
+        virtual void show(std::string);
 };
 
 /**
  * Clase principal de instruccion.
  */
 class Instruccion{
-public:
-    TypeS* get_tipo(); 
-    virtual void show(std::string) = 0;
+    public:
+        virtual TypeS* get_tipo() { return 0; } 
+        virtual void show(std::string) = 0;
 };
 
 /**
@@ -265,16 +252,16 @@ public:
  * de codigo.
  */
 class ListaInstrucciones{
-public:
-    TypeS* tipo;
-    Instruccion* instruccion;
-    ListaInstrucciones* listainstrucciones;
-    
-    ListaInstrucciones();
-    ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
-    ~ListaInstrucciones();
-    
-    void show(std::string);
+    public:
+        TypeS* tipo;
+        Instruccion* instruccion;
+        ListaInstrucciones* listainstrucciones;
+
+        ListaInstrucciones();
+        ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
+        ~ListaInstrucciones();
+
+        void show(std::string);
 };
 
 /**
@@ -282,40 +269,40 @@ public:
  * de tipo arreglo.
  */
 class LVarArreglo{
-public:
-    std::list<std::pair <Identificador, LCorchetes> > lista;
-    
-    LVarArreglo();
-    LVarArreglo(Identificador, LCorchetes);
-    void append(Identificador,LCorchetes);
-    std::list<std::pair <Identificador, LCorchetes> > get_list();
-    ~LVarArreglo();
-    
-    void show(std::string);
+    public:
+        std::list<std::pair <Identificador, LCorchetes> > lista;
+
+        LVarArreglo();
+        LVarArreglo(Identificador, LCorchetes);
+        void append(Identificador,LCorchetes);
+        std::list<std::pair <Identificador, LCorchetes> > get_list();
+        ~LVarArreglo();
+
+        void show(std::string);
 };
 
 /**
  * Clase que describe una lista de identificadores.
  */
 class LVar{
-public:
-   std::list<Identificador> lista; 
-    LVar();
-    LVar(std::list<Identificador>);
-    void append(Identificador);
-    ~LVar();
-    std::list<Identificador> get_list();
-    
-    void show(std::string);
+    public:
+        std::list<Identificador> lista; 
+        LVar();
+        LVar(std::list<Identificador>);
+        void append(Identificador);
+        ~LVar();
+        std::list<Identificador> get_list();
+
+        void show(std::string);
 };
 
 /**
  * Clase pariente de las estructuras de datos Record y Union.
  */
 class Estructura{
-public:
-    virtual Identificador get_id() = 0;
-    virtual void show(std::string) = 0;
+    public:
+        virtual Identificador get_id() = 0;
+        virtual void show(std::string) = 0;
 };
 
 /**
@@ -325,31 +312,31 @@ public:
  * entiendes preguntame para que te lo explique mejor.
  */
 class LVariables {
-public:
-    TypeS* tipo;                   /*Tipo de las variables a declarar */
+    public:
+        TypeS* tipo;                   /*Tipo de las variables a declarar */
 
-    LVar* listaIds;           /* Lista de identificadores de variables */
-    LVarArreglo* listaIdsAr;  /* Lista de identificadores de variables de tipo arreglo */
-    Estructura* estructura;   /* Este define a una union o registro. */
-    LVariables* listaVar;     /* En caso de declarar mas de una lista de variables. */
+        LVar* listaIds;           /* Lista de identificadores de variables */
+        LVarArreglo* listaIdsAr;  /* Lista de identificadores de variables de tipo arreglo */
+        Estructura* estructura;   /* Este define a una union o registro. */
+        LVariables* listaVar;     /* En caso de declarar mas de una lista de variables. */
 
-    /*Constructores*/
-    LVariables();
+        /*Constructores*/
+        LVariables();
 
-    /*Caso en el que se declaran variables simples*/
-    LVariables(TypeS*, LVar*);
+        /*Caso en el que se declaran variables simples*/
+        LVariables(TypeS*, LVar*);
 
-    /*Caso en el que se declaran variables de tipo arreglo*/
-    LVariables(TypeS*, LVarArreglo*);
+        /*Caso en el que se declaran variables de tipo arreglo*/
+        LVariables(TypeS*, LVarArreglo*);
 
-    /*Caso definicion de Records y Unions*/
-    LVariables(Estructura*);
+        /*Caso definicion de Records y Unions*/
+        LVariables(Estructura*);
 
-    ~LVariables();
+        ~LVariables();
 
-    std::list<TypeS*> get_type_list();
-    
-    void show(std::string);
+        std::list<TypeS*> get_type_list();
+
+        void show(std::string);
 };
 
 /**
@@ -358,16 +345,16 @@ public:
  * en una direccion de memoria diferente.
  */
 class Record:public Estructura{
-public:
-    Record();
-    Record(Identificador, LVariables*);
-    ~Record();    
-    LVariables* get_lvar();
-    Identificador get_id();
-    void show(std::string);
-private:
-    Identificador id;              /* Nombre del record. */
-    LVariables* lista;             /* Lista de variables. */
+    public:
+        Record();
+        Record(Identificador, LVariables*);
+        ~Record();    
+        LVariables* get_lvar();
+        Identificador get_id();
+        void show(std::string);
+    private:
+        Identificador id;              /* Nombre del record. */
+        LVariables* lista;             /* Lista de variables. */
 };
 
 /**
@@ -375,16 +362,16 @@ private:
  * elementos comparten la misma direccion de memoria para ser almacenados.
  */
 class Union:public Estructura{
-public:
-    Union();
-    Union(Identificador, LVariables*);
-    ~Union();   
-    LVariables* get_lvar();
-    Identificador get_id();
-    void show(std::string);
-private:
-    Identificador id;   /* Nombre del union. */
-    LVariables* lista;  /* Lista de variables. */
+    public:
+        Union();
+        Union(Identificador, LVariables*);
+        ~Union();   
+        LVariables* get_lvar();
+        Identificador get_id();
+        void show(std::string);
+    private:
+        Identificador id;   /* Nombre del union. */
+        LVariables* lista;  /* Lista de variables. */
 };
 
 
@@ -392,15 +379,19 @@ private:
  * Clase que describe la definicion de estructuras de datos tipo arreglos.
  */
 class Arreglo:public Valor{
-public:
-    LArreglo* la;
+    public:
+        LArreglo* la;
 
-    bool is_array() { return true; }
-    Arreglo();
-    Arreglo(LArreglo*);    
-    ~Arreglo();
-    
-    void show(std::string);
+        bool is_array() { return true; }
+        Arreglo();
+        Arreglo(LArreglo*);    
+        ~Arreglo();
+        TypeS* get_tipo(){ int* dimension = new int[la->size()];
+            TypeS* array = new TypeArray(la->get_tipo(),la->size(),dimension);
+            return array;
+        }
+
+        void show(std::string s);
 };
 
 /**

@@ -359,7 +359,7 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
 void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
     std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
-    std::list<Integer>::iterator itInt;
+    std::list<int>::iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
     int *arreglo;
@@ -378,7 +378,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             itInt = par.second.lista.begin();
 
             for(int i=0; i != size; i++) {
-                arreglo[i] = itInt->getValor();
+                arreglo[i] = *itInt;
                 ++itInt;
             }
             TypeArray* arr = new TypeArray(t,size,arreglo); // Tipo de arreglo con la información concerniente.
@@ -462,7 +462,7 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
 TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
     std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
-    std::list<Integer>::iterator itInt;
+    std::list<int>::iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
     int *arreglo;
@@ -482,7 +482,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             arreglo = new int[size];
             itInt = par.second.lista.begin();
             for(int i=0; i != size; i++) {
-                arreglo[i] = itInt->getValor();
+                arreglo[i] = *itInt;
                 ++itInt;
             }
             
@@ -805,11 +805,11 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
 
 lcorchetes: '[' INTEGER ']'         { 
                                       LCorchetes *nuevo =  new LCorchetes();
-                                      nuevo->append(*(new Integer($2,TypeInt::Instance())));
+                                      nuevo->append($2);
                                       $$ = nuevo;
                                     }
           | lcorchetes '[' INTEGER ']' { 
-                                         $1->append(*(new Integer($3, TypeInt::Instance())));
+                                         $1->append($3);
                                          $$ = $1; 
                                        }
           /*Errores*/

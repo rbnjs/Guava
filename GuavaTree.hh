@@ -19,6 +19,7 @@
 # include "GuavaSymTable.hh"
 # include <list>
 # include <utility>
+#include <iostream>
 
 /**
  * Clase que define las expresiones del lenguaje.
@@ -563,6 +564,7 @@ public:
 
 class LlamadaFuncion: public Instruccion{
 public:
+    TypeS* tipo;
     Identificador* id; /* Identificador de la funcion */
     LVaroValor* lvarovalor;     /* Lista de variables o valores. */
 
@@ -570,6 +572,21 @@ public:
     ~LlamadaFuncion();
     
     void show(std::string);
+};
+
+class ContinueBreak: public Instruccion{
+public:
+    TypeS* tipo;
+    int instruccion; // 0 es Continue , 1 es break
+    ContinueBreak( int t): instruccion(t){ }
+    ~ContinueBreak(){ }
+    void show(std::string s){
+        if (instruccion == 0){
+            std::cout << s << "Continue \n";
+        } else{
+            std::cout << s << "Break \n";
+        }
+    }
 };
 
 /**

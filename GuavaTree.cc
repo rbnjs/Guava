@@ -19,42 +19,10 @@
 #include "GuavaTree.hh"
 #include <iostream>
 
-/* Class de expresion  */
-
-Exp::Exp() { 
-    exp = 0;
-}
-
-Exp::Exp(Exp *e) {
-    *exp = *e;    
-}
-
-Exp::~Exp() {
-    //delete exp;
-}
-
-void Exp::show(std::string identacion) {
-    exp->show(identacion);
-}
-
-
-/* Class ExpParentizada */
-
-ExpParentizada::ExpParentizada(Exp e): Exp(), exp(e) {}
-
-ExpParentizada::~ExpParentizada() {}
-
-void ExpParentizada::show(std::string s) {
-    exp.show(s); // No se si poner algo con respecto al parentesis.
-}
-
 
 /* Class Identificador. */
 
-Identificador::Identificador():Exp(){
-}
-
-Identificador::Identificador(std::string i):Exp(),identificador(i) {
+Identificador::Identificador(){
 }
 
 Identificador::~Identificador() {}
@@ -96,12 +64,12 @@ Valor::Valor(char c) {
     valor.ch = c;
 }
 
-Valor::Valor(std::string s) {
-    valor.str = &s;
+Valor::Valor(std::string* s) {
+    valor.str = s;
 }
 
 Valor::Valor(bool b){
-    valor.boolean;
+    valor.boolean = b;
 }
 
 Valor::Valor(LArreglo* l){
@@ -157,16 +125,15 @@ void Char::show(std::string s) {
 
 /* Class String */
   
-String::String(char* s): Valor(*(new std::string(s))) {
+String::String(char* s): Valor(new std::string(s)) {
 }
 
-String::String(std::string s):Valor(), str(s) {
+String::String(std::string* s):Valor(s){
 }
 
 String::~String() {}
 
 void String::show(std::string s){
-    std::cout << s << "String: " << str << '\n';
 }
 
 
@@ -200,13 +167,14 @@ void LCorchetes::show(std::string s) {
 
 /* Class ExpUn */
 
-ExpUn::ExpUn(Exp e, std::string* op):Exp() {
+ExpUn::ExpUn(Exp *e, std::string* op){
     exp = e;
     operacion = op;
     corchetes = 0;
 }
     
-ExpUn::ExpUn(Exp e1, LCorchetes* lc): Exp() {
+ExpUn::ExpUn(Exp* e1, LCorchetes* lc) {
+    exp = e1;
     corchetes = lc;
     operacion = 0;
 }
@@ -219,7 +187,7 @@ ExpUn::~ExpUn() {
 void ExpUn::show(std::string s) {
     std::cout << s << "Expresion Unaria: \n";
     std::cout << s << "Exp: \n";
-    exp.show(s+" ");
+    exp->show(s+" ");
     if (operacion != 0) std::cout << s << "Operador: " << *operacion;
     if (corchetes != 0) corchetes->show(s+ "  ");
 } 
@@ -227,36 +195,18 @@ void ExpUn::show(std::string s) {
 
 /* Class ExpBin */
 
-ExpBin::ExpBin():Exp(){}
+ExpBin::ExpBin(){}
 
-ExpBin::ExpBin(Exp e1,Exp e2,std::string op):Exp(), exp1(e1), exp2(e2), operacion(op){
+ExpBin::ExpBin(Exp* e1,Exp* e2,std::string op):exp1(e1), exp2(e2), operacion(op){
 }
 
 ExpBin::~ExpBin() {}
 
 void ExpBin::show(std::string s){
     std::cout << s << "Expresion Binaria: \n";
-    exp1.show(s+"  ");
-    exp2.show(s+"  ");
+    exp1->show(s+"  ");
+    exp2->show(s+"  ");
     std::cout << s << "Operador: " << operacion << '\n';
-}
-
-
-/* Class Instruccion */
-
-Instruccion::Instruccion() {}
-
-Instruccion::Instruccion(Instruccion* i) {
-    *instruccion = *i;
-}
-
-Instruccion::~Instruccion() {
-    delete this->instruccion;
-}
-
-void Instruccion::show(std::string s) {
-    std::cout << "Instruccion: \n";
-    instruccion->show(s+"  ");
 }
 
 
@@ -273,8 +223,6 @@ ListaInstrucciones::ListaInstrucciones(Instruccion* inst, ListaInstrucciones* li
 }
 
 ListaInstrucciones::~ListaInstrucciones() {
-    delete instruccion;
-    delete listainstrucciones;
 }
 
 void ListaInstrucciones::show(std::string s) {
@@ -406,7 +354,7 @@ Identificador Union::get_id(){ return id; }
 LArreglo::LArreglo(){
 }
 
-void LArreglo::append(Exp e){
+void LArreglo::append(Exp* e){
     larr.push_back(e);
 }
 
@@ -448,8 +396,8 @@ LElseIf::LElseIf() {
     lelseif = 0;
 }
 
-LElseIf::LElseIf(Exp e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0) {
-    *exp = e;
+LElseIf::LElseIf(Exp* e, BloqueDeclare d, ListaInstrucciones li, LElseIf* lif = 0) {
+    exp = e;
     declaraciones = d;
     listainstrucciones = li;
     *lelseif = *lif;
@@ -463,21 +411,21 @@ LElseIf::LElseIf(BloqueDeclare d, ListaInstrucciones li) {
 }
 
 LElseIf::~LElseIf() {
-    delete lelseif;
+    delete this;
 }
 
 void LElseIf::show(std::string s) {} 
 
 /* Class SelectorIf */
 
-SelectorIf::SelectorIf(Exp e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0) {
+SelectorIf::SelectorIf(Exp* e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0) {
     exp = e;
     *declaraciones = *d;
     *listainstrucciones = *l;
     *lelseif = *lif;
 }
 
-SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0) {
+SelectorIf::SelectorIf(Exp* e, Instruccion* i, Instruccion* i2 = 0) {
     exp = e;
     *instruccion1 = *i;
     *instruccion2 = *i2;
@@ -486,16 +434,11 @@ SelectorIf::SelectorIf(Exp e, Instruccion* i, Instruccion* i2 = 0) {
 }
 
 SelectorIf::~SelectorIf() {
-    delete declaraciones;
-    delete listainstrucciones;
-    delete instruccion1;
-    delete instruccion2;
-    delete lelseif;
 }
 
 void SelectorIf::show(std::string s) {
     std::cout << s << "If: \n";
-    exp.show("  "+s);
+    exp->show("  "+s);
     std::cout << s << "Then: \n";
     if (listainstrucciones != 0) listainstrucciones->show("  "+s);
     if ( instruccion1 != 0)  instruccion1->show("  "+s);
@@ -506,7 +449,7 @@ void SelectorIf::show(std::string s) {
 
 /* Class LoopWhile */
 
-LoopWhile::LoopWhile(Exp e, BloqueDeclare bd, ListaInstrucciones li) {
+LoopWhile::LoopWhile(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li) {
     exp = e;
     declaraciones = bd;
     listainstrucciones = li;
@@ -516,98 +459,92 @@ LoopWhile::~LoopWhile() {}
 
 void LoopWhile::show(std::string s) {
     std::cout << s << "While:\n";
-    exp.show("  "+s);
+    exp->show("  "+s);
     std::cout << s << "do:\n";
-    listainstrucciones.show("  "+s);
+    listainstrucciones->show("  "+s);
 } 
 
 /* Class Asignacion */
 
 Asignacion::Asignacion() {}
 
-Asignacion::Asignacion(Identificador i, Exp e) {
+Asignacion::Asignacion(Identificador* i, Exp* e) {
     identificador = i;
-    *exp = e;
+    exp = e;
     lcorchetes = 0;
     identificador2 = 0;
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id, LCorchetes lc, Exp e) {
+Asignacion::Asignacion(Identificador* id, LCorchetes* lc, Exp* e) {
     identificador = id;
-    *lcorchetes = lc;
-    *exp = e;
+    lcorchetes = lc;
+    exp = e;
     identificador2 = 0;
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id,Identificador id2,Exp e) {
+Asignacion::Asignacion(Identificador* id,Identificador* id2,Exp* e) {
     identificador = id;
-    *identificador2 = id2;
-    *exp = e;
+    identificador2 = id2;
+    exp = e;
     lcorchetes = 0;
     arreglo = 0;
 }
 
-Asignacion::Asignacion(Identificador id, Arreglo arr) {
+Asignacion::Asignacion(Identificador* id, Arreglo* arr) {
     identificador = id;
-    *arreglo = arr;
+    arreglo = arr;
     lcorchetes = 0;
     identificador2 = 0;
     exp = 0;
 }
 
 Asignacion::~Asignacion() {
-    delete identificador2;
-    delete lcorchetes;
-    delete arreglo;
-    delete exp;
 }
 
 void Asignacion::show(std::string s) {
-    std::cout << s << "Asignacion: \n";
+    /*  std::cout << s << "Asignacion: \n";
     identificador.show(s + "  ");
     if (identificador2 != 0) identificador2->show(s+"  "); 
     if (lcorchetes != 0) lcorchetes->show(s+"  ");
     if (exp == 0){
         exp->show(s+"  ");
     }
-    if (arreglo != 0) arreglo->show(s+ "  ");
+    if (arreglo != 0) arreglo->show(s+ "  ");*/
 } 
 
 
 /* Class LoopFor */
 
-LoopFor::LoopFor(Identificador id, Exp e1,Exp e2,BloqueDeclare d, ListaInstrucciones l) {
+LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
     exp = e1;
     asignacion = 0;
-    *exp2 = e2;
+    exp2 = e2;
     declaraciones = d;
     listainstrucciones = l;
 }
 
-LoopFor::LoopFor(Identificador id, Exp e1,Asignacion asig,BloqueDeclare d, ListaInstrucciones l) {
+LoopFor::LoopFor(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
     exp = e1;
-    *asignacion = asig;
+    asignacion = asig;
     exp2 = 0;
     declaraciones = d;
     listainstrucciones = l;
 }
 
 LoopFor::~LoopFor() {
-    delete asignacion;
-    delete exp2;
 }
 
 void LoopFor::show(std::string s) {
     std::cout << s << "Loop For: \n";
-    identificador.show("  "+s);
-    exp.show("  "+s);
+    identificador->show("  "+s);
+    exp->show("  "+s);
     if (asignacion != 0) asignacion->show(" "+s);
     if (exp2 != 0) exp2->show("  "+s);
-    listainstrucciones.show("  "+s);
+    listainstrucciones->show("  "+s);
 } 
 
 
@@ -628,7 +565,7 @@ void PlusMinus::show(std::string s) {
 LVaroValor::LVaroValor() {
 }
 
-void LVaroValor::append(Exp e){
+void LVaroValor::append(Exp* e){
     lvarovalor.push_back(e);
 }
         
@@ -726,7 +663,7 @@ LFunciones::LFunciones(Funcion f, LFunciones* l) {
         lista = l;
 }
 
-LFunciones::~LFunciones() { delete lista; }
+LFunciones::~LFunciones() {  }
 
 void LFunciones::show(std::string s) {
     funcion.show(s+"  ");

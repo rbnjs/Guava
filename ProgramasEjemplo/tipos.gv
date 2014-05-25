@@ -5,6 +5,11 @@ declare {
 }
 
 function void main() {
+<<<<<<< HEAD
     a := 1;
     b := a<=>d;
+=======
+    a := 1 + 2;
+    b := a+e;
+>>>>>>> 78a4650f5356032bf9299cceb686605e9782b7a2
 }

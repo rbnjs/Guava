@@ -1674,14 +1674,10 @@ expID: identificador   { TypeS* tipo;
                                                 std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
                                                 driver.error(yylloc, msg);
                                                 tmp->tipo = TypeError::Instance();
-                                                
-                                                std::cout << "\n\nEstoy en el 2do brazo\n\n";
                                             }
                                             //Caso en el que la estructura del arreglo no es de tipo integer
                                             else {
                                                 tmp->tipo = TypeError::Instance();
-
-                                                std::cout << "\n\nEstoy en el 3er brazo\n\n";
                                             }
                                             $$ = tmp;
                                         }

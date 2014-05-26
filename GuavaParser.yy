@@ -159,7 +159,7 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
     return id;
 }
 /**
- * Retorna el error de que una variable ya ha sido
+ * Retorna el mensaje de error de que una variable ya ha sido
  * declarada.
  */
 std::string reportar_existencia(Symbol *s, std::string id) {
@@ -169,6 +169,19 @@ std::string reportar_existencia(Symbol *s, std::string id) {
     msg += "' already used in line: ";
     linea << s->column;
     msg += columna.str();
+    error_state = 1;
+    return msg;
+}
+
+/**
+ * Retorna el mensaje de error de un tipo ya ha sido
+ * declarada.
+ */
+std::string reportar_existencia_tipo(Symbol *s, std::string id) {
+    std::stringstream linea, columna;
+    std::string msg("Type name '");
+    msg += id;
+    msg += "' already used in this context.";
     error_state = 1;
     return msg;
 }
@@ -249,7 +262,7 @@ int tamano_tipo(TypeS* t){
     if (t->is_structure()){
         result = 0;
         TypeS* tmp;
-        TypeStructure *s = (TypeStructure*) t;
+        TypeRecord *s = (TypeRecord*) t;
         std::list<TypeS*> list = s->atributos->get_types(0);
         while (!list.empty()){
             tmp = list.front();
@@ -542,7 +555,7 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
         if (tipo->is_structure()) {
-            TypeStructure* estructura = (TypeStructure*) tipo;
+            TypeRecord* estructura = (TypeRecord*) tipo;
             tabla = estructura->atributos;
         }
         else {
@@ -560,7 +573,7 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
            return verificar_acceso_atributos(tmp,la, driver, loc ); 
         }     
     } 
-    else {
+    else{
         if (la.empty()) return obtener_tipo_simbolo(id);
         Identificador* identificador = la.front();
         Symbol *tmp; 
@@ -570,6 +583,37 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
     }
 
     return 0;
+}
+/**
+ * Verifica la existencia de un tipo y lo agrega a la tabla. 
+ */
+void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union){
+    TypeStructure *structure;
+    if (is_union){
+         structure = new TypeUnion();
+    } else{
+        structure = new TypeRecord();
+    }
+    structure->set_name(id->identificador);
+    GuavaSymTable *tabla = tabla_actual.front();
+    int n = tabla->currentScope();
+    identacion += "  ";
+    Symbol * tmp = 0;
+    if ( (tmp = tabla->simple_lookup(id->identificador)) == 0){
+        if (tabla->get_parent() == 0){
+            tabla->insert_type(id->identificador, std::string("unionType"),n,structure); 
+        } else {
+            if (tabla->get_parent()->get_name() == id->identificador){
+                d->error(loc, reportar_existencia_tipo(tmp,id->identificador));
+            } else {
+                tabla->insert_type(id->identificador, std::string("unionType"),n,structure); 
+            }
+        }
+    } else {
+        d->error(loc, reportar_existencia_tipo(tmp,id->identificador));
+    }
+    offset_actual.push_front(-1);
+    tabla_actual.push_front(structure->get_tabla());
 }
 
 }
@@ -742,14 +786,8 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           $$ = new LVariables();
                                                         };
 
-union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
-                                 structure->nombre = $2->identificador;
-                                 GuavaSymTable *tabla = tabla_actual.front();
-                                 int n = tabla->currentScope();
-                                 tabla->insert_type($2->identificador, std::string("unionType"),n,structure); 
-                                 tabla_actual.push_front(structure->atributos);
-                                 identacion += "  ";
-                                 offset_actual.push_front(-1);
+union: UNION identificador '{' { 
+                                verificar_existencia_tipo($2, &driver,yylloc,true);
                                }
                               lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
@@ -764,14 +802,7 @@ union: UNION identificador '{' { TypeUnion* structure = new TypeUnion();
                                              }
 
 record: RECORD identificador '{'{
-                                 TypeStructure* structure = new TypeStructure();
-                                 structure->nombre = $2->identificador;
-                                 GuavaSymTable *tabla = tabla_actual.front();
-                                 int n = tabla->currentScope();
-                                 tabla->insert_type($2->identificador, std::string("recordType"),n,structure); 
-                                 tabla_actual.push_front(structure->atributos);
-                                 identacion += "  ";
-                                 offset_actual.push_front(0);
+                                 verificar_existencia_tipo($2,&driver,yylloc, false);
                                 } 
                                 lvariables '}' { 
                                                  GuavaSymTable* tabla = tabla_actual.front();

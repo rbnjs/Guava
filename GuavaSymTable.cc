@@ -24,6 +24,7 @@
 GuavaSymTable::GuavaSymTable(){
     alcance = 0;
     this->pila.push_front(alcance);
+    parent = 0;
 }
 
 GuavaSymTable::~GuavaSymTable(){
@@ -209,29 +210,31 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
 }
 
 
-/* class TypeStructure */
+/* class TypeRecord */
 
-TypeStructure::TypeStructure(){ atributos = new GuavaSymTable();}
+TypeRecord::TypeRecord(){ atributos = new GuavaSymTable();}
 
-TypeStructure::TypeStructure(std::string n ):nombre(n){ atributos = new GuavaSymTable(); }
+TypeRecord::TypeRecord(std::string n ):nombre(n){ atributos = new GuavaSymTable();
+                                                        atributos->set_parent(this);
+                                                      }
 
-bool TypeStructure::is_real()      { return false; }
-bool TypeStructure::is_int()       { return false; }
-bool TypeStructure::is_error()     { return false; }
-bool TypeStructure::is_bool()      { return false; }
-bool TypeStructure::is_char()      { return false; }
-bool TypeStructure::is_str()       { return false; }
-bool TypeStructure::is_func()      { return false; }
-bool TypeStructure::is_structure() { return true; }
-bool TypeStructure::is_union()     { return false; }
-bool TypeStructure::is_void()      { return false; }
-bool TypeStructure::is_reference() { return false; }
+bool TypeRecord::is_real()      { return false; }
+bool TypeRecord::is_int()       { return false; }
+bool TypeRecord::is_error()     { return false; }
+bool TypeRecord::is_bool()      { return false; }
+bool TypeRecord::is_char()      { return false; }
+bool TypeRecord::is_str()       { return false; }
+bool TypeRecord::is_func()      { return false; }
+bool TypeRecord::is_structure() { return true; }
+bool TypeRecord::is_union()     { return false; }
+bool TypeRecord::is_void()      { return false; }
+bool TypeRecord::is_reference() { return false; }
 
-TypeS* TypeStructure::get_tipo() { return 0; }
+TypeS* TypeRecord::get_tipo() { return 0; }
 
-std::string TypeStructure::get_name() { return nombre; }
+std::string TypeRecord::get_name() { return nombre; }
 
-std::pair<int,int*> TypeStructure::get_dimensiones(){
+std::pair<int,int*> TypeRecord::get_dimensiones(){
     std::pair<int,int*> p; 
     return p;
 }
@@ -240,7 +243,9 @@ std::pair<int,int*> TypeStructure::get_dimensiones(){
 
 TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }
 
-TypeUnion::TypeUnion(std::string n ):nombre(n){ atributos = new GuavaSymTable();}
+TypeUnion::TypeUnion(std::string n ):nombre(n){ atributos = new GuavaSymTable();
+                                                atributos->set_parent(this);
+                                              }
 
 bool TypeUnion::is_real()      { return false; }
 bool TypeUnion::is_int()       { return false; }

@@ -91,7 +91,10 @@ std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 
-
+/**
+ * Funcion que obtiene recursivamente el TypeS* de un
+ * simbolo id.
+ */ 
 TypeS* obtener_tipo_simbolo(Symbol* id){
     if (id->true_type != 0) return id->true_type;
     if (id->type_pointer != 0) return obtener_tipo_simbolo(id->type_pointer);
@@ -181,6 +184,7 @@ std::string tipo_no_existe(std::string id){
     error_state = 1;
     return msg;
 }
+
 /**
  * Retorna un mensaje de que el id
  * no es un tipo en verdad.
@@ -218,6 +222,7 @@ Symbol* obtener_tipo(std::string str, GuavaDriver *d, GuavaSymTable* t){
     if (s->true_type == 0) return 0;
     return s;
 }
+
 /**
  * "Encaja" el tamaño dado de un TypeS
  * en la palabra.
@@ -316,6 +321,7 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
         }
     }
 }
+
 /**
  * Inserta una sola variable simple.
  */
@@ -531,7 +537,7 @@ TypeS* dereference(TypeS* referencia){
 /**
  * Verifica que el acceso que se quiere realizar tiene sentido.
  */
-bool verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
     if (id->true_type != 0) {
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
@@ -543,31 +549,27 @@ bool verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
             TypeUnion* estructura = (TypeUnion*) tipo;
             tabla = estructura->atributos;
         }
-        if (la.empty()) return false;
+        if (la.empty()) return id->true_type;
         Identificador* identificador = la.front();
         Symbol *tmp; 
         la.pop_front();
 
         //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
 
-        std::cout << "\n\nverificar_acceso_atributos: Aqui 1\n\n";
         if (( tmp = variable_no_declarada(identificador->identificador, driver, loc, tabla) ) != 0){
-           verificar_acceso_atributos(tmp,la, driver, loc ); 
+           return verificar_acceso_atributos(tmp,la, driver, loc ); 
         }     
-
-        return true;
     } 
     else {
-        if (la.empty()) return false;
+        if (la.empty()) return obtener_tipo_simbolo(id);
         Identificador* identificador = la.front();
         Symbol *tmp; 
         la.pop_front();
 
         variable_no_declarada(identificador->identificador, driver, loc, &driver->tablaSimbolos);
-        return false;
     }
 
-    return false;
+    return 0;
 }
 
 }
@@ -1610,14 +1612,17 @@ errorif : expBool   {
                         $$ = new ErrorBoolExp();
                     };
 
-llamadafuncion: identificador '(' lvarovalor ')' { 
-                                                    if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){
+llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id; 
+                                                    if ( (id = driver.tablaSimbolos.lookup($1->identificador,0)) == 0){
                                                         std::string msg ("Undefined function '");
                                                         msg += $1->identificador;
                                                         msg += "'";
                                                         driver.error(yylloc,msg);
                                                         error_state = 1;
+                                                    }else {
+                                                        TypeS* tipo;
                                                     }
+
                                                  }
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
                                                  };

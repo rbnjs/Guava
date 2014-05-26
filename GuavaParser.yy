@@ -91,6 +91,13 @@ std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 
+
+TypeS* obtener_tipo_simbolo(Symbol* id){
+    if (id->true_type != 0) return id->true_type;
+    if (id->type_pointer != 0) return obtener_tipo_simbolo(id->type_pointer);
+    return 0;
+}
+
 /**
  * Avisa si la variable es de categoria estructura
  * e imprime .
@@ -140,7 +147,7 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
  * estaba declarada con un scope determinado.
  */
 Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, int scope, GuavaSymTable* t){
-    Symbol* id;
+    Symbol* id = 0;
     if ((id = t->lookup(name, scope )) == 0) {
         std::string msg ("Undeclared identifier '");
         msg += name;
@@ -966,40 +973,132 @@ lparam2: tipo identificador               { LParam* tmp = new LParam();
         | lparam2 ',' tipo REFERENCE error  { $$ = new LParam();    };
 
 
-listainstrucciones: /* Vacio */                        { //$$ = ListaInstrucciones(); 
+listainstrucciones: /* Vacio */                        { $$ = new ListaInstrucciones(); 
                                                        }
-                  |listainstrucciones instruccion ';'  { //$$ = ListaInstrucciones($1,$3); 
+                  |listainstrucciones instruccion ';'  { 
+                                                         ListaInstrucciones * result;
+                                                         if ( $1->get_tipo() == TypeError::Instance()
+                                                            || $2->get_tipo() == TypeError::Instance()){
+                                                                result = new ListaInstrucciones($2,$1); 
+                                                                result->tipo = TypeError::Instance();
+                                                         } else {
+                                                            result = new ListaInstrucciones($2,$1); 
+                                                         }
+                                                         $$ = result;
                                                        }
-                  | listainstrucciones instruccion1    { //$$ = ListaInstrucciones($1,$2); 
+                  | listainstrucciones instruccion1    {
+                                                         ListaInstrucciones * result;
+                                                         if ( $1->get_tipo() == TypeError::Instance()
+                                                            || $2->get_tipo() == TypeError::Instance()){
+                                                                result = new ListaInstrucciones($2,$1); 
+                                                                result->tipo = TypeError::Instance();
+                                                         } else {
+                                                            result = new ListaInstrucciones($2,$1); 
+                                                         }
+                                                         $$ = result;
                                                        };
 
 instruccion: asignacion     { 
                             }
            | llamadafuncion { 
                             }
-           | MINUSMINUS identificador  { 
-                                         if (variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$2, 0);
+           | MINUSMINUS identificador  {
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($2,0);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$1, 1); 
+           | identificador MINUSMINUS { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($1,1);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$2, 2); 
+           | PLUSPLUS identificador    { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($2,2);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$1, 3); 
+           | identificador PLUSPLUS    { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($1,3);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
            | entradasalida  { 
                             }
            | CONTINUE       {
+                             $$ = new ContinueBreak(0);
                             }
            | BREAK          {
+                             $$ = new ContinueBreak(1);
                             }
+
            /*Errores*/
            | error identificador       {/*Error en la especificacion del incremento o decremento*/}
            | identificador error       {/*Error en la especificacion del incremento o decremento*/}
@@ -1022,31 +1121,106 @@ instruccionLoop: asignacion     {
            | llamadafuncion     { 
                                 }
            | MINUSMINUS identificador  {
-                                         if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$2, 0);
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($2,0);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | identificador MINUSMINUS { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$1, 1); 
+           | identificador MINUSMINUS { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($1,1);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | PLUSPLUS identificador    { if ( variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$2, 2); 
+           | PLUSPLUS identificador    { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($2,2);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
-           | identificador PLUSPLUS    { if ( variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()) != 0){
-                                            $$ = new PlusMinus(*$1, 3); 
+           | identificador PLUSPLUS    { 
+                                        Symbol *id;
+                                        PlusMinus *result;
+                                        if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                            TypeS* tipo = obtener_tipo_simbolo(id);
+                                            if (tipo == TypeInt::Instance()){
+                                                result = new PlusMinus($1,3);
+                                            } else{
+                                                result = new PlusMinus();
+                                                std::string msg;
+                                                if (tipo == 0){
+                                                    msg = mensaje_error_tipos("null","integer");
+                                                } else{
+                                                    msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                }
+                                                driver.error(yylloc,msg);
+                                            }
+                                            $$ = result;
+                                         } else{
+                                            $$ = new PlusMinus();
                                          }
                                        }
            | entradasalida  { 
                             }
-           | CONTINUE       {
+           | CONTINUE       { 
+                             $$ = new ContinueBreak(0);
                             }
            | BREAK          {
+                             $$ = new ContinueBreak(1);
                             }
            /*Errores*/
-           | error identificador       {/*Error en la especificacion del incremento o decremento*/}
-           | identificador error       {/*Error en la especificacion del incremento o decremento*/}
+           | error identificador       {/*Error en la especificacion del incremento o decremento*/
+                                       }
+           | identificador error       {/*Error en la especificacion del incremento o decremento*/
+                                       }
 
 
 instruccionLoop1: loopfor        { 

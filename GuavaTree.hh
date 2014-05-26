@@ -562,14 +562,17 @@ public:
  */
 class PlusMinus: public Instruccion{
 public:
-    Identificador identificador;
-    int tipo; /* 0 para el dremento prefijo.
-               * 1 para el decremento postfijo.
-               * 2 para el incremento prefijo.
-               * 3 para el incremento prostfijo. */
+    Identificador* identificador;
+    int tipo_inst; /* 0 para el dremento prefijo.
+                    * 1 para el decremento postfijo.
+                    * 2 para el incremento prefijo.
+                    * 3 para el incremento prostfijo. */
+    TypeS* tipo;
     
-    PlusMinus(Identificador, int);
+    PlusMinus():identificador(0),tipo_inst(-1),tipo(TypeError::Instance()){}
+    PlusMinus(Identificador*, int);
     ~PlusMinus();
+    TypeS* get_tipo(){ return tipo; }
     
     void show(std::string);
 };
@@ -620,6 +623,7 @@ public:
 
     LlamadaFuncion(Identificador*, LVaroValor*);
     ~LlamadaFuncion();
+    TypeS* get_tipo(){ return tipo; }
     
     void show(std::string);
 };
@@ -631,7 +635,7 @@ class ContinueBreak: public Instruccion{
 public:
     TypeS* tipo;
     int instruccion; // 0 es Continue , 1 es break
-    ContinueBreak( int t): instruccion(t){ }
+    ContinueBreak( int t): instruccion(t), tipo(TypeVoid::Instance()){ }
     ~ContinueBreak(){ }
     void show(std::string s){
         if (instruccion == 0){
@@ -640,6 +644,7 @@ public:
             std::cout << s << "Break \n";
         }
     }
+    TypeS* get_tipo() { return tipo; }
 };
 
 /**

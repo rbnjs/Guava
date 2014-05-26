@@ -52,12 +52,12 @@ void GuavaSymTable::insert(Symbol elem) {
         this->tabla[elem.sym_name] = empty_list;
     }
 }
+
 /* Inserta un simbolo */
 void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
    Symbol* nuevo = new Symbol(name, catg, sc, type,line,column, offset); 
    this->insert(*nuevo);
 }
-
 
 /**
  * Agrega una variable arreglo o estructura a la tabla.
@@ -66,7 +66,6 @@ void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,i
     Symbol* nuevo = new Symbol(name,catg,scop,t,li,co, offset);
     this->insert(*nuevo);
 }
-
 
 /**
  * Inserta un tipo simple.

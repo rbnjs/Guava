@@ -205,6 +205,18 @@ class LCorchetes{
 };
 
 /**
+ * Clase que define la estructura de acceso a elementos de un arreglo.
+ */
+class LCorchetesExp{
+    public:
+        TypeS* tipo;
+
+        LCorchetesExp();
+        ~LCorchetesExp();
+        TypeS* get_tipo() { return tipo; }
+};
+
+/**
  * Define las expresiones unarias del lenguajes.
  */
 class ExpUn:public Exp{
@@ -217,7 +229,7 @@ class ExpUn:public Exp{
         ExpUn(Exp*, std::string*);
         ExpUn(Exp*, LCorchetes*);    
         ~ExpUn();
-        TypeS* get_tipo() { return tipo;}
+        TypeS* get_tipo() { return tipo; }
 
         virtual void show(std::string);
 };
@@ -234,7 +246,7 @@ class ExpBin: public Exp{
         ExpBin(); 
         ExpBin(Exp*,Exp*,std::string);
         ~ExpBin();
-        TypeS* get_tipo() { return tipo;}
+        TypeS* get_tipo() { return tipo; }
 
         virtual void show(std::string);
 };

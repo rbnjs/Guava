@@ -71,6 +71,12 @@ void LCorchetes::show(std::string s) {
        }
 }
 
+/* CLass LCorchetesExp */
+LCorchetesExp::LCorchetesExp() {
+}
+
+LCorchetesExp::~LCorchetesExp() {
+}
 
 /* Class ExpUn */
 

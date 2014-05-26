@@ -67,8 +67,8 @@ class GuavaDriver;
     Arreglo *classArreglo;
     LArreglo *classLArreglo;
     LCorchetes *classLCorchetes;
+    LCorchetesExp *classLCorchetesExp;
     TypeS *classTipo;
-    //Tipo *classTipo;
     BloqueDeclare *classBloqueDeclare;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
@@ -622,6 +622,7 @@ void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaD
 %type <classArreglo> arreglo
 %type <classLArreglo> larreglo
 %type <classLCorchetes> lcorchetes
+%type <classLCorchetesExp> lcorchetesExp
 %type <classTipo> tipo
 %type <classBloqueDeclare> bloquedeclare
 %type <classBloquePrincipal> bloqueprincipal
@@ -804,9 +805,9 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
 
 
 lcorchetes: '[' INTEGER ']'         { 
-                                      LCorchetes *nuevo =  new LCorchetes();
-                                      nuevo->append($2);
-                                      $$ = nuevo;
+                                      LCorchetes *tmp =  new LCorchetes();
+                                      tmp->append($2);
+                                      $$ = tmp;
                                     }
           | lcorchetes '[' INTEGER ']' { 
                                          $1->append($3);
@@ -816,8 +817,29 @@ lcorchetes: '[' INTEGER ']'         {
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
           | lcorchetes '[' error ']' {};
 
-lcorchetesExp: '[' exp ']'               {}
-             | lcorchetesExp '[' exp ']' {}
+lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
+                                           if($2->get_tipo() == TypeInt::Instance()) {
+                                             tmp->tipo = $2->get_tipo();
+                                           }
+                                           else {
+                                             std::string msg = mensaje_error_tipos("integer",$2->get_tipo()->get_name());
+                                             driver.error(yylloc,msg);
+                                             tmp->tipo = TypeError::Instance();
+                                           }
+                                           $$ = tmp;
+                                         }
+             | lcorchetesExp '[' exp ']' { LCorchetesExp* tmp = new LCorchetesExp();
+                                           if($1->get_tipo() == $3->get_tipo() &&
+                                             $1->get_tipo() == TypeInt::Instance()) {
+                                             tmp->tipo = $1->get_tipo();
+                                           }
+                                           else if ($3->get_tipo() != TypeInt::Instance()){
+                                             std::string msg = mensaje_error_tipos("integer",$3->get_tipo()->get_name());
+                                             driver.error(yylloc,msg);
+                                             tmp->tipo = TypeError::Instance();
+                                           }
+                                           $$ = tmp;
+                                         }
              | '[' error ']'             {}
              |  lcorchetesExp '[' error ']' {}
 
@@ -1237,14 +1259,35 @@ exp: expAritmetica  { $$ = $1; }
 
 expID: identificador   { TypeS* tipo;
                          Symbol* id;
-                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                                tipo = id->type_pointer->true_type;
-                                Identificador* tmp = new Identificador($1->identificador, tipo);
-                                $$ = tmp;
+                         if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
+                            tipo = id->type_pointer->true_type;
+                            Identificador* tmp = new Identificador($1->identificador, tipo);
+                            $$ = tmp;
                          }
                        }
-     | identificador lcorchetesExp    {
-                                        variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front());
+     | identificador lcorchetesExp    { TypeS* tipo;
+                                        Symbol* id;
+                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
+                                            Identificador* tmp = new Identificador($1->identificador);
+                                            //Caso en el que el identificador SI es un arreglo.
+                                            if ($2->get_tipo() == TypeInt::Instance() &&
+                                                id->true_type->is_array()) {
+                                                tmp->tipo = id->true_type;
+
+                                                //std::cout << "\n\n Tipo del Arreglo: " << tmp->get_tipo()->is_array() << "\n\n";
+                                            }
+                                            //Caso en el que el identificador NO es un arreglo
+                                            else if (!id->type_pointer->true_type->is_array()){
+                                                std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
+                                                driver.error(yylloc, msg);
+                                                tmp->tipo = TypeError::Instance();
+                                            }
+                                            //Caso en el que la estructura del arreglo no es de tipo integer
+                                            else {
+                                                tmp->tipo = TypeError::Instance();
+                                            }
+                                            $$ = tmp;
+                                        }
                                       }
      | identificador lAccesoAtributos { 
                                         Symbol * id;
@@ -1256,7 +1299,7 @@ expID: identificador   { TypeS* tipo;
                                                 verificar_acceso_atributos(id, tmp, &driver,yylloc) ;
                                             }
                                         }
-                                       };
+                                      };
 
  
 /*Faltan pruebas*/

@@ -28,7 +28,6 @@ TypeBool* TypeBool::bool_instance = 0;
 TypeChar* TypeChar::char_instance = 0;
 TypeString* TypeString::string_instance = 0;
 TypeVoid* TypeVoid::void_instance = 0;
-//Faltaria definir para las uniones y records.
 
 /* class TypeReal  */
 

@@ -232,8 +232,6 @@ private :
     std::list<TypeS*> parametros;
 };
 
-
-
 class TypeArray:public TypeS{
 public :
     TypeArray(TypeS*,int, int*);

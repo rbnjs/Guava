@@ -1616,7 +1616,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                         driver.error(yylloc,msg);
                                                         error_state = 1;
                                                     }else {
-                                                        TypeS* tipo = id
+                                                        TypeS* tipo;
                                                     }
 
                                                  }

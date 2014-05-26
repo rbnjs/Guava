@@ -537,7 +537,7 @@ TypeS* dereference(TypeS* referencia){
 /**
  * Verifica que el acceso que se quiere realizar tiene sentido.
  */
-TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+/*TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
     if (id->true_type != 0) {
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
@@ -557,7 +557,7 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
         //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
 
         if (( tmp = variable_no_declarada(identificador->identificador, driver, loc, tabla) ) != 0){
-           return verificar_acceso_atributos(tmp,la, driver, loc ); 
+           //return verificar_acceso_atributos(tmp,la, driver, loc ); 
         }     
     } 
     else {
@@ -570,7 +570,7 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
     }
 
     return 0;
-}
+}*/
 
 }
 
@@ -1660,9 +1660,14 @@ exp: expAritmetica  { $$ = $1; }
 expID: identificador   { TypeS* tipo;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            tipo = id->type_pointer->true_type;
-                            Identificador* tmp = new Identificador($1->identificador, tipo);
-                            $$ = tmp;
+                            if ((tipo = id->type_pointer->true_type) != 0 ) {
+                                Identificador* tmp = new Identificador($1->identificador, tipo);
+                                $$ = tmp;
+                            }
+                            else {
+                                std::string msg = tipo_no_existe(id->sym_name);
+                                driver.error(yylloc,msg);
+                            }
                          }
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
@@ -1670,12 +1675,18 @@ expID: identificador   { TypeS* tipo;
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                             Identificador* tmp = new Identificador($1->identificador);
                                             //Caso en el que el identificador SI es un arreglo.
-                                            if ($2->get_tipo() == TypeInt::Instance() &&
-                                                id->true_type->is_array()) {
-                                                tmp->tipo = id->true_type->get_tipo();
+                                            if ($2->get_tipo() == TypeInt::Instance()) {
+                                                if (id->true_type != 0 && id->true_type->is_array()) {
+                                                    tmp->tipo = id->true_type->get_tipo();
+                                                }
+                                                else {
+                                                   std::string msg = tipo_no_existe(id->sym_name);
+                                                   driver.error(yylloc,msg);
+                                                }
                                             }
                                             //Caso en el que el identificador NO es un arreglo
-                                            else if (!id->type_pointer->true_type->is_array()){
+                                            else if (id->type_pointer != 0 && id->type_pointer->true_type != 0 && 
+                                                     !id->type_pointer->true_type->is_array()) {
                                                 std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
                                                 driver.error(yylloc, msg);
                                                 tmp->tipo = TypeError::Instance();
@@ -1697,7 +1708,7 @@ expID: identificador   { TypeS* tipo;
                                                 std::list<Identificador*> tmp = $2->get_list();
                                                 tmp.pop_front();
                                                 std::cout << "\n\nAqui 1\n\n";
-                                                verificar_acceso_atributos(id, tmp, &driver,yylloc);
+                                                //verificar_acceso_atributos(id, tmp, &driver,yylloc);
                                                 std::cout << "\n\nAqui 2\n\n";
                                             }
                                             //Caso en el que la variable no es un record o union.
@@ -1826,8 +1837,6 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        ExpUn* tmp = new ExpUn($1,op);
                                        if ($1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();
-                                         
-                                         //std::cout << "\n\nHOLA MIJOOOMM\n\n";
                                        }
                                        else {
                                          std::string msg = mensaje_error_tipos("integer",$1->get_tipo()->get_name());

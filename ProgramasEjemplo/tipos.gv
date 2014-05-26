@@ -5,15 +5,5 @@ declare {
 }
 
 function void main() {
-    declare {
-        integer array x[5][3];
-        record hola {
-            integer a,b,c;
-            /*hola record w;*/
-        };
-        hola record z;
-    }
     a := 3.2;
-    b := 1.2;
-    c := x[5]+1;
 }

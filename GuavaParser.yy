@@ -973,7 +973,8 @@ lparam2: tipo identificador               { LParam* tmp = new LParam();
         | lparam2 ',' tipo REFERENCE error  { $$ = new LParam();    };
 
 
-listainstrucciones: /* Vacio */                        { $$ = new ListaInstrucciones(); 
+listainstrucciones: /* Vacio */                        { 
+                                                        $$ = new ListaInstrucciones(); 
                                                        }
                   |listainstrucciones instruccion ';'  { 
                                                          ListaInstrucciones * result;
@@ -1112,9 +1113,31 @@ instruccion1: loopfor        {
             | selectorif     { 
                              };
 
-listainstruccionesLoop: /* Vacio */                                {}
-                      | listainstruccionesLoop instruccionLoop ';' {}
-                      | listainstruccionesLoop instruccionLoop1    {} 
+listainstruccionesLoop: /* Vacio */                                {
+                                                                    $$ = new ListaInstrucciones(); 
+                                                                   }
+                      | listainstruccionesLoop instruccionLoop ';' {
+                                                                     ListaInstrucciones * result;
+                                                                     if ( $1->get_tipo() == TypeError::Instance()
+                                                                        || $2->get_tipo() == TypeError::Instance()){
+                                                                         result = new ListaInstrucciones($2,$1); 
+                                                                        result->tipo = TypeError::Instance();
+                                                                     } else {
+                                                                        result = new ListaInstrucciones($2,$1); 
+                                                                    }
+                                                                    $$ = result;
+                                                                   }
+                      | listainstruccionesLoop instruccionLoop1    {
+                                                                    ListaInstrucciones * result;
+                                                                    if ( $1->get_tipo() == TypeError::Instance()
+                                                                        || $2->get_tipo() == TypeError::Instance()){
+                                                                            result = new ListaInstrucciones($2,$1); 
+                                                                            result->tipo = TypeError::Instance();
+                                                                    } else {
+                                                                        result = new ListaInstrucciones($2,$1); 
+                                                                    }
+                                                                    $$ = result;
+                                                                   } 
 
 instruccionLoop: asignacion     { 
                                 }

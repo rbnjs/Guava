@@ -91,7 +91,10 @@ std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 
-
+/**
+ * Funcion que obtiene recursivamente el TypeS* de un
+ * simbolo id.
+ */ 
 TypeS* obtener_tipo_simbolo(Symbol* id){
     if (id->true_type != 0) return id->true_type;
     if (id->type_pointer != 0) return obtener_tipo_simbolo(id->type_pointer);
@@ -1605,14 +1608,17 @@ errorif : expBool   {
                         $$ = new ErrorBoolExp();
                     };
 
-llamadafuncion: identificador '(' lvarovalor ')' { 
-                                                    if (driver.tablaSimbolos.lookup($1->identificador,0) == 0){
+llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id; 
+                                                    if ( (id = driver.tablaSimbolos.lookup($1->identificador,0)) == 0){
                                                         std::string msg ("Undefined function '");
                                                         msg += $1->identificador;
                                                         msg += "'";
                                                         driver.error(yylloc,msg);
                                                         error_state = 1;
+                                                    }else {
+                                                        TypeS* tipo = id
                                                     }
+
                                                  }
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
                                                  };

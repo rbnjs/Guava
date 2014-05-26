@@ -622,6 +622,7 @@ public:
     LVaroValor* lvarovalor;     /* Lista de variables o valores. */
 
     LlamadaFuncion(Identificador*, LVaroValor*);
+    LlamadaFuncion(): tipo(TypeError::Instance()), id(0),lvarovalor(0) {}
     ~LlamadaFuncion();
     TypeS* get_tipo(){ return tipo; }
     

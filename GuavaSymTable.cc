@@ -236,7 +236,6 @@ std::pair<int,int*> TypeStructure::get_dimensiones(){
     return p;
 }
 
-
 /* class TypeUnion */
 
 TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }

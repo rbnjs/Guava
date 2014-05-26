@@ -101,4 +101,3 @@ public :
     std::list<TypeS*> get_atributos();
 };
 
-

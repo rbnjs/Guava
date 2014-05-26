@@ -26,6 +26,7 @@
  */
 class GuavaSymTable{
 public:
+    TypeS* parent;
     std::list<int> pila;                                                  /* Pila de alcances */
     std::unordered_map<std::string, std::list<Symbol> > tabla;            /* Tabla que representa la tabla de simbolos. */
     int alcance;                                                          /* Alcance en numeros. */
@@ -48,16 +49,24 @@ public:
     Symbol* simple_lookup(std::string elem);                               /* Busca un simbolo en el alcance actual */
     void show(int,std::string);                                            /* Muestra la tabla */
     std::list<TypeS*> get_types(int sc);                                   /* Obtiene todos los tipos de un alcance determinado. */
+    void set_parent(TypeS* p) { parent = p; } 
+    TypeS* get_parent() { return parent; } 
 };
 
-class TypeStructure :public TypeS{
+class TypeStructure: public TypeS{
+public:
+    virtual GuavaSymTable* get_tabla(){ return 0; }
+    virtual void set_name(std::string ) = 0;
+};
+
+class TypeRecord :public TypeStructure{
 public :
     GuavaSymTable* atributos;
     std::string nombre;
     int size;
-    TypeStructure();
-    TypeStructure(std::string n);
-    ~TypeStructure();
+    TypeRecord();
+    TypeRecord(std::string n);
+    ~TypeRecord();
     bool is_int() ; 
     bool is_real ();
     bool is_error() ;
@@ -72,10 +81,12 @@ public :
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
+    void set_name(std::string n){ nombre = n; }
     std::list<TypeS*> get_atributos();
+    GuavaSymTable* get_tabla() { return atributos; }
 };
 
-class TypeUnion :public TypeS{
+class TypeUnion :public TypeStructure{
 public :
     GuavaSymTable* atributos;
     std::string nombre;
@@ -95,9 +106,11 @@ public :
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    void set_name(std::string n){ nombre = n; }
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     std::list<TypeS*> get_atributos();
+    GuavaSymTable* get_tabla() { return atributos; }
 };
 

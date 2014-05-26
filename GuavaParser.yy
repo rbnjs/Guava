@@ -96,17 +96,14 @@ std::list<GuavaSymTable*> tabla_actual;
  * e imprime .
  */
 bool es_estructura_error(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc){
-    if ((categoria.compare("unionVar") != 0) && categoria.compare("recordVar") != 0){
+    if ((categoria.compare("unionType") != 0) && categoria.compare("recordType") != 0){
         std::string msg2 ("The ");
-        msg2 += categoria;
-        msg2 += "  ";
-        msg2 += nombre;
-        msg2 += " is not a record nor an union";
+        msg2 += categoria+" '"+nombre+"' is not a record nor an union.";
         driver->error(loc,msg2);
         error_state = 1;
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 /**
  * Indica si una categoria es igual a unionVar
@@ -523,39 +520,47 @@ TypeS* dereference(TypeS* referencia){
     TypeS* tmp = referencia->get_tipo();
     return tmp;
 }
+
 /**
  * Verifica que el acceso que se quiere realizar tiene sentido.
  */
-void verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
-    if (id->true_type != 0){
+bool verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+    if (id->true_type != 0) {
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
-        if (tipo->is_structure()){
+        if (tipo->is_structure()) {
             TypeStructure* estructura = (TypeStructure*) tipo;
             tabla = estructura->atributos;
-        } else{
+        }
+        else {
             TypeUnion* estructura = (TypeUnion*) tipo;
             tabla = estructura->atributos;
         }
-        if (la.empty()) return;
+        if (la.empty()) return false;
         Identificador* identificador = la.front();
         Symbol *tmp; 
         la.pop_front();
 
         //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
 
+        std::cout << "\n\nverificar_acceso_atributos: Aqui 1\n\n";
         if (( tmp = variable_no_declarada(identificador->identificador, driver, loc, tabla) ) != 0){
            verificar_acceso_atributos(tmp,la, driver, loc ); 
         }     
 
-    } else{
-        if (la.empty()) return;
+        return true;
+    } 
+    else {
+        if (la.empty()) return false;
         Identificador* identificador = la.front();
         Symbol *tmp; 
         la.pop_front();
 
         variable_no_declarada(identificador->identificador, driver, loc, &driver->tablaSimbolos);
+        return false;
     }
+
+    return false;
 }
 
 }
@@ -685,23 +690,23 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                              $$ = $1;
                                                            }
           | identificador UNION lvar ';'                { 
-                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("unionVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("unionType"),&driver,yylloc); 
                                                          LVariables *tmpLV = new LVariables(tmp,$3); 
                                                          $$ = tmpLV;
                                                         }
           | lvariables identificador UNION lvar ';'     { 
-                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("unionVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("unionType"),&driver,yylloc); 
                                                          LVariables *tmpLV = new LVariables(tmp,$4); 
                                                          $1->listaVar = tmpLV;
                                                          $$ = $1;
                                                         }
           | identificador RECORD lvar                   {
-                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordType"),&driver,yylloc); 
                                                          LVariables *tmpLV = new LVariables(tmp,$3); 
                                                          $$ = tmpLV;
                                                         }
           | lvariables identificador RECORD lvar ';'    { 
-                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("recordVar"),&driver,yylloc); 
+                                                         TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("recordType"),&driver,yylloc); 
                                                          LVariables *tmpLV = new LVariables(tmp,$4); 
                                                          $1->listaVar = tmpLV;
                                                          $$ = $1;
@@ -1450,7 +1455,6 @@ exp: expAritmetica  { $$ = $1; }
    | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
    | '(' error ')'  {};
       
-
 expID: identificador   { TypeS* tipo;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
@@ -1466,31 +1470,40 @@ expID: identificador   { TypeS* tipo;
                                             //Caso en el que el identificador SI es un arreglo.
                                             if ($2->get_tipo() == TypeInt::Instance() &&
                                                 id->true_type->is_array()) {
-                                                tmp->tipo = id->true_type;
-
-                                                //std::cout << "\n\n Tipo del Arreglo: " << tmp->get_tipo()->is_array() << "\n\n";
+                                                tmp->tipo = id->true_type->get_tipo();
                                             }
                                             //Caso en el que el identificador NO es un arreglo
                                             else if (!id->type_pointer->true_type->is_array()){
                                                 std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
                                                 driver.error(yylloc, msg);
                                                 tmp->tipo = TypeError::Instance();
+                                                
+                                                std::cout << "\n\nEstoy en el 2do brazo\n\n";
                                             }
                                             //Caso en el que la estructura del arreglo no es de tipo integer
                                             else {
                                                 tmp->tipo = TypeError::Instance();
+
+                                                std::cout << "\n\nEstoy en el 3er brazo\n\n";
                                             }
                                             $$ = tmp;
                                         }
                                       }
+     /*Hay que revisar esto, hay problemas con */
      | identificador lAccesoAtributos { 
                                         Symbol * id;
                                         Identificador *prueba = $1;
                                         if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-                                            if (es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
+                                            //Caso en el que la variable es un record o union.
+                                            if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
                                                 std::list<Identificador*> tmp = $2->get_list();
                                                 tmp.pop_front();
-                                                verificar_acceso_atributos(id, tmp, &driver,yylloc) ;
+                                                std::cout << "\n\nAqui 1\n\n";
+                                                verificar_acceso_atributos(id, tmp, &driver,yylloc);
+                                                std::cout << "\n\nAqui 2\n\n";
+                                            }
+                                            //Caso en el que la variable no es un record o union.
+                                            else {
                                             }
                                         }
                                       };

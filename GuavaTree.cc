@@ -128,11 +128,13 @@ void ExpBin::show(std::string s){
 ListaInstrucciones::ListaInstrucciones() {
     instruccion = 0;
     listainstrucciones = 0;
+    tipo = TypeVoid::Instance();
 }
 
 ListaInstrucciones::ListaInstrucciones(Instruccion* inst, ListaInstrucciones* li = 0) {
     *instruccion = *inst;
     *listainstrucciones = *li;
+    tipo = TypeVoid::Instance();
 }
 
 ListaInstrucciones::~ListaInstrucciones() {
@@ -520,14 +522,14 @@ void LoopFor::show(std::string s) {
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Identificador id, int t):Instruccion(), identificador(id), tipo(t) {
+PlusMinus::PlusMinus(Identificador* id, int t):identificador(id), tipo_inst(t), tipo(TypeVoid::Instance()) {
 }
 
 PlusMinus::~PlusMinus() {}
 
 void PlusMinus::show(std::string s) {
     std::cout << s << "Instruccion : " << tipo << '\n';
-    identificador.show("  "+s);
+    identificador->show("  "+s);
 } 
 
 /* Class LVaroValor */

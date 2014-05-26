@@ -256,7 +256,7 @@ class ExpBin: public Exp{
  */
 class Instruccion{
     public:
-        virtual TypeS* get_tipo() { return 0; } 
+        virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
         virtual void show(std::string) = 0;
 };
 
@@ -273,7 +273,7 @@ class ListaInstrucciones{
         ListaInstrucciones();
         ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
         ~ListaInstrucciones();
-
+        TypeS* get_tipo() { return tipo; }
         void show(std::string);
 };
 
@@ -427,15 +427,17 @@ public:
  */
 class LElseIf{
 public:
+    TypeS* tipo;
     Exp* exp;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
     LElseIf* lelseif;
 
-    LElseIf();
+    LElseIf(bool);
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     LElseIf(BloqueDeclare*, ListaInstrucciones*);
     ~LElseIf();
+    TypeS* get_tipo(){return tipo;}
 
     void show(std::string);
 };
@@ -453,13 +455,25 @@ public:
     Instruccion* instruccion1; 
     Instruccion* instruccion2;
     LElseIf* lelseif;
-    
+
+    SelectorIf(): tipo(TypeError::Instance()), exp(0), declaraciones(0), listainstrucciones(0),instruccion1(0),instruccion2(0),lelseif(0){} 
     SelectorIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     SelectorIf(Exp*, Instruccion*, Instruccion*);    
     ~SelectorIf(); 
     TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
+};
+
+class ErrorBoolExp{
+bool error;
+public:
+    Exp* exp;
+    ErrorBoolExp(Exp* e): exp(e), error(false) { }
+    ErrorBoolExp(): error(true), exp(0){}
+    ~ErrorBoolExp() { delete this; }
+    bool get_error(){ return error; }
+
 };
 
 /**
@@ -471,7 +485,7 @@ public:
     TypeS* tipo;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
-
+    LoopWhile(): exp(0), tipo(TypeError::Instance()), declaraciones(0), listainstrucciones(0){}
     LoopWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
     TypeS* get_tipo() { return tipo; } 
     ~LoopWhile();
@@ -504,6 +518,24 @@ public:
 };
 
 /**
+ * clase que guarda la asignacion, exp
+ * o si alguna de esta tiene un error.
+ */
+class ErrorLoopFor{
+    bool error;
+public:
+    Asignacion* asign;
+    Exp* exp;
+    ErrorLoopFor(): error(true){}
+    ErrorLoopFor(Asignacion* a): asign (a), exp(0){}
+    ErrorLoopFor(Exp* e): exp(e), asign(0){}
+    ~ErrorLoopFor(){
+        delete this;
+    }
+    bool is_error(){ return error; }
+};
+
+/**
  * Clase que describe los bloques de instrucciones con iteraciones acotadas.
  */
 class LoopFor: public Instruccion{
@@ -516,6 +548,7 @@ public:
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
 
+    LoopFor():identificador(0), tipo (TypeError::Instance()), exp (0), asignacion(0), exp2(0), declaraciones(0),listainstrucciones(0){}
     LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
     LoopFor(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopFor();  
@@ -565,6 +598,11 @@ public:
     Exp* argumento;
 
     EntradaSalida(int, Exp*);
+    TypeS* get_tipo(){
+        TypeS* error = (TypeS*) TypeError::Instance();
+        if (argumento->get_tipo() ==  error ) return TypeError::Instance();
+        return TypeVoid::Instance();
+    }
     ~EntradaSalida();
 
     void show(std::string);
@@ -586,6 +624,9 @@ public:
     void show(std::string);
 };
 
+/**
+ * Clase que determina las instrucciones Continue/Break.
+ */
 class ContinueBreak: public Instruccion{
 public:
     TypeS* tipo;

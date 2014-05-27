@@ -1409,7 +1409,6 @@ entradasalida: READ '(' exp ')'   {
                                     if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
-
                                     }
                                     $$ = tmp;
                                   };
@@ -1485,6 +1484,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                              LoopWhile* result;
                                                              ErrorBoolExp* exp_bool = $3;
                                                              if (exp_bool->get_error()
+                                                                 || exp_bool->get_tipo() == TypeError::Instance()
                                                                  || $9->get_tipo() == TypeError::Instance()){
                                                                  result = new LoopWhile();
                                                                  std::string msg = mensaje_error_tipos("error","void");
@@ -1510,6 +1510,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                                                    LoopWhile* result;
                                                                                    ErrorBoolExp* exp_bool = $9;
                                                                                    if (exp_bool->get_error()
+                                                                                       || exp_bool->get_tipo() == TypeError::Instance()
                                                                                        || $5->get_tipo() == TypeError::Instance()){
                                                                                        result = new LoopWhile();
                                                                                        std::string msg = mensaje_error_tipos("error","void");
@@ -1545,6 +1546,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                ErrorBoolExp* err_exp = $3;
                                                                SelectorIf * result;
                                                                if (err_exp->get_error()
+                                                                   || err_exp->get_tipo() == TypeError::Instance()
                                                                    || $9->get_tipo() == TypeError::Instance()){
                                                                    result = new SelectorIf(); 
                                                                    std::string msg = mensaje_error_tipos("error","void");
@@ -1561,6 +1563,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                ErrorBoolExp* err_exp = $3;
                                                                SelectorIf * result;
                                                                if (err_exp->get_error()
+                                                                   || err_exp->get_tipo() == TypeError::Instance()
                                                                    || $6->get_tipo() == TypeError::Instance()){
                                                                    result = new SelectorIf(); 
                                                                    std::string msg = mensaje_error_tipos("error","void");
@@ -1574,7 +1577,9 @@ selectorif: IF '(' errorif ')' THEN '{' {
           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';' { 
                                                                        ErrorBoolExp* err_exp = $3;
                                                                        SelectorIf * result;
-                                                                       if (err_exp->get_error()){
+                                                                       if (err_exp->get_error()
+                                                                          || err_exp->get_tipo() == TypeError::Instance()
+                                                                          ){
                                                                            result = new SelectorIf(); 
                                                                            std::string msg = mensaje_error_tipos("error","void");
                                                                            driver.error(yylloc,msg);
@@ -1617,6 +1622,7 @@ lelseif1: /*Vacio*/                                                 {
                                                                    LElseIf* result; 
                                                                    if ( $1->get_tipo() == TypeError::Instance()
                                                                         || $5->get_error()
+                                                                        || $5->get_tipo() == TypeError::Instance()
                                                                         || $11->get_tipo() == TypeError::Instance()) {
                                                                        result = new LElseIf(true);
                                                                        std::string msg = mensaje_error_tipos("error","void");
@@ -1637,6 +1643,7 @@ selectorifLoop: IF '(' errorif ')' THEN '{' {
                                                                            ErrorBoolExp* err_exp = $3;
                                                                            SelectorIf * result;
                                                                            if (err_exp->get_error()
+                                                                               || err_exp->get_tipo() == TypeError::Instance()
                                                                                || $9->get_tipo() == TypeError::Instance()){
                                                                                result = new SelectorIf(); 
                                                                                std::string msg = mensaje_error_tipos("error","void");
@@ -1653,6 +1660,7 @@ selectorifLoop: IF '(' errorif ')' THEN '{' {
                                                                            ErrorBoolExp* err_exp = $3;
                                                                            SelectorIf * result;
                                                                            if (err_exp->get_error()
+                                                                               || err_exp->get_tipo() == TypeError::Instance()
                                                                                || $6->get_tipo() == TypeError::Instance()){
                                                                                result = new SelectorIf(); 
                                                                                std::string msg = mensaje_error_tipos("error","void");
@@ -1666,7 +1674,11 @@ selectorifLoop: IF '(' errorif ')' THEN '{' {
               | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'    {
                                                                                   ErrorBoolExp* err_exp = $3;
                                                                                   SelectorIf * result;
-                                                                                  if (err_exp->get_error()){
+                                                                                  if (err_exp->get_error()
+                                                                                     || err_exp->get_tipo() == TypeError::Instance()
+                                                                                      || $6->get_tipo() == TypeError::Instance()
+                                                                                      || $8->get_tipo() == TypeError::Instance()
+                                                                                     ){
                                                                                       result = new SelectorIf(); 
                                                                                       std::string msg = mensaje_error_tipos("error","void");
                                                                                       driver.error(yylloc,msg);
@@ -1711,6 +1723,7 @@ lelseifLoop1: /*Vacio*/                                     {
                                                                                LElseIf* result; 
                                                                                if ( $1->get_tipo() == TypeError::Instance()
                                                                                     || $5->get_error()
+                                                                                    || $5->get_tipo() == TypeError::Instance()
                                                                                     || $11->get_tipo() == TypeError::Instance()) {
                                                                                    result = new LElseIf(true);
                                                                                    std::string msg = mensaje_error_tipos("error","void");
@@ -2052,7 +2065,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),
+                                                                                    $3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -2082,7 +2096,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("+"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("+"),$1->get_tipo()->get_name(),
+                                                                                    $3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -2114,7 +2129,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("-"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("-"),$1->get_tipo()->get_name(),
+                                                                                $3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -2144,7 +2160,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("*"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("*"),$1->get_tipo()->get_name(),
+                                                                                    $3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }
@@ -2174,7 +2191,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                                 ($1->get_tipo() == TypeReal::Instance() &&
                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                         std::string msg = mensaje_diff_operandos(std::string("/"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
+                                         std::string msg = mensaje_diff_operandos(std::string("/"),
+                                                                    $1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                          driver.error(yylloc,msg);
                                          tmp->tipo = TypeError::Instance();
                                        }

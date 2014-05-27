@@ -497,6 +497,10 @@ public:
     ErrorBoolExp(Exp* e): exp(e), error(false) { }
     ErrorBoolExp(): error(true), exp(0){}
     ~ErrorBoolExp() { delete this; }
+    TypeS* get_tipo(){
+        if (exp!= 0) return exp->get_tipo();
+        return 0;
+    }
     bool get_error(){ return error; }
 
 };
@@ -552,6 +556,14 @@ public:
         delete this;
     }
     bool is_error(){ return error; }
+    TypeS* get_tipo(){ 
+        if (error){
+            return 0;                
+        } else {
+            if (asign != 0) return asign->get_tipo();
+            return exp->get_tipo();
+        }
+    }
 };
 
 /**

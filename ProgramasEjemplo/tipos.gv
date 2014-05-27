@@ -5,5 +5,5 @@ declare {
 }
 
 function void main() {
-    a := 3.2;
+    a := 0;
 }

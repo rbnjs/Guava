@@ -215,8 +215,7 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
 TypeRecord::TypeRecord(){ atributos = new GuavaSymTable();}
 
 TypeRecord::TypeRecord(std::string n ):nombre(n){ atributos = new GuavaSymTable();
-                                                        atributos->set_parent(this);
-                                                      }
+                                                }
 
 bool TypeRecord::is_real()      { return false; }
 bool TypeRecord::is_int()       { return false; }
@@ -244,7 +243,6 @@ std::pair<int,int*> TypeRecord::get_dimensiones(){
 TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }
 
 TypeUnion::TypeUnion(std::string n ):nombre(n){ atributos = new GuavaSymTable();
-                                                atributos->set_parent(this);
                                               }
 
 bool TypeUnion::is_real()      { return false; }

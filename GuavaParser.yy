@@ -9,6 +9,7 @@
 # include <sstream>
 # include <list>
 # include <utility>
+# include <string>
 # include <typeinfo>
 # include <algorithm>
 # include "GuavaTree.hh"
@@ -1694,14 +1695,58 @@ errorif : expBool   {
                     };
 
 llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id; 
+                                                   LlamadaFuncion* result;
                                                    if ( (id = driver.tablaSimbolos.lookup($1->identificador,0)) == 0){
                                                         std::string msg ("Undefined function '");
                                                         msg += $1->identificador;
                                                         msg += "'";
                                                         driver.error(yylloc,msg);
                                                         error_state = 1;
+                                                        $$ = new LlamadaFuncion();
                                                     }else {
-                                                        TypeS* tipo;
+                                                        TypeS* tipo = obtener_tipo_simbolo(id);
+                                                        if (tipo != 0 && tipo->is_func()){
+                                                            result = new LlamadaFuncion($1,$3);
+                                                            TypeS* rango = tipo->get_tipo(); 
+                                                            std::list<TypeS*>::iterator parametros = tipo->get_parametros().begin();
+                                                            int expected = tipo->get_parametros().size();
+                                                            int given = $3->lvarovalor.size();
+                                                            std::list<Exp*>::iterator lvarovalor = $3->lvarovalor.begin();
+                                                            Exp* tmp;
+                                                            while (parametros != tipo->get_parametros().end()
+                                                                   && lvarovalor != $3->lvarovalor.end()
+                                                                  ){
+                                                                  tmp = *lvarovalor;
+                                                                  if (tmp->get_tipo() != *parametros) {
+                                                                    std::string msg = mensaje_error_tipos(tmp->get_tipo()->get_name(),(*parametros)->get_name());
+                                                                    driver.error(yylloc,msg);
+                                                                    result->tipo = TypeError::Instance();
+                                                                    break;
+                                                                  }
+                                                                  ++parametros;
+                                                                  ++lvarovalor;
+                                                            }
+                                                            if (lvarovalor != $3->lvarovalor.end() && parametros != tipo->get_parametros().end()){
+                                                                std::string msg ("Expected ");
+                                                                msg += std::to_string(expected);
+                                                                msg += " arguments, ";
+                                                                msg += std::to_string(given);
+                                                                msg += " provided.";
+                                                                driver.error(yylloc,msg);
+                                                                result->tipo = TypeError::Instance();
+                                                            } else {
+                                                                result->tipo = rango;
+                                                            }
+                                                        }else{
+                                                            std::string msg;
+                                                            if (tipo == 0){
+                                                                msg = mensaje_error_tipos("null","function");
+                                                            } else {
+                                                                msg = mensaje_error_tipos(tipo->get_name(),"function");
+                                                            }
+                                                            driver.error(yylloc,msg);
+                                                            $$ = new LlamadaFuncion();
+                                                        }
                                                     }
 
                                                  }
@@ -1710,24 +1755,30 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
 
 
 lvarovalor: /* Vacio */   { 
-                            $$ = new LVaroValor(); 
+                            $$ = new LVaroValor(false); 
                           }
-| lvarovalor2   { 
-                  $$ = $1;
-                };      
+           | lvarovalor2   { 
+                           };      
 
 lvarovalor2: lvarovalor2 ',' exp    { 
                                       $1->append($3);
+                                      if ($3->get_tipo() == TypeError::Instance()){
+                                        $1->tipo = $3->get_tipo();
+                                      }
                                       $$ = $1;
                                     }
            | exp                    {
-                                      LVaroValor *tmp = new LVaroValor();
+                                      LVaroValor *tmp = new LVaroValor(false);
+                                      if ( $1->get_tipo() == TypeError::Instance()){
+                                        tmp->tipo = $1->get_tipo();
+                                      }
                                       tmp->append($1);
                                       $$ = tmp; 
                                     }
-           | lvarovalor2 ',' error  {}
+           | lvarovalor2 ',' error  { $$ = new LVaroValor(true);
+                                    }
            | error                  {
-                                      LVaroValor *tmp = new LVaroValor();
+                                      LVaroValor *tmp = new LVaroValor(true);
                                       $$ = tmp;
                                     };
 

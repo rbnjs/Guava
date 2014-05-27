@@ -534,7 +534,12 @@ void PlusMinus::show(std::string s) {
 
 /* Class LVaroValor */
 
-LVaroValor::LVaroValor() {
+LVaroValor::LVaroValor(bool error) {
+    if (error){
+        tipo = TypeError::Instance();
+    } else{
+        tipo = TypeVoid::Instance();
+    }
 }
 
 void LVaroValor::append(Exp* e){

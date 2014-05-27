@@ -599,7 +599,7 @@ class LVaroValor{
 public:
     TypeS* tipo;
     std::list<Exp*> lvarovalor;
-    LVaroValor();
+    LVaroValor(bool);
     void append(Exp* e);
     ~LVaroValor();        
     
@@ -629,7 +629,7 @@ public:
  * Clase de llamada funcion.
  */
 
-class LlamadaFuncion: public Instruccion{
+class LlamadaFuncion: public Exp{
 public:
     TypeS* tipo;
     Identificador* id; /* Identificador de la funcion */

@@ -64,6 +64,7 @@ public:
     virtual void show(std::string);
 };
 
+
 /**
  * Define la estructuracion de los arreglos de datos en el lenguaje.
  */
@@ -208,12 +209,25 @@ class LCorchetes{
  * Clase que define la estructura de acceso a elementos de un arreglo.
  */
 class LCorchetesExp{
-    public:
+public:
         TypeS* tipo;
+        std::list<Exp*> lista;
 
         LCorchetesExp();
         ~LCorchetesExp();
         TypeS* get_tipo() { return tipo; }
+        void append(Exp* e){
+            lista.push_front(e);
+        }
+        void show(std::string s){
+            std::cout << "Lista de Expresiones de Corchetes: \n";
+            for (std::list<Exp*>::iterator it = lista.begin();
+                 it != lista.end();
+                 ++it){
+                    Exp * tmp = *it;
+                    tmp->show(s+ "  ");
+                 }
+        }
 };
 
 /**
@@ -747,5 +761,37 @@ public:
     
     std::list<Identificador*> get_list(){
         return lista;
+    }
+    void show(std::string s){
+        for ( std::list<Identificador*>::iterator it = lista.begin();
+              it != lista.end();
+              ++it
+            ){
+                std::cout << s << "Lista de Acceso Atributos: ";
+                Identificador* id = *it;
+                id->show(s+ "  ");
+            }
+    }
+};
+
+/**
+ * Clase para las expresiones de identificador.
+ */
+class ExpID: public Exp{
+public:
+    TypeS* tipo;
+    Identificador* identificador;
+    LCorchetesExp* lcorchetesexp;  
+    LAccesoAtributos* laccesoatributos;
+
+    ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0), laccesoatributos(0){}
+    ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
+    ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce), laccesoatributos(0){}
+    ExpID(Identificador* id, LAccesoAtributos* la ): identificador(id), laccesoatributos(la),lcorchetesexp(0){}
+    TypeS* get_tipo(){ return tipo; }
+    void show(std::string s){
+        if (identificador != 0) identificador->show(s);
+        if (lcorchetesexp != 0) lcorchetesexp->show(s);
+        if (laccesoatributos != 0) laccesoatributos->show(s);
     }
 };

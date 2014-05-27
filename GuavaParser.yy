@@ -578,7 +578,7 @@ TypeS* dereference(TypeS* referencia){
 /**
  * Verifica que el acceso que se quiere realizar tiene sentido.
  */
-/*TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
     if (id->true_type != 0) {
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
@@ -611,7 +611,7 @@ TypeS* dereference(TypeS* referencia){
     }
 
     return 0;
-}*/
+}
 
 /**
  * Verifica la existencia de un tipo y lo agrega a la tabla. 
@@ -904,19 +904,17 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                                 driver.error(yylloc,msg);
                                                 tmp->tipo = TypeError::Instance();
                                            }
+                                           tmp->append($2);
                                            $$ = tmp;
                                          }
-             | lcorchetesExp '[' exp ']' { LCorchetesExp* tmp = new LCorchetesExp();
-                                           if($1->get_tipo() == $3->get_tipo() &&
-                                               $1->get_tipo() == TypeInt::Instance()) {
-                                               tmp->tipo = $1->get_tipo();
-                                           }
-                                           else if ($3->get_tipo() != TypeInt::Instance()){
+             | lcorchetesExp '[' exp ']' { 
+                                           if ($3->get_tipo() != TypeInt::Instance()){
                                                std::string msg = mensaje_error_tipos("integer",$3->get_tipo()->get_name());
                                                driver.error(yylloc,msg);
-                                               tmp->tipo = TypeError::Instance();
+                                               $1->tipo = TypeError::Instance();
                                            }
-                                           $$ = tmp;
+                                           $1->append($3);
+                                           $$ = $1;
                                          }
              | '[' error ']'             {}
              |  lcorchetesExp '[' error ']' {};
@@ -1742,38 +1740,53 @@ exp: expAritmetica  { $$ = $1; }
    | '(' error ')'  {};
 
 expID: identificador   { TypeS* tipo;
+                         ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            if((tipo = id->type_pointer->true_type) != 0) {;
-                                Identificador* tmp = new Identificador($1->identificador, tipo);
-                                $$ = tmp;
+                            if((tipo = obtener_tipo_simbolo(id)) != 0) {;
+                                result = new ExpID($1);
+                                result->tipo = tipo;
+                                $$ = result;
                             }
                             else {
-                               std::string msg ("No Type has been declared or doesn't exists in current context");
+                               std::string msg ("Type has not been declared or doesn't exists in current context");
                                driver.error(yylloc,msg);
+                               result = new ExpID();
+                               $$ = result;
                             }
                           }
+                          $$ = new ExpID();
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
+                                        ExpID* result;
                                         Symbol* id;
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
-                                            Identificador* tmp = new Identificador($1->identificador);
-                                            //Caso en el que el identificador SI es un arreglo.
-                                            if ($2->get_tipo() == TypeInt::Instance() &&
-                                                id->true_type->is_array()) {
-                                                tmp->tipo = id->true_type->get_tipo();
-                                            }
-                                            //Caso en el que el identificador NO es un arreglo
-                                            else if (!id->type_pointer->true_type->is_array()){
-                                                std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
-                                                driver.error(yylloc, msg);
-                                                tmp->tipo = TypeError::Instance();
-                                            }
+                                            tipo = obtener_tipo_simbolo(id);
+                                            if (tipo != 0){
+                                                result = new ExpID($1, $2);
+
+                                                if ($2->get_tipo() == TypeInt::Instance() &&
+                                                    tipo->is_array()) {
+                                                    result->tipo = tipo->get_tipo();
+                                                }
+
+                                                //Caso en el que el identificador NO es un arreglo
+                                            
+                                                else if (!tipo->is_array()){
+                                                    std::string msg = mensaje_error_tipos("array",tipo->get_name());
+                                                    driver.error(yylloc, msg);
+                                                    result->tipo = TypeError::Instance();
+                                                }
+
                                             //Caso en el que la estructura del arreglo no es de tipo integer
-                                            else {
-                                                tmp->tipo = TypeError::Instance();
+
+                                                else {
+                                                    result->tipo = TypeError::Instance();
+                                                }
+                                                $$ = result;
                                             }
-                                            $$ = tmp;
+                                        } else{
+                                            $$ = new ExpID();
                                         }
                                       }
      | identificador lAccesoAtributos { 
@@ -1783,14 +1796,16 @@ expID: identificador   { TypeS* tipo;
                                         //Caso en el que la variable es un record o union.
                                             if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
                                                 std::list<Identificador*> tmp = $2->get_list();
-                                                //tmp.pop_front();
-                                                std::cout << "\n\nAqui 1\n\n";
-                                                //verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                                std::cout << "\n\nAqui 2\n\n";
+                                                TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
+                                                ExpID* result = new ExpID($1,$2);
+                                                result->tipo = tipo;
+                                                $$ = result;
                                             }
-                                                //Caso en el que la variable no es un record o union.
                                             else {
+                                                $$ = new ExpID();
                                             }
+                                        } else {
+                                            $$ = new ExpID();
                                         }
                                       };
 

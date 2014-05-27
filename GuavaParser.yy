@@ -731,14 +731,14 @@ bloqueprincipal: {
                      driver.tablaSimbolos.enterScope(); 
                  } 
 
-bloquedeclare lfunciones  { //$$ = new BloquePrincipal(*$2, *$3);
-                            if (!error_state) {
-                                std::cout << "Funciones: " << '\n';
-                                driver.tablaSimbolos.show(0,identacion+ "  ");
-                                std::cout << "Variables globales: \n";
-                                driver.tablaSimbolos.show(1,identacion+ "  ");
-                            }
-                          };
+                bloquedeclare lfunciones  { $$ = new BloquePrincipal($2, $3);
+                                            if (!error_state) {
+                                                std::cout << "Funciones: " << '\n';
+                                                driver.tablaSimbolos.show(0,identacion+ "  ");
+                                                std::cout << "Variables globales: \n";
+                                                driver.tablaSimbolos.show(1,identacion+ "  ");
+                                            }
+                                         };
 
 bloquedeclare: /* Vacio */  { $$ = new BloqueDeclare(-1); 
                             }
@@ -853,7 +853,8 @@ record: RECORD identificador '{'{
                                                 tabla_actual.pop_front();
                                              }
 
-lvar: identificador           { LVar *tmp = new LVar();
+lvar: identificador           { 
+                                LVar *tmp = new LVar();
                                 tmp->append(*$1);
                                 $$ = tmp;
                               }
@@ -879,12 +880,15 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
             | error lcorchetes                         { LVarArreglo* tmp = new LVarArreglo();
                                                         $$ = tmp;
                                                        }
-            | lvararreglo ',' error lcorchetes         {};
+            | lvararreglo ',' error lcorchetes         {
+                                                        LVarArreglo* tmp = new LVarArreglo();
+                                                        $$ = tmp;
+                                                       };
 
 
 
 lcorchetes: '[' INTEGER ']'            { 
-                                        LCorchetes *tmp =  new LCorchetes();
+                                        LCorchetes *tmp =  new LCorchetes(false);
                                         tmp->append($2);
                                         $$ = tmp;
                                        }
@@ -893,8 +897,12 @@ lcorchetes: '[' INTEGER ']'            {
                                          $$ = $1; 
                                        }
           /*Errores*/
-          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
-          | lcorchetes '[' error ']' {};
+          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/
+                                      $$ = new LCorchetes(true);
+                                    }
+          | lcorchetes '[' error ']' {
+                                      $$ = new LCorchetes(true);
+                                     };
 
 lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
                                            if($2->get_tipo() == TypeInt::Instance()) {
@@ -917,8 +925,14 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                            $1->append($3);
                                            $$ = $1;
                                          }
-             | '[' error ']'             {}
-             |  lcorchetesExp '[' error ']' {};
+             | '[' error ']'             {
+                                            LCorchetesExp* tmp = new LCorchetesExp();
+                                            tmp->tipo = TypeError::Instance();
+                                         }
+             |  lcorchetesExp '[' error ']' {
+                                                LCorchetesExp* tmp = new LCorchetesExp();
+                                                tmp->tipo = TypeError::Instance();
+                                            };
 
 
 lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);*/
@@ -1180,8 +1194,12 @@ instruccion: asignacion     {
                             }
 
            /*Errores*/
-           | error identificador       {/*Error en la especificacion del incremento o decremento*/}
-           | identificador error       {/*Error en la especificacion del incremento o decremento*/}
+           | error identificador       {/*Error en la especificacion del incremento o decremento*/
+                                         $$ = new Error();
+                                       }
+           | identificador error       {/*Error en la especificacion del incremento o decremento*/
+                                         $$ = new Error();
+                                       }
 
 
 
@@ -1334,8 +1352,10 @@ instruccionLoop: asignacion     {
                                 }
                /*Errores*/
                | error identificador       {/*Error en la especificacion del incremento o decremento*/
+                                             $$ = new Error();
                                            }
                | identificador error       {/*Error en la especificacion del incremento o decremento*/
+                                            $$ = new Error();
                                            };
 
 
@@ -1349,16 +1369,36 @@ instruccionLoop1: loopfor        {
 
 
 asignacion: expID ASSIGN exp   {
+                                 if ($1->get_tipo() == TypeError::Instance() ||
+                                     $3->get_tipo() == TypeError::Instance() ||
+                                     $1->get_tipo() != $3->get_tipo()){
+                                     if ($1->get_tipo() == 0){
+                                        std::string msg = mensaje_error_tipos($3->get_tipo()->get_name(),"null");
+                                        driver.error(yylloc, msg);
+                                     } else if ($3->get_tipo() == 0){
+                                        std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),"null");
+                                        driver.error(yylloc, msg);
+                                     } else {
+                                        std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(), $3->get_tipo()->get_name());
+                                        driver.error(yylloc, msg);
+                                     }
+                                     $$ = new Asignacion();
+                                 } else {
+                                    $$ = new Asignacion($1,$3);
+                                 }
                                } 
           /*Errores*/
           | error ASSIGN exp   {
+                                 $$ = new Asignacion();
                                }
-          | expID ASSIGN error {};
+          | expID ASSIGN error {
+                                 $$ = new Asignacion();
+                               };
 
 /* Estas verificaciones se hacen a tiempo de ejecucion. */
 entradasalida: READ '(' exp ')'   {
                                     EntradaSalida* tmp = new EntradaSalida(0,$3);  
-                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
                                     }
@@ -1366,7 +1406,7 @@ entradasalida: READ '(' exp ')'   {
                                   }
              | PRINT '(' exp ')'  { 
                                     EntradaSalida* tmp = new EntradaSalida(1,$3);  
-                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
 

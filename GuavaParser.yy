@@ -723,28 +723,29 @@ MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 %% /* Reglas */
 
 program: bloqueprincipal { //$$ = Program(*$1); 
-};
+                         };
 
 bloqueprincipal: { 
                      tabla_actual.push_front(&driver.tablaSimbolos);
                      driver.tablaSimbolos.enterScope(); 
                  } 
-bloquedeclare lfunciones  { //$$ = new BloquePrincipal(*$2, *$3);
-    if (!error_state) {
-        std::cout << "Funciones: " << '\n';
-        driver.tablaSimbolos.show(0,identacion+ "  ");
-        std::cout << "Variables globales: \n";
-        driver.tablaSimbolos.show(1,identacion+ "  ");
-    }
-};
 
-bloquedeclare: /* Vacio */                { $$ = new BloqueDeclare(-1); 
-                                          }
-| { declare_scope = driver.tablaSimbolos.currentScope(); 
-    offset_actual.push_front(0);
-}
-DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
-};
+bloquedeclare lfunciones  { //$$ = new BloquePrincipal(*$2, *$3);
+                            if (!error_state) {
+                                std::cout << "Funciones: " << '\n';
+                                driver.tablaSimbolos.show(0,identacion+ "  ");
+                                std::cout << "Variables globales: \n";
+                                driver.tablaSimbolos.show(1,identacion+ "  ");
+                            }
+                          };
+
+bloquedeclare: /* Vacio */  { $$ = new BloqueDeclare(-1); 
+                            }
+             | { declare_scope = driver.tablaSimbolos.currentScope(); 
+                 offset_actual.push_front(0);
+               }
+               DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
+                                          };
 
 lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new LVariables($2,$3);
                                                           $1->listaVar = tmp;
@@ -752,74 +753,74 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           insertar_simboloSimple($3,$2,std::string("var"),&driver,yylloc); 
                                                         }
           | tipo lvar ';'                               { 
-                                                            $$ = new LVariables($1,$2);
-                                                            insertar_simboloSimple($2,$1,std::string("var"),&driver,yylloc); 
+                                                          $$ = new LVariables($1,$2);
+                                                          insertar_simboloSimple($2,$1,std::string("var"),&driver,yylloc); 
                                                         } 
-           | tipo ARRAY lvararreglo ';'                  { 
-                                                            insertar_simboloArreglo($3,$1,&driver,yylloc); 
-                                                            $$ = new LVariables($1,$3);
+          | tipo ARRAY lvararreglo ';'                  { 
+                                                          insertar_simboloArreglo($3,$1,&driver,yylloc); 
+                                                          $$ = new LVariables($1,$3);
                                                         }
-           | lvariables tipo ARRAY lvararreglo ';'       { 
-                                                            insertar_simboloArreglo($4,$2,&driver,yylloc); 
-                                                            LVariables *tmp = new LVariables($2, $4);
-                                                            $1->listaVar = tmp;
-                                                            $$ = $1;
+          | lvariables tipo ARRAY lvararreglo ';'       { 
+                                                          insertar_simboloArreglo($4,$2,&driver,yylloc); 
+                                                          LVariables *tmp = new LVariables($2, $4);
+                                                          $1->listaVar = tmp;
+                                                          $$ = $1;
                                                         }
-            | identificador ARRAY lvararreglo ';'         {
-                                                            TypeS* tmp = insertar_simboloArregloEstructura($3,$1->identificador,&driver,yylloc);
-                                                            LVariables *tmpLV = new LVariables(tmp,$3);
-                                                            $$ = tmpLV;
-                                                          } 
-            | lvariables identificador  ARRAY lvararreglo ';' { 
-                                                                TypeS* tmp = insertar_simboloArregloEstructura($4,$2->identificador,&driver,yylloc);
-                                                                LVariables *tmpLV = new LVariables(tmp,$4);
-                                                                $1->listaVar = tmpLV;
-                                                                $$ = $1;
-                                                              }
-            | identificador UNION lvar ';'                { 
-                                                            TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("unionType"),&driver,yylloc); 
-                                                            LVariables *tmpLV = new LVariables(tmp,$3); 
-                                                            $$ = tmpLV;
-                                                          }
-            | lvariables identificador UNION lvar ';'     { 
-                                                            TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("unionType"),&driver,yylloc); 
-                                                            LVariables *tmpLV = new LVariables(tmp,$4); 
-                                                            $1->listaVar = tmpLV;
-                                                            $$ = $1;
-                                                          }
-            | identificador RECORD lvar             {
-                                                        TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordType"),&driver,yylloc); 
-                                                        LVariables *tmpLV = new LVariables(tmp,$3); 
-                                                        $$ = tmpLV;
-                                                    }
-            | lvariables identificador RECORD lvar ';'    { 
-                                                            TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,
-                                                            std::string("recordType"),&driver,yylloc); 
-                                                            LVariables *tmpLV = new LVariables(tmp,$4); 
-                                                            $1->listaVar = tmpLV;
-                                                            $$ = $1;
+          | identificador ARRAY lvararreglo ';'         {
+                                                          TypeS* tmp = insertar_simboloArregloEstructura($3,$1->identificador,&driver,yylloc);
+                                                          LVariables *tmpLV = new LVariables(tmp,$3);
+                                                          $$ = tmpLV;
+                                                        } 
+          | lvariables identificador  ARRAY lvararreglo ';' { 
+                                                              TypeS* tmp = insertar_simboloArregloEstructura($4,$2->identificador,&driver,yylloc);
+                                                              LVariables *tmpLV = new LVariables(tmp,$4);
+                                                              $1->listaVar = tmpLV;
+                                                              $$ = $1;
+                                                            }
+          | identificador UNION lvar ';'                { 
+                                                          TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("unionType"),&driver,yylloc); 
+                                                          LVariables *tmpLV = new LVariables(tmp,$3); 
+                                                          $$ = tmpLV;
                                                         }
-            | lvariables  union ';'                       {
-                                                            LVariables * tmp = new LVariables($2);
-                                                            $1->listaVar = tmp;
-                                                            $$ = $1;
+          | lvariables identificador UNION lvar ';'     { 
+                                                          TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("unionType"),&driver,yylloc); 
+                                                          LVariables *tmpLV = new LVariables(tmp,$4); 
+                                                          $1->listaVar = tmpLV;
+                                                          $$ = $1;
                                                         }
-            | lvariables  record  ';'                     {
-                                                                LVariables * tmp = new LVariables($2);
-                                                                $1->listaVar = tmp;
-                                                                $$ = $1;
+          | identificador RECORD lvar                   {
+                                                          TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordType"),&driver,yylloc); 
+                                                          LVariables *tmpLV = new LVariables(tmp,$3); 
+                                                          $$ = tmpLV;
                                                         }
-            | union  ';'                                  {
-                                                            $$ = new LVariables($1);
-                                                         }
-            | record ';'                                  {
-                                                            $$ = new LVariables($1);
-                                                          }
-            /*Errores*/
-            | tipo lvar error ';'                         {
-                                                            /*Error en la declaracion del tipo y modo de la variable*/
-                                                            $$ = new LVariables();
-                                                          };
+          | lvariables identificador RECORD lvar ';'    { 
+                                                          TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,
+                                                          std::string("recordType"),&driver,yylloc); 
+                                                          LVariables *tmpLV = new LVariables(tmp,$4); 
+                                                          $1->listaVar = tmpLV;
+                                                          $$ = $1;
+                                                        }
+          | lvariables  union ';'                       {
+                                                          LVariables * tmp = new LVariables($2);
+                                                          $1->listaVar = tmp;
+                                                          $$ = $1;
+                                                        }
+          | lvariables  record  ';'                     {
+                                                          LVariables * tmp = new LVariables($2);
+                                                          $1->listaVar = tmp;
+                                                          $$ = $1;
+                                                        }
+          | union  ';'                                  {
+                                                          $$ = new LVariables($1);
+                                                        }
+          | record ';'                                  {
+                                                          $$ = new LVariables($1);
+                                                        }
+          /*Errores*/
+          | tipo lvar error ';'                         {
+                                                          /*Error en la declaracion del tipo y modo de la variable*/
+                                                          $$ = new LVariables();
+                                                        };
 
 union: UNION identificador '{' { 
                                 verificar_existencia_tipo($2, &driver,yylloc,true);
@@ -861,11 +862,11 @@ lvar: identificador           { LVar *tmp = new LVar();
                                 $1->append(*$3);
                                 $$ = $1;
                               }
-/*Errores*/
-| error                   { LVar *tmp = new LVar ();
-    $$ = tmp;
-}
-| lvar ',' error          { $$ = $1; };
+    /*Errores*/
+    | error                   { LVar *tmp = new LVar ();
+                                $$ = tmp;
+                              }
+    | lvar ',' error          { $$ = $1; };
 
 lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
                                                          $$ = tmp;
@@ -881,18 +882,18 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
 
 
 
-lcorchetes: '[' INTEGER ']'         { 
-                                      LCorchetes *tmp =  new LCorchetes();
-                                      tmp->append($2);
-                                      $$ = tmp;
-                                    }
-           | lcorchetes '[' INTEGER ']' { 
-                                          $1->append($3);
-                                          $$ = $1; 
-                                        }
-            /*Errores*/
-            | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
-            | lcorchetes '[' error ']' {};
+lcorchetes: '[' INTEGER ']'            { 
+                                        LCorchetes *tmp =  new LCorchetes();
+                                        tmp->append($2);
+                                        $$ = tmp;
+                                       }
+          | lcorchetes '[' INTEGER ']' { 
+                                         $1->append($3);
+                                         $$ = $1; 
+                                       }
+          /*Errores*/
+          | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/}
+          | lcorchetes '[' error ']' {};
 
 lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
                                            if($2->get_tipo() == TypeInt::Instance()) {
@@ -905,20 +906,20 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                            }
                                            $$ = tmp;
                                          }
-              | lcorchetesExp '[' exp ']' { LCorchetesExp* tmp = new LCorchetesExp();
-                                            if($1->get_tipo() == $3->get_tipo() &&
-                                                $1->get_tipo() == TypeInt::Instance()) {
-                                                tmp->tipo = $1->get_tipo();
-                                            }
-                                            else if ($3->get_tipo() != TypeInt::Instance()){
-                                                std::string msg = mensaje_error_tipos("integer",$3->get_tipo()->get_name());
-                                                driver.error(yylloc,msg);
-                                                tmp->tipo = TypeError::Instance();
-                                            }
-                                            $$ = tmp;
-                                          }
-               | '[' error ']'             {}
-               |  lcorchetesExp '[' error ']' {}
+             | lcorchetesExp '[' exp ']' { LCorchetesExp* tmp = new LCorchetesExp();
+                                           if($1->get_tipo() == $3->get_tipo() &&
+                                               $1->get_tipo() == TypeInt::Instance()) {
+                                               tmp->tipo = $1->get_tipo();
+                                           }
+                                           else if ($3->get_tipo() != TypeInt::Instance()){
+                                               std::string msg = mensaje_error_tipos("integer",$3->get_tipo()->get_name());
+                                               driver.error(yylloc,msg);
+                                               tmp->tipo = TypeError::Instance();
+                                           }
+                                           $$ = tmp;
+                                         }
+             | '[' error ']'             {}
+             |  lcorchetesExp '[' error ']' {};
 
 
 lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);*/
@@ -928,7 +929,7 @@ lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);*/
 
 lfunciones1: funcion                       { /*$$ = LFunciones(*$1,0);*/
                                            }
-          | lfunciones1 funcion            { /*$$ = LFunciones(*$2,$1);*/
+           | lfunciones1 funcion           { /*$$ = LFunciones(*$2,$1);*/
                                            }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
@@ -939,27 +940,27 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                                                 0,function,line,column, current_scope);
                                                    identacion += "  ";
                                                  } 
-            bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
-                                                    LParam lp = LParam();
-                                                    *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/ 
-                                                    if (!error_state) {
-                                                        std::cout <<  "main {\n"; 
-                                                        std::cout << "Parametros y variables:\n";
-                                                        driver.tablaSimbolos.show(current_scope,identacion);
-                                                        driver.tablaSimbolos.exitScope(); 
-                                                        std::cout << "}\n";
-                                                        identacion.erase(0,2);
-                                                    }
-                                                  }
-/*Errores*/
-/*Mala especificacion del encabezado de la funcion*/
-| FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
-                                              identacion += "  ";
-                                            } 
-                                          bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
-                                                                                    LParam lp = LParam();
-                                                                                   *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/
-                                                                                }
+           bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
+                                                   LParam lp = LParam();
+                                                   *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/ 
+                                                   if (!error_state) {
+                                                       std::cout <<  "main {\n"; 
+                                                       std::cout << "Parametros y variables:\n";
+                                                       driver.tablaSimbolos.show(current_scope,identacion);
+                                                       driver.tablaSimbolos.exitScope(); 
+                                                       std::cout << "}\n";
+                                                       identacion.erase(0,2);
+                                                   }
+                                                 }
+           /*Errores*/
+           /*Mala especificacion del encabezado de la funcion*/
+           | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
+                                                         identacion += "  ";
+                                                       } 
+                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
+                                                         LParam lp = LParam();
+                                                         *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/
+                                                       }
 
 
 funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); }
@@ -979,37 +980,37 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                               }
                                                                                             }
 
-| FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); } 
-                                        lparam  {  
-                                                  TypeS* v = TypeVoid::Instance();
-                                                  insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 
-                                                  identacion += "  ";
-                                                } ')' '{' bloquedeclare listainstrucciones '}'
-                                                                                              { 
-                                                                                                if (!error_state) {
-                                                                                                    std::cout << $3->identificador << "{\n";
-                                                                                                    std::cout << "Parametros y variables:\n";
-                                                                                                    driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                    std::cout << "}\n";
-                                                                                                    driver.tablaSimbolos.exitScope();
-                                                                                                    identacion.erase(0,2);
+       | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); } 
+                                            lparam  {  
+                                                      TypeS* v = TypeVoid::Instance();
+                                                      insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 
+                                                      identacion += "  ";
+                                                    } ')' '{' bloquedeclare listainstrucciones '}'
+                                                                                                  { 
+                                                                                                    if (!error_state) {
+                                                                                                        std::cout << $3->identificador << "{\n";
+                                                                                                        std::cout << "Parametros y variables:\n";
+                                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                                        std::cout << "}\n";
+                                                                                                        driver.tablaSimbolos.exitScope();
+                                                                                                        identacion.erase(0,2);
+                                                                                                    }
+                                                                                                  }
+
+       /*Errores*/
+       /*Mala especificacion del encabezado de la funcion*/
+       | FUNCTION tipo identificador '(' error ')' '{' { current_scope =  driver.tablaSimbolos.enterScope(); 
+                                                         identacion += "  ";
+                                                       }
+                                            bloquedeclare listainstrucciones RETURN exp ';' '}' {  
                                                                                                 }
-                                                                                              }
 
-/*Errores*/
-/*Mala especificacion del encabezado de la funcion*/
-| FUNCTION tipo identificador '(' error ')' '{' { current_scope =  driver.tablaSimbolos.enterScope(); 
-                                                  identacion += "  ";
-                                                }
-                                               bloquedeclare listainstrucciones RETURN exp ';' '}' {  
-                                                                                                   }
-
-/*Mala especificacion del encabezado de la funcion*/
-| FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
-                                                       identacion += "  ";
-                                                      }
-                                                    bloquedeclare listainstrucciones '}'           { 
-                                                                                                   };
+       /*Mala especificacion del encabezado de la funcion*/
+       | FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                              identacion += "  ";
+                                                            }
+                                            bloquedeclare listainstrucciones '}'           { 
+                                                                                           };
 /*LISTO*/
 lparam: /* Vacio */          { $$ = new LParam(); 
                              } 
@@ -1021,658 +1022,678 @@ lparam2: tipo identificador               { LParam* tmp = new LParam();
                                             $$ = tmp;
                                             insertar_simboloSimple($2,$1,std::string("param"),&driver,yylloc);
                                           }       
-        | tipo REFERENCE identificador    { LParam* tmp = new LParam(); 
+       | tipo REFERENCE identificador     { LParam* tmp = new LParam(); 
                                             tmp->append($1,$3);
                                             $$ = tmp;
                                             insertar_simboloSimple($3,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
-        | lparam2 ',' tipo identificador  { 
+       | lparam2 ',' tipo identificador   { 
                                             $1->append($3,$4);
                                             $$ = $1;
                                             insertar_simboloSimple($4,$3,std::string("param"),&driver,yylloc);
                                           }
-        | lparam2 ',' tipo REFERENCE identificador       { 
-                                                            $1->append($3,$5);
-                                                            $$ = $1;
-                                                            insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
+       | lparam2 ',' tipo REFERENCE identificador       { 
+                                                          $1->append($3,$5);
+                                                          $$ = $1;
+                                                          insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
+                                                        }
+       | tipo error                        { $$ = new LParam();    }
+       | tipo REFERENCE error              { $$ = new LParam();    }
+       | lparam2 ',' tipo error            { $$ = new LParam();    }
+       | lparam2 ',' tipo REFERENCE error  { $$ = new LParam();    };
+
+
+listainstrucciones: /* Vacio */                         { 
+                                                            $$ = new ListaInstrucciones(); 
+                                                        }
+                  | listainstrucciones instruccion ';'  { 
+                                                          ListaInstrucciones * result;
+                                                          if ( $1->get_tipo() == TypeError::Instance()
+                                                               || $2->get_tipo() == TypeError::Instance()) {
+                                                             result = new ListaInstrucciones($2,$1); 
+                                                             result->tipo = TypeError::Instance();
                                                           }
-         | tipo error                        { $$ = new LParam();    }
-         | tipo REFERENCE error              { $$ = new LParam();    }
-         | lparam2 ',' tipo error            { $$ = new LParam();    }
-         | lparam2 ',' tipo REFERENCE error  { $$ = new LParam();    };
-
-
-listainstrucciones: /* Vacio */                        { 
-                                                           $$ = new ListaInstrucciones(); 
-                                                       }
-                  |listainstrucciones instruccion ';'  { 
-                                                        ListaInstrucciones * result;
-                                                        if ( $1->get_tipo() == TypeError::Instance()
-            || $2->get_tipo() == TypeError::Instance()){
-        result = new ListaInstrucciones($2,$1); 
-        result->tipo = TypeError::Instance();
-    } else {
-        result = new ListaInstrucciones($2,$1); 
-    }
-    $$ = result;
-}
-| listainstrucciones instruccion1    {
-    ListaInstrucciones * result;
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $2->get_tipo() == TypeError::Instance()){
-        result = new ListaInstrucciones($2,$1); 
-        result->tipo = TypeError::Instance();
-    } else {
-        result = new ListaInstrucciones($2,$1); 
-    }
-    $$ = result;
-};
+                                                          else {
+                                                             result = new ListaInstrucciones($2,$1); 
+                                                          }
+                                                          $$ = result;
+                                                        }
+                  | listainstrucciones instruccion1     {
+                                                          ListaInstrucciones * result;
+                                                          if ( $1->get_tipo() == TypeError::Instance()
+                                                               || $2->get_tipo() == TypeError::Instance()) {
+                                                            result = new ListaInstrucciones($2,$1); 
+                                                            result->tipo = TypeError::Instance();
+                                                          }
+                                                          else {
+                                                            result = new ListaInstrucciones($2,$1); 
+                                                          }
+                                                          $$ = result;
+                                                        };
 
 instruccion: asignacion     { 
-             }
-| llamadafuncion { 
-}
-| MINUSMINUS identificador  {
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($2,0);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| identificador MINUSMINUS { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($1,1);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| PLUSPLUS identificador    { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($2,2);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| identificador PLUSPLUS    { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($1,3);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| entradasalida  { 
-}
-| CONTINUE       {
-    $$ = new ContinueBreak(0);
-}
-| BREAK          {
-    $$ = new ContinueBreak(1);
-}
+                            }
+           | llamadafuncion { 
+                            }
+           | MINUSMINUS identificador  {
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                             TypeS* tipo = obtener_tipo_simbolo(id);
+                                             if (tipo == TypeInt::Instance()){
+                                                 result = new PlusMinus($2,0);
+                                             } 
+                                             else {
+                                                 result = new PlusMinus();
+                                                 std::string msg;
+                                                 if (tipo == 0){
+                                                     msg = mensaje_error_tipos("null","integer");
+                                                 } else{
+                                                     msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                 }
+                                                 driver.error(yylloc,msg);
+                                             }
+                                             $$ = result;
+                                         } 
+                                         else {
+                                             $$ = new PlusMinus();
+                                         }
+                                       }
+           | identificador MINUSMINUS  { 
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                             TypeS* tipo = obtener_tipo_simbolo(id);
+                                             if (tipo == TypeInt::Instance()){
+                                                 result = new PlusMinus($1,1);
+                                             } 
+                                             else {
+                                                 result = new PlusMinus();
+                                                 std::string msg;
+                                                 if (tipo == 0){
+                                                     msg = mensaje_error_tipos("null","integer");
+                                                 } else{
+                                                     msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                 }
+                                                 driver.error(yylloc,msg);
+                                             }
+                                             $$ = result;
+                                         } 
+                                         else {
+                                             $$ = new PlusMinus();
+                                         }
+                                       }
+           | PLUSPLUS identificador    { 
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                             TypeS* tipo = obtener_tipo_simbolo(id);
+                                             if (tipo == TypeInt::Instance()){
+                                                 result = new PlusMinus($2,2);
+                                             } 
+                                             else {
+                                                 result = new PlusMinus();
+                                                 std::string msg;
+                                                 if (tipo == 0){
+                                                     msg = mensaje_error_tipos("null","integer");
+                                                 } else{
+                                                     msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                 }
+                                                 driver.error(yylloc,msg);
+                                             }
+                                             $$ = result;
+                                         } 
+                                         else {
+                                             $$ = new PlusMinus();
+                                         }
+                                       }
+           | identificador PLUSPLUS    { 
+                                         Symbol *id;
+                                         PlusMinus *result;
+                                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                             TypeS* tipo = obtener_tipo_simbolo(id);
+                                             if (tipo == TypeInt::Instance()){
+                                                 result = new PlusMinus($1,3);
+                                             } 
+                                             else {
+                                                 result = new PlusMinus();
+                                                 std::string msg;
+                                                 if (tipo == 0){
+                                                     msg = mensaje_error_tipos("null","integer");
+                                                 } else{
+                                                     msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                 }
+                                                 driver.error(yylloc,msg);
+                                             }
+                                             $$ = result;
+                                         } 
+                                         else {
+                                             $$ = new PlusMinus();
+                                         }
+                                       }
+           | entradasalida  { 
+                            }
+           | CONTINUE       {
+                              $$ = new ContinueBreak(0);
+                            }
+           | BREAK          {
+                              $$ = new ContinueBreak(1);
+                            }
 
-/*Errores*/
-| error identificador       {/*Error en la especificacion del incremento o decremento*/}
-| identificador error       {/*Error en la especificacion del incremento o decremento*/}
+           /*Errores*/
+           | error identificador       {/*Error en la especificacion del incremento o decremento*/}
+           | identificador error       {/*Error en la especificacion del incremento o decremento*/}
 
 
 
 instruccion1: loopfor        { 
-              }
-| loopwhile      { 
-}
-| selectorif     { 
-};
+                             }
+            | loopwhile      { 
+                             }
+            | selectorif     { 
+                             };
 
 listainstruccionesLoop: /* Vacio */                                {
                                                                        $$ = new ListaInstrucciones(); 
                                                                    }
-| listainstruccionesLoop instruccionLoop ';' {
-    ListaInstrucciones * result;
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $2->get_tipo() == TypeError::Instance()){
-        result = new ListaInstrucciones($2,$1); 
-        result->tipo = TypeError::Instance();
-    } else {
-        result = new ListaInstrucciones($2,$1); 
-    }
-    $$ = result;
-}
-| listainstruccionesLoop instruccionLoop1    {
-    ListaInstrucciones * result;
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $2->get_tipo() == TypeError::Instance()){
-        result = new ListaInstrucciones($2,$1); 
-        result->tipo = TypeError::Instance();
-    } else {
-        result = new ListaInstrucciones($2,$1); 
-    }
-    $$ = result;
-} 
+                      | listainstruccionesLoop instruccionLoop ';' {
+                                                                     ListaInstrucciones * result;
+                                                                     if ( $1->get_tipo() == TypeError::Instance()
+                                                                          || $2->get_tipo() == TypeError::Instance()){
+                                                                        result = new ListaInstrucciones($2,$1); 
+                                                                        result->tipo = TypeError::Instance();
+                                                                     } 
+                                                                     else {
+                                                                        result = new ListaInstrucciones($2,$1); 
+                                                                     }
+                                                                     $$ = result;
+                                                                   }
+                      | listainstruccionesLoop instruccionLoop1    {
+                                                                     ListaInstrucciones * result;
+                                                                     if ( $1->get_tipo() == TypeError::Instance()
+                                                                          || $2->get_tipo() == TypeError::Instance()){
+                                                                         result = new ListaInstrucciones($2,$1); 
+                                                                         result->tipo = TypeError::Instance();
+                                                                     } 
+                                                                     else {
+                                                                         result = new ListaInstrucciones($2,$1); 
+                                                                     }
+                                                                     $$ = result;
+                                                                   } 
 
 instruccionLoop: asignacion     { 
-                 }
-| llamadafuncion     { 
-}
-| MINUSMINUS identificador  {
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($2,0);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| identificador MINUSMINUS { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($1,1);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| PLUSPLUS identificador    { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($2,2);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| identificador PLUSPLUS    { 
-    Symbol *id;
-    PlusMinus *result;
-    if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-        TypeS* tipo = obtener_tipo_simbolo(id);
-        if (tipo == TypeInt::Instance()){
-            result = new PlusMinus($1,3);
-        } else{
-            result = new PlusMinus();
-            std::string msg;
-            if (tipo == 0){
-                msg = mensaje_error_tipos("null","integer");
-            } else{
-                msg = mensaje_error_tipos(tipo->get_name(),"integer");
-            }
-            driver.error(yylloc,msg);
-        }
-        $$ = result;
-    } else{
-        $$ = new PlusMinus();
-    }
-}
-| entradasalida  { 
-}
-| CONTINUE       { 
-    $$ = new ContinueBreak(0);
-}
-| BREAK          {
-    $$ = new ContinueBreak(1);
-}
-/*Errores*/
-| error identificador       {/*Error en la especificacion del incremento o decremento*/
-}
-| identificador error       {/*Error en la especificacion del incremento o decremento*/
-}
+                                }
+               | llamadafuncion     { 
+                                    }
+               | MINUSMINUS identificador  {
+                                             Symbol *id;
+                                             PlusMinus *result;
+                                             if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                                 TypeS* tipo = obtener_tipo_simbolo(id);
+                                                 if (tipo == TypeInt::Instance()){
+                                                     result = new PlusMinus($2,0);
+                                                 } 
+                                                 else {
+                                                     result = new PlusMinus();
+                                                     std::string msg;
+                                                     if (tipo == 0){
+                                                         msg = mensaje_error_tipos("null","integer");
+                                                     } 
+                                                     else {
+                                                         msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                     }
+                                                     driver.error(yylloc,msg);
+                                                 }
+                                                 $$ = result;
+                                             } 
+                                             else {
+                                                 $$ = new PlusMinus();
+                                             }
+                                           }
+               | identificador MINUSMINUS  { 
+                                             Symbol *id;
+                                             PlusMinus *result;
+                                             if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                                 TypeS* tipo = obtener_tipo_simbolo(id);
+                                                 if (tipo == TypeInt::Instance()){
+                                                     result = new PlusMinus($1,1);
+                                                 } 
+                                                 else {
+                                                     result = new PlusMinus();
+                                                     std::string msg;
+                                                     if (tipo == 0){
+                                                         msg = mensaje_error_tipos("null","integer");
+                                                     } 
+                                                     else {
+                                                         msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                     }
+                                                     driver.error(yylloc,msg);
+                                                 }
+                                                 $$ = result;
+                                             } 
+                                             else {
+                                                 $$ = new PlusMinus();
+                                             }
+                                           }
+               | PLUSPLUS identificador    { 
+                                             Symbol *id;
+                                             PlusMinus *result;
+                                             if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                                 TypeS* tipo = obtener_tipo_simbolo(id);
+                                                 if (tipo == TypeInt::Instance()){
+                                                     result = new PlusMinus($2,2);
+                                                 } 
+                                                 else {
+                                                     result = new PlusMinus();
+                                                     std::string msg;
+                                                     if (tipo == 0){
+                                                         msg = mensaje_error_tipos("null","integer");
+                                                     } 
+                                                     else {
+                                                         msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                     }
+                                                     driver.error(yylloc,msg);
+                                                 }
+                                                 $$ = result;
+                                             } 
+                                             else {
+                                                 $$ = new PlusMinus();
+                                             }
+                                           }
+               | identificador PLUSPLUS    { 
+                                             Symbol *id;
+                                             PlusMinus *result;
+                                             if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                                 TypeS* tipo = obtener_tipo_simbolo(id);
+                                                 if (tipo == TypeInt::Instance()){
+                                                     result = new PlusMinus($1,3);
+                                                 } 
+                                                 else {
+                                                     result = new PlusMinus();
+                                                     std::string msg;
+                                                     if (tipo == 0){
+                                                         msg = mensaje_error_tipos("null","integer");
+                                                     } 
+                                                     else {
+                                                         msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                                     }
+                                                     driver.error(yylloc,msg);
+                                                 }
+                                                 $$ = result;
+                                             }
+                                             else {
+                                                 $$ = new PlusMinus();
+                                             }
+                                           }
+               | entradasalida  { 
+                                }
+               | CONTINUE       { 
+                                  $$ = new ContinueBreak(0);
+                                }
+               | BREAK          {
+                                  $$ = new ContinueBreak(1);
+                                }
+               /*Errores*/
+               | error identificador       {/*Error en la especificacion del incremento o decremento*/
+                                           }
+               | identificador error       {/*Error en la especificacion del incremento o decremento*/
+                                           };
 
 
 instruccionLoop1: loopfor        { 
-                  }
-| loopwhile      { 
-}
-| selectorifLoop { 
-};
+                                 }
+                | loopwhile      { 
+                                 }
+                | selectorifLoop { 
+                                 };
 
 
 
-asignacion: expID ASSIGN exp  {
-            } 
-/*Errores*/
-| error ASSIGN exp  {
-}
-| expID ASSIGN error {};
+asignacion: expID ASSIGN exp   {
+                               } 
+          /*Errores*/
+          | error ASSIGN exp   {
+                               }
+          | expID ASSIGN error {};
 
 /* Estas verificaciones se hacen a tiempo de ejecucion. */
 entradasalida: READ '(' exp ')'   {
-                   EntradaSalida* tmp = new EntradaSalida(0,$3);  
-                   if (tmp->get_tipo() == TypeError::Instance() 
-                      ){
-                       std::string msg = mensaje_error_tipos("type","error");
-                       driver.error(yylloc,msg);
+                                    EntradaSalida* tmp = new EntradaSalida(0,$3);  
+                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                        std::string msg = mensaje_error_tipos("type","error");
+                                        driver.error(yylloc,msg);
+                                    }
+                                    $$ = tmp;
+                                  }
+             | PRINT '(' exp ')'  { 
+                                    EntradaSalida* tmp = new EntradaSalida(1,$3);  
+                                    if (tmp->get_tipo() == TypeError::Instance()){
+                                        std::string msg = mensaje_error_tipos("type","error");
+                                        driver.error(yylloc,msg);
 
-                   }
-                   $$ = tmp;
-               }
-| PRINT '(' exp ')'  { 
-    EntradaSalida* tmp = new EntradaSalida(1,$3);  
-    if (tmp->get_tipo() == TypeError::Instance()){
-        std::string msg = mensaje_error_tipos("type","error");
-        driver.error(yylloc,msg);
+                                    }
+                                    $$ = tmp;
+                                  };
 
-    }
-    $$ = tmp;
-};
+loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { 
+                                                                      variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
+                                                                      driver.tablaSimbolos.enterScope();   
+                                                                      identacion += "  "; 
+                                                                    }
+                                
+                                bloquedeclare listainstruccionesLoop '}' {  ErrorLoopFor* asign_exp = $7;
+                                                                            LoopFor* tmp;
+                                                                            if (asign_exp->is_error()
+                                                                                    || $3->get_tipo() == TypeError::Instance()
+                                                                                    || $5->get_tipo() == TypeError::Instance()
+                                                                               ){
+                                                                                tmp = new LoopFor();
+                                                                                std::string msg = mensaje_error_tipos("error","void");
+                                                                                driver.error(yylloc,msg);
+                                                                            } else{
+                                                                                if (asign_exp->exp != 0){
+                                                                                    tmp = new 
+                                                                                        LoopFor($3, $5,asign_exp->exp,$11,$12);
+                                                                                    tmp->tipo = TypeVoid::Instance();
+                                                                                } else {
+                                                                                    tmp = new 
+                                                                                        LoopFor($3, $5,asign_exp->asign,$11,$12);
+                                                                                    tmp->tipo = TypeVoid::Instance();
+                                                                                }
+                                                                            }
+                                                                            $$ = tmp;
+                                                                            if (!error_state) {
+                                                                                std::cout << identacion << "for {\n";
+                                                                                int cscope = driver.tablaSimbolos.currentScope();
+                                                                                driver.tablaSimbolos.show(cscope,identacion+ "  ");
+                                                                                std::cout << identacion << "}\n";
+                                                                                driver.tablaSimbolos.exitScope();
+                                                                                identacion.erase(0,2);
+                                                                            }
+                                                                         }
+       /*Errores*/
+       | FOR '(' error ';' expBool ';' errorloopfor ')' '{' { 
+                                                            }
+                        bloquedeclare listainstruccionesLoop '}' { 
+                                                                   $$ = new LoopFor();
+                                                                 }
+       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { 
+                                                                     variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front());
+                                                                   }
+                                bloquedeclare listainstruccionesLoop '}' { 
+                                                                           $$ = new LoopFor();
+                                                                         };
 
-loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
-             driver.tablaSimbolos.enterScope();   
-             identacion += "  "; 
-         }
-bloquedeclare listainstruccionesLoop '}' {  ErrorLoopFor* asign_exp = $7;
-                                            LoopFor* tmp;
-    if (asign_exp->is_error()
-            || $3->get_tipo() == TypeError::Instance()
-            || $5->get_tipo() == TypeError::Instance()
-       ){
-        tmp = new LoopFor();
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        if (asign_exp->exp != 0){
-            tmp = new 
-                LoopFor($3, $5,asign_exp->exp,$11,$12);
-            tmp->tipo = TypeVoid::Instance();
-        } else {
-            tmp = new 
-                LoopFor($3, $5,asign_exp->asign,$11,$12);
-            tmp->tipo = TypeVoid::Instance();
-        }
-    }
-    $$ = tmp;
-    if (!error_state) {
-        std::cout << identacion << "for {\n";
-        int cscope = driver.tablaSimbolos.currentScope();
-        driver.tablaSimbolos.show(cscope,identacion+ "  ");
-        std::cout << identacion << "}\n";
-        driver.tablaSimbolos.exitScope();
-        identacion.erase(0,2);
-    }
-}
-/*Errores*/
-| FOR '(' error ';' expBool ';' errorloopfor ')' '{' { 
-}
-bloquedeclare listainstruccionesLoop '}' { 
-    $$ = new LoopFor();
-}
-| FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front());
-}
-bloquedeclare listainstruccionesLoop '}' { 
-    $$ = new LoopFor();
-};
 /**
  * Regla utilizada en el manejo de errores del encabezado de una iteracion
  * acotada
  */
 errorloopfor : asignacion {
-                   $$ = new ErrorLoopFor($1);
-               }
-| exp        {
-    $$ = new ErrorLoopFor($1);
-}
-| error      {
-    $$ = new ErrorLoopFor();
-};
+                            $$ = new ErrorLoopFor($1);
+                          }
+             | exp        {
+                            $$ = new ErrorLoopFor($1);
+                          }
+             | error      {
+                            $$ = new ErrorLoopFor();
+                          };
 
-
-/*LISTO*/
 loopwhile: WHILE '(' errorloopwhile ')' DO '{' { 
-               driver.tablaSimbolos.enterScope();   
-               identacion += "  ";
-           }
-bloquedeclare listainstruccionesLoop '}' { 
-    LoopWhile* result;
-    ErrorBoolExp* exp_bool = $3;
-    if (exp_bool->get_error()
-            || $9->get_tipo() == TypeError::Instance() 
-       ){
-        result = new LoopWhile();
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new LoopWhile(exp_bool->exp,$8,$9);
-    }
-    $$ = result;
-    if (!error_state) {
-        std::cout << identacion << "while {\n"; 
-        driver.
-            tablaSimbolos.show(driver.
-                    tablaSimbolos.currentScope(),identacion+"  ");
-        std::cout << identacion << "}\n ";
-        driver.tablaSimbolos.exitScope();
-        identacion.erase(0,2);
-    }
-}
-| DO '{' { 
-    driver.tablaSimbolos.enterScope();   
-    identacion += "  ";
-} 
-bloquedeclare listainstruccionesLoop '}' WHILE '(' errorloopwhile ')' { 
-    LoopWhile* result;
-    ErrorBoolExp* exp_bool = $9;
-    if (exp_bool->get_error()
-            || $5->get_tipo() == TypeError::Instance() 
-       ){
-        result = new LoopWhile();
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new LoopWhile(exp_bool->exp,$4,$5);
-    }
-    $$ = result;
-    if (!error_state) {
-        std::cout << identacion << "while {\n";
-        driver.tablaSimbolos.show(driver.
-                tablaSimbolos.currentScope(),identacion+"  ");
-        std::cout << identacion << "}\n ";
-
-        driver.tablaSimbolos.exitScope();
-        identacion.erase(0,2);
-    }
-};
+                                                 driver.tablaSimbolos.enterScope();   
+                                                 identacion += "  ";
+                                               }
+                  bloquedeclare listainstruccionesLoop '}' { 
+                                                             LoopWhile* result;
+                                                             ErrorBoolExp* exp_bool = $3;
+                                                             if (exp_bool->get_error()
+                                                                 || $9->get_tipo() == TypeError::Instance()){
+                                                                 result = new LoopWhile();
+                                                                 std::string msg = mensaje_error_tipos("error","void");
+                                                                 driver.error(yylloc,msg);
+                                                             } 
+                                                             else {
+                                                                 result = new LoopWhile(exp_bool->exp,$8,$9);
+                                                             }
+                                                             $$ = result;
+                                                             if (!error_state) {
+                                                                 std::cout << identacion << "while {\n"; 
+                                                                 driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                 std::cout << identacion << "}\n ";
+                                                                 driver.tablaSimbolos.exitScope();
+                                                                 identacion.erase(0,2);
+                                                             }
+                                                           }
+         | DO '{' { 
+                    driver.tablaSimbolos.enterScope();   
+                    identacion += "  ";
+                  } 
+           bloquedeclare listainstruccionesLoop '}' WHILE '(' errorloopwhile ')' { 
+                                                                                   LoopWhile* result;
+                                                                                   ErrorBoolExp* exp_bool = $9;
+                                                                                   if (exp_bool->get_error()
+                                                                                       || $5->get_tipo() == TypeError::Instance()){
+                                                                                       result = new LoopWhile();
+                                                                                       std::string msg = mensaje_error_tipos("error","void");
+                                                                                       driver.error(yylloc,msg);
+                                                                                   } 
+                                                                                   else {
+                                                                                       result = new LoopWhile(exp_bool->exp,$4,$5);
+                                                                                   }
+                                                                                   $$ = result;
+                                                                                   if (!error_state) {
+                                                                                       std::cout << identacion << "while {\n";
+                                                                                       driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                                       std::cout << identacion << "}\n ";
+                                                                                       driver.tablaSimbolos.exitScope();
+                                                                                       identacion.erase(0,2);
+                                                                                   }
+                                                                                 };
 /**
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
 errorloopwhile : expBool    {
-                     $$ = new ErrorBoolExp($1); 
-                 }
-| error      {
-    $$ = new ErrorBoolExp();
-};
+                              $$ = new ErrorBoolExp($1); 
+                            }
+               | error      {
+                              $$ = new ErrorBoolExp();
+                            };
 
 selectorif: IF '(' errorif ')' THEN '{' { 
-                driver.tablaSimbolos.enterScope();   
-                identacion += "  ";
-            }
-bloquedeclare listainstrucciones '}' lelseif { 
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()
-            || $9->get_tipo() == TypeError::Instance()
-       ){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$8,$9,$11);
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-    identacion.erase(0,2);
-}
-| IF '(' errorif ')' THEN instruccion ';'                                 { 
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()
-            || $6->get_tipo() == TypeError::Instance()
-       ){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$6,0);
-    }
-    $$ = result;
-}
-| IF '(' errorif ')' THEN instruccion ELSE instruccion ';'                { 
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$6,$8);
-    }
-    $$ = result;
-};
+                                          driver.tablaSimbolos.enterScope();   
+                                          identacion += "  ";
+                                        }
+                bloquedeclare listainstrucciones '}' lelseif { 
+                                                               ErrorBoolExp* err_exp = $3;
+                                                               SelectorIf * result;
+                                                               if (err_exp->get_error()
+                                                                   || $9->get_tipo() == TypeError::Instance()){
+                                                                   result = new SelectorIf(); 
+                                                                   std::string msg = mensaje_error_tipos("error","void");
+                                                                   driver.error(yylloc,msg);
+                                                               } 
+                                                               else {
+                                                                   result = new SelectorIf(err_exp->exp,$8,$9,$11);
+                                                               }
+                                                               $$ = result;
+                                                               driver.tablaSimbolos.exitScope();
+                                                               identacion.erase(0,2);
+                                                             }
+          | IF '(' errorif ')' THEN instruccion ';'          { 
+                                                               ErrorBoolExp* err_exp = $3;
+                                                               SelectorIf * result;
+                                                               if (err_exp->get_error()
+                                                                   || $6->get_tipo() == TypeError::Instance()){
+                                                                   result = new SelectorIf(); 
+                                                                   std::string msg = mensaje_error_tipos("error","void");
+                                                                   driver.error(yylloc,msg);
+                                                               } 
+                                                               else {
+                                                                   result = new SelectorIf(err_exp->exp,$6,0);
+                                                               }
+                                                               $$ = result;
+                                                             }
+          | IF '(' errorif ')' THEN instruccion ELSE instruccion ';' { 
+                                                                       ErrorBoolExp* err_exp = $3;
+                                                                       SelectorIf * result;
+                                                                       if (err_exp->get_error()){
+                                                                           result = new SelectorIf(); 
+                                                                           std::string msg = mensaje_error_tipos("error","void");
+                                                                           driver.error(yylloc,msg);
+                                                                       } 
+                                                                       else {
+                                                                           result = new SelectorIf(err_exp->exp,$6,$8);
+                                                                       }
+                                                                       $$ = result;
+                                                                     };
 
+lelseif: /* Vacio */                                                { 
+                                                                      $$ = new LElseIf(false);
+                                                                    }
+       | lelseif1 ELSE '{' { 
+                             driver.tablaSimbolos.enterScope();   
+                           }
+                        bloquedeclare listainstrucciones '}'        { 
+                                                                      LElseIf* result; 
+                                                                      if ( $1->get_tipo() == TypeError::Instance()
+                                                                           || $6->get_tipo() == TypeError::Instance() ){
+                                                                          result = new LElseIf(true);
+                                                                          std::string msg = mensaje_error_tipos("error","void");
+                                                                          driver.error(yylloc,msg);
+                                                                      } 
+                                                                      else {
+                                                                          result = new LElseIf($5,$6);
+                                                                          result->lelseif = $1;
+                                                                      }
+                                                                      $$ = result;
+                                                                      driver.tablaSimbolos.exitScope();
+                                                                    };
 
-lelseif: /* Vacio */                                                               { 
-                                                                                       $$ = new LElseIf(false);
-                                                                                   }
-| lelseif1 ELSE '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstrucciones '}'                              { 
-    LElseIf* result; 
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $6->get_tipo() == TypeError::Instance() ){
-        result = new LElseIf(true);
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else {
-        result = new LElseIf($5,$6);
-        result->lelseif = $1;
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-};
-
-
-lelseif1: /*Vacio*/                                                                      {
-                                                                                             $$ = new LElseIf(false);
-                                                                                         } 
-| lelseif1 ELSE IF '(' errorif ')' THEN '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstrucciones '}' {
-    LElseIf* result; 
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $5->get_error()
-            || $11->get_tipo() == TypeError::Instance()
-       ) {
-        result = new LElseIf(true);
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else {
-        result = new LElseIf($5->exp,$10,$11,$1);
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-};
-
+lelseif1: /*Vacio*/                                                 {
+                                                                      $$ = new LElseIf(false);
+                                                                    } 
+        | lelseif1 ELSE IF '(' errorif ')' THEN '{' { 
+                                                      driver.tablaSimbolos.enterScope();   
+                                                    }
+                            bloquedeclare listainstrucciones '}' {
+                                                                   LElseIf* result; 
+                                                                   if ( $1->get_tipo() == TypeError::Instance()
+                                                                        || $5->get_error()
+                                                                        || $11->get_tipo() == TypeError::Instance()) {
+                                                                       result = new LElseIf(true);
+                                                                       std::string msg = mensaje_error_tipos("error","void");
+                                                                       driver.error(yylloc,msg);
+                                                                   } 
+                                                                   else {
+                                                                       result = new LElseIf($5->exp,$10,$11,$1);
+                                                                   }
+                                                                   $$ = result;
+                                                                   driver.tablaSimbolos.exitScope();
+                                                                 };
 
 selectorifLoop: IF '(' errorif ')' THEN '{' { 
-                    driver.tablaSimbolos.enterScope();   
-                    identacion += "  ";
-                }
-bloquedeclare listainstruccionesLoop '}' lelseifLoop {
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()
-            || $9->get_tipo() == TypeError::Instance()
-       ){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$8,$9,$11);
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-    identacion.erase(0,2);
-}
-| IF '(' errorif ')' THEN instruccionLoop ';'                                        { 
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()
-            || $6->get_tipo() == TypeError::Instance()
-       ){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$6,0);
-    }
-    $$ = result;
-}
-| IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'                       {
-    ErrorBoolExp* err_exp = $3;
-    SelectorIf * result;
-    if (err_exp->get_error()){
-        result = new SelectorIf(); 
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else{
-        result = new SelectorIf(err_exp->exp,$6,$8);
-    }
-    $$ = result;
-};
+                                              driver.tablaSimbolos.enterScope();   
+                                              identacion += "  ";
+                                            }
+                    bloquedeclare listainstruccionesLoop '}' lelseifLoop {
+                                                                           ErrorBoolExp* err_exp = $3;
+                                                                           SelectorIf * result;
+                                                                           if (err_exp->get_error()
+                                                                               || $9->get_tipo() == TypeError::Instance()){
+                                                                               result = new SelectorIf(); 
+                                                                               std::string msg = mensaje_error_tipos("error","void");
+                                                                               driver.error(yylloc,msg);
+                                                                           } 
+                                                                           else {
+                                                                               result = new SelectorIf(err_exp->exp,$8,$9,$11);
+                                                                           }
+                                                                           $$ = result;
+                                                                           driver.tablaSimbolos.exitScope();
+                                                                           identacion.erase(0,2);
+                                                                         }
+              | IF '(' errorif ')' THEN instruccionLoop ';'              { 
+                                                                           ErrorBoolExp* err_exp = $3;
+                                                                           SelectorIf * result;
+                                                                           if (err_exp->get_error()
+                                                                               || $6->get_tipo() == TypeError::Instance()){
+                                                                               result = new SelectorIf(); 
+                                                                               std::string msg = mensaje_error_tipos("error","void");
+                                                                               driver.error(yylloc,msg);
+                                                                           } 
+                                                                           else {
+                                                                               result = new SelectorIf(err_exp->exp,$6,0);
+                                                                           }
+                                                                           $$ = result;
+                                                                         }
+              | IF '(' errorif ')' THEN instruccion ELSE instruccionLoop ';'    {
+                                                                                  ErrorBoolExp* err_exp = $3;
+                                                                                  SelectorIf * result;
+                                                                                  if (err_exp->get_error()){
+                                                                                      result = new SelectorIf(); 
+                                                                                      std::string msg = mensaje_error_tipos("error","void");
+                                                                                      driver.error(yylloc,msg);
+                                                                                  } 
+                                                                                  else {
+                                                                                      result = new SelectorIf(err_exp->exp,$6,$8);
+                                                                                  }
+                                                                                  $$ = result;
+                                                                                };
+
+lelseifLoop: /* Vacio */           {
+                                     $$ = new LElseIf(false);
+                                   }
+           | lelseifLoop1 ELSE '{' { 
+                                     driver.tablaSimbolos.enterScope();   
+                                   }
+             bloquedeclare listainstruccionesLoop '}'  { 
+                                                         LElseIf* result; 
+                                                         if ( $1->get_tipo() == TypeError::Instance()
+                                                              || $6->get_tipo() == TypeError::Instance() ){
+                                                             result = new LElseIf(true);
+                                                             std::string msg = mensaje_error_tipos("error","void");
+                                                             driver.error(yylloc,msg);
+                                                         } 
+                                                         else {
+                                                             result = new LElseIf($5,$6);
+                                                             result->lelseif = $1;
+                                                         }
+                                                         $$ = result;
+                                                         driver.tablaSimbolos.exitScope();
+                                                       };
 
 
-lelseifLoop: /* Vacio */                                                           {
-                                                                                       $$ = new LElseIf(false);
-                                                                                   }
-| lelseifLoop1 ELSE '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstruccionesLoop '}'  { 
-    LElseIf* result; 
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $6->get_tipo() == TypeError::Instance() ){
-        result = new LElseIf(true);
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else {
-        result = new LElseIf($5,$6);
-        result->lelseif = $1;
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-};
 
-
-
-lelseifLoop1: /*Vacio*/                                                                           {
-                                                                                                      $$ = new LElseIf(false);
-                                                                                                  }
-| lelseifLoop1 ELSE IF '(' errorif ')' THEN '{' { 
-    driver.tablaSimbolos.enterScope();   
-}
-bloquedeclare listainstruccionesLoop '}' { 
-    LElseIf* result; 
-    if ( $1->get_tipo() == TypeError::Instance()
-            || $5->get_error()
-            || $11->get_tipo() == TypeError::Instance()
-       ) {
-        result = new LElseIf(true);
-        std::string msg = mensaje_error_tipos("error","void");
-        driver.error(yylloc,msg);
-    } else {
-        result = new LElseIf($5->exp,$10,$11,$1);
-    }
-    $$ = result;
-    driver.tablaSimbolos.exitScope();
-};
+lelseifLoop1: /*Vacio*/                                     {
+                                                              $$ = new LElseIf(false);
+                                                            }
+            | lelseifLoop1 ELSE IF '(' errorif ')' THEN '{' { 
+                                                              driver.tablaSimbolos.enterScope();   
+                                                            }
+                                    bloquedeclare listainstruccionesLoop '}' { 
+                                                                               LElseIf* result; 
+                                                                               if ( $1->get_tipo() == TypeError::Instance()
+                                                                                    || $5->get_error()
+                                                                                    || $11->get_tipo() == TypeError::Instance()) {
+                                                                                   result = new LElseIf(true);
+                                                                                   std::string msg = mensaje_error_tipos("error","void");
+                                                                                   driver.error(yylloc,msg);
+                                                                               } 
+                                                                               else {
+                                                                                   result = new LElseIf($5->exp,$10,$11,$1);
+                                                                               }
+                                                                               $$ = result;
+                                                                               driver.tablaSimbolos.exitScope();
+                                                                             };
 
 /**
  * Regla utilizada para el manejo de errores de los selectores de bloques e
  * instrucciones if-then-else.
  */
 errorif : expBool   {
-                        $$ = new ErrorBoolExp($1);
+                      $$ = new ErrorBoolExp($1);
                     }
-| error     {
-                $$ = new ErrorBoolExp();
-            };
+        | error     {
+                      $$ = new ErrorBoolExp();
+                    };
 
 llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id; 
                                                    if ( (id = driver.tablaSimbolos.lookup($1->identificador,0)) == 0){
@@ -1686,91 +1707,93 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                     }
 
                                                  }
-                | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
-                                                    };
+              | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
+                                                 };
 
 
 lvarovalor: /* Vacio */   { 
-                              $$ = new LVaroValor(); 
+                            $$ = new LVaroValor(); 
                           }
-| lvarovalor2   { $$ = $1;
+| lvarovalor2   { 
+                  $$ = $1;
                 };      
 
-lvarovalor2: lvarovalor2 ',' exp     { 
-                                        $1->append($3);
-                                        $$ = $1;
+lvarovalor2: lvarovalor2 ',' exp    { 
+                                      $1->append($3);
+                                      $$ = $1;
                                     }
-            | exp                               {
-                                        LVaroValor *tmp = new LVaroValor();
-                                        tmp->append($1);
-                                        $$ = tmp; 
+           | exp                    {
+                                      LVaroValor *tmp = new LVaroValor();
+                                      tmp->append($1);
+                                      $$ = tmp; 
                                     }
-            | lvarovalor2 ',' error   {}
-            | error                   {
-                                        LVaroValor *tmp = new LVaroValor();
-                                        $$ = tmp;
-                                      };
+           | lvarovalor2 ',' error  {}
+           | error                  {
+                                      LVaroValor *tmp = new LVaroValor();
+                                      $$ = tmp;
+                                    };
 
 exp: expAritmetica  { $$ = $1; }
-| expBool        { $$ = $1; } 
-| valor          { $$ = $1; }
-| expID          { $$ = $1; } 
-| '(' exp ')'    { $$ = $2; }
-| llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
-| '(' error ')'  {};
+   | expBool        { $$ = $1; } 
+   | valor          { $$ = $1; }
+   | expID          { $$ = $1; } 
+   | '(' exp ')'    { $$ = $2; }
+   | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
+   | '(' error ')'  {};
 
 expID: identificador   { TypeS* tipo;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            tipo = id->type_pointer->true_type;
-                            Identificador* tmp = new Identificador($1->identificador, tipo);
-                            $$ = tmp;
+                            if((tipo = id->type_pointer->true_type) != 0) {;
+                                Identificador* tmp = new Identificador($1->identificador, tipo);
+                                $$ = tmp;
+                            }
+                            else {
+                               std::string msg ("No Type has been declared or doesn't exists in current context");
+                               driver.error(yylloc,msg);
+                            }
                           }
-                        }
-| identificador lcorchetesExp    { TypeS* tipo;
-                                    Symbol* id;
-                                    if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
-                                        Identificador* tmp = new Identificador($1->identificador);
-                                        //Caso en el que el identificador SI es un arreglo.
-                                        if ($2->get_tipo() == TypeInt::Instance() &&
-                                            id->true_type->is_array()) {
-                                            tmp->tipo = id->true_type->get_tipo();
-                                        }
-                                        //Caso en el que el identificador NO es un arreglo
-                                        else if (!id->type_pointer->true_type->is_array()){
-                                            std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
-                                            driver.error(yylloc, msg);
-                                            tmp->tipo = TypeError::Instance();
-
-                                        }
-                                        //Caso en el que la estructura del arreglo no es de tipo integer
-                                        else {
-                                            tmp->tipo = TypeError::Instance();
-
-                                        }
-                                        $$ = tmp;
-                                    }
-                                 }
-/*Hay que revisar esto, hay problemas con */
-| identificador lAccesoAtributos { 
-                                    Symbol * id;
-                                    Identificador *prueba = $1;
-                                    if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-                                    //Caso en el que la variable es un record o union.
-                                        if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                            std::list<Identificador*> tmp = $2->get_list();
-                                            //tmp.pop_front();
-                                            std::cout << "\n\nAqui 1\n\n";
-                                            verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                            std::cout << "\n\nAqui 2\n\n";
-                                        }
-                                            //Caso en el que la variable no es un record o union.
-                                        else {
+                       }
+     | identificador lcorchetesExp    { TypeS* tipo;
+                                        Symbol* id;
+                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
+                                            Identificador* tmp = new Identificador($1->identificador);
+                                            //Caso en el que el identificador SI es un arreglo.
+                                            if ($2->get_tipo() == TypeInt::Instance() &&
+                                                id->true_type->is_array()) {
+                                                tmp->tipo = id->true_type->get_tipo();
                                             }
-                                    }
-                                 };
+                                            //Caso en el que el identificador NO es un arreglo
+                                            else if (!id->type_pointer->true_type->is_array()){
+                                                std::string msg = mensaje_error_tipos("array",id->type_pointer->true_type->get_name());
+                                                driver.error(yylloc, msg);
+                                                tmp->tipo = TypeError::Instance();
+                                            }
+                                            //Caso en el que la estructura del arreglo no es de tipo integer
+                                            else {
+                                                tmp->tipo = TypeError::Instance();
+                                            }
+                                            $$ = tmp;
+                                        }
+                                      }
+     | identificador lAccesoAtributos { 
+                                        Symbol * id;
+                                        Identificador *prueba = $1;
+                                        if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                        //Caso en el que la variable es un record o union.
+                                            if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
+                                                std::list<Identificador*> tmp = $2->get_list();
+                                                //tmp.pop_front();
+                                                std::cout << "\n\nAqui 1\n\n";
+                                                //verificar_acceso_atributos(id, tmp, &driver,yylloc);
+                                                std::cout << "\n\nAqui 2\n\n";
+                                            }
+                                                //Caso en el que la variable no es un record o union.
+                                            else {
+                                            }
+                                        }
+                                      };
 
- 
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
                                if ($1->get_tipo() == TypeBool::Instance() &&

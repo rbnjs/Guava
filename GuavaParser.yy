@@ -698,7 +698,7 @@ MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 %type <classLParam> lparam lparam2
 %type <classLElseIf> lelseif lelseifLoop lelseif1 lelseifLoop1
 %type <classFuncion> funcion funcionmain
-%type <classLFunciones> lfunciones
+%type <classLFunciones> lfunciones lfunciones1
 %type <classLVariables> lvariables
 %type <classUnion> union
 %type <classIdentificador> identificador
@@ -934,14 +934,14 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                             };
 
 
-lfunciones: funcionmain                    { //*$$ = LFunciones(*$2,0);*/
+lfunciones: funcionmain                    { $$ = new LFunciones(*$1,0);
                                            }
-          | lfunciones1 funcionmain        { /*$$ = LFunciones(*$2,$1); */ 
+          | lfunciones1 funcionmain        { $$ = new LFunciones(*$2,$1);
                                            }
 
-lfunciones1: funcion                       { /*$$ = LFunciones(*$1,0);*/
+lfunciones1: funcion                       { //$$ = new LFunciones(*$1,0);
                                            }
-           | lfunciones1 funcion           { /*$$ = LFunciones(*$2,$1);*/
+           | lfunciones1 funcion           { $$ = new LFunciones(*$2,$1);
                                            }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
@@ -954,7 +954,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                  } 
            bloquedeclare listainstrucciones  '}' { LParam lp = LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
-                                                   //$$ = new  Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9,0); 
+                                                   $$ = new  Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9,0); 
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";

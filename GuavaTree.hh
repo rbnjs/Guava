@@ -76,7 +76,8 @@ class LArreglo{
         void append(Exp*);
         ~LArreglo();
         int size(){ return larr.size(); }
-        TypeS* get_tipo() { return larr.front()->get_tipo(); }
+        TypeS* get_tipo() { return larr.front()->get_tipo(); 
+                          }
 
         void show(std::string);
 };
@@ -439,14 +440,14 @@ class Union:public Estructura{
 class Arreglo:public Valor{
     public:
         LArreglo* la;
+        TypeS* tipo;
 
         bool is_array() { return true; }
         Arreglo();
         Arreglo(LArreglo*);    
         ~Arreglo();
-        TypeS* get_tipo(){ int* dimension = new int[la->size()];
-            TypeS* array = new TypeArray(la->get_tipo(),la->size(),dimension);
-            return array;
+        TypeS* get_tipo(){ 
+            return tipo;
         }
 
         void show(std::string s);

@@ -2418,11 +2418,12 @@ tipo: TYPE_REAL     {
                     };
 
 
-/*Funciona*/
+/*NO Funciona*/
 arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
+                            TypeS* tipo = tmp->get_tipo();
                             $$ = tmp; 
                           };
 

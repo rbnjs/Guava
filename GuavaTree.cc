@@ -300,6 +300,7 @@ LArreglo::LArreglo(){
 }
 
 void LArreglo::append(Exp* e){
+    
     larr.push_back(e);
 }
 
@@ -324,6 +325,8 @@ Arreglo::Arreglo(){
 }
 
 Arreglo::Arreglo(LArreglo* la_):la(la_){
+    int* dimension = new int[la->size()];
+    TypeS* tipo = new TypeArray(la->get_tipo(),la->size(),dimension);
 }
     
 Arreglo::~Arreglo() { 

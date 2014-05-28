@@ -71,12 +71,13 @@ public:
 class LArreglo{
     public:
         std::list<Exp*> larr;
+        TypeS* tipo;
 
         LArreglo();
         void append(Exp*);
         ~LArreglo();
         int size(){ return larr.size(); }
-        TypeS* get_tipo() { return larr.front()->get_tipo(); 
+        TypeS* get_tipo() { return tipo; 
                           }
 
         void show(std::string);

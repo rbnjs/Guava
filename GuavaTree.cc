@@ -316,7 +316,7 @@ void LArreglo::show(std::string s) {
             Exp* tmp = *it;
             tmp->show(s+ "  ");
        }
-    std::cout << "]\n";
+    std::cout <<  s << "]\n";
 } 
 
 /* Class Arreglo */

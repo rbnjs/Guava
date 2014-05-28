@@ -1402,7 +1402,7 @@ asignacion: expID ASSIGN exp   {
                                         driver.error(yylloc, msg);
                                      }
                                      $$ = new Asignacion();
-                                 } else if ($1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
+                                 } /*else if ( $1->get_tipo() != 0 || $1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
                                     TypeArray* arr1 = (TypeArray*) $1->get_tipo();
                                     TypeArray* arr2 = (TypeArray*) $3->get_tipo();
                                     std::cout << "\n\nAQUI\n\n";
@@ -1410,7 +1410,7 @@ asignacion: expID ASSIGN exp   {
                                         arr1->get_dimensiones().first &&
                                         arr2->get_dimensiones().second) {
                                     }
-                                 } else {
+                                 }*/ else {
                                     $$ = new Asignacion($1,$3);
                                  }
                                } 
@@ -1956,7 +1956,6 @@ expID: identificador   { TypeS* tipo;
                                 result = new ExpID($1);
                                 result->tipo = id->true_type;
                                 $$ = result;
-                                std::cout << "\n\nHOLAAAAAAAAAA\n\n";
                             }
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID($1);
@@ -2442,18 +2441,35 @@ arreglo: '[' larreglo ']' {
 /*Funciona. Faltan ejemplos mas interesantes.*/
 
 larreglo: larreglo ',' exp      { 
-                                  $1->append($3);
+                                  if ($1->get_tipo() != $3->get_tipo()
+                                     || $1->get_tipo() == TypeError::Instance()
+                                     || $3->get_tipo() == TypeError::Instance()){
+                                        std::string msg;
+                                        if ($1->get_tipo() != 0 && $3->get_tipo() != 0)
+                                            msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
+                                        else
+                                            msg = mensaje_error_tipos("null","null");
+                                        driver.error(yylloc,msg);
+                                        $1->tipo = TypeError::Instance();
+                                  }else{
+                                    $1->append($3);
+                                  }
                                   $$ = $1;
                                 }
         | exp                   { 
                                   LArreglo *tmp = new LArreglo();
                                   tmp->append($1);
+                                  tmp->tipo = $1->get_tipo();
                                   $$ = tmp;
-                                 
                                 }
         /*Errores*/
-        | larreglo ',' error    { $$ = $1; }
-        | error                 { LArreglo *tmp = new LArreglo(); };
+        | larreglo ',' error    { 
+                                 $1->tipo = TypeError::Instance();
+                                 $$ = $1; 
+                                }
+        | error                 { LArreglo *tmp = new LArreglo(); 
+                                  tmp->tipo = TypeError::Instance();
+                                };
 
 
 lAccesoAtributos: '.' identificador { 

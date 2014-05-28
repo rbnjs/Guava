@@ -1369,6 +1369,8 @@ instruccionLoop1: loopfor        {
 
 
 asignacion: expID ASSIGN exp   {
+                                 Exp* eid = $1;
+                                 Exp* e = $3;
                                  if ($1->get_tipo() == TypeError::Instance() ||
                                      $3->get_tipo() == TypeError::Instance() ||
                                      $1->get_tipo() != $3->get_tipo()){
@@ -1842,7 +1844,9 @@ exp: expAritmetica  { $$ = $1; }
    | '(' exp ')'    { $$ = $2; }
    | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
    | '(' error ')'  {};
-
+/**
+ * Falta el caso recursivo de expID
+ */
 expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
@@ -1858,8 +1862,9 @@ expID: identificador   { TypeS* tipo;
                                result = new ExpID();
                                $$ = result;
                             }
-                          }
+                          } else {
                           $$ = new ExpID();
+                          }
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
                                         ExpID* result;
@@ -1985,10 +1990,16 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                  driver.error(yylloc,msg);
                                  tmp->tipo = TypeError::Instance();
                                }
-                               else {
+                               else if ( $1->get_tipo() == $3->get_tipo() && 
+                                         $1->get_tipo() == TypeBool::Instance() &&
+                                         $2 == 5
+                                       ){
+                                        tmp = new ExpBin($1,$3,std::string("="));
+                                        tmp->tipo = TypeBool::Instance();
+                               }else {
+                                tmp = new ExpBin();
                                  if ($1->get_tipo() != TypeInt::Instance() &&
                                      $1->get_tipo() != TypeReal::Instance()) {
-                                     Exp* hola = $1;
                                      std::cout << "";
                                      std::string msg = mensaje_error_tipos("integer' or 'real",$1->get_tipo()->get_name());
                                      driver.error(yylloc,msg);
@@ -2028,7 +2039,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        }
                                        $$ = tmp;
                                      }
-             | exp PLUSPLUS          { std::string * op = new std::string("++");
+             | exp PLUSPLUS          { 
+                                       std::string * op = new std::string("++");
                                        ExpUn* tmp = new ExpUn($1,op);
                                        if ($1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();

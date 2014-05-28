@@ -113,7 +113,9 @@ void ExpUn::show(std::string s) {
 
 /* Class ExpBin */
 
-ExpBin::ExpBin(){}
+ExpBin::ExpBin(){
+    tipo = TypeError::Instance();
+}
 
 ExpBin::ExpBin(Exp* e1,Exp* e2,std::string op):exp1(e1), exp2(e2), operacion(op){
 }
@@ -137,8 +139,8 @@ ListaInstrucciones::ListaInstrucciones() {
 }
 
 ListaInstrucciones::ListaInstrucciones(Instruccion* inst, ListaInstrucciones* li = 0) {
-    *instruccion = *inst;
-    *listainstrucciones = *li;
+    instruccion = inst;
+    listainstrucciones = li;
     tipo = TypeVoid::Instance();
 }
 

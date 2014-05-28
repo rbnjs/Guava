@@ -132,7 +132,6 @@ bool es_estructura(std::string categoria){
 Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t){
     Symbol* id;
     if ((id = t->lookup(name)) == 0) {
-        std::cout << "1 \n";
         std::string msg ("Undeclared identifier '");
         msg += name;
         msg += "'";
@@ -964,6 +963,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                        std::cout << "}\n";
                                                        identacion.erase(0,2);
                                                    }
+                                                   $9->show("");
                                                  }
            /*Errores*/
            /*Mala especificacion del encabezado de la funcion*/
@@ -1776,7 +1776,7 @@ lelseifLoop: /* Vacio */                                                {
                                                                       }
                                                                       $$ = result;
                                                                     }
-        | lelseifLoop1                                                  { };
+        | lelseifLoop1                                              { };
  
 
 lelseifLoop1: ELSE IF '(' errorif ')' THEN '{' { 
@@ -1784,8 +1784,7 @@ lelseifLoop1: ELSE IF '(' errorif ')' THEN '{' {
                                             }
                             bloquedeclare listainstrucciones '}' {
                                                                    LElseIf* result; 
-                                                                   if ( 
-                                                                         $4->get_error()
+                                                                   if ( $4->get_error()
                                                                         || $4->get_tipo() == TypeError::Instance()
                                                                         || $10->get_tipo() == TypeError::Instance()) {
                                                                        result = new LElseIf(true);

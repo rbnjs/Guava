@@ -245,7 +245,7 @@ public:
             lista.push_front(e);
         }
         void show(std::string s){
-            std::cout << "Lista de Expresiones de Corchetes: \n";
+            std::cout << s << "Lista de Expresiones de Corchetes: \n";
             for (std::list<Exp*>::iterator it = lista.begin();
                  it != lista.end();
                  ++it){

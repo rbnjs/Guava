@@ -511,7 +511,22 @@ PlusMinus::PlusMinus(Identificador* id, int t):identificador(id), tipo_inst(t), 
 PlusMinus::~PlusMinus() {}
 
 void PlusMinus::show(std::string s) {
-    std::cout << s << "Instruccion : " << tipo << '\n';
+    std::cout << s << "Instruccion : ";;
+    switch(tipo_inst){
+        case 0:
+            std::cout << "-- Prefijo";
+            break;
+        case 1:
+            std::cout << "-- Postfijo";
+            break;
+        case 2:
+            std::cout << "++ Prefijo";
+            break;
+        case 3:
+            std::cout << "++ Postfijo";
+            break;
+    }
+    std::cout << "\n";
     identificador->show("  "+s);
 } 
 

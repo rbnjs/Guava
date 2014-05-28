@@ -955,7 +955,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                  } 
            bloquedeclare listainstrucciones  '}' { LParam lp = LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
-                                                   *$$ = Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9,0); 
+                                                   //$$ = new  Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9,0); 
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
@@ -972,7 +972,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                        } 
                  bloquedeclare listainstrucciones  '}' { TypeS* t = TypeError::Instance();
                                                          LParam lp = LParam();
-                                                         *$$ = Funcion(t,Identificador(std::string("main")),lp,*$9,*$10,0);
+                                                         $$ = new Funcion(t,Identificador(std::string("main")),lp,*$9,*$10,0);
                                                        }
 
 
@@ -983,7 +983,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                } ')' '{' 
                                         bloquedeclare listainstrucciones RETURN exp ';' '}' { if ($2->get_tipo() == $13->get_tipo()) {
                                                                                                 TypeS* tipo = new TypeFunction($2->get_tipo(),$6->get_tipos());
-                                                                                                *$$ = Funcion(tipo,*$3,*$6,*$10,*$11,$13);
+                                                                                                $$ = new Funcion(tipo,*$3,*$6,*$10,*$11,$13);
                                                                                               }
                                                                                               else {
                                                                                                 std::string msg = mensaje_error_tipos($2->get_name(),$13->get_tipo()->get_name());
@@ -1005,7 +1005,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                       identacion += "  ";
                                                     } ')' '{' bloquedeclare listainstrucciones '}'
                                                                                                   { TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
-                                                                                                    *$$ = Funcion(tipo,*$3,*$6,*$10,*$11,0);
+                                                                                                    $$ = new Funcion(tipo,*$3,*$6,*$10,*$11,0);
                                                                                                     if (!error_state) {
                                                                                                         std::cout << $3->identificador << "{\n";
                                                                                                         std::cout << "Parametros y variables:\n";
@@ -1021,14 +1021,14 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
        | FUNCTION tipo identificador '(' error ')' '{' { current_scope =  driver.tablaSimbolos.enterScope(); 
                                                          identacion += "  ";
                                                        }
-                                            bloquedeclare listainstrucciones RETURN exp ';' '}' {  
+                                            bloquedeclare listainstrucciones RETURN exp ';' '}' { $$ = new Funcion(); 
                                                                                                 }
 
        /*Mala especificacion del encabezado de la funcion*/
        | FUNCTION TYPE_VOID identificador '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                               identacion += "  ";
                                                             }
-                                            bloquedeclare listainstrucciones '}'           { 
+                                            bloquedeclare listainstrucciones '}'           {  $$ = new Funcion();
                                                                                            };
 /*LISTO*/
 lparam: /* Vacio */          { $$ = new LParam(); 
@@ -1543,8 +1543,12 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
 /**
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
-errorloopwhile : expBool    {
-                              $$ = new ErrorBoolExp($1); 
+errorloopwhile : exp    {
+                             if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
+                                $$ = new ErrorBoolExp();
+                             } else {
+                                $$ = new ErrorBoolExp($1);
+                             }
                             }
                | error      {
                               $$ = new ErrorBoolExp();
@@ -1752,8 +1756,12 @@ lelseifLoop1: /*Vacio*/                                     {
  * Regla utilizada para el manejo de errores de los selectores de bloques e
  * instrucciones if-then-else.
  */
-errorif : expBool   {
-                      $$ = new ErrorBoolExp($1);
+errorif : exp      {
+                      if ($1 == 0  || $1->get_tipo() != TypeBool::Instance()){
+                        $$ = new ErrorBoolExp();
+                      } else {
+                        $$ = new ErrorBoolExp($1);
+                      }
                     }
         | error     {
                       $$ = new ErrorBoolExp();

@@ -1,0 +1,27 @@
+declare{
+  boolean graduado_ingeniero_computacion;
+}
+
+function void main(){
+  declare{
+    boolean resultado;
+  }
+
+  if (true and true) then {
+    resultado := true;
+  }
+
+  if ( graduado_ingeniero_computacion ) then {
+    resultado := true;
+  } else if (not graduado_ingeniero_computacion) then {
+    resultado := false;
+  }  else if ("ya te graduaste?") then {
+    resultado := "no";
+  } else if (2 + 2) then {
+    resultado := 4;
+  } else{
+    resultado := false;
+  }
+
+  print(resultado);
+}

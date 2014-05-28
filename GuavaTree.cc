@@ -617,6 +617,7 @@ void LParam::show(std::string s) {
 
 Funcion::Funcion() {
     retorno = 0;
+    tipo = TypeError::Instance();
 }
 
 Funcion::Funcion(TypeS* t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp* r) {

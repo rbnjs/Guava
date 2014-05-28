@@ -604,8 +604,17 @@ void LParam::append(TypeS* t, Identificador* id){
     std::pair<TypeS*, Identificador*> par (t,id);
     lParam.push_back(par);
 }
+
+void LParam::appendTipo(TypeS* t) {
+    lTipos.push_back(t);
+}
+
 std::list<std::pair<TypeS*,Identificador*> > LParam::get_list(){
     return lParam;
+}
+
+std::list<TypeS*> LParam::get_tipos() {
+   return lTipos; 
 }
 
 LParam::~LParam() {
@@ -630,7 +639,7 @@ Funcion::Funcion() {
     retorno = 0;
 }
 
-Funcion::Funcion(Tipo t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp* r) {
+Funcion::Funcion(TypeS* t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp* r) {
     tipo = t;
     identificador = id;
     parametros = param;
@@ -644,7 +653,7 @@ Funcion::~Funcion() {
 
 void Funcion::show(std::string s) {
     std::cout << s << "Funcion: \n";
-    tipo.show(s+ "  ");
+    std::cout << tipo->get_name() << "  ";
     identificador.show(s+ "  ");
     std::cout << s << "Parametros: \n";
     parametros.show(s+"  ");

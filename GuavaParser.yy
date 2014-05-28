@@ -932,16 +932,16 @@ lfunciones1: funcion                       { /*$$ = LFunciones(*$1,0);*/
                                            }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
-                                                   TypeS* function = new TypeFunction(TypeVoid::Instance());
+                                                   TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    int line = yylloc.begin.line;
                                                    int column = yylloc.begin.column;
                                                    driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
-                                                                                0,function,line,column, current_scope);
+                                                                                0,tipo,line,column, current_scope);
                                                    identacion += "  ";
                                                  } 
-           bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
-                                                   LParam lp = LParam();
-                                                   *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/ 
+           bloquedeclare listainstrucciones  '}' { LParam lp = LParam();
+                                                   TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
+                                                   *$$ = Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9,0); 
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
@@ -956,9 +956,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
            | FUNCTION TYPE_VOID MAIN '(' error ')' '{' { current_scope = driver.tablaSimbolos.enterScope();
                                                          identacion += "  ";
                                                        } 
-                 bloquedeclare listainstrucciones  '}' { /*Tipo v = Tipo(std::string("void"));
+                 bloquedeclare listainstrucciones  '}' { TypeS* t = TypeError::Instance();
                                                          LParam lp = LParam();
-                                                         *$$ = Funcion(v,Identificador(std::string("main")),lp,*$8,*$9,0);*/
+                                                         *$$ = Funcion(t,Identificador(std::string("main")),lp,*$9,*$10,0);
                                                        }
 
 
@@ -966,9 +966,14 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                         lparam { 
                                                  insertar_funcion($2,$3,$6,&driver,current_scope,yylloc); 
                                                  identacion += "  ";
-                                                } ')' '{' 
-                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { /**$$ = Funcion(*$2,Identificador(std::string($3))
-                                                                                                                ,*$5,*$9,*$10,*$12);*/ 
+                                               } ')' '{' 
+                                        bloquedeclare listainstrucciones RETURN exp ';' '}' { if ($2->get_tipo() == $13->get_tipo()) {
+                                                                                                TypeS* tipo = new TypeFunction($2->get_tipo(),$6->get_tipos());
+                                                                                                *$$ = Funcion(tipo,*$3,*$6,*$10,*$11,$13);
+                                                                                              }
+                                                                                              else {
+                                                                                                std::string msg = mensaje_error_tipos($2->get_name(),$13->get_tipo()->get_name());
+                                                                                              }
                                                                                               if (!error_state) {
                                                                                                 std::cout << $3->identificador << "{\n";
                                                                                                 std::cout << "Parametros y variables:\n";
@@ -985,7 +990,8 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                       insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 
                                                       identacion += "  ";
                                                     } ')' '{' bloquedeclare listainstrucciones '}'
-                                                                                                  { 
+                                                                                                  { TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
+                                                                                                    *$$ = Funcion(tipo,*$3,*$6,*$10,*$11,0);
                                                                                                     if (!error_state) {
                                                                                                         std::cout << $3->identificador << "{\n";
                                                                                                         std::cout << "Parametros y variables:\n";
@@ -1013,26 +1019,30 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
 /*LISTO*/
 lparam: /* Vacio */          { $$ = new LParam(); 
                              } 
-      | lparam2              { 
+      | lparam2              { $$ = $1; 
                              } 
 
 lparam2: tipo identificador               { LParam* tmp = new LParam(); 
                                             tmp->append($1,$2);
+                                            tmp->appendTipo($1);
                                             $$ = tmp;
                                             insertar_simboloSimple($2,$1,std::string("param"),&driver,yylloc);
                                           }       
        | tipo REFERENCE identificador     { LParam* tmp = new LParam(); 
                                             tmp->append($1,$3);
+                                            tmp->appendTipo($1);
                                             $$ = tmp;
                                             insertar_simboloSimple($3,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
        | lparam2 ',' tipo identificador   { 
                                             $1->append($3,$4);
+                                            $1->appendTipo($3);
                                             $$ = $1;
                                             insertar_simboloSimple($4,$3,std::string("param"),&driver,yylloc);
                                           }
        | lparam2 ',' tipo REFERENCE identificador       { 
                                                           $1->append($3,$5);
+                                                          $1->appendTipo($3);
                                                           $$ = $1;
                                                           insertar_simboloSimple($5,$3,std::string("param"),&driver,yylloc);
                                                         }

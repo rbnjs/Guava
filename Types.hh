@@ -209,7 +209,6 @@ private:
 class TypeFunction:public TypeS{
 public:
     TypeFunction(TypeS*,std::list<TypeS*>); 
-    TypeFunction(TypeS*);
     ~TypeFunction(); 
     bool is_int() ; 
     bool is_real ();

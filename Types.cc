@@ -218,8 +218,6 @@ std::pair<int,int*> TypeString::get_dimensiones(){
 
 TypeFunction::TypeFunction(TypeS* r,std::list<TypeS*> lp):tipo (r),parametros(lp){}
 
-TypeFunction::TypeFunction(TypeS* r):tipo (r){}
-
 bool TypeFunction::is_real()      { return false; }
 bool TypeFunction::is_int()       { return false; }
 bool TypeFunction::is_error()     { return false; }

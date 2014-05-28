@@ -684,11 +684,14 @@ public:
  */
 class LParam{
 public:
-    std::list<std::pair<TypeS*, Identificador*> > lParam;
+    std::list<std::pair<TypeS*, Identificador*>> lParam;
+    std::list<TypeS*> lTipos;
 
     LParam();
     void append(TypeS*, Identificador*);
+    void appendTipo(TypeS*);
     std::list<std::pair<TypeS*,Identificador*> > get_list();
+    std::list<TypeS*> get_tipos();
     ~LParam();
     
     void show(std::string);
@@ -699,9 +702,7 @@ public:
  */
 class Funcion{
 public:
-    TypeS* tipoS;
-    //Revisar si luego de agregar ^ el parametro de abajo no hace falta.
-    Tipo tipo;
+    TypeS* tipo;
     Identificador identificador;
     LParam parametros; 
     BloqueDeclare declaraciones;
@@ -709,7 +710,7 @@ public:
     Exp* retorno;
 
     Funcion();
-    Funcion(Tipo, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp*);    
+    Funcion(TypeS*, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp*);    
     ~Funcion();
 
     void show(std::string);

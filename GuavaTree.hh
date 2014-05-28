@@ -120,7 +120,11 @@ class Real: public Valor{
         ~Real(){
         }
 
-        void show(std::string){}
+        void show(std::string s){
+            std::cout << s << "Valor Real: ";
+            std::cout << valor;
+            std::cout << std::endl;
+        }
 };
 
 /**
@@ -135,7 +139,11 @@ class Integer:public Valor{
         int getValor() {return valor;}
         TypeS* get_tipo() { return tipo; }
         ~Integer(){}
-        void show(std::string){}
+        void show(std::string s ){
+            std::cout << s << "Valor Real: ";
+            std::cout << valor;
+            std::cout << std::endl;
+        }
 };
 
 /**
@@ -152,7 +160,11 @@ class Char: public Valor{
         ~Char(){}
         TypeS* get_tipo() { return tipo; }
 
-        void show(std::string){}
+        void show(std::string s){
+            std::cout << s << "Caracter: ";
+            std::cout << valor;
+            std::cout << std::endl;
+        }
 };
 
 /**
@@ -170,7 +182,11 @@ class String: public Valor{
         TypeS* get_tipo() { return tipo; }
         ~String(){}
 
-        void show(std::string){}
+        void show(std::string s){
+            std::cout << s << "Cadena de Caracteres: ";
+            std::cout << *valor;
+            std::cout << std::endl;
+        }
 };
 
 /**
@@ -188,7 +204,11 @@ class Bool: public Valor{
         TypeS* get_tipo() { return tipo; }
         ~Bool();
 
-        void show(std::string){}
+        void show(std::string s){
+            std::cout << s << "Booleano: ";
+            std::cout << valor;
+            std::cout << std::endl;
+        }
 };
 
 /**

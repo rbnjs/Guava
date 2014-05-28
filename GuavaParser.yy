@@ -733,8 +733,8 @@ bloqueprincipal: {
 
                 bloquedeclare lfunciones  { $$ = new BloquePrincipal($2, $3);
                                             if (!error_state) {
-                                                std::cout << "Funciones: " << '\n';
-                                                driver.tablaSimbolos.show(0,identacion+ "  ");
+                                                //std::cout << "Funciones: " << '\n';
+                                                //driver.tablaSimbolos.show(0,identacion+ "  ");
                                                 std::cout << "Variables globales: \n";
                                                 driver.tablaSimbolos.show(1,identacion+ "  ");
                                             }
@@ -1003,6 +1003,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                                 driver.tablaSimbolos.exitScope();
                                                                                                 identacion.erase(0,2);
                                                                                               }
+                                                                                              $10->show("");
                                                                                             }
 
        | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); } 
@@ -1021,6 +1022,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                                         driver.tablaSimbolos.exitScope();
                                                                                                         identacion.erase(0,2);
                                                                                                     }
+                                                                                                   $10->show("");
                                                                                                   }
 
        /*Errores*/

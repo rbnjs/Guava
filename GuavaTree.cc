@@ -175,7 +175,7 @@ LVarArreglo::~LVarArreglo() {
 }
 
 void LVarArreglo::show(std::string s) {
-   std::cout << s <<"Lista de Variables de Arreglo: "; 
+   std::cout << s << "Lista de Variables de Arreglo: "; 
 
    for (std::list<std::pair <Identificador, LCorchetes> >::iterator it = lista.begin();
         it != lista.end() ; 
@@ -530,7 +530,7 @@ LVaroValor::~LVaroValor() {
 }
 
 void LVaroValor::show(std::string s) {
-    std::cout << "Lista de Valores o Variables: \n";
+    std::cout << s << "Lista de Valores o Variables: \n";
     for (std::list<Exp*>::iterator it = lvarovalor.begin();
          it != lvarovalor.end();
          ++it
@@ -569,8 +569,8 @@ LlamadaFuncion::LlamadaFuncion(Identificador* i, LVaroValor* lv) {
 LlamadaFuncion::~LlamadaFuncion() {}
 
 void LlamadaFuncion::show(std::string s){
-    std::cout << s << "Llamada Funcion : ";
-    id->show(s);
+    std::cout << s << "Llamada Funcion : \n";
+    id->show(s+ "  ");
     std::cout << s << "Argumentos: \n";
     lvarovalor->show(s+ "  ");
 } 

@@ -561,7 +561,8 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
         par = *it;
         parametros.push_front(par.first); 
     }
-    TypeS* function = new TypeFunction(tipo,parametros);
+    std::list<TypeS*> prueba = parametros;
+    TypeFunction* function = new TypeFunction(tipo,prueba);
     GuavaSymTable *tabla = tabla_actual.front();
     tabla->insert_type(id->identificador,std::string("function"),0,function);
 }
@@ -1851,14 +1852,15 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                     }else {
                                                         TypeS* tipo = obtener_tipo_simbolo(id);
                                                         if (tipo != 0 && tipo->is_func()){
+                                                            TypeFunction * func = (TypeFunction*) tipo;
                                                             result = new LlamadaFuncion($1,$3);
                                                             TypeS* rango = tipo->get_tipo(); 
-                                                            std::list<TypeS*>::iterator parametros = tipo->get_parametros().begin();
-                                                            int expected = tipo->get_parametros().size();
+                                                            std::list<TypeS*>::iterator parametros = func->parametros.begin();
+                                                            int expected = func->parametros.size();
                                                             int given = $3->lvarovalor.size();
                                                             std::list<Exp*>::iterator lvarovalor = $3->lvarovalor.begin();
                                                             Exp* tmp;
-                                                            while (parametros != tipo->get_parametros().end()
+                                                            while (parametros != func->parametros.end()
                                                                    && lvarovalor != $3->lvarovalor.end()
                                                                   ){
                                                                   tmp = *lvarovalor;
@@ -1871,7 +1873,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                                   ++parametros;
                                                                   ++lvarovalor;
                                                             }
-                                                            if (lvarovalor != $3->lvarovalor.end() && parametros != tipo->get_parametros().end()){
+                                                            if (lvarovalor != $3->lvarovalor.end() && parametros != func->parametros.end()){
                                                                 std::string msg ("Expected ");
                                                                 msg += std::to_string(expected);
                                                                 msg += " arguments, ";
@@ -1882,6 +1884,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                             } else {
                                                                 result->tipo = rango;
                                                             }
+                                                            $$ = result;
                                                         }else{
                                                             std::string msg;
                                                             if (tipo == 0){
@@ -1932,7 +1935,7 @@ exp: expAritmetica  { $$ = $1; }
    | valor          { $$ = $1; }
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
-   | llamadafuncion { $$ = $1; /*Supondremos que una llamada a una funcion es una expresion*/}
+   | llamadafuncion {  /*Supondremos que una llamada a una funcion es una expresion*/}
    | '(' error ')'  {};
 /**
  * Falta el caso recursivo de expID

@@ -208,6 +208,8 @@ private:
 
 class TypeFunction:public TypeS{
 public:
+    TypeS* tipo;
+    std::list<TypeS*> parametros;
     TypeFunction(TypeS*,std::list<TypeS*>); 
     ~TypeFunction(); 
     bool is_int() ; 
@@ -225,10 +227,6 @@ public:
     std::list<TypeS*> get_parametros();
     TypeS* get_tipo();
     std::string get_name();
-    
-private :
-    TypeS* tipo;
-    std::list<TypeS*> parametros;
 };
 
 class TypeArray:public TypeS{

@@ -196,9 +196,12 @@ class Bool: public Valor{
  */
 class LCorchetes{
     public:
+        TypeS* tipo;
         std::list<int> lista;
-
-        LCorchetes();
+        LCorchetes(){
+            tipo = 0;
+        }
+        LCorchetes(bool);
         void append(int);
         ~LCorchetes();
 
@@ -272,6 +275,14 @@ class Instruccion{
     public:
         virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
         virtual void show(std::string) = 0;
+};
+
+class Error: public Instruccion{
+public:
+    TypeS* get_tipo() { return TypeError::Instance(); }
+    void show(std::string){
+    
+    }
 };
 
 /**
@@ -486,6 +497,10 @@ public:
     ErrorBoolExp(Exp* e): exp(e), error(false) { }
     ErrorBoolExp(): error(true), exp(0){}
     ~ErrorBoolExp() { delete this; }
+    TypeS* get_tipo(){
+        if (exp!= 0) return exp->get_tipo();
+        return 0;
+    }
     bool get_error(){ return error; }
 
 };
@@ -513,18 +528,12 @@ public:
  */
 class Asignacion: public Instruccion{
 public:
-    Identificador* identificador;
-    Identificador* identificador2;
     TypeS* tipo;
-    LCorchetes* lcorchetes;
-    Arreglo* arreglo;
+    Exp* id;
     Exp* exp;
 
     Asignacion();
-    Asignacion(Identificador*, Exp*);
-    Asignacion(Identificador*, LCorchetes*, Exp*);
-    Asignacion(Identificador*,Identificador*,Exp*);
-    Asignacion(Identificador*, Arreglo*);
+    Asignacion(Exp*, Exp*);
     ~Asignacion();
     TypeS* get_tipo() { return tipo; } 
 
@@ -547,6 +556,14 @@ public:
         delete this;
     }
     bool is_error(){ return error; }
+    TypeS* get_tipo(){ 
+        if (error){
+            return 0;                
+        } else {
+            if (asign != 0) return asign->get_tipo();
+            return exp->get_tipo();
+        }
+    }
 };
 
 /**
@@ -629,7 +646,7 @@ public:
  * Clase de llamada funcion.
  */
 
-class LlamadaFuncion: public Exp{
+class LlamadaFuncion: public Exp, public Instruccion{
 public:
     TypeS* tipo;
     Identificador* id; /* Identificador de la funcion */
@@ -719,11 +736,11 @@ public:
  */
 class BloquePrincipal {
 public:
-    BloqueDeclare globalD; /* Declaraciones globales. */
-    LFunciones funciones;  /* Lista de funciones. */
+    BloqueDeclare* globalD; /* Declaraciones globales. */
+    LFunciones* funciones;  /* Lista de funciones. */
 
     BloquePrincipal();
-    BloquePrincipal(BloqueDeclare, LFunciones);
+    BloquePrincipal(BloqueDeclare*, LFunciones*);
     ~BloquePrincipal();
 
     void show(std::string);
@@ -789,7 +806,9 @@ public:
     ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
     ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce), laccesoatributos(0){}
     ExpID(Identificador* id, LAccesoAtributos* la ): identificador(id), laccesoatributos(la),lcorchetesexp(0){}
+
     TypeS* get_tipo(){ return tipo; }
+
     void show(std::string s){
         if (identificador != 0) identificador->show(s);
         if (lcorchetesexp != 0) lcorchetesexp->show(s);

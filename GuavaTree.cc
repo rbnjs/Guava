@@ -50,7 +50,12 @@ void Tipo::show(std::string s) {
 
 /* Class LCorchetes */
 
-LCorchetes::LCorchetes() {
+LCorchetes::LCorchetes(bool error) {
+    if (error){
+        tipo = TypeError::Instance();
+    } else {
+        tipo = TypeInt::Instance();
+    }
 }
 
 void LCorchetes::append(int e){
@@ -436,38 +441,14 @@ void LoopWhile::show(std::string s) {
 
 /* Class Asignacion */
 
-Asignacion::Asignacion() {}
-
-Asignacion::Asignacion(Identificador* i, Exp* e) {
-    identificador = i;
-    exp = e;
-    lcorchetes = 0;
-    identificador2 = 0;
-    arreglo = 0;
+Asignacion::Asignacion() {
+    tipo = TypeError::Instance();
 }
 
-Asignacion::Asignacion(Identificador* id, LCorchetes* lc, Exp* e) {
-    identificador = id;
-    lcorchetes = lc;
+Asignacion::Asignacion(Exp* i, Exp* e) {
+    id = i;
     exp = e;
-    identificador2 = 0;
-    arreglo = 0;
-}
-
-Asignacion::Asignacion(Identificador* id,Identificador* id2,Exp* e) {
-    identificador = id;
-    identificador2 = id2;
-    exp = e;
-    lcorchetes = 0;
-    arreglo = 0;
-}
-
-Asignacion::Asignacion(Identificador* id, Arreglo* arr) {
-    identificador = id;
-    arreglo = arr;
-    lcorchetes = 0;
-    identificador2 = 0;
-    exp = 0;
+    tipo = TypeVoid::Instance();
 }
 
 Asignacion::~Asignacion() {
@@ -475,13 +456,10 @@ Asignacion::~Asignacion() {
 
 void Asignacion::show(std::string s) {
     std::cout << s << "Asignacion: \n";
-    identificador->show(s + "  ");
-    if (identificador2 != 0) identificador2->show(s+"  "); 
-    if (lcorchetes != 0) lcorchetes->show(s+"  ");
+    if(id != 0) id->show(s + "  ");
     if (exp != 0){
         exp->show(s+"  ");
     }
-    if (arreglo != 0) arreglo->show(s+ "  ");
 } 
 
 
@@ -688,7 +666,7 @@ void LFunciones::show(std::string s) {
 
 BloquePrincipal::BloquePrincipal() {}
 
-BloquePrincipal::BloquePrincipal(BloqueDeclare b, LFunciones l) {
+BloquePrincipal::BloquePrincipal(BloqueDeclare* b, LFunciones* l) {
     globalD = b;
     funciones = l;
 }
@@ -696,7 +674,7 @@ BloquePrincipal::BloquePrincipal(BloqueDeclare b, LFunciones l) {
 BloquePrincipal::~BloquePrincipal() {}
 
 void BloquePrincipal::show(std::string s) {
-    funciones.show(s);
+    funciones->show(s);
 } 
 
  

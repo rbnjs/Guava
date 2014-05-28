@@ -1388,11 +1388,9 @@ instruccionLoop1: loopfor        {
 
 
 asignacion: expID ASSIGN exp   {
-                                 Exp* eid = $1;
-                                 Exp* e = $3;
                                  if ($1->get_tipo() == TypeError::Instance() ||
-                                     $3->get_tipo() == TypeError::Instance() ||
-                                     $1->get_tipo() != $3->get_tipo()){
+                                     $3->get_tipo() == TypeError::Instance() /*||
+                                     $1->get_tipo() != $3->get_tipo()*/){
                                      if ($1->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos($3->get_tipo()->get_name(),"null");
                                         driver.error(yylloc, msg);
@@ -1404,6 +1402,14 @@ asignacion: expID ASSIGN exp   {
                                         driver.error(yylloc, msg);
                                      }
                                      $$ = new Asignacion();
+                                 } else if ($1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
+                                    TypeArray* arr1 = (TypeArray*) $1->get_tipo();
+                                    TypeArray* arr2 = (TypeArray*) $3->get_tipo();
+                                    std::cout << "\n\nAQUI\n\n";
+                                    if (arr1->get_tipo() == arr2->get_tipo() &&
+                                        arr1->get_dimensiones().first &&
+                                        arr2->get_dimensiones().second) {
+                                    }
                                  } else {
                                     $$ = new Asignacion($1,$3);
                                  }
@@ -1946,6 +1952,12 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
+                            if(id->true_type != 0 && id->true_type->is_array()) {
+                                result = new ExpID($1);
+                                result->tipo = id->true_type;
+                                $$ = result;
+                                std::cout << "\n\nHOLAAAAAAAAAA\n\n";
+                            }
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID($1);
                                 result->tipo = tipo;

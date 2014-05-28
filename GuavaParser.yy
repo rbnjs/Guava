@@ -934,14 +934,20 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                             };
 
 
-lfunciones: funcionmain                    { $$ = new LFunciones(*$1,0);
+lfunciones: funcionmain                    { $$ = new LFunciones($1,0);
                                            }
-          | lfunciones1 funcionmain        { $$ = new LFunciones(*$2,$1);
+          | lfunciones1 funcionmain        { 
+                                             LFunciones* main_ = new LFunciones($2,0);
+                                             $1->lista = main_;
+                                             $$ = $1;
                                            }
 
-lfunciones1: funcion                       { //$$ = new LFunciones(*$1,0);
+lfunciones1: funcion                       { $$ = new LFunciones($1,0);
                                            }
-           | lfunciones1 funcion           { $$ = new LFunciones(*$2,$1);
+           | lfunciones1 funcion           { 
+                                             LFunciones* func = new LFunciones($2,0);
+                                             $1->lista = func;
+                                             $$ = $1;
                                            }
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 

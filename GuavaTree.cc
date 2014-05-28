@@ -651,7 +651,7 @@ void Funcion::show(std::string s) {
 
 LFunciones::LFunciones() {}
     
-LFunciones::LFunciones(Funcion f, LFunciones* l) {
+LFunciones::LFunciones(Funcion* f, LFunciones* l) {
         funcion = f;
         lista = l;
 }
@@ -659,7 +659,7 @@ LFunciones::LFunciones(Funcion f, LFunciones* l) {
 LFunciones::~LFunciones() {  }
 
 void LFunciones::show(std::string s) {
-    funcion.show(s+"  ");
+    if (funcion != 0) funcion->show(s+"  ");
     if (lista != 0) lista->show(s + "  ");
 } 
 

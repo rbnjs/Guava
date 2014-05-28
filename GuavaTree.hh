@@ -727,11 +727,11 @@ public:
  */
 class LFunciones{
 public:
-    Funcion funcion;   /* Funcion */
+    Funcion* funcion;   /* Funcion */
     LFunciones* lista; /* Lista de funciones */
     
     LFunciones();
-    LFunciones(Funcion, LFunciones*);
+    LFunciones(Funcion*, LFunciones*);
     ~LFunciones();
     
     void show(std::string);

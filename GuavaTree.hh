@@ -459,6 +459,12 @@ public:
     LElseIf* lelseif;
 
     LElseIf(bool);
+    LElseIf(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li){
+        exp = e;
+        listainstrucciones = li;
+        tipo = TypeVoid::Instance();
+        lelseif = 0;
+    }
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
     LElseIf(BloqueDeclare*, ListaInstrucciones*);
     ~LElseIf();

@@ -540,7 +540,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             if (offset != -1){
                 offset_actual.pop_front();
                 tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
-                offset += tamano_tipo(reference0); 
+                offset += tamano_tipo(arr); 
                 offset_actual.push_front(offset);
             } else {
                 tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, 0);

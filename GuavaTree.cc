@@ -107,7 +107,7 @@ void ExpUn::show(std::string s) {
     std::cout << s << "Exp: \n";
     exp->show(s+" ");
     if (corchetes != 0) corchetes->show(s+ "  ");
-    if (operacion != 0) std::cout << s << "Operador: " << *operacion;
+    if (operacion != 0) std::cout << s << "Operador: " << *operacion << '\n';
 } 
 
 
@@ -438,9 +438,9 @@ LoopWhile::~LoopWhile() {}
 
 void LoopWhile::show(std::string s) {
     std::cout << s << "While:\n";
-    exp->show("  "+s);
+    if (exp != 0 ) exp->show("  "+s);
     std::cout << s << "do:\n";
-    listainstrucciones->show("  "+s);
+    if (listainstrucciones != 0)listainstrucciones->show("  "+s);
 } 
 
 /* Class Asignacion */

@@ -300,7 +300,6 @@ LArreglo::LArreglo(){
 }
 
 void LArreglo::append(Exp* e){
-    
     larr.push_back(e);
 }
 

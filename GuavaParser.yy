@@ -2420,8 +2420,9 @@ arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
-                            TypeS* tipo = tmp->get_tipo();
-                            $$ = tmp; 
+                            TypeS* tipo = $2->get_tipo();
+                            tmp->tipo = tipo;
+                            $$ = tmp;
                           };
 
 /*Funciona. Faltan ejemplos mas interesantes.*/

@@ -447,6 +447,8 @@ void LoopWhile::show(std::string s) {
 /* Class Asignacion */
 
 Asignacion::Asignacion() {
+    id = 0;
+    exp = 0;
     tipo = TypeError::Instance();
 }
 

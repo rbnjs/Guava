@@ -55,6 +55,7 @@ public :
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();
     TypeS* get_tipo();
     std::string get_name();
     std::pair<int,int*> get_dimensiones();
@@ -79,6 +80,7 @@ public :
     bool is_union() ;
     bool is_void();
     bool is_reference();   
+    bool is_array();   
     TypeS* get_tipo();
     std::string get_name();
     std::pair<int,int*> get_dimensiones();
@@ -103,6 +105,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
@@ -126,6 +129,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
@@ -150,6 +154,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
@@ -173,6 +178,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
@@ -197,6 +203,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
@@ -223,6 +230,7 @@ public:
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_parametros();
     TypeS* get_tipo();
@@ -258,6 +266,7 @@ public :
     bool is_union() ;
     bool is_void();
     bool is_reference();
+    bool is_array();   
     std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();

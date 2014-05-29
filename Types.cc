@@ -49,6 +49,7 @@ bool TypeReal::is_structure() { return false; }
 bool TypeReal::is_union()     { return false; }
 bool TypeReal::is_void()      { return false; }
 bool TypeReal::is_reference() { return false; }
+bool TypeReal::is_array()     { return false; }
 
 TypeS* TypeReal::get_tipo() { return 0; }
 
@@ -80,6 +81,7 @@ bool TypeInt::is_structure() { return false; }
 bool TypeInt::is_union()     { return false; }
 bool TypeInt::is_void()      { return false; }
 bool TypeInt::is_reference() { return false; }
+bool TypeInt::is_array()     { return false; }
 
 TypeS* TypeInt::get_tipo() { return 0; }
 
@@ -111,6 +113,7 @@ bool TypeError::is_structure() { return false; }
 bool TypeError::is_union()     { return false; }
 bool TypeError::is_void()      { return false; }
 bool TypeError::is_reference() { return false; }
+bool TypeError::is_array()       { return false; }
 
 TypeS* TypeError::get_tipo() { return 0; }
 
@@ -142,6 +145,7 @@ bool TypeBool::is_structure() { return false; }
 bool TypeBool::is_union()     { return false; }
 bool TypeBool::is_void()      { return false; }
 bool TypeBool::is_reference() { return false; }
+bool TypeBool::is_array()     { return false; }
 
 TypeS* TypeBool::get_tipo() { return 0; }
 
@@ -172,6 +176,7 @@ bool TypeChar::is_structure() { return false; }
 bool TypeChar::is_union()     { return false; }
 bool TypeChar::is_void()      { return false; }
 bool TypeChar::is_reference() { return false; }
+bool TypeChar::is_array()     { return false; }
 
 TypeS* TypeChar::get_tipo() { return 0; }
 
@@ -203,6 +208,7 @@ bool TypeString::is_structure() { return false; }
 bool TypeString::is_union()     { return false; }
 bool TypeString::is_void()      { return false; }
 bool TypeString::is_reference() { return false; }
+bool TypeString::is_array()     { return false; }
 
 TypeS* TypeString::get_tipo() { return 0; }
 
@@ -233,6 +239,7 @@ bool TypeFunction::is_structure() { return false; }
 bool TypeFunction::is_union()     { return false; }
 bool TypeFunction::is_void()      { return false; }
 bool TypeFunction::is_reference() { return false; }
+bool TypeFunction::is_array()     { return false; }
 
 TypeS* TypeFunction::get_tipo() { return tipo; }
 
@@ -267,6 +274,7 @@ bool TypeVoid::is_structure() { return false; }
 bool TypeVoid::is_union()     { return false; }
 bool TypeVoid::is_void()      { return true; }
 bool TypeVoid::is_reference() { return false; }
+bool TypeVoid::is_array()     { return false; }
 
 TypeS* TypeVoid::get_tipo() { return 0; }
 
@@ -313,6 +321,7 @@ bool TypeReference::is_structure() { return false; }
 bool TypeReference::is_union()     { return false; }
 bool TypeReference::is_void()      { return false; }
 bool TypeReference::is_reference() { return true; }
+bool TypeReference::is_array()     { return false; }
 
 TypeS* TypeReference::get_tipo() { return referencia; }
 

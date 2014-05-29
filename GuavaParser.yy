@@ -1400,46 +1400,6 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                         std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(), $3->get_tipo()->get_name());
                                         driver.error(yylloc, msg);
                                      }
-                                     $$ = new Asignacion();
-                                 /*Caso en el que los dos tipos son de tipo arreglo*/    
-                                 } else if ( $1->get_tipo() != $3->get_tipo() && $1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
-                                    TypeArray* arr1 = (TypeArray*) $1->get_tipo();
-                                    TypeArray* arr2 = (TypeArray*) $3->get_tipo();
-                                    /*Se verifica si son del mismo tipo y tienen las mismas dimensiones*/
-                                    if (arr1->get_tipo() == arr2->get_tipo() &&
-                                        arr1->get_dimensiones().first == arr2->get_dimensiones().first) {
-                                        $$ = new Asignacion($1,$3);
-                                    } else {
-                                        std::string arrOf_f = std::string("array of ");
-                                        std::string arrOf_e = std::string("array of ");
-                                        arrOf_f += arr1->get_tipo()->get_name();
-                                        arrOf_e += arr2->get_tipo()->get_name();
-                                        std::string msg = mensaje_error_tipos(arrOf_f,arrOf_e);
-                                        driver.error(yylloc, msg);
-                                    }
-                                 /*Caso en el que los tipos son diferentes*/
-                                 } else if ($1->get_tipo() != $3->get_tipo()){
-                                    /*Caso en el que la expresion asignada es de tipo arreglo*/
-                                    if($1->get_tipo()->is_array() && !($3->get_tipo()->is_array())) {
-                                        TypeArray* arr = (TypeArray*) $1->get_tipo();
-                                        std::string arrOf_f = std::string("array of ");
-                                        arrOf_f += arr->get_tipo()->get_name();
-                                        std::string msg = mensaje_error_tipos(arrOf_f,$3->get_tipo()->get_name());
-                                        driver.error(yylloc, msg);
-                                    }
-                                    /*Caso en el que la expresion a ser asignada es de tipo arreglo*/
-                                    else if (!($1->get_tipo()->is_array()) && $3->get_tipo()->is_array()) {
-                                        TypeArray* arr = (TypeArray*) $3->get_tipo();
-                                        std::string arrOf_e = std::string("array of ");
-                                        arrOf_e += arr->get_tipo()->get_name();
-                                        std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),arrOf_e);
-                                        driver.error(yylloc, msg);
-                                    }
-                                    /*Caso en el que ninguna de las dos expresiones es de tipo arreglo*/
-                                    else {
-                                        std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
-                                        driver.error(yylloc,msg);
-                                    }
                                     $$ = new Asignacion();
                                  } else {
                                     $$ = new Asignacion($1,$3);
@@ -2471,6 +2431,8 @@ larreglo: larreglo ',' exp      {
                                      || $1->get_tipo() == TypeError::Instance()
                                      || $3->get_tipo() == TypeError::Instance()){
                                         std::string msg;
+                                        Exp* e = $3;
+                                        LArreglo* a = $1;
                                         if ($1->get_tipo() != 0 && $3->get_tipo() != 0)
                                             msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
                                         else

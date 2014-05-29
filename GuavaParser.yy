@@ -407,7 +407,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             if (offset != -1){
                 offset_actual.pop_front();
                 tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
-                offset += tamano_tipo(t); 
+                offset += tamano_tipo(arr); 
                 offset_actual.push_front(offset);
             } else {
                 tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
@@ -1983,11 +1983,6 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            if(id->true_type != 0 && id->true_type->is_array()) {
-                                result = new ExpID($1);
-                                result->tipo = id->true_type;
-                                $$ = result;
-                            }
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID($1);
                                 result->tipo = tipo;

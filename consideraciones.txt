@@ -1,0 +1,10 @@
+* Construir el arbol de funcion y revisar si existe.
+
+* Calcular los offsets por funcion no por bloque.
+
+* No estamos guardando las constantes. Voy a guardar los strings en la tabla global con un nombre que
+  el programador no pudiese adivinar (estoy pensando en numeros).
+
+  * Revisar la recuperacion de errores.
+
+  * Informacion adicional arbol.

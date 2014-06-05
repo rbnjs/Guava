@@ -13,19 +13,9 @@
 # include <typeinfo>
 # include <algorithm>
 # include "GuavaTree.hh"
-# include "globals.hh"
 class GuavaDriver;
 
-/* Aqui definimos el tamaño de todos los tipos basicos. */ 
-#define SIZE_REFERENCE 8
-#define SIZE_INT       4
-#define SIZE_CHAR      1
-#define SIZE_REAL      8
-#define SIZE_BOOL      1
-#define WORD           4
 }
-%{
-%}
 %parse-param { GuavaDriver& driver }
 %lex-param   { GuavaDriver& driver }
 
@@ -164,6 +154,7 @@ program: bloqueprincipal { //$$ = Program(*$1);
 bloqueprincipal: { 
                      tabla_actual.push_front(&driver.tablaSimbolos);
                      driver.tablaSimbolos.enterScope(); 
+                     offset_actual.push_front(0);
                  } 
 
                 bloquedeclare lfunciones  { $$ = new BloquePrincipal($2, $3);
@@ -178,7 +169,6 @@ bloqueprincipal: {
 bloquedeclare: /* Vacio */  { $$ = new BloqueDeclare(-1); 
                             }
              | { declare_scope = driver.tablaSimbolos.currentScope(); 
-                 offset_actual.push_front(0);
                }
                DECLARE '{' lvariables '}' { $$ = new BloqueDeclare(declare_scope); 
                                           };
@@ -393,6 +383,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
                                                                                 0,tipo,line,column, current_scope);
                                                    identacion += "  ";
+                                                   offset_actual.push_front(0);
                                                  } 
            bloquedeclare listainstrucciones  '}' { LParam lp = LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
@@ -418,7 +409,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                        }
 
 
-funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope(); }
+funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope();
+                                            offset_actual.push_front(0);
+                                          }
                                         lparam { 
                                                  insertar_funcion($2,$3,$6,&driver,current_scope,yylloc); 
                                                  identacion += "  ";
@@ -441,7 +434,9 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                               $10->show("");
                                                                                             }
 
-       | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); } 
+       | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); 
+                                                offset_actual.push_front(0);
+                                              } 
                                             lparam  {  
                                                       TypeS* v = TypeVoid::Instance();
                                                       insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 

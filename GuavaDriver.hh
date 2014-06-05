@@ -13,13 +13,30 @@
  *
  * =====================================================================================
  */
+
+/* Aqui definimos el tamaño de todos los tipos basicos. */ 
+
+#define SIZE_REFERENCE 8
+#define SIZE_INT       4
+#define SIZE_CHAR      1
+#define SIZE_REAL      8
+#define SIZE_BOOL      1
+#define WORD           4
+
+
 # ifndef GUAVADRIVER_HH
 # define GUAVADRIVER_HH
 # include <string>
 # include <map> 
 # include "GuavaParser.hh"
-#include "globals.hh"
 
+extern int current_scope;
+extern int attribute_scope;  
+extern int declare_scope;
+extern int error_state;
+extern std::string identacion;
+extern std::list<int> offset_actual;
+extern std::list<GuavaSymTable*> tabla_actual;
 
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \

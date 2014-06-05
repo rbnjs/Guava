@@ -77,7 +77,14 @@ void GuavaDriver::error (const std::string& m)
 {
   std::cerr << m << std::endl;
 }
-
+/* Variables Globlaes. */
+int current_scope;
+int attribute_scope;  
+int declare_scope;
+int error_state;
+std::string identacion ("");
+std::list<int> offset_actual;
+std::list<GuavaSymTable*> tabla_actual;
 /* Funciones Auxiliares. */
 
 /**

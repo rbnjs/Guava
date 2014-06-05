@@ -1,6 +1,6 @@
 all: guava
 
-guava: Types.o Symbol.o GuavaSymTable.o GuavaTree.o globals.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava: Types.o Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 	g++ -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
@@ -44,9 +44,6 @@ Guava.o: Guava.cc
 
 	g++ -g -c -std=c++11 Guava.cc
 
-globals.o: globals.cc globals.hh GuavaParser.hh
-
-	g++ -g -c -std=c++11 globals.cc
 
 .PHONY: clean
 

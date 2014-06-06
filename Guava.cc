@@ -41,7 +41,6 @@ int main (int argc, char *argv[]){
             uso_ninguna_opcion = false;
         }
         else if (!driver.parse (argv[i])){
-            std::cout << driver.result << std::endl;
             uso_ninguna_opcion = false;
         }else if (argv[i] == std::string("-t")){
             uso_ninguna_opcion = false;

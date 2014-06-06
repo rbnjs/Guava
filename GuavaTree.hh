@@ -46,7 +46,11 @@ public:
     }
     ~Identificador();
     
-virtual void show(std::string);
+    virtual void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 
@@ -67,6 +71,10 @@ public:
     TypeS* get_tipo() { return tipo; 
                           }
     void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 
@@ -113,6 +121,10 @@ public:
         std::cout << valor;
         std::cout << std::endl;
     }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -134,6 +146,10 @@ public:
         std::cout << s << "Valor Real: ";
         std::cout << valor;
         std::cout << std::endl;
+    }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
     }
 };
 
@@ -157,6 +173,10 @@ public:
         std::cout << s << "Caracter: ";
         std::cout << valor;
         std::cout << std::endl;
+    }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
     }
 };
 
@@ -182,6 +202,10 @@ public:
         std::cout << *valor;
         std::cout << std::endl;
     }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -206,6 +230,10 @@ public:
         std::cout << valor;
         std::cout << std::endl;
     }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -225,6 +253,10 @@ public:
     ~LCorchetes();
 
     void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -234,6 +266,8 @@ class LCorchetesExp{
 public:
     TypeS* tipo;
     std::list<Exp*> lista;
+    int line;
+    int column;
 
     LCorchetesExp();
     ~LCorchetesExp();
@@ -249,6 +283,10 @@ public:
                 Exp * tmp = *it;
                 tmp->show(s+ "  ");
             }
+    }
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
     }
 };
 
@@ -270,6 +308,10 @@ public:
     TypeS* get_tipo() { return tipo; }
 
     virtual void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -289,6 +331,10 @@ public:
     TypeS* get_tipo() { return tipo; }
 
     virtual void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -341,6 +387,10 @@ public:
     ~LVarArreglo();
 
     void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -358,6 +408,10 @@ public:
     std::list<Identificador> get_list();
 
     void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -376,31 +430,31 @@ public:
  * entiendes preguntame para que te lo explique mejor.
  */
 class LVariables {
-    public:
-        TypeS* tipo;                   /*Tipo de las variables a declarar */
+public:
+    TypeS* tipo;                   /*Tipo de las variables a declarar */
 
-        LVar* listaIds;           /* Lista de identificadores de variables */
-        LVarArreglo* listaIdsAr;  /* Lista de identificadores de variables de tipo arreglo */
-        Estructura* estructura;   /* Este define a una union o registro. */
-        LVariables* listaVar;     /* En caso de declarar mas de una lista de variables. */
+    LVar* listaIds;           /* Lista de identificadores de variables */
+    LVarArreglo* listaIdsAr;  /* Lista de identificadores de variables de tipo arreglo */
+    Estructura* estructura;   /* Este define a una union o registro. */
+    LVariables* listaVar;     /* En caso de declarar mas de una lista de variables. */
 
-        /*Constructores*/
-        LVariables();
+    /*Constructores*/
+    LVariables();
 
-        /*Caso en el que se declaran variables simples*/
-        LVariables(TypeS*, LVar*);
+    /*Caso en el que se declaran variables simples*/
+    LVariables(TypeS*, LVar*);
 
-        /*Caso en el que se declaran variables de tipo arreglo*/
-        LVariables(TypeS*, LVarArreglo*);
+    /*Caso en el que se declaran variables de tipo arreglo*/
+    LVariables(TypeS*, LVarArreglo*);
 
-        /*Caso definicion de Records y Unions*/
-        LVariables(Estructura*);
+    /*Caso definicion de Records y Unions*/
+    LVariables(Estructura*);
 
-        ~LVariables();
+    ~LVariables();
 
-        std::list<TypeS*> get_type_list();
+    std::list<TypeS*> get_type_list();
 
-        void show(std::string);
+    void show(std::string);
 };
 
 /**
@@ -417,6 +471,10 @@ public:
     ~Record();    
     LVariables* get_lvar();
     Identificador get_id();
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
     void show(std::string);
 private:
     Identificador id;              /* Nombre del record. */
@@ -436,6 +494,10 @@ public:
     ~Union();   
     LVariables* get_lvar();
     Identificador get_id();
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
     void show(std::string);
 private:
     Identificador id;   /* Nombre del union. */
@@ -462,6 +524,10 @@ public:
     }
 
     void show(std::string s);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -478,6 +544,10 @@ public:
     ~BloqueDeclare();
     
     void show(std::string);
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -507,6 +577,11 @@ public:
     TypeS* get_tipo(){return tipo;}
 
     void show(std::string);
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 /**
@@ -532,6 +607,11 @@ public:
     TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 };
 
 class ErrorBoolExp{
@@ -548,6 +628,11 @@ public:
         return 0;
     }
     bool get_error(){ return error; }
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
 };
 
@@ -566,6 +651,11 @@ public:
     LoopWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
     TypeS* get_tipo() { return tipo; } 
     ~LoopWhile();
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     void show(std::string);
 };
@@ -586,6 +676,11 @@ public:
     Asignacion(Exp*, Exp*);
     ~Asignacion();
     TypeS* get_tipo() { return tipo; } 
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     void show(std::string);
 };
@@ -608,6 +703,7 @@ public:
         delete this;
     }
     bool is_error(){ return error; }
+
     TypeS* get_tipo(){ 
         if (error){
             return 0;                
@@ -615,6 +711,11 @@ public:
             if (asign != 0) return asign->get_tipo();
             return exp->get_tipo();
         }
+    }
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
     }
 };
 
@@ -632,6 +733,11 @@ public:
     Exp* exp2;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     LoopFor():identificador(0), tipo (TypeError::Instance()), exp (0), asignacion(0), exp2(0), declaraciones(0),listainstrucciones(0){}
     LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
@@ -655,6 +761,11 @@ public:
                     * 2 para el incremento prefijo.
                     * 3 para el incremento prostfijo. */
     TypeS* tipo;
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
     
     PlusMinus():identificador(0),tipo_inst(-1),tipo(TypeError::Instance()){}
     PlusMinus(Identificador*, int);
@@ -673,6 +784,12 @@ public:
     TypeS* tipo;
     int line;
     int column;
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
+
     std::list<Exp*> lvarovalor;
     LVaroValor(bool);
     void append(Exp* e);
@@ -690,6 +807,11 @@ public:
     int line;
     int column;
     Exp* argumento;
+    
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     EntradaSalida(int, Exp*);
     TypeS* get_tipo(){
@@ -714,6 +836,11 @@ public:
     Identificador* id; /* Identificador de la funcion */
     LVaroValor* lvarovalor;     /* Lista de variables o valores. */
 
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
+
     LlamadaFuncion(Identificador*, LVaroValor*);
     LlamadaFuncion(): tipo(TypeError::Instance()), id(0),lvarovalor(0) {}
     ~LlamadaFuncion();
@@ -731,6 +858,11 @@ public:
     int line;
     int column;
     int instruccion; // 0 es Continue , 1 es break
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
     ContinueBreak( int t): instruccion(t), tipo(TypeVoid::Instance()){ }
     ~ContinueBreak(){ }
     void show(std::string s){
@@ -753,6 +885,10 @@ public:
     int column;
     std::list<TypeS*> lTipos;
 
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
     LParam();
     void append(TypeS*, Identificador*);
     void appendTipo(TypeS*);
@@ -775,10 +911,14 @@ public:
     LParam parametros; 
     BloqueDeclare declaraciones;
     ListaInstrucciones listaI;
-    Exp* retorno;
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     Funcion();
-    Funcion(TypeS*, Identificador, LParam, BloqueDeclare ,ListaInstrucciones, Exp*);    
+    Funcion(TypeS*, Identificador, LParam, BloqueDeclare ,ListaInstrucciones);    
     ~Funcion();
 
     void show(std::string);
@@ -878,6 +1018,11 @@ public:
     ExpID(Identificador* id, LAccesoAtributos* la ): identificador(id), laccesoatributos(la),lcorchetesexp(0){}
 
     TypeS* get_tipo(){ return tipo; }
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
 
     void show(std::string s){
         if (identificador != 0) identificador->show(s);

@@ -619,17 +619,15 @@ void LParam::show(std::string s) {
 /* Class Funcion */
 
 Funcion::Funcion() {
-    retorno = 0;
     tipo = TypeError::Instance();
 }
 
-Funcion::Funcion(TypeS* t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li, Exp* r) {
+Funcion::Funcion(TypeS* t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li) {
     tipo = t;
     identificador = id;
     parametros = param;
     declaraciones = decl;
     listaI = li;
-    retorno = r;
 }
 
 Funcion::~Funcion() {
@@ -643,10 +641,6 @@ void Funcion::show(std::string s) {
     parametros.show(s+"  ");
     std::cout << s << "Instrucciones: \n";
     listaI.show(s+ "  ");
-    if (retorno != 0) {
-        std::cout << s << "Retorna: \n";
-        retorno->show(s+"  ");
-    }
 } 
 
 

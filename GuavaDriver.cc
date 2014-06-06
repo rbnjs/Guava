@@ -77,7 +77,8 @@ void GuavaDriver::error (const std::string& m)
 {
   std::cerr << m << std::endl;
 }
-/* Variables Globlaes. */
+
+/* Variables Globales. */
 int current_scope;
 int attribute_scope;  
 int declare_scope;

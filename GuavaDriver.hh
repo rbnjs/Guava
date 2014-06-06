@@ -57,6 +57,9 @@ public:
     GuavaSymTable tablaSimbolos;
     int result;
 
+    bool print_tree;
+    bool print_table;
+
     // Scanner.
     void scan_begin ();
     void scan_end ();

@@ -253,9 +253,10 @@ union: UNION identificador '{' {
                                }
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
+                                                std::string identificador = $2->identificador;
                                                 if (!error_state) {
                                                     identacion.erase(0,2);
-                                                    std::cout << identacion << "Union " << $2->identificador << " {\n";
+                                                    std::cout << identacion << "Union " << identificador << " {\n";
                                                     tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                     std::cout << identacion <<"}\n";
                                                 }

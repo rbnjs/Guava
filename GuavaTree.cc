@@ -32,22 +32,6 @@ void Identificador::show(std::string s) {
 }
 
 
-/* Class tipo. */
-
-Tipo::Tipo() {}
-
-Tipo::Tipo(std::string t, TypeS* t2) {
-    tipo = t;
-    tipoS = t2;
-}
-
-Tipo::~Tipo() {}
-
-void Tipo::show(std::string s) {
-    std::cout << s << "Tipo: " << tipo << '\n' ;
-}
-
-
 /* Class LCorchetes */
 
 LCorchetes::LCorchetes(bool error) {

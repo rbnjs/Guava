@@ -75,16 +75,13 @@ std::string to_string(TypeS* t){
         return result;
     }
     if (t->is_array()){
-        std::string result ("array( ");
-        std::pair<int,int*> par = t->get_dimensiones();
-        for (int i = 0 ; i < par.first ; i++ ){
-            std::ostringstream convert;
-            convert << par.second[i];
-            result += "[" + convert.str();
-            result += " ]"; 
-        }
-        result += ", "+ t->get_name();
-        result += ")";
+        std::string result ("array[");
+        int tam = t->get_dimensiones();
+        std::ostringstream convert;
+        convert << tam;
+        result += convert.str();
+        result += "] of" + to_string(t->get_tipo()); 
+
         return result;
     }
     return t->get_name();

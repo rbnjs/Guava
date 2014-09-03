@@ -55,10 +55,6 @@ TypeS* TypeReal::get_tipo() { return 0; }
 
 std::string TypeReal::get_name() { return std::string("real"); }
 
-std::pair<int,int*> TypeReal::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 
 /* class TypeInt */
@@ -87,11 +83,6 @@ TypeS* TypeInt::get_tipo() { return 0; }
 
 std::string TypeInt::get_name() { return std::string("integer"); }
 
-std::pair<int,int*> TypeInt::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
-
 
 /* class TypeError */
 
@@ -118,11 +109,6 @@ bool TypeError::is_array()       { return false; }
 TypeS* TypeError::get_tipo() { return 0; }
 
 std::string TypeError::get_name() { return std::string("error"); }
-
-std::pair<int,int*> TypeError::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 
 /* class TypeBool */
@@ -151,11 +137,6 @@ TypeS* TypeBool::get_tipo() { return 0; }
 
 std::string TypeBool::get_name() { return std::string("boolean"); }
 
-std::pair<int,int*> TypeBool::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
-
 
 /* class TypeChar */
 
@@ -181,11 +162,6 @@ bool TypeChar::is_array()     { return false; }
 TypeS* TypeChar::get_tipo() { return 0; }
 
 std::string TypeChar::get_name() { return std::string("character"); }
-
-std::pair<int,int*> TypeChar::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 
 /* class TypeString */
@@ -214,10 +190,6 @@ TypeS* TypeString::get_tipo() { return 0; }
 
 std::string TypeString::get_name() { return std::string("string"); }
 
-std::pair<int,int*> TypeString::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 
 /* class TypeFunction */
@@ -245,10 +217,6 @@ TypeS* TypeFunction::get_tipo() { return tipo; }
 
 std::string TypeFunction::get_name() { return std::string("function"); }
 
-std::pair<int,int*> TypeFunction::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 std::list<TypeS*> TypeFunction::get_parametros(){
     return parametros;
@@ -280,15 +248,11 @@ TypeS* TypeVoid::get_tipo() { return 0; }
 
 std::string TypeVoid::get_name() { return std::string("void"); }
 
-std::pair<int,int*> TypeVoid::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 
 
 /* class TypeArray */
 
-TypeArray::TypeArray(TypeS* t, int s, int* d ): tipo(t), size(s), dimensiones(d){}
+TypeArray::TypeArray(TypeS* t, int s): tipo(t), size(s){}
 
 bool TypeArray::is_array() { return true; } 
 
@@ -296,11 +260,8 @@ TypeS* TypeArray::get_tipo() { return tipo; }
 
 std::string TypeArray::get_name() { return tipo->get_name(); }
 
-std::pair<int,int*> TypeArray::get_dimensiones(){
-    std::pair<int,int*> p; 
-    p.first = size;
-    p.second = dimensiones;
-    return p;
+int TypeArray::get_dimensiones(){
+    return size;
 }
 
 
@@ -327,8 +288,4 @@ TypeS* TypeReference::get_tipo() { return referencia; }
 
 std::string TypeReference::get_name() { return std::string(""); }
 
-std::pair<int,int*> TypeReference::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 

@@ -78,7 +78,6 @@ public :
     bool is_union() ;
     bool is_void();
     bool is_reference();
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     void set_name(std::string n){ nombre = n; }
@@ -107,7 +106,6 @@ public :
     bool is_void();
     bool is_reference();
     void set_name(std::string n){ nombre = n; }
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     std::list<TypeS*> get_atributos();

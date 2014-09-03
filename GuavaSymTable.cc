@@ -233,11 +233,6 @@ TypeS* TypeRecord::get_tipo() { return 0; }
 
 std::string TypeRecord::get_name() { return nombre; }
 
-std::pair<int,int*> TypeRecord::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
-
 /* class TypeUnion */
 
 TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }
@@ -260,9 +255,4 @@ bool TypeUnion::is_reference() { return false; }
 TypeS* TypeUnion::get_tipo() { return 0; }
 
 std::string TypeUnion::get_name() { return nombre; }
-
-std::pair<int,int*> TypeUnion::get_dimensiones(){
-    std::pair<int,int*> p; 
-    return p;
-}
 

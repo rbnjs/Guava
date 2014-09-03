@@ -308,8 +308,7 @@ Arreglo::Arreglo(){
 }
 
 Arreglo::Arreglo(LArreglo* la_):la(la_){
-    int* dimension = new int[la->size()];
-    TypeS* tipo = new TypeArray(la->get_tipo(),la->size(),dimension);
+    TypeS* tipo = new TypeArray(la->get_tipo(),la->size());
 }
     
 Arreglo::~Arreglo() { 

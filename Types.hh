@@ -36,7 +36,7 @@ public :
     virtual bool is_array() { return false; }
     virtual TypeS* get_tipo()=0;
     virtual std::string get_name() { return "defaulttype"; };
-    virtual std::pair<int,int*> get_dimensiones()=0;
+    virtual int get_dimensiones() { return -1; };
     virtual std::list<TypeS*> get_parametros()  { std::list<TypeS*> s; return s; } 
 };
 
@@ -58,7 +58,6 @@ public :
     bool is_array();
     TypeS* get_tipo();
     std::string get_name();
-    std::pair<int,int*> get_dimensiones();
     
 private:
     TypeReal(){};
@@ -83,7 +82,6 @@ public :
     bool is_array();   
     TypeS* get_tipo();
     std::string get_name();
-    std::pair<int,int*> get_dimensiones();
     
 private:
     TypeInt(){};
@@ -106,7 +104,6 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
 private:
@@ -130,7 +127,6 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     
@@ -155,7 +151,6 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
 private:
@@ -179,7 +174,6 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     
@@ -204,7 +198,6 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     
@@ -231,24 +224,25 @@ public:
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     std::list<TypeS*> get_parametros();
     TypeS* get_tipo();
     std::string get_name();
 };
 
+/**
+ * Clase que representa un Tipo Arreglo de manera recursiva.
+ */
 class TypeArray:public TypeS{
 public :
-    TypeArray(TypeS*,int, int*);
+    TypeArray(TypeS*,int);
     ~TypeArray();
     TypeS* get_tipo();
     std::string get_name();
     bool is_array(); 
-    std::pair<int,int*> get_dimensiones();
+    int get_dimensiones();
 private:
     TypeS* tipo;
     int size;
-    int* dimensiones;
 };
 
 class TypeReference: public TypeS{
@@ -267,7 +261,6 @@ public :
     bool is_void();
     bool is_reference();
     bool is_array();   
-    std::pair<int,int*> get_dimensiones();
     TypeS* get_tipo();
     std::string get_name();
     

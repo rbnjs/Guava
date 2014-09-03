@@ -69,7 +69,8 @@ public:
     ~LArreglo();
     int size(){ return larr.size(); }
     TypeS* get_tipo() { return tipo; 
-                          }
+                      }
+    TypeS* get_tipo_array() { return (new TypeArray(tipo,larr.size())); } 
     void show(std::string);
     void set_line_column(int l, int c){
         line = l;

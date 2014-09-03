@@ -284,12 +284,9 @@ int tamano_tipo(TypeS* t){
     }
 
     if (t->is_array()){
-        std::pair<int, int*> dimensiones = t->get_dimensiones();
+        int tam = t->get_dimensiones();
         result = 1;
-        for (int i = 0 ; i < dimensiones.first; ++i){
-            result *= dimensiones.second[i];
-        }
-        return (result * encajar_en_palabra(tamano_tipo(t->get_tipo())) ); 
+        return (result * tam * encajar_en_palabra(tamano_tipo(t->get_tipo())) ); 
     }
     return -1; 
 }
@@ -375,7 +372,7 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
 void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
     std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
-    std::list<int>::iterator itInt;
+    std::list<int>::reverse_iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
     int *arreglo;
@@ -389,15 +386,17 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         if(s != 0)
             d->error(loc,reportar_existencia(s,par.first.identificador));
         else {
-            size = par.second.lista.size();
-            arreglo = new int[size];
-            itInt = par.second.lista.begin();
 
-            for(int i=0; i != size; i++) {
-                arreglo[i] = *itInt;
-                ++itInt;
+            itInt = par.second.lista.rbegin();
+            size = *itInt;
+            TypeArray* arr = 0;
+            TypeArray* tmp = new TypeArray(s->true_type,size);
+
+            for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
+                size = *itInt;
+                arr = new TypeArray(tmp,size);
+                tmp = arr;
             }
-            TypeArray* arr = new TypeArray(t,size,arreglo); // Tipo de arreglo con la información concerniente.
             scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;
@@ -410,6 +409,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             } else {
                 tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
             }
+
         }
     }
 }
@@ -497,7 +497,7 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
 TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
     std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
-    std::list<int>::iterator itInt;
+    std::list<int>::reverse_iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
     int *arreglo;
@@ -523,14 +523,16 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
         else {
         agregar:
             size = par.second.lista.size();
-            arreglo = new int[size];
-            itInt = par.second.lista.begin();
-            for(int i=0; i != size; i++) {
-                arreglo[i] = *itInt;
-                ++itInt;
+            itInt = par.second.lista.rbegin();
+            TypeArray* arr = 0;
+            TypeArray* tmp = new TypeArray(reference0,size);
+            
+            for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
+                size = *itInt;
+                arr = new TypeArray(tmp,size);
+                tmp = arr;
             }
             
-            TypeArray* arr = new TypeArray(reference0,size,arreglo); // Tipo de arreglo con la información concerniente.
             scope = tabla->currentScope();
             line = par.first.line;
             column = par.first.column;

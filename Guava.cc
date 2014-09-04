@@ -50,7 +50,7 @@ int main (int argc, char *argv[]){
             driver.print_table = true;
         }
     }
-    if (uso_ninguna_opcion){
+    if (uso_ninguna_opcion && argc == 1){
         mensajeAyuda();
     }
 }

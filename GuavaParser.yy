@@ -712,10 +712,10 @@ entradasalida: READ '(' exp ')'   {
                                     $$ = tmp;
                                   };
 
-retorno: RETURN ';'       { 
+retorno: RETURN       { 
 			    $$ = new Retorno(0); 
                           }
-       | RETURN exp ';'   {
+       | RETURN exp   {
 			    Retorno* tmp =  new Retorno($2); 
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                 std::string msg = mensaje_error_tipos("type","error");

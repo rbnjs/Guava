@@ -347,6 +347,7 @@ public:
     virtual void show(std::string) = 0;
 };
 
+
 class Error: public Instruccion{
 public:
     TypeS* get_tipo() { return TypeError::Instance(); }
@@ -1029,5 +1030,26 @@ public:
         if (identificador != 0) identificador->show(s);
         if (lcorchetesexp != 0) lcorchetesexp->show(s);
         if (laccesoatributos != 0) laccesoatributos->show(s);
+    }
+};
+
+class Retorno: public Instruccion{
+public:
+    int line;
+    int column;
+    Exp* exp;
+    TypeS* tipo;
+    Retorno(Exp* e): exp(e){ if (e != 0) tipo = e->get_tipo(); }
+    Retorno(Exp* e,int line_,int col_):exp(e), line(line_), column(col_){ if (e != 0) tipo = e->get_tipo(); }
+    ~Retorno(){}
+    void show(std::string s){
+        std::cout << s << "Retorno: \n";
+        if (exp != 0) exp->show(s+"  ");
+    }
+    TypeS* get_tipo(){
+        if (exp == 0){
+            return TypeVoid::Instance();
+        }
+        return tipo;
     }
 };

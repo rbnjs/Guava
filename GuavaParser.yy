@@ -71,6 +71,7 @@ class GuavaDriver;
     Program *classProgram;
     ErrorLoopFor* classErrorLoopFor; 
     ErrorBoolExp* classErrorBoolExp;
+    Retorno* classRetorno;
 };
 
 %code {
@@ -143,6 +144,7 @@ MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 %type <classProgram> program
 %type <classEntradaSalida> entradasalida
 %type <classErrorBoolExp> errorloopwhile errorif
+%type <classRetorno> retorno
 
 %start program
 /*%destructor { delete $$; } ID*/
@@ -707,8 +709,15 @@ entradasalida: READ '(' exp ')'   {
                                   };
 
 retorno: RETURN ';'       { 
+			    $$ = new Retorno(0); 
                           }
        | RETURN exp ';'   {
+			    Retorno* tmp =  new Retorno($2); 
+			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
+                                std::string msg = mensaje_error_tipos("type","error");
+                                driver.error(yylloc,msg);
+			    }
+                            $$ = tmp;
                           }
 
 loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { 

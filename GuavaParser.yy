@@ -369,7 +369,7 @@ lfunciones: funcionmain                    { $$ = new LFunciones($1,0);
                                              LFunciones* main_ = new LFunciones($2,0);
                                              $1->lista = main_;
                                              $$ = $1;
-                                           }
+                                           };
 
 lfunciones1: funcion                       { $$ = new LFunciones($1,0);
                                            }
@@ -377,7 +377,7 @@ lfunciones1: funcion                       { $$ = new LFunciones($1,0);
                                              LFunciones* func = new LFunciones($2,0);
                                              $1->lista = func;
                                              $$ = $1;
-                                           }
+                                           };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
@@ -388,9 +388,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    identacion += "  ";
                                                    offset_actual.push_front(0);
                                                  } 
-           bloquedeclare listainstrucciones  '}' { LParam lp = LParam();
+           bloquedeclare listainstrucciones  '}' { LParam* lp = new LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
-                                                   $$ = new  Funcion(tipo,Identificador(std::string("main")),lp,*$8,*$9); 
+                                                   $$ = new  Funcion(tipo, new Identificador(std::string("main")),lp,$8,$9); 
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
@@ -407,9 +407,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                          identacion += "  ";
                                                        } 
                  bloquedeclare listainstrucciones  '}' { TypeS* t = TypeError::Instance();
-                                                         LParam lp = LParam();
-                                                         $$ = new Funcion(t,Identificador(std::string("main")),lp,*$9,*$10);
-                                                       }
+                                                         LParam* lp = new LParam();
+                                                         $$ = new Funcion(t, new Identificador(std::string("main")),lp,$9,$10);
+                                                       };
 
 
 funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos.enterScope();
@@ -419,23 +419,27 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                  insertar_funcion($2,$3,$6,&driver,current_scope,yylloc); 
                                                  identacion += "  ";
                                                } ')' '{' 
-                                        bloquedeclare listainstrucciones '}' { //if ($2->get_tipo() == $13->get_tipo()) {
-                                                                                                TypeS* tipo = new TypeFunction($2->get_tipo(),$6->get_tipos());
-                                                                                                $$ = new Funcion(tipo,*$3,*$6,*$10,*$11);
-                                                                                              //}
-                                                                                              //else {
-                                                                                              //  std::string msg = mensaje_error_tipos($2->get_name(),$13->get_tipo()->get_name());
-                                                                                              //}
-                                                                                              if (!error_state) {
-                                                                                                std::cout << $3->identificador << "{\n";
-                                                                                                std::cout << "Parametros y variables:\n";
-                                                                                                driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                std::cout << "}\n";
-                                                                                                driver.tablaSimbolos.exitScope();
+                                        bloquedeclare listainstrucciones '}' { TypeS* tipo = new TypeFunction($2->get_tipo(),$6->get_tipos());
+                                                                               std::list<Instruccion*> lretorno = $11->obtener_return();
+                                                                               if (lretorno.size() == 0) {
+                                                                                    funcion_sin_return($3,&driver,yylloc); 
+                                                                               } else{
+                                                                                    if ( verificar_return($3,$2,lretorno,&driver) ){
+                                                                                        $$ = new Funcion(tipo,$3,$6,$10,$11);
+                                                                                    } else {
+                                                                                        $$ = new Funcion();
+                                                                                    }
+                                                                               }
+                                                                               if (!error_state) {
+                                                                                    std::cout << $3->identificador << "{\n";
+                                                                                    std::cout << "Parametros y variables:\n";
+                                                                                    driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                    std::cout << "}\n";
+                                                                                    driver.tablaSimbolos.exitScope();
                                                                                                 identacion.erase(0,2);
-                                                                                              }
-                                                                                              $10->show("");
-                                                                                            }
+                                                                               }
+                                                                               $10->show("");
+                                                                            }
 
        | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); 
                                                 offset_actual.push_front(0);
@@ -444,19 +448,19 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                       TypeS* v = TypeVoid::Instance();
                                                       insertar_funcion(v,$3,$6,&driver,current_scope,yylloc); 
                                                       identacion += "  ";
-                                                    } ')' '{' bloquedeclare listainstrucciones '}'
-                                                                                                  { TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
-                                                                                                    $$ = new Funcion(tipo,*$3,*$6,*$10,*$11);
-                                                                                                    if (!error_state) {
-                                                                                                        std::cout << $3->identificador << "{\n";
-                                                                                                        std::cout << "Parametros y variables:\n";
-                                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                        std::cout << "}\n";
-                                                                                                        driver.tablaSimbolos.exitScope();
-                                                                                                        identacion.erase(0,2);
-                                                                                                    }
-                                                                                                   $10->show("");
-                                                                                                  }
+                                                    } ')' '{' 
+                                            bloquedeclare listainstrucciones '}'{  TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
+                                                                                   $$ = new Funcion(tipo,$3,$6,$10,$11);
+                                                                                   if (!error_state) {
+                                                                                        std::cout << $3->identificador << "{\n";
+                                                                                        std::cout << "Parametros y variables:\n";
+                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                        std::cout << "}\n";
+                                                                                        driver.tablaSimbolos.exitScope();
+                                                                                        identacion.erase(0,2);
+                                                                                    }
+                                                                                    $10->show("");
+                                                                                }
 
        /*Errores*/
        /*Mala especificacion del encabezado de la funcion*/

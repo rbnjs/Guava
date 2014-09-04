@@ -338,6 +338,7 @@ public:
     }
 };
 
+
 /**
  * Clase principal de instruccion.
  */
@@ -345,9 +346,16 @@ class Instruccion{
 public:
     virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
     virtual void show(std::string) = 0;
+    virtual bool es_return(){ return false; }
+    virtual bool tiene_lista_instrucciones() { return false; }
+    virtual bool selector_if() { return false; } 
 };
 
 
+
+/**
+ * Clase Error
+ */
 class Error: public Instruccion{
 public:
     TypeS* get_tipo() { return TypeError::Instance(); }
@@ -370,7 +378,39 @@ public:
     ~ListaInstrucciones();
     TypeS* get_tipo() { return tipo; }
     void show(std::string);
+    std::list<Instruccion*> obtener_return();
 };
+
+/**
+ * Clase de instruccion retorno.
+ */
+class Retorno: public Instruccion{
+public:
+    int line;
+    int column;
+    Exp* exp;
+    TypeS* tipo;
+
+    Retorno(Exp* e): exp(e){ if (e != 0) tipo = e->get_tipo(); }
+    Retorno(Exp* e,int line_,int col_):exp(e), line(line_), column(col_){ if (e != 0) tipo = e->get_tipo(); }
+    ~Retorno(){}
+
+    void show(std::string s){
+        std::cout << s << "Retorno: \n";
+        if (exp != 0) exp->show(s+"  ");
+    }
+
+    TypeS* get_tipo(){
+        if (exp == 0){
+            return TypeVoid::Instance();
+        }
+        return tipo;
+    }
+
+    bool es_return(){ return true; }
+
+};
+
 
 /**
  * Clase que describe una lista de identificadores de estructuras de datos
@@ -551,12 +591,22 @@ public:
         column = c;
     }
 };
+/**
+ * Clase que reune a todas aquellas instrucciones que tienen lista de instrucciones.
+ */
+class InstruccionConLista: public Instruccion{
+public:
+    bool tiene_lista_instrucciones(){
+        return true;
+    }
+    ListaInstrucciones*  obtener_lista_instrucciones() { return 0; } 
+};
 
 /**
  * Clase necesaria para establecer varias clausulas de condicionales else
  * en un bloque de instrucciones condicionados por IF.
  */
-class LElseIf{
+class LElseIf: public InstruccionConLista{
 public:
     TypeS* tipo;
     Exp* exp;
@@ -584,13 +634,18 @@ public:
         line = l;
         column = c;
     }
+
+    ListaInstrucciones* obtener_lista_instrucciones(){
+        return listainstrucciones;
+    }
+
 };
 
 /**
  * Clase que define los bloques de codigo sujestos a condiciones para su
  * ejecucion, bloques dentro de instrucciones de clausulas IF THEN ELSE.
  */
-class SelectorIf: public Instruccion{
+class SelectorIf: public InstruccionConLista{
 public:
     TypeS* tipo;
     Exp* exp;
@@ -613,6 +668,13 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+
+    
+    bool selector_if() { return false; }
+
+    ListaInstrucciones* obtener_lista_instrucciones(){
+        return listainstrucciones;
     }
 };
 
@@ -641,7 +703,7 @@ public:
 /**
  * Clase que define los bloques de instrucciones con iteracion indeterminada.
  */
-class LoopWhile: public Instruccion{
+class LoopWhile: public InstruccionConLista{
 public:
     Exp* exp;
     TypeS* tipo;
@@ -660,6 +722,11 @@ public:
     }
 
     void show(std::string);
+
+    ListaInstrucciones* obtener_lista_instrucciones(){
+        return listainstrucciones;
+    }
+
 };
 
 /**
@@ -724,7 +791,7 @@ public:
 /**
  * Clase que describe los bloques de instrucciones con iteraciones acotadas.
  */
-class LoopFor: public Instruccion{
+class LoopFor: public InstruccionConLista{
 public:
     Identificador* identificador;
     TypeS* tipo;
@@ -748,6 +815,10 @@ public:
     TypeS* get_tipo() { return tipo; } 
     
     void show(std::string);
+
+    ListaInstrucciones* obtener_lista_instrucciones(){
+        return listainstrucciones;
+    }
 };
 
 /**
@@ -909,10 +980,10 @@ public:
     TypeS* tipo;
     int line;
     int column;
-    Identificador identificador;
-    LParam parametros; 
-    BloqueDeclare declaraciones;
-    ListaInstrucciones listaI;
+    Identificador* identificador;
+    LParam* parametros; 
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listaI;
 
     void set_line_column(int l, int c){
         line = l;
@@ -920,7 +991,7 @@ public:
     }
 
     Funcion();
-    Funcion(TypeS*, Identificador, LParam, BloqueDeclare ,ListaInstrucciones);    
+    Funcion(TypeS*, Identificador*, LParam*, BloqueDeclare* ,ListaInstrucciones*);    
     ~Funcion();
 
     void show(std::string);
@@ -1033,23 +1104,3 @@ public:
     }
 };
 
-class Retorno: public Instruccion{
-public:
-    int line;
-    int column;
-    Exp* exp;
-    TypeS* tipo;
-    Retorno(Exp* e): exp(e){ if (e != 0) tipo = e->get_tipo(); }
-    Retorno(Exp* e,int line_,int col_):exp(e), line(line_), column(col_){ if (e != 0) tipo = e->get_tipo(); }
-    ~Retorno(){}
-    void show(std::string s){
-        std::cout << s << "Retorno: \n";
-        if (exp != 0) exp->show(s+"  ");
-    }
-    TypeS* get_tipo(){
-        if (exp == 0){
-            return TypeVoid::Instance();
-        }
-        return tipo;
-    }
-};

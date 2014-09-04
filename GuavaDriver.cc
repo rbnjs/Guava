@@ -120,6 +120,36 @@ bool es_estructura(std::string categoria){
     return ((categoria.compare("unionVar") == 0) || categoria.compare("recordVar") == 0);
 }
 
+/**
+ * Verifica que una funcion que debe retornar algo
+ * retorne algo.
+ */
+void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::location & loc){
+    std::string msg ("The function ");
+    msg += fname->identificador;
+    msg += " doesn't return anything.";
+    driver->error(loc,msg);
+    error_state = 1;
+}
+/**
+ * Verifica que todos los returns tengan el tipo correcto.
+ * Incompleto.
+ */
+bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver){
+    bool result = true;
+    for (std::list<Instruccion*>::iterator it = lista.begin(); it != lista.end(); ++it){
+        Instruccion* tmp = *it;
+        if (tmp->get_tipo() != tipo){
+            std::string msg ("Returning ");
+            msg += tmp->get_tipo()->get_name();
+            msg += " instead of " + tipo->get_name();
+            msg += " at line " ;
+            msg += " ,column ";
+            result = false;
+        }
+    }
+    return result;
+}
 
 /**
  * Reporta cuando una variable se trata de usar y esta no 

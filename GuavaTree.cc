@@ -135,6 +135,26 @@ void ListaInstrucciones::show(std::string s) {
     if (listainstrucciones != 0) listainstrucciones->show(s);
     if (instruccion != 0) instruccion->show(s);
 }
+/**
+ * Funcion que obtiene todos los returns dentro de una lista de instrucciones.
+ * Faltan pruebas.
+ */
+std::list<Instruccion*> ListaInstrucciones::obtener_return(){
+    std::list<Instruccion*> resultado;
+    if (instruccion == 0 ) goto lista;
+
+    if (instruccion->es_return()) resultado.push_front(instruccion);
+
+   if (instruccion->tiene_lista_instrucciones()){
+        InstruccionConLista* tmp = (InstruccionConLista*) instruccion;
+        ListaInstrucciones* tmp_lista = tmp->obtener_lista_instrucciones(); 
+        resultado.splice(resultado.end(), tmp_lista->obtener_return() ); 
+    }
+
+    lista:
+    if (listainstrucciones != 0 ) resultado.splice(resultado.end(),listainstrucciones->obtener_return());
+    return resultado;
+}
 
 
 /* Class LVarArreglo */
@@ -621,7 +641,7 @@ Funcion::Funcion() {
     tipo = TypeError::Instance();
 }
 
-Funcion::Funcion(TypeS* t, Identificador id, LParam param, BloqueDeclare decl, ListaInstrucciones li) {
+Funcion::Funcion(TypeS* t, Identificador* id, LParam* param, BloqueDeclare* decl, ListaInstrucciones* li) {
     tipo = t;
     identificador = id;
     parametros = param;
@@ -635,11 +655,11 @@ Funcion::~Funcion() {
 void Funcion::show(std::string s) {
     std::cout << s << "Funcion: \n";
     std::cout << tipo->get_name() << "  ";
-    identificador.show(s+ "  ");
+    identificador->show(s+ "  ");
     std::cout << s << "Parametros: \n";
-    parametros.show(s+"  ");
+    parametros->show(s+"  ");
     std::cout << s << "Instrucciones: \n";
-    listaI.show(s+ "  ");
+    listaI->show(s+ "  ");
 } 
 
 

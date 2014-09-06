@@ -716,7 +716,7 @@ retorno: RETURN       {
 			    $$ = new Retorno(0); 
                           }
        | RETURN exp   {
-			    Retorno* tmp =  new Retorno($2); 
+			    Retorno* tmp =  new Retorno($2,yylloc.begin.line, yylloc.end.column); 
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                 std::string msg = mensaje_error_tipos("type","error");
                                 driver.error(yylloc,msg);
@@ -842,8 +842,8 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
 /**
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
-errorloopwhile: exp    {
-                             if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
+errorloopwhile: exp    {    Exp* tmp = $1;
+                            if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
                                 $$ = new ErrorBoolExp();
                              } else {
                                 $$ = new ErrorBoolExp($1);

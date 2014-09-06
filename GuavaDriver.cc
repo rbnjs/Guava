@@ -137,14 +137,20 @@ void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::locat
  */
 bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver){
     bool result = true;
+    std::ostringstream convert;
     for (std::list<Instruccion*>::iterator it = lista.begin(); it != lista.end(); ++it){
         Instruccion* tmp = *it;
         if (tmp->get_tipo() != tipo){
             std::string msg ("Returning ");
             msg += tmp->get_tipo()->get_name();
             msg += " instead of " + tipo->get_name();
-            msg += " at line " ;
-            msg += " ,column ";
+            convert << tmp->get_line();
+            msg += " at line " + convert.str() ;
+            convert.flush();
+            convert << tmp->get_column();
+            msg += " ,column "+convert.str();
+            driver->error(msg);
+            error_state = 1;
             result = false;
         }
     }

@@ -349,6 +349,8 @@ public:
     virtual bool es_return(){ return false; }
     virtual bool tiene_lista_instrucciones() { return false; }
     virtual bool selector_if() { return false; } 
+    virtual int get_line() { return 0; }
+    virtual int get_column() { return 0; }
 };
 
 
@@ -409,6 +411,8 @@ public:
 
     bool es_return(){ return true; }
 
+    int get_line() { return line; }
+    int get_column() { return column; }
 };
 
 
@@ -600,6 +604,7 @@ public:
         return true;
     }
     ListaInstrucciones*  obtener_lista_instrucciones() { return 0; } 
+    
 };
 
 /**

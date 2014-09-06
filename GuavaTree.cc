@@ -148,7 +148,7 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
    if (instruccion->tiene_lista_instrucciones()){
         InstruccionConLista* tmp = (InstruccionConLista*) instruccion;
         ListaInstrucciones* tmp_lista = tmp->obtener_lista_instrucciones(); 
-        resultado.splice(resultado.end(), tmp_lista->obtener_return() ); 
+        if (tmp_lista != 0) resultado.splice(resultado.end(), tmp_lista->obtener_return() ); 
     }
 
     lista:

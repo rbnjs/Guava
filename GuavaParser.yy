@@ -1537,6 +1537,7 @@ valor: BOOL     {
                 }
      | STRING   { 
                   Valor* v = new String($1,TypeString::Instance());
+                  insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   $$ = v;
                 }
      | CHAR     { 

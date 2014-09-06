@@ -97,6 +97,7 @@ public:
     virtual bool is_bool() { return false; }
 
     virtual void show(std::string) = 0;
+    virtual std::string* get_valor_str(){ return 0; }
 };
 
 /**
@@ -206,6 +207,9 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+    std::string* get_valor_str(){
+        return valor;
     }
 };
 

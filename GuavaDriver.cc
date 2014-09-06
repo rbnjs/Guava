@@ -86,6 +86,7 @@ int error_state;
 std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
+int nombre_cadena  (1);
 /* Funciones Auxiliares. */
 
 /**
@@ -449,6 +450,39 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         }
     }
 }
+/**
+ * Funcion que calcula el tamaño de una cadena de caracteres.
+ */
+int tamano_cadena(std::string cadena){
+   return encajar_en_palabra(cadena.size());
+}
+
+/**
+ * Funcion que inserta una cadena de caracteres en la tabla de
+ * simbolos.
+ */
+void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc){
+    int scope, line, column;
+    GuavaSymTable *tabla = tabla_actual.front();
+    line = loc.begin.line;
+    std::ostringstream convert;
+    column = loc.begin.column;
+    scope = tabla->currentScope();
+
+    int offset = offset_actual.front();
+
+    convert << nombre_cadena;
+    if (offset != -1){
+        offset_actual.pop_front();
+        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
+        offset += tamano_cadena(cadena); 
+        offset_actual.push_front(offset);
+    } else {
+        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
+    }
+    nombre_cadena++;
+}
+
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y
  * retorna un TypeS*.

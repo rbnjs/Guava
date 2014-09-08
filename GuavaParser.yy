@@ -284,6 +284,7 @@ record: RECORD identificador '{'{
 lvar: identificador           { 
                                 LVar *tmp = new LVar();
                                 tmp->append(*$1);
+                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 $$ = tmp;
                               }
     | lvar ',' identificador  { 
@@ -294,11 +295,13 @@ lvar: identificador           {
                               }
     /*Errores*/
     | error                   { LVar *tmp = new LVar ();
+                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 $$ = tmp;
                               }
     | lvar ',' error          { $$ = $1; };
 
 lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new LVarArreglo(*$1,*$2);
+                                                         tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                          $$ = tmp;
                                                        }
             | lvararreglo ',' identificador lcorchetes { $1->append(*$3,*$4);
@@ -306,6 +309,7 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
                                                        }
             /*Errores*/
             | error lcorchetes                         { LVarArreglo* tmp = new LVarArreglo();
+                                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                         $$ = tmp;
                                                        }
             | lvararreglo ',' error lcorchetes         {
@@ -317,6 +321,7 @@ lvararreglo: identificador lcorchetes                  { LVarArreglo* tmp = new 
 
 lcorchetes: '[' INTEGER ']'            { 
                                         LCorchetes *tmp =  new LCorchetes(false);
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                         tmp->append($2);
                                         $$ = tmp;
                                        }
@@ -327,13 +332,15 @@ lcorchetes: '[' INTEGER ']'            {
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/
                                       $$ = new LCorchetes(true);
+                                      tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     }
           | lcorchetes '[' error ']' {
                                       $$ = new LCorchetes(true);
                                      };
 
 lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
-                                           if($2->get_tipo() == TypeInt::Instance()) {
+                                           tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                           if( $2 != 0 && $2->get_tipo() == TypeInt::Instance()) {
                                                 tmp->tipo = $2->get_tipo();
                                            }
                                             else {
@@ -345,7 +352,7 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                            $$ = tmp;
                                          }
              | lcorchetesExp '[' exp ']' { 
-                                           if ($3->get_tipo() != TypeInt::Instance()){
+                                           if ($3 != 0 && $3->get_tipo() != TypeInt::Instance()){
                                                std::string msg = mensaje_error_tipos("integer",$3->get_tipo()->get_name());
                                                driver.error(yylloc,msg);
                                                $1->tipo = TypeError::Instance();
@@ -355,6 +362,7 @@ lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesEx
                                          }
              | '[' error ']'             {
                                             LCorchetesExp* tmp = new LCorchetesExp();
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             tmp->tipo = TypeError::Instance();
                                          }
              |  lcorchetesExp '[' error ']' {
@@ -390,7 +398,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                  } 
            bloquedeclare listainstrucciones  '}' { LParam* lp = new LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
-                                                   $$ = new  Funcion(tipo, new Identificador(std::string("main")),lp,$8,$9); 
+                                                   Funcion* tmp = new  Funcion(tipo, new Identificador(std::string("main")),lp,$8,$9); 
+                                                   tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                   $$ = tmp;
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
@@ -421,15 +431,18 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                } ')' '{' 
                                         bloquedeclare listainstrucciones '}' { TypeS* tipo = new TypeFunction($2->get_tipo(),$6->get_tipos());
                                                                                std::list<Instruccion*> lretorno = $11->obtener_return();
+                                                                               Funcion* tmp;
                                                                                if (lretorno.size() == 0) {
                                                                                     funcion_sin_return($3,&driver,yylloc); 
                                                                                } else{
                                                                                     if ( verificar_return($3,$2,lretorno,&driver) ){
-                                                                                        $$ = new Funcion(tipo,$3,$6,$10,$11);
+                                                                                        tmp = new Funcion(tipo,$3,$6,$10,$11);
                                                                                     } else {
-                                                                                        $$ = new Funcion();
+                                                                                        tmp = new Funcion();
                                                                                     }
                                                                                }
+                                                                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                               $$ = tmp;
                                                                                if (!error_state) {
                                                                                     std::cout << $3->identificador << "{\n";
                                                                                     std::cout << "Parametros y variables:\n";
@@ -450,7 +463,9 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                       identacion += "  ";
                                                     } ')' '{' 
                                             bloquedeclare listainstrucciones '}'{  TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
-                                                                                   $$ = new Funcion(tipo,$3,$6,$10,$11);
+                                                                                   Funcion* tmp = new Funcion(tipo,$3,$6,$10,$11);
+                                                                                   tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                                   $$ = tmp;
                                                                                    if (!error_state) {
                                                                                         std::cout << $3->identificador << "{\n";
                                                                                         std::cout << "Parametros y variables:\n";
@@ -477,7 +492,9 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                             bloquedeclare listainstrucciones '}'           {  $$ = new Funcion();
                                                                                            };
 /*LISTO*/
-lparam: /* Vacio */          { $$ = new LParam(); 
+lparam: /* Vacio */          { LParam* tmp = new LParam(); 
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                               $$ = tmp;
                              } 
       | lparam2              { $$ = $1; 
                              } 
@@ -485,12 +502,14 @@ lparam: /* Vacio */          { $$ = new LParam();
 lparam2: tipo identificador               { LParam* tmp = new LParam(); 
                                             tmp->append($1,$2);
                                             tmp->appendTipo($1);
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             $$ = tmp;
                                             insertar_simboloSimple($2,$1,std::string("param"),&driver,yylloc);
                                           }       
        | tipo REFERENCE identificador     { LParam* tmp = new LParam(); 
                                             tmp->append($1,$3);
                                             tmp->appendTipo($1);
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             $$ = tmp;
                                             insertar_simboloSimple($3,$1,std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           } 
@@ -547,6 +566,7 @@ instruccion: asignacion     {
            | MINUSMINUS identificador  {
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -571,6 +591,7 @@ instruccion: asignacion     {
            | identificador MINUSMINUS  { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -595,6 +616,7 @@ instruccion: asignacion     {
            | PLUSPLUS identificador    { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -619,6 +641,7 @@ instruccion: asignacion     {
            | identificador PLUSPLUS    { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -643,10 +666,14 @@ instruccion: asignacion     {
            | entradasalida  { 
                             }
            | CONTINUE       {
-                              $$ = new ContinueBreak(0);
+                              ContinueBreak* tmp = new ContinueBreak(0);
+                              tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                              $$ = tmp;
                             }
            | BREAK          {
-                              $$ = new ContinueBreak(1);
+                              ContinueBreak* tmp = new ContinueBreak(1);
+                              tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                              $$ = tmp;
                             }
 
            /*Errores*/
@@ -669,6 +696,7 @@ instruccion1: loopfor        {
                              };
 
 asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de tipo error.*/
+                                 Asignacion* tmp;
                                  if ($1->get_tipo() == TypeError::Instance() ||
                                      $3->get_tipo() == TypeError::Instance()){
                                      if ($1->get_tipo() == 0){
@@ -681,9 +709,13 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                         std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(), $3->get_tipo()->get_name());
                                         driver.error(yylloc, msg);
                                      }
-                                    $$ = new Asignacion();
+                                    tmp = new Asignacion();
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    $$ = tmp;
                                  } else {
-                                    $$ = new Asignacion($1,$3);
+                                    tmp = new Asignacion($1,$3);
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    $$ = tmp;
                                  }
                                } 
           /*Errores*/
@@ -701,6 +733,7 @@ entradasalida: READ '(' exp ')'   {
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
                                     }
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
                                   }
              | PRINT '(' exp ')'  { 
@@ -709,14 +742,15 @@ entradasalida: READ '(' exp ')'   {
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
                                     }
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
                                   };
 
 retorno: RETURN       { 
-			    $$ = new Retorno(0); 
-                          }
+			    $$ = new Retorno(0,yylloc.begin.line,yylloc.begin.column); 
+                      }
        | RETURN exp   {
-			    Retorno* tmp =  new Retorno($2,yylloc.begin.line, yylloc.end.column); 
+			    Retorno* tmp =  new Retorno($2,yylloc.begin.line, yylloc.begin.column); 
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                 std::string msg = mensaje_error_tipos("type","error");
                                 driver.error(yylloc,msg);
@@ -731,7 +765,7 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                     }
                                 
                                 bloquedeclare listainstrucciones '}' {  ErrorLoopFor* asign_exp = $7;
-                                                                            LoopFor* tmp;
+                                                                        LoopFor* tmp;
                                                                             if (asign_exp->is_error()
                                                                                     || $3->get_tipo() == TypeError::Instance()
                                                                                     || $5->get_tipo() == TypeError::Instance()
@@ -750,6 +784,7 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                                     tmp->tipo = TypeVoid::Instance();
                                                                                 }
                                                                             }
+                                                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                             $$ = tmp;
                                                                             if (!error_state) {
                                                                                 std::cout << identacion << "for {\n";
@@ -804,6 +839,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                              else {
                                                                  result = new LoopWhile(exp_bool->exp,$8,$9);
                                                              }
+                                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                              $$ = result;
                                                              if (!error_state) {
                                                                  std::cout << identacion << "while {\n"; 
@@ -830,6 +866,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                                                    else {
                                                                                        result = new LoopWhile(exp_bool->exp,$4,$5);
                                                                                    }
+                                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    $$ = result;
                                                                                    if (!error_state) {
                                                                                        std::cout << identacion << "while {\n";
@@ -843,6 +880,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
 errorloopwhile: exp    {    Exp* tmp = $1;
+                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                             if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
                                 $$ = new ErrorBoolExp();
                              } else {
@@ -870,6 +908,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                else {
                                                                    result = new SelectorIf(err_exp->exp,$8,$9,$11);
                                                                }
+                                                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                $$ = result;
                                                                driver.tablaSimbolos.exitScope();
                                                                identacion.erase(0,2);
@@ -887,6 +926,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                else {
                                                                    result = new SelectorIf(err_exp->exp,$6,0);
                                                                }
+                                                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                $$ = result;
                                                              }
           | IF '(' errorif ')' THEN instruccion ELSE instruccion ';' { 
@@ -902,6 +942,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                        else {
                                                                            result = new SelectorIf(err_exp->exp,$6,$8);
                                                                        }
+                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                        $$ = result;
                                                                      };
 
@@ -924,6 +965,7 @@ lelseif: /* Vacio */                                                {
                                                                           result = new LElseIf($5,$6);
                                                                           result->lelseif = $1;
                                                                       }
+                                                                      result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
                                                                       driver.tablaSimbolos.exitScope();
                                                                     }
@@ -940,6 +982,7 @@ lelseif: /* Vacio */                                                {
                                                                       else {
                                                                           result = new LElseIf($4,$5);
                                                                       }
+                                                                      result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
                                                                     }
         | lelseif1                                                  { };
@@ -962,6 +1005,7 @@ lelseif1: ELSE IF '(' errorif ')' THEN '{' {
                                                                    else {
                                                                        result = new LElseIf($4->exp,$9,$10);
                                                                    }
+                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    $$ = result;
                                                                    driver.tablaSimbolos.exitScope();
                                                                  }
@@ -981,6 +1025,7 @@ lelseif1: ELSE IF '(' errorif ')' THEN '{' {
                                                                    else {
                                                                        result = new LElseIf($5->exp,$10,$11,$1);
                                                                    }
+                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    $$ = result;
                                                                    driver.tablaSimbolos.exitScope();
                                                                  };
@@ -1043,6 +1088,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                             } else {
                                                                 result->tipo = rango;
                                                             }
+                                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                             $$ = result;
                                                         }else{
                                                             std::string msg;

@@ -390,11 +390,11 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             itInt = par.second.lista.rbegin();
             size = *itInt;
             TypeArray* arr = 0;
-            TypeArray* tmp = new TypeArray(s->true_type,size);
+            TypeArray* tmp = new TypeArray(t,0,size);
 
             for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
                 size = *itInt;
-                arr = new TypeArray(tmp,size);
+                arr = new TypeArray(t,tmp,size);
                 tmp = arr;
             }
             scope = tabla->currentScope();
@@ -525,11 +525,11 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             size = par.second.lista.size();
             itInt = par.second.lista.rbegin();
             TypeArray* arr = 0;
-            TypeArray* tmp = new TypeArray(reference0,size);
+            TypeArray* tmp = new TypeArray(reference0,0,size);
             
             for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
                 size = *itInt;
-                arr = new TypeArray(tmp,size);
+                arr = new TypeArray(reference0,tmp,size);
                 tmp = arr;
             }
             

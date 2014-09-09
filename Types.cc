@@ -252,13 +252,19 @@ std::string TypeVoid::get_name() { return std::string("void"); }
 
 /* class TypeArray */
 
-TypeArray::TypeArray(TypeS* t, int s): tipo(t), size(s){}
+TypeArray::TypeArray(TypeS* tp, TypeS* te, int s): tipo_primitivo(tp), tipo_estructura(te), size(s){}
 
 bool TypeArray::is_array() { return true; } 
 
-TypeS* TypeArray::get_tipo() { return tipo; }
+TypeS* TypeArray::get_tipo() { return tipo_primitivo; }
 
-std::string TypeArray::get_name() { return tipo->get_name(); }
+TypeS* TypeArray::get_tipoEstructura() { return tipo_estructura; }
+
+/* MOSCA, RETORNAMOS EL TIPO PRIMITIVO O MEJOR EL TIPO DE LA ESTRUCTURA?
+ * Si retornamos el tipo de la estructura se debe de hacer una funcion que
+ * imprima: 'arreglo de arreglo de ... arreglo de' + tipo_primitivo.
+ */
+std::string TypeArray::get_name() { return tipo_primitivo->get_name(); }
 
 int TypeArray::get_dimensiones(){
     return size;

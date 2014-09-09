@@ -1117,6 +1117,7 @@ expID: identificador   { TypeS* tipo;
      | identificador lcorchetesExp    { TypeS* tipo;
                                         ExpID* result;
                                         Symbol* id;
+                                        // Caso en que la variable ha sido declarada
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                             tipo = obtener_tipo_simbolo(id);
                                             if (tipo != 0){
@@ -1124,6 +1125,7 @@ expID: identificador   { TypeS* tipo;
 
                                                 if ($2->get_tipo() == TypeInt::Instance() &&
                                                     tipo->is_array()) {
+                                                    //Se asigna el tipo del arreglo a la variable.
                                                     result->tipo = tipo->get_tipo();
                                                 }
 
@@ -1142,7 +1144,9 @@ expID: identificador   { TypeS* tipo;
                                                 }
                                                 $$ = result;
                                             }
-                                        } else{
+                                        } 
+                                        // Caso en que la variable no ha sido declarada
+                                        else{
                                             $$ = new ExpID();
                                         }
                                       }
@@ -1345,6 +1349,8 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp '+' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("+"));
+                                       Exp* exp1 = $1;
+                                       Exp* exp2 = $3;
                                        if ($1->get_tipo() == $3->get_tipo() && 
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1364,8 +1370,6 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        else {
                                          if ($1->get_tipo() != TypeInt::Instance() &&
                                              $1->get_tipo() != TypeReal::Instance()) {
-                                             Exp* hola = $1;
-                                             std::cout << "";
                                              std::string msg = mensaje_error_tipos("integer' or 'real",$1->get_tipo()->get_name());
                                              driver.error(yylloc,msg);
                                          }
@@ -1576,8 +1580,9 @@ arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
-                            TypeS* tipo = $2->get_tipo();
-                            tmp->tipo = tipo;
+                            TypeS* tipo_primitivo = $2->get_tipo();
+                            TypeS* tipo_estructura = new TypeArray $2->get_tipoEstructura();
+                            //tmp->tipo = tipo;
                             $$ = tmp;
                           };
 
@@ -1603,8 +1608,14 @@ larreglo: larreglo ',' exp      {
                                 }
         | exp                   { 
                                   LArreglo *tmp = new LArreglo();
+                                  tmp->tipo_primitivo = $1->get_tipo();
+                                  if($1->get_tipo()->is_array() != 0) {
+                                    tmp->tipo_estructura = $1->get_tipoEstructura();
+                                  }
+                                  else {
+                                    tmp->tipo_estructura = 0;
+                                  }
                                   tmp->append($1);
-                                  tmp->tipo = $1->get_tipo();
                                   $$ = tmp;
                                 }
         /*Errores*/

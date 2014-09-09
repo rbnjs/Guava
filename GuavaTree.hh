@@ -60,7 +60,8 @@ public:
 class LArreglo{
 public:
     std::list<Exp*> larr;
-    TypeS* tipo;
+    TypeS* tipo_primitivo;
+    TypeS* tipo_estructura;
     int line;
     int column;
 
@@ -68,9 +69,9 @@ public:
     void append(Exp*);
     ~LArreglo();
     int size(){ return larr.size(); }
-    TypeS* get_tipo() { return tipo; 
-                      }
-    TypeS* get_tipo_array() { return (new TypeArray(tipo,larr.size())); } 
+    TypeS* get_tipo() { return tipo_primitivo; }
+    TypeS* get_tipoEstructura() { return tipo_estructura; }
+    //TypeS* get_tipo_array() { return (new TypeArray(tipo,larr.size())); } 
     void show(std::string);
     void set_line_column(int l, int c){
         line = l;

@@ -231,17 +231,27 @@ public:
 
 /**
  * Clase que representa un Tipo Arreglo de manera recursiva.
+ * Cuando el tipo estructura del arreglo sea igual a 0, significa que el
+ * arreglo es de 1 sola dimensión.
  */
 class TypeArray:public TypeS{
 public :
-    TypeArray(TypeS*,int);
+    TypeArray(TypeS*,TypeS*,int);
     ~TypeArray();
+    //Para obtener el tipo primitivo del arreglo.
     TypeS* get_tipo();
+    //Para obtener el tipo de la estructura del arreglo.
+    TypeS* get_tipoEstructura();
     std::string get_name();
     bool is_array(); 
     int get_dimensiones();
 private:
-    TypeS* tipo;
+    //Tipo primivito del arreglo: El que define los elementos del arreglo
+    //e.g. "Los elementos del arreglo son de tipo integer".
+    TypeS* tipo_primitivo;
+    //Tipo que define la estructura arreglo.
+    //e.g. "El tipo de la variable es arreglo de arreglos de integer".
+    TypeS* tipo_estructura;
     int size;
 };
 

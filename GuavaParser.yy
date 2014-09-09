@@ -160,7 +160,7 @@ bloqueprincipal: {
                  } 
 
                 bloquedeclare lfunciones  { $$ = new BloquePrincipal($2, $3);
-                                            if (!error_state) {
+                                            if (!error_state && driver.print_table) {
                                                 //std::cout << "Funciones: " << '\n';
                                                 //driver.tablaSimbolos.show(0,identacion+ "  ");
                                                 std::cout << "Variables globales: \n";
@@ -256,7 +256,7 @@ union: UNION identificador '{' {
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
                                                 std::string identificador = $2->identificador;
-                                                if (!error_state) {
+                                                if (!error_state && driver.print_table) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << identificador << " {\n";
                                                     tabla->show(tabla->currentScope(),identacion+ "  "); 
@@ -271,7 +271,7 @@ record: RECORD identificador '{'{
                                 } 
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
-                                                if (!error_state) {
+                                                if (!error_state && driver.print_table) {
                                                 std::cout << identacion << "Union " << $2->identificador << " {\n";
                                                 tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                 std::cout << identacion <<"}\n";
@@ -332,7 +332,6 @@ lcorchetes: '[' INTEGER ']'            {
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/
                                       $$ = new LCorchetes(true);
-                                      tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     }
           | lcorchetes '[' error ']' {
                                       $$ = new LCorchetes(true);
@@ -401,7 +400,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    Funcion* tmp = new  Funcion(tipo, new Identificador(std::string("main")),lp,$8,$9); 
                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                    $$ = tmp;
-                                                   if (!error_state) {
+                                                   if (!error_state && driver.print_table) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
                                                        driver.tablaSimbolos.show(current_scope,identacion);
@@ -409,7 +408,9 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                        std::cout << "}\n";
                                                        identacion.erase(0,2);
                                                    }
-                                                   $9->show("");
+                                                   if (driver.print_tree){
+                                                        $9->show("");
+                                                   }
                                                  }
            /*Errores*/
            /*Mala especificacion del encabezado de la funcion*/
@@ -443,7 +444,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                }
                                                                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                $$ = tmp;
-                                                                               if (!error_state) {
+                                                                               if (!error_state && driver.print_table) {
                                                                                     std::cout << $3->identificador << "{\n";
                                                                                     std::cout << "Parametros y variables:\n";
                                                                                     driver.tablaSimbolos.show(current_scope,identacion);
@@ -451,7 +452,9 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                     driver.tablaSimbolos.exitScope();
                                                                                                 identacion.erase(0,2);
                                                                                }
-                                                                               $10->show("");
+                                                                               if (driver.print_tree){
+                                                                                    $10->show("");
+                                                                               }
                                                                             }
 
        | FUNCTION TYPE_VOID identificador '(' { current_scope = driver.tablaSimbolos.enterScope(); 
@@ -466,7 +469,7 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                    Funcion* tmp = new Funcion(tipo,$3,$6,$10,$11);
                                                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    $$ = tmp;
-                                                                                   if (!error_state) {
+                                                                                   if (!error_state && driver.print_table) {
                                                                                         std::cout << $3->identificador << "{\n";
                                                                                         std::cout << "Parametros y variables:\n";
                                                                                         driver.tablaSimbolos.show(current_scope,identacion);
@@ -474,7 +477,9 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                         driver.tablaSimbolos.exitScope();
                                                                                         identacion.erase(0,2);
                                                                                     }
-                                                                                    $10->show("");
+                                                                                    if (driver.print_tree){
+                                                                                        $10->show("");
+                                                                                    }
                                                                                 }
 
        /*Errores*/
@@ -786,7 +791,7 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                             }
                                                                             tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                             $$ = tmp;
-                                                                            if (!error_state) {
+                                                                            if (!error_state &&  driver.print_table ) {
                                                                                 std::cout << identacion << "for {\n";
                                                                                 int cscope = driver.tablaSimbolos.currentScope();
                                                                                 driver.tablaSimbolos.show(cscope,identacion+ "  ");
@@ -841,7 +846,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                              }
                                                              result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                              $$ = result;
-                                                             if (!error_state) {
+                                                             if (!error_state && driver.print_table) {
                                                                  std::cout << identacion << "while {\n"; 
                                                                  driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
                                                                  std::cout << identacion << "}\n ";
@@ -868,7 +873,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                                                    }
                                                                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    $$ = result;
-                                                                                   if (!error_state) {
+                                                                                   if (!error_state && driver.print_table) {
                                                                                        std::cout << identacion << "while {\n";
                                                                                        driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
                                                                                        std::cout << identacion << "}\n ";
@@ -880,11 +885,15 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
 errorloopwhile: exp    {    Exp* tmp = $1;
-                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                            ErrorBoolExp* tmp1;
                             if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
-                                $$ = new ErrorBoolExp();
+                                tmp1 = new ErrorBoolExp();
+                                tmp1->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                $$ = tmp1;
                              } else {
-                                $$ = new ErrorBoolExp($1);
+                                tmp1 = new ErrorBoolExp($1);
+                                tmp1->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                $$ = tmp1;
                              }
                             }
                | error      {
@@ -1033,11 +1042,15 @@ lelseif1: ELSE IF '(' errorif ')' THEN '{' {
  * Regla utilizada para el manejo de errores de los selectores de bloques e
  * instrucciones if-then-else.
  */
-errorif : exp      {
+errorif : exp      {  ErrorBoolExp* tmp;
                       if ($1 == 0  || $1->get_tipo() != TypeBool::Instance()){
-                        $$ = new ErrorBoolExp();
+                        tmp = new ErrorBoolExp();
+                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                        $$ = tmp;
                       } else {
-                        $$ = new ErrorBoolExp($1);
+                        tmp = new ErrorBoolExp($1);
+                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                        $$ = tmp;
                       }
                     }
         | error     {
@@ -1122,9 +1135,10 @@ lvarovalor2: lvarovalor2 ',' exp    {
                                     }
            | exp                    {
                                       LVaroValor *tmp = new LVaroValor(false);
-                                      if ( $1->get_tipo() == TypeError::Instance()){
+                                      if ( $1 != 0 && $1->get_tipo() == TypeError::Instance()){
                                         tmp->tipo = $1->get_tipo();
                                       }
+                                      tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                       tmp->append($1);
                                       $$ = tmp; 
                                     }
@@ -1149,19 +1163,25 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
+
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID($1);
                                 result->tipo = tipo;
+                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 $$ = result;
                             }
                             else {
                                std::string msg ("Type has not been declared or doesn't exists in current context");
                                driver.error(yylloc,msg);
                                result = new ExpID();
+                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                $$ = result;
                             }
+
                           } else {
-                          $$ = new ExpID();
+                          result = new ExpID();
+                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                          $$ = result;
                           }
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
@@ -1171,6 +1191,7 @@ expID: identificador   { TypeS* tipo;
                                             tipo = obtener_tipo_simbolo(id);
                                             if (tipo != 0){
                                                 result = new ExpID($1, $2);
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
 
                                                 if ($2->get_tipo() == TypeInt::Instance() &&
                                                     tipo->is_array()) {
@@ -1193,31 +1214,40 @@ expID: identificador   { TypeS* tipo;
                                                 $$ = result;
                                             }
                                         } else{
-                                            $$ = new ExpID();
+                                            result = new ExpID();
+                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                            $$ = result;
                                         }
                                       }
      | identificador lAccesoAtributos { 
                                         Symbol * id;
                                         Identificador *prueba = $1;
+                                        ExpID* result;
                                         if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                         //Caso en el que la variable es un record o union.
                                             if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
                                                 std::list<Identificador*> tmp = $2->get_list();
                                                 TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                                ExpID* result = new ExpID($1,$2);
+                                                result = new ExpID($1,$2);
                                                 result->tipo = tipo;
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                 $$ = result;
                                             }
                                             else {
-                                                $$ = new ExpID();
+                                                result = new ExpID();
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                $$ = result;
                                             }
                                         } else {
-                                            $$ = new ExpID();
+                                            result = new ExpID();
+                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                            $$ = result;
                                         }
                                       };
 
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ($1->get_tipo() == TypeBool::Instance() &&
                                    $3->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = $1->get_tipo();
@@ -1235,6 +1265,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                $$ = tmp;
                              }
        | exp OR exp          { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ($1->get_tipo() == TypeBool::Instance() &&
                                    $3->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = $1->get_tipo();
@@ -1277,6 +1308,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                           break;
                                  }
                                  tmp->tipo = TypeBool::Instance();
+                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                } 
                                else if ($1->get_tipo() != $3->get_tipo() &&
                                         ($1->get_tipo() == TypeInt::Instance() &&
@@ -1287,6 +1319,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                  std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
                                  driver.error(yylloc,msg);
                                  tmp->tipo = TypeError::Instance();
+                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                }
                                else if ( $1->get_tipo() == $3->get_tipo() && 
                                          $1->get_tipo() == TypeBool::Instance() &&
@@ -1294,6 +1327,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                        ){
                                         tmp = new ExpBin($1,$3,std::string("="));
                                         tmp->tipo = TypeBool::Instance();
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                }else {
                                 tmp = new ExpBin();
                                  if ($1->get_tipo() != TypeInt::Instance() &&
@@ -1313,6 +1347,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                              }
        | NOT exp             { std::string * op = new std::string("NOT");
                                ExpUn* tmp = new ExpUn($2,op);
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ($2->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = $2->get_tipo();
                                }
@@ -1326,6 +1361,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
 
 expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        ExpUn* tmp = new ExpUn($2,op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($2->get_tipo() == TypeInt::Instance() ||
                                            $2->get_tipo() == TypeReal::Instance())
                                        { tmp->tipo = $2->get_tipo();
@@ -1340,6 +1376,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
              | exp PLUSPLUS          { 
                                        std::string * op = new std::string("++");
                                        ExpUn* tmp = new ExpUn($1,op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();
                                        }
@@ -1352,6 +1389,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                      }
              | exp MINUSMINUS        { std::string * op = new std::string("--");
                                        ExpUn* tmp = new ExpUn($1,op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();
                                        }
@@ -1363,6 +1401,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp UFO exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("<=>"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1395,6 +1434,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp '+' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("+"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() && 
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1428,6 +1468,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp '-' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("-"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1459,6 +1500,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp '*' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("*"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1490,6 +1532,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp '/' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("/"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            ($1->get_tipo() == TypeInt::Instance() ||
                                             $1->get_tipo() == TypeReal::Instance()))
@@ -1521,6 +1564,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp DIV exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("DIV"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            $1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();
@@ -1539,6 +1583,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        $$ = tmp;
                                      }
              | exp MOD exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("MOD"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($1->get_tipo() == $3->get_tipo() &&
                                            $1->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = $1->get_tipo();
@@ -1558,6 +1603,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                      }
              | exp POW exp           { //El exponente sera integer, la base integer o real.
                                        ExpBin* tmp = new ExpBin($1,$3,std::string("**"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ($3->get_tipo() == TypeInt::Instance()) {
                                            if($1->get_tipo() == TypeInt::Instance() ||
                                               $1->get_tipo() == TypeReal::Instance()) {
@@ -1579,32 +1625,35 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
 
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   $$ = v;
                 }
      | STRING   { 
                   Valor* v = new String($1,TypeString::Instance());
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   $$ = v;
                 }
      | CHAR     { 
                   Valor* v = new Char($1,TypeChar::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   $$ = v;
                 }
      | INTEGER  { 
                   Valor* v  = new Integer($1,TypeInt::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   $$ = v;
                 }
      | REAL     { 
                   Valor* v = new Real($1,TypeReal::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   $$ = v;
                 }
      | arreglo  {
                   $$ = $1;
                 }
 
-/*Funciona*/
 
-/* PRUEBA CON LA NUEVA FORMA DE USAR TIPOS*/
 tipo: TYPE_REAL     { 
                       $$ = TypeReal::Instance();
                     }
@@ -1627,6 +1676,7 @@ arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
+                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                             TypeS* tipo = $2->get_tipo();
                             tmp->tipo = tipo;
                             $$ = tmp;
@@ -1654,6 +1704,7 @@ larreglo: larreglo ',' exp      {
                                 }
         | exp                   { 
                                   LArreglo *tmp = new LArreglo();
+                                  tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                   tmp->append($1);
                                   tmp->tipo = $1->get_tipo();
                                   $$ = tmp;

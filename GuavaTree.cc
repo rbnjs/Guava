@@ -28,7 +28,13 @@ Identificador::Identificador(){
 Identificador::~Identificador() {}
 
 void Identificador::show(std::string s) {
-    std::cout << s << "Identificador: " << identificador << '\n' ;
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Identificador: " << identificador << " ,linea: " << linea <<" ,columna: " << columna << "\n" ;
 }
 
 
@@ -87,7 +93,14 @@ ExpUn::~ExpUn() {
 }
 
 void ExpUn::show(std::string s) {
-    std::cout << s << "Expresion Unaria: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+
+    std::cout << s << "Expresion Unaria , linea: " << linea << " , columna: " << columna  << "\n" ;
     std::cout << s << "Exp: \n";
     exp->show(s+" ");
     if (corchetes != 0) corchetes->show(s+ "  ");
@@ -107,7 +120,14 @@ ExpBin::ExpBin(Exp* e1,Exp* e2,std::string op):exp1(e1), exp2(e2), operacion(op)
 ExpBin::~ExpBin() {}
 
 void ExpBin::show(std::string s){
-    std::cout << s << "Expresion Binaria: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+
+    std::cout << s << "Expresion Binaria ,linea: " << linea << " ,columna: " << columna << "\n";
     exp1->show(s+"  ");
     exp2->show(s+"  ");
     std::cout << s << "Operador: " << operacion << '\n';
@@ -179,9 +199,15 @@ LVarArreglo::~LVarArreglo() {
 }
 
 void LVarArreglo::show(std::string s) {
-   std::cout << s << "Lista de Variables de Arreglo: "; 
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Lista de Variables de Arreglo ,linea: " << linea << " ,columna: " << columna << " :"; 
 
-   for (std::list<std::pair <Identificador, LCorchetes> >::iterator it = lista.begin();
+    for (std::list<std::pair <Identificador, LCorchetes> >::iterator it = lista.begin();
         it != lista.end() ; 
         ++it)
         {
@@ -214,7 +240,13 @@ std::list<Identificador> LVar::get_list(){
 }
 
 void LVar::show(std::string s) {
-    std::cout << s <<"Variables: ";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s <<"Variables , linea: " << linea << ", columna: " << column << " ";
     for (std::list<Identificador>::iterator it = lista.begin();
          it != lista.end();
          ++it
@@ -335,7 +367,13 @@ Arreglo::~Arreglo() {
 }
 
 void Arreglo::show(std::string s) {
-    std::cout <<  s << "Arreglo: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout <<  s << "Arreglo  ,linea: " << linea << ", columna: " << column << "\n";
     la->show(s+ "  ");
 }
 
@@ -418,7 +456,14 @@ SelectorIf::~SelectorIf() {
 }
 
 void SelectorIf::show(std::string s) {
-    std::cout << s << "If: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+
+    std::cout << s << "If, linea: " << linea << ", columna: " << columna << "\n";
     exp->show("  "+s);
     std::cout << s << "Then: \n";
     if (listainstrucciones != 0) listainstrucciones->show("  "+s);
@@ -440,7 +485,14 @@ LoopWhile::LoopWhile(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li) {
 LoopWhile::~LoopWhile() {}
 
 void LoopWhile::show(std::string s) {
-    std::cout << s << "While:\n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+
+    std::cout << s << "While, linea: " << linea << ", columna: " << column << "\n";
     if (exp != 0 ) exp->show("  "+s);
     std::cout << s << "do:\n";
     if (listainstrucciones != 0)listainstrucciones->show("  "+s);
@@ -464,7 +516,14 @@ Asignacion::~Asignacion() {
 }
 
 void Asignacion::show(std::string s) {
-    std::cout << s << "Asignacion: \n";
+
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Asignacion, linea: " << linea << ", columna: " << columna << "\n";
     if(id != 0) id->show(s + "  ");
     if (exp != 0){
         exp->show(s+"  ");
@@ -498,7 +557,14 @@ LoopFor::~LoopFor() {
 }
 
 void LoopFor::show(std::string s) {
-    std::cout << s << "Loop For: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+
+    std::cout << s << "Loop For, linea: " << linea << ", columna: " << columna << " \n";
     identificador->show("  "+s);
     exp->show("  "+s);
     if (asignacion != 0) asignacion->show(" "+s);
@@ -515,6 +581,12 @@ PlusMinus::PlusMinus(Identificador* id, int t):identificador(id), tipo_inst(t), 
 PlusMinus::~PlusMinus() {}
 
 void PlusMinus::show(std::string s) {
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
     std::cout << s << "Instruccion : ";;
     switch(tipo_inst){
         case 0:
@@ -530,7 +602,7 @@ void PlusMinus::show(std::string s) {
             std::cout << "++ Postfijo";
             break;
     }
-    std::cout << "\n";
+    std::cout << ", linea: " << linea << ", columna: " << columna << "\n";
     identificador->show("  "+s);
 } 
 
@@ -573,10 +645,16 @@ EntradaSalida::EntradaSalida(int t,Exp* lv) {
 EntradaSalida::~EntradaSalida() {}
 
 void EntradaSalida::show(std::string s) {
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
     if (tipo == 0){
-        std::cout << s << "Read: \n";
+        std::cout << s << "Read linea: " << linea << ", columna: " << columna << "\n";
     } else {
-        std::cout << s << "Print: \n";
+        std::cout << s << "Print: linea: " << linea << ", columna: " << columna << "\n";
     }
     argumento->show(s + "  ");
 }
@@ -591,7 +669,13 @@ LlamadaFuncion::LlamadaFuncion(Identificador* i, LVaroValor* lv) {
 LlamadaFuncion::~LlamadaFuncion() {}
 
 void LlamadaFuncion::show(std::string s){
-    std::cout << s << "Llamada Funcion : \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Llamada Funcion linea: " << linea << ", columna: " << columna << "\n";
     id->show(s+ "  ");
     std::cout << s << "Argumentos: \n";
     lvarovalor->show(s+ "  ");
@@ -623,7 +707,13 @@ LParam::~LParam() {
 }
 
 void LParam::show(std::string s) {
-    std::cout << s << "Parametros: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Parametros: linea: " << linea << ", columna: " << columna << "\n";
     for (std::list<std::pair<TypeS*, Identificador*> >::iterator it = lParam.begin();
          it != lParam.end();
          ++it
@@ -653,7 +743,13 @@ Funcion::~Funcion() {
 }
 
 void Funcion::show(std::string s) {
-    std::cout << s << "Funcion: \n";
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "Funcion: linea: " << linea << ", columna: " << columna << "\n";
     std::cout << tipo->get_name() << "  ";
     identificador->show(s+ "  ");
     std::cout << s << "Parametros: \n";

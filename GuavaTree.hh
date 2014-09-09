@@ -20,6 +20,7 @@
 # include <list>
 # include <utility>
 #include <iostream>
+#include <sstream>
 
 /**
  * Clase que define las expresiones del lenguaje.
@@ -98,6 +99,7 @@ public:
     virtual bool is_array() { return false; }
     virtual bool is_bool() { return false; }
 
+    virtual void  set_line_column(int l, int c){}
     virtual void show(std::string) = 0;
     virtual std::string* get_valor_str(){ return 0; }
 };
@@ -404,7 +406,13 @@ public:
     ~Retorno(){}
 
     void show(std::string s){
-        std::cout << s << "Retorno: \n";
+        std::ostringstream convert; 
+        convert << line;
+        std::string linea = convert.str();
+        convert.flush();
+        convert << column;
+        std::string columna = convert.str();
+        std::cout << s << "Retorno, linea: " << linea << ", columna: " << columna << "\n";
         if (exp != 0) exp->show(s+"  ");
     }
 
@@ -955,10 +963,16 @@ public:
     ContinueBreak( int t): instruccion(t), tipo(TypeVoid::Instance()){ }
     ~ContinueBreak(){ }
     void show(std::string s){
+        std::ostringstream convert; 
+        convert << line;
+        std::string linea = convert.str();
+        convert.flush();
+        convert << column;
+        std::string columna = convert.str();
         if (instruccion == 0){
-            std::cout << s << "Continue \n";
+            std::cout << s << "Continue, linea: " << linea << ", columna: " << columna << "\n";
         } else{
-            std::cout << s << "Break \n";
+            std::cout << s << "Break , linea: " << linea << ", columna: " << columna << "\n";
         }
     }
     TypeS* get_tipo() { return tipo; }

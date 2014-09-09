@@ -86,6 +86,7 @@ int error_state;
 std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
+int nombre_cadena  (1);
 /* Funciones Auxiliares. */
 
 /**
@@ -120,6 +121,42 @@ bool es_estructura(std::string categoria){
     return ((categoria.compare("unionVar") == 0) || categoria.compare("recordVar") == 0);
 }
 
+/**
+ * Verifica que una funcion que debe retornar algo
+ * retorne algo.
+ */
+void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::location & loc){
+    std::string msg ("The function ");
+    msg += fname->identificador;
+    msg += " doesn't return anything.";
+    driver->error(loc,msg);
+    error_state = 1;
+}
+/**
+ * Verifica que todos los returns tengan el tipo correcto.
+ * Incompleto.
+ */
+bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver){
+    bool result = true;
+    std::ostringstream convert;
+    for (std::list<Instruccion*>::iterator it = lista.begin(); it != lista.end(); ++it){
+        Instruccion* tmp = *it;
+        if (tmp->get_tipo() != tipo){
+            std::string msg ("Returning ");
+            msg += tmp->get_tipo()->get_name();
+            msg += " instead of " + tipo->get_name();
+            convert << tmp->get_line();
+            msg += " at line " + convert.str() ;
+            convert.flush();
+            convert << tmp->get_column();
+            msg += " ,column "+convert.str();
+            driver->error(msg);
+            error_state = 1;
+            result = false;
+        }
+    }
+    return result;
+}
 
 /**
  * Reporta cuando una variable se trata de usar y esta no 
@@ -413,6 +450,39 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
         }
     }
 }
+/**
+ * Funcion que calcula el tamaño de una cadena de caracteres.
+ */
+int tamano_cadena(std::string cadena){
+   return encajar_en_palabra(cadena.size());
+}
+
+/**
+ * Funcion que inserta una cadena de caracteres en la tabla de
+ * simbolos.
+ */
+void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc){
+    int scope, line, column;
+    GuavaSymTable *tabla = tabla_actual.front();
+    line = loc.begin.line;
+    std::ostringstream convert;
+    column = loc.begin.column;
+    scope = tabla->currentScope();
+
+    int offset = offset_actual.front();
+
+    convert << nombre_cadena;
+    if (offset != -1){
+        offset_actual.pop_front();
+        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
+        offset += tamano_cadena(cadena); 
+        offset_actual.push_front(offset);
+    } else {
+        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
+    }
+    nombre_cadena++;
+}
+
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y
  * retorna un TypeS*.

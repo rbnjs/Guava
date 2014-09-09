@@ -67,7 +67,8 @@ WS       [ \t]+
 	yylloc->lines (line);
         }
 
-true { yylval->boolval = true; return token::BOOL; } 
+
+true { yylval->boolval = true; return token::BOOL; }  /* Palabras reservadas */
 
 false { yylval->boolval = false; return token::BOOL; }
 

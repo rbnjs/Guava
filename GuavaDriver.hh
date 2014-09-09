@@ -88,6 +88,12 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
 
 Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, int scope, GuavaSymTable* t);
 
+void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::location & loc);
+
+bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver);
+
+void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);
+
 std::string reportar_existencia(Symbol *s, std::string id);
 
 std::string reportar_existencia_tipo(Symbol *s, std::string id);

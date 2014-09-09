@@ -132,8 +132,8 @@ Grammar
    91 entradasalida: "read statement" '(' exp ')'
    92              | "print statement" '(' exp ')'
 
-   93 retorno: "return statement" ';'
-   94        | "return statement" exp ';'
+   93 retorno: "return statement"
+   94        | "return statement" exp
 
    95 $@13: /* empty */
 
@@ -271,8 +271,7 @@ Terminals, with rules where they appear
 "- operator" (45) 148 153
 '.' (46) 175 176 177 178
 "/ operator" (47) 155
-';' (59) 7 8 9 10 11 12 13 14 16 17 18 19 20 21 71 93 94 96 98 100
-    112 113
+';' (59) 7 8 9 10 11 12 13 14 16 17 18 19 20 21 71 96 98 100 112 113
 '[' (91) 34 35 36 37 38 39 40 41 170
 ']' (93) 34 35 36 37 38 39 40 41 170
 '{' (123) 6 23 25 47 49 52 55 57 59 96 98 100 105 107 111 116 118 121
@@ -2029,8 +2028,8 @@ state 156
 
 state 157
 
-   93 retorno: "return statement" . ';'
-   94        | "return statement" . exp ';'
+   93 retorno: "return statement" .
+   94        | "return statement" . exp
 
     error            shift, and go to state 190
     "identifier"     shift, and go to state 23
@@ -2041,18 +2040,20 @@ state 157
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    ';'              shift, and go to state 198
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 202
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    "else"  reduce using rule 93 (retorno)
+    ';'     reduce using rule 93 (retorno)
+
+    llamadafuncion  go to state 200
+    exp             go to state 201
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 158
@@ -2073,14 +2074,14 @@ state 160
 
    92 entradasalida: "print statement" . '(' exp ')'
 
-    '('  shift, and go to state 209
+    '('  shift, and go to state 208
 
 
 state 161
 
    91 entradasalida: "read statement" . '(' exp ')'
 
-    '('  shift, and go to state 210
+    '('  shift, and go to state 209
 
 
 state 162
@@ -2089,7 +2090,7 @@ state 162
 
     "identifier"  shift, and go to state 23
 
-    identificador  go to state 211
+    identificador  go to state 210
 
 
 state 163
@@ -2098,7 +2099,7 @@ state 163
 
     "identifier"  shift, and go to state 23
 
-    identificador  go to state 212
+    identificador  go to state 211
 
 
 state 164
@@ -2112,7 +2113,7 @@ state 165
 
    71 listainstrucciones: listainstrucciones instruccion . ';'
 
-    ';'  shift, and go to state 213
+    ';'  shift, and go to state 212
 
 
 state 166
@@ -2176,7 +2177,7 @@ state 174
    88 asignacion: expID . ASSIGN exp
    90           | expID . ASSIGN error
 
-    ASSIGN  shift, and go to state 214
+    ASSIGN  shift, and go to state 213
 
 
 state 175
@@ -2189,17 +2190,17 @@ state 175
   142      | identificador . lcorchetesExp
   143      | identificador . lAccesoAtributos
 
-    error          shift, and go to state 215
-    "++ operator"  shift, and go to state 216
-    "-- operator"  shift, and go to state 217
-    '['            shift, and go to state 218
-    '('            shift, and go to state 219
-    '.'            shift, and go to state 220
+    error          shift, and go to state 214
+    "++ operator"  shift, and go to state 215
+    "-- operator"  shift, and go to state 216
+    '['            shift, and go to state 217
+    '('            shift, and go to state 218
+    '.'            shift, and go to state 219
 
     ASSIGN  reduce using rule 141 (expID)
 
-    lcorchetesExp     go to state 221
-    lAccesoAtributos  go to state 222
+    lcorchetesExp     go to state 220
+    lAccesoAtributos  go to state 221
 
 
 state 176
@@ -2221,7 +2222,7 @@ state 176
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 223
+    '}'                   shift, and go to state 222
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -2242,7 +2243,7 @@ state 177
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 224
+    listainstrucciones  go to state 223
 
 
 state 178
@@ -2278,7 +2279,7 @@ state 180
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 225
+    '}'                   shift, and go to state 224
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -2299,7 +2300,7 @@ state 181
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 226
+    listainstrucciones  go to state 225
 
 
 state 182
@@ -2322,24 +2323,24 @@ state 183
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 227
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 226
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 184
 
   127 llamadafuncion: error '(' . lvarovalor ')'
 
-    error            shift, and go to state 228
+    error            shift, and go to state 227
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -2348,21 +2349,21 @@ state 184
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
     ')'  reduce using rule 128 (lvarovalor)
 
-    llamadafuncion  go to state 201
-    lvarovalor      go to state 229
-    lvarovalor2     go to state 230
-    exp             go to state 231
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    lvarovalor      go to state 228
+    lvarovalor2     go to state 229
+    exp             go to state 230
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 185
@@ -2378,10 +2379,10 @@ state 186
    98        | "for loop" '(' . error ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
   100        | "for loop" '(' . identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
 
-    error         shift, and go to state 232
+    error         shift, and go to state 231
     "identifier"  shift, and go to state 23
 
-    identificador  go to state 233
+    identificador  go to state 232
 
 
 state 187
@@ -2390,7 +2391,7 @@ state 187
   112           | "if" '(' . errorif ')' "then" instruccion ';'
   113           | "if" '(' . errorif ')' "then" instruccion "else" instruccion ';'
 
-    error            shift, and go to state 234
+    error            shift, and go to state 233
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -2399,25 +2400,25 @@ state 187
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    errorif         go to state 235
-    llamadafuncion  go to state 201
-    exp             go to state 236
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    errorif         go to state 234
+    llamadafuncion  go to state 200
+    exp             go to state 235
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 188
 
   105 loopwhile: "while loop" '(' . errorloopwhile ')' "do clause" '{' $@16 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 237
+    error            shift, and go to state 236
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -2426,18 +2427,18 @@ state 188
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    errorloopwhile  go to state 238
-    llamadafuncion  go to state 201
-    exp             go to state 239
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    errorloopwhile  go to state 237
+    llamadafuncion  go to state 200
+    exp             go to state 238
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 189
@@ -2446,7 +2447,7 @@ state 189
 
     $default  reduce using rule 106 ($@17)
 
-    $@17  go to state 240
+    $@17  go to state 239
 
 
 state 190
@@ -2504,17 +2505,17 @@ state 196
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 241
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 240
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 197
@@ -2530,59 +2531,52 @@ state 197
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 242
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 241
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 198
 
-   93 retorno: "return statement" ';' .
+  170 arreglo: '[' . larreglo ']'
 
-    $default  reduce using rule 93 (retorno)
+    error            shift, and go to state 242
+    "identifier"     shift, and go to state 23
+    "integer value"  shift, and go to state 191
+    "string"         shift, and go to state 192
+    "character"      shift, and go to state 193
+    "real value"     shift, and go to state 194
+    "boolean value"  shift, and go to state 195
+    "not operator"   shift, and go to state 196
+    "- operator"     shift, and go to state 197
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
+
+    llamadafuncion  go to state 200
+    exp             go to state 243
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    larreglo        go to state 244
+    identificador   go to state 207
 
 
 state 199
 
-  170 arreglo: '[' . larreglo ']'
-
-    error            shift, and go to state 243
-    "identifier"     shift, and go to state 23
-    "integer value"  shift, and go to state 191
-    "string"         shift, and go to state 192
-    "character"      shift, and go to state 193
-    "real value"     shift, and go to state 194
-    "boolean value"  shift, and go to state 195
-    "not operator"   shift, and go to state 196
-    "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
-
-    llamadafuncion  go to state 201
-    exp             go to state 244
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    larreglo        go to state 245
-    identificador   go to state 208
-
-
-state 200
-
   138 exp: '(' . exp ')'
   140    | '(' . error ')'
 
-    error            shift, and go to state 246
+    error            shift, and go to state 245
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -2591,29 +2585,29 @@ state 200
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 247
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 246
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 201
+state 200
 
   139 exp: llamadafuncion .
 
     $default  reduce using rule 139 (exp)
 
 
-state 202
+state 201
 
-   94 retorno: "return statement" exp . ';'
+   94 retorno: "return statement" exp .
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
   146        | exp . COMPARISON exp
@@ -2628,75 +2622,76 @@ state 202
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ';'             shift, and go to state 261
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+
+    $default  reduce using rule 94 (retorno)
 
 
-state 203
+state 202
 
   137 exp: expID .
 
     $default  reduce using rule 137 (exp)
 
 
-state 204
+state 203
 
   135 exp: expBool .
 
     $default  reduce using rule 135 (exp)
 
 
-state 205
+state 204
 
   134 exp: expAritmetica .
 
     $default  reduce using rule 134 (exp)
 
 
-state 206
+state 205
 
   136 exp: valor .
 
     $default  reduce using rule 136 (exp)
 
 
-state 207
+state 206
 
   164 valor: arreglo .
 
     $default  reduce using rule 164 (valor)
 
 
-state 208
+state 207
 
   126 llamadafuncion: identificador . '(' lvarovalor ')'
   141 expID: identificador .
   142      | identificador . lcorchetesExp
   143      | identificador . lAccesoAtributos
 
-    '['  shift, and go to state 218
-    '('  shift, and go to state 219
-    '.'  shift, and go to state 220
+    '['  shift, and go to state 217
+    '('  shift, and go to state 218
+    '.'  shift, and go to state 219
 
     $default  reduce using rule 141 (expID)
 
-    lcorchetesExp     go to state 221
-    lAccesoAtributos  go to state 222
+    lcorchetesExp     go to state 220
+    lAccesoAtributos  go to state 221
 
 
-state 209
+state 208
 
    92 entradasalida: "print statement" '(' . exp ')'
 
@@ -2709,20 +2704,20 @@ state 209
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 262
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 260
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 210
+state 209
 
    91 entradasalida: "read statement" '(' . exp ')'
 
@@ -2735,44 +2730,92 @@ state 210
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 263
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 261
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 211
+state 210
 
    77 instruccion: "++ operator" identificador .
 
     $default  reduce using rule 77 (instruccion)
 
 
-state 212
+state 211
 
    75 instruccion: "-- operator" identificador .
 
     $default  reduce using rule 75 (instruccion)
 
 
-state 213
+state 212
 
    71 listainstrucciones: listainstrucciones instruccion ';' .
 
     $default  reduce using rule 71 (listainstrucciones)
 
 
-state 214
+state 213
 
    88 asignacion: expID ASSIGN . exp
    90           | expID ASSIGN . error
+
+    error            shift, and go to state 262
+    "identifier"     shift, and go to state 23
+    "integer value"  shift, and go to state 191
+    "string"         shift, and go to state 192
+    "character"      shift, and go to state 193
+    "real value"     shift, and go to state 194
+    "boolean value"  shift, and go to state 195
+    "not operator"   shift, and go to state 196
+    "- operator"     shift, and go to state 197
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
+
+    llamadafuncion  go to state 200
+    exp             go to state 263
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
+
+
+state 214
+
+   83 instruccion: identificador error .
+
+    $default  reduce using rule 83 (instruccion)
+
+
+state 215
+
+   78 instruccion: identificador "++ operator" .
+
+    $default  reduce using rule 78 (instruccion)
+
+
+state 216
+
+   76 instruccion: identificador "-- operator" .
+
+    $default  reduce using rule 76 (instruccion)
+
+
+state 217
+
+   38 lcorchetesExp: '[' . exp ']'
+   40              | '[' . error ']'
 
     error            shift, and go to state 264
     "identifier"     shift, and go to state 23
@@ -2783,72 +2826,24 @@ state 214
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
+    llamadafuncion  go to state 200
     exp             go to state 265
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
-
-
-state 215
-
-   83 instruccion: identificador error .
-
-    $default  reduce using rule 83 (instruccion)
-
-
-state 216
-
-   78 instruccion: identificador "++ operator" .
-
-    $default  reduce using rule 78 (instruccion)
-
-
-state 217
-
-   76 instruccion: identificador "-- operator" .
-
-    $default  reduce using rule 76 (instruccion)
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
 state 218
 
-   38 lcorchetesExp: '[' . exp ']'
-   40              | '[' . error ']'
-
-    error            shift, and go to state 266
-    "identifier"     shift, and go to state 23
-    "integer value"  shift, and go to state 191
-    "string"         shift, and go to state 192
-    "character"      shift, and go to state 193
-    "real value"     shift, and go to state 194
-    "boolean value"  shift, and go to state 195
-    "not operator"   shift, and go to state 196
-    "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
-
-    llamadafuncion  go to state 201
-    exp             go to state 267
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
-
-
-state 219
-
   126 llamadafuncion: identificador '(' . lvarovalor ')'
 
-    error            shift, and go to state 228
+    error            shift, and go to state 227
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -2857,63 +2852,63 @@ state 219
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
     ')'  reduce using rule 128 (lvarovalor)
 
-    llamadafuncion  go to state 201
-    lvarovalor      go to state 268
-    lvarovalor2     go to state 230
-    exp             go to state 231
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    lvarovalor      go to state 266
+    lvarovalor2     go to state 229
+    exp             go to state 230
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 220
+state 219
 
   175 lAccesoAtributos: '.' . identificador
   178                 | '.' . identificador lcorchetesExp
 
     "identifier"  shift, and go to state 23
 
-    identificador  go to state 269
+    identificador  go to state 267
 
 
-state 221
+state 220
 
    39 lcorchetesExp: lcorchetesExp . '[' exp ']'
    41              | lcorchetesExp . '[' error ']'
   142 expID: identificador lcorchetesExp .
 
-    '['  shift, and go to state 270
+    '['  shift, and go to state 268
 
     $default  reduce using rule 142 (expID)
 
 
-state 222
+state 221
 
   143 expID: identificador lAccesoAtributos .
   176 lAccesoAtributos: lAccesoAtributos . '.' identificador
   177                 | lAccesoAtributos . '.' identificador lcorchetesExp
 
-    '.'  shift, and go to state 271
+    '.'  shift, and go to state 269
 
     $default  reduce using rule 143 (expID)
 
 
-state 223
+state 222
 
    59 funcion: "function" TYPE_VOID identificador '(' error ')' '{' $@12 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 59 (funcion)
 
 
-state 224
+state 223
 
    55 funcion: "function" TYPE_VOID identificador '(' $@9 lparam $@10 ')' '{' bloquedeclare listainstrucciones . '}'
    71 listainstrucciones: listainstrucciones . instruccion ';'
@@ -2932,7 +2927,7 @@ state 224
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 272
+    '}'                   shift, and go to state 270
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -2947,14 +2942,14 @@ state 224
     identificador   go to state 175
 
 
-state 225
+state 224
 
    57 funcion: "function" tipo identificador '(' error ')' '{' $@11 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 57 (funcion)
 
 
-state 226
+state 225
 
    52 funcion: "function" tipo identificador '(' $@7 lparam $@8 ')' '{' bloquedeclare listainstrucciones . '}'
    71 listainstrucciones: listainstrucciones . instruccion ';'
@@ -2973,7 +2968,7 @@ state 226
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 273
+    '}'                   shift, and go to state 271
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -2988,7 +2983,7 @@ state 226
     identificador   go to state 175
 
 
-state 227
+state 226
 
    89 asignacion: error ASSIGN exp .
   144 expBool: exp . "and operator" exp
@@ -3005,24 +3000,24 @@ state 227
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 89 (asignacion)
 
 
-state 228
+state 227
 
   127 llamadafuncion: error . '(' lvarovalor ')'
   133 lvarovalor2: error .
@@ -3032,25 +3027,25 @@ state 228
     $default  reduce using rule 133 (lvarovalor2)
 
 
-state 229
+state 228
 
   127 llamadafuncion: error '(' lvarovalor . ')'
 
-    ')'  shift, and go to state 274
+    ')'  shift, and go to state 272
 
 
-state 230
+state 229
 
   129 lvarovalor: lvarovalor2 .
   130 lvarovalor2: lvarovalor2 . ',' exp
   132            | lvarovalor2 . ',' error
 
-    ','  shift, and go to state 275
+    ','  shift, and go to state 273
 
     $default  reduce using rule 129 (lvarovalor)
 
 
-state 231
+state 230
 
   131 lvarovalor2: exp .
   144 expBool: exp . "and operator" exp
@@ -3067,39 +3062,39 @@ state 231
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 131 (lvarovalor2)
 
 
-state 232
+state 231
 
    98 loopfor: "for loop" '(' error . ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
 
-    ';'  shift, and go to state 276
+    ';'  shift, and go to state 274
 
 
-state 233
+state 232
 
    96 loopfor: "for loop" '(' identificador . ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}'
   100        | "for loop" '(' identificador . ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
 
-    ';'  shift, and go to state 277
+    ';'  shift, and go to state 275
 
 
-state 234
+state 233
 
   125 errorif: error .
   127 llamadafuncion: error . '(' lvarovalor ')'
@@ -3109,16 +3104,16 @@ state 234
     $default  reduce using rule 125 (errorif)
 
 
-state 235
+state 234
 
   111 selectorif: "if" '(' errorif . ')' "then" '{' $@18 bloquedeclare listainstrucciones '}' lelseif
   112           | "if" '(' errorif . ')' "then" instruccion ';'
   113           | "if" '(' errorif . ')' "then" instruccion "else" instruccion ';'
 
-    ')'  shift, and go to state 278
+    ')'  shift, and go to state 276
 
 
-state 236
+state 235
 
   124 errorif: exp .
   144 expBool: exp . "and operator" exp
@@ -3135,24 +3130,24 @@ state 236
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 124 (errorif)
 
 
-state 237
+state 236
 
   109 errorloopwhile: error .
   127 llamadafuncion: error . '(' lvarovalor ')'
@@ -3162,14 +3157,14 @@ state 237
     $default  reduce using rule 109 (errorloopwhile)
 
 
-state 238
+state 237
 
   105 loopwhile: "while loop" '(' errorloopwhile . ')' "do clause" '{' $@16 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 279
+    ')'  shift, and go to state 277
 
 
-state 239
+state 238
 
   108 errorloopwhile: exp .
   144 expBool: exp . "and operator" exp
@@ -3186,35 +3181,35 @@ state 239
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 108 (errorloopwhile)
 
 
-state 240
+state 239
 
   107 loopwhile: "do clause" '{' $@17 . bloquedeclare listainstrucciones '}' "while loop" '(' errorloopwhile ')'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 280
+    bloquedeclare  go to state 278
     $@2            go to state 6
 
 
-state 241
+state 240
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -3231,20 +3226,20 @@ state 241
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 147 (expBool)
 
 
-state 242
+state 241
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -3264,7 +3259,7 @@ state 242
     $default  reduce using rule 148 (expAritmetica)
 
 
-state 243
+state 242
 
   127 llamadafuncion: error . '(' lvarovalor ')'
   174 larreglo: error .
@@ -3274,7 +3269,7 @@ state 243
     $default  reduce using rule 174 (larreglo)
 
 
-state 244
+state 243
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -3291,43 +3286,43 @@ state 244
   158              | exp . "** operator" exp
   172 larreglo: exp .
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 172 (larreglo)
 
 
-state 245
+state 244
 
   170 arreglo: '[' larreglo . ']'
   171 larreglo: larreglo . ',' exp
   173         | larreglo . ',' error
 
-    ','  shift, and go to state 281
-    ']'  shift, and go to state 282
+    ','  shift, and go to state 279
+    ']'  shift, and go to state 280
 
 
-state 246
+state 245
 
   127 llamadafuncion: error . '(' lvarovalor ')'
   140 exp: '(' error . ')'
 
     '('  shift, and go to state 184
-    ')'  shift, and go to state 283
+    ')'  shift, and go to state 281
 
 
-state 247
+state 246
 
   138 exp: '(' exp . ')'
   144 expBool: exp . "and operator" exp
@@ -3344,23 +3339,23 @@ state 247
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ')'             shift, and go to state 284
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+    ')'             shift, and go to state 282
 
 
-state 248
+state 247
 
   151 expAritmetica: exp "<=> operator" . exp
 
@@ -3373,20 +3368,20 @@ state 248
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 285
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 283
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 249
+state 248
 
   144 expBool: exp "and operator" . exp
 
@@ -3399,20 +3394,20 @@ state 249
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 286
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 284
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 250
+state 249
 
   145 expBool: exp "or operator" . exp
 
@@ -3425,20 +3420,20 @@ state 250
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 287
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 285
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 251
+state 250
 
   152 expAritmetica: exp "+ operator" . exp
 
@@ -3451,20 +3446,20 @@ state 251
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 288
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 286
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 252
+state 251
 
   153 expAritmetica: exp "- operator" . exp
 
@@ -3477,20 +3472,20 @@ state 252
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 289
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 287
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 253
+state 252
 
   154 expAritmetica: exp "* operator" . exp
 
@@ -3503,20 +3498,20 @@ state 253
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 290
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 288
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 254
+state 253
 
   155 expAritmetica: exp "/ operator" . exp
 
@@ -3529,20 +3524,20 @@ state 254
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 291
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 289
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 255
+state 254
 
   156 expAritmetica: exp "div operator" . exp
 
@@ -3555,20 +3550,20 @@ state 255
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 292
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 290
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 256
+state 255
 
   157 expAritmetica: exp "mod operator" . exp
 
@@ -3581,34 +3576,34 @@ state 256
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 293
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 291
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 257
+state 256
 
   149 expAritmetica: exp "++ operator" .
 
     $default  reduce using rule 149 (expAritmetica)
 
 
-state 258
+state 257
 
   150 expAritmetica: exp "-- operator" .
 
     $default  reduce using rule 150 (expAritmetica)
 
 
-state 259
+state 258
 
   158 expAritmetica: exp "** operator" . exp
 
@@ -3621,20 +3616,20 @@ state 259
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 294
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 292
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 260
+state 259
 
   146 expBool: exp COMPARISON . exp
 
@@ -3647,27 +3642,20 @@ state 260
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 295
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
-
-
-state 261
-
-   94 retorno: "return statement" exp ';' .
-
-    $default  reduce using rule 94 (retorno)
+    llamadafuncion  go to state 200
+    exp             go to state 293
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 262
+state 260
 
    92 entradasalida: "print statement" '(' exp . ')'
   144 expBool: exp . "and operator" exp
@@ -3684,23 +3672,23 @@ state 262
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ')'             shift, and go to state 296
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+    ')'             shift, and go to state 294
 
 
-state 263
+state 261
 
    91 entradasalida: "read statement" '(' exp . ')'
   144 expBool: exp . "and operator" exp
@@ -3717,23 +3705,23 @@ state 263
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ')'             shift, and go to state 297
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+    ')'             shift, and go to state 295
 
 
-state 264
+state 262
 
    90 asignacion: expID ASSIGN error .
   127 llamadafuncion: error . '(' lvarovalor ')'
@@ -3743,7 +3731,7 @@ state 264
     $default  reduce using rule 90 (asignacion)
 
 
-state 265
+state 263
 
    88 asignacion: expID ASSIGN exp .
   144 expBool: exp . "and operator" exp
@@ -3760,33 +3748,33 @@ state 265
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 88 (asignacion)
 
 
-state 266
+state 264
 
    40 lcorchetesExp: '[' error . ']'
   127 llamadafuncion: error . '(' lvarovalor ')'
 
-    ']'  shift, and go to state 298
+    ']'  shift, and go to state 296
     '('  shift, and go to state 184
 
 
-state 267
+state 265
 
    38 lcorchetesExp: '[' exp . ']'
   144 expBool: exp . "and operator" exp
@@ -3803,47 +3791,47 @@ state 267
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ']'             shift, and go to state 299
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+    ']'             shift, and go to state 297
 
 
-state 268
+state 266
 
   126 llamadafuncion: identificador '(' lvarovalor . ')'
 
-    ')'  shift, and go to state 300
+    ')'  shift, and go to state 298
 
 
-state 269
+state 267
 
   175 lAccesoAtributos: '.' identificador .
   178                 | '.' identificador . lcorchetesExp
 
-    '['  shift, and go to state 218
+    '['  shift, and go to state 217
 
     $default  reduce using rule 175 (lAccesoAtributos)
 
-    lcorchetesExp  go to state 301
+    lcorchetesExp  go to state 299
 
 
-state 270
+state 268
 
    39 lcorchetesExp: lcorchetesExp '[' . exp ']'
    41              | lcorchetesExp '[' . error ']'
 
-    error            shift, and go to state 302
+    error            shift, and go to state 300
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -3852,56 +3840,56 @@ state 270
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 303
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 301
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 271
+state 269
 
   176 lAccesoAtributos: lAccesoAtributos '.' . identificador
   177                 | lAccesoAtributos '.' . identificador lcorchetesExp
 
     "identifier"  shift, and go to state 23
 
-    identificador  go to state 304
+    identificador  go to state 302
 
 
-state 272
+state 270
 
    55 funcion: "function" TYPE_VOID identificador '(' $@9 lparam $@10 ')' '{' bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 55 (funcion)
 
 
-state 273
+state 271
 
    52 funcion: "function" tipo identificador '(' $@7 lparam $@8 ')' '{' bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 52 (funcion)
 
 
-state 274
+state 272
 
   127 llamadafuncion: error '(' lvarovalor ')' .
 
     $default  reduce using rule 127 (llamadafuncion)
 
 
-state 275
+state 273
 
   130 lvarovalor2: lvarovalor2 ',' . exp
   132            | lvarovalor2 ',' . error
 
-    error            shift, and go to state 305
+    error            shift, and go to state 303
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -3910,20 +3898,20 @@ state 275
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 306
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 304
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 276
+state 274
 
    98 loopfor: "for loop" '(' error ';' . expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
 
@@ -3936,25 +3924,25 @@ state 276
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 307
-    expID           go to state 203
-    expBool         go to state 308
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 305
+    expID           go to state 202
+    expBool         go to state 306
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 277
+state 275
 
    96 loopfor: "for loop" '(' identificador ';' . expBool ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}'
   100        | "for loop" '(' identificador ';' . error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 309
+    error            shift, and go to state 307
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -3963,50 +3951,50 @@ state 277
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 307
-    expID           go to state 203
-    expBool         go to state 310
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 305
+    expID           go to state 202
+    expBool         go to state 308
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 278
+state 276
 
   111 selectorif: "if" '(' errorif ')' . "then" '{' $@18 bloquedeclare listainstrucciones '}' lelseif
   112           | "if" '(' errorif ')' . "then" instruccion ';'
   113           | "if" '(' errorif ')' . "then" instruccion "else" instruccion ';'
 
-    "then"  shift, and go to state 311
+    "then"  shift, and go to state 309
 
 
-state 279
+state 277
 
   105 loopwhile: "while loop" '(' errorloopwhile ')' . "do clause" '{' $@16 bloquedeclare listainstrucciones '}'
 
-    "do clause"  shift, and go to state 312
+    "do clause"  shift, and go to state 310
 
 
-state 280
+state 278
 
   107 loopwhile: "do clause" '{' $@17 bloquedeclare . listainstrucciones '}' "while loop" '(' errorloopwhile ')'
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 313
+    listainstrucciones  go to state 311
 
 
-state 281
+state 279
 
   171 larreglo: larreglo ',' . exp
   173         | larreglo ',' . error
 
-    error            shift, and go to state 314
+    error            shift, and go to state 312
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -4015,41 +4003,41 @@ state 281
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    llamadafuncion  go to state 201
-    exp             go to state 315
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    llamadafuncion  go to state 200
+    exp             go to state 313
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 282
+state 280
 
   170 arreglo: '[' larreglo ']' .
 
     $default  reduce using rule 170 (arreglo)
 
 
-state 283
+state 281
 
   140 exp: '(' error ')' .
 
     $default  reduce using rule 140 (exp)
 
 
-state 284
+state 282
 
   138 exp: '(' exp ')' .
 
     $default  reduce using rule 138 (exp)
 
 
-state 285
+state 283
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4066,22 +4054,22 @@ state 285
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 151 (expAritmetica)
 
 
-state 286
+state 284
 
   144 expBool: exp . "and operator" exp
   144        | exp "and operator" exp .
@@ -4098,21 +4086,21 @@ state 286
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 144 (expBool)
 
 
-state 287
+state 285
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4129,20 +4117,20 @@ state 287
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 145 (expBool)
 
 
-state 288
+state 286
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4159,18 +4147,18 @@ state 288
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 152 (expAritmetica)
 
 
-state 289
+state 287
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4187,18 +4175,18 @@ state 289
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 153 (expAritmetica)
 
 
-state 290
+state 288
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4215,14 +4203,14 @@ state 290
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "++ operator"  shift, and go to state 257
-    "-- operator"  shift, and go to state 258
-    "** operator"  shift, and go to state 259
+    "++ operator"  shift, and go to state 256
+    "-- operator"  shift, and go to state 257
+    "** operator"  shift, and go to state 258
 
     $default  reduce using rule 154 (expAritmetica)
 
 
-state 291
+state 289
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4239,14 +4227,14 @@ state 291
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "++ operator"  shift, and go to state 257
-    "-- operator"  shift, and go to state 258
-    "** operator"  shift, and go to state 259
+    "++ operator"  shift, and go to state 256
+    "-- operator"  shift, and go to state 257
+    "** operator"  shift, and go to state 258
 
     $default  reduce using rule 155 (expAritmetica)
 
 
-state 292
+state 290
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4263,14 +4251,14 @@ state 292
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "++ operator"  shift, and go to state 257
-    "-- operator"  shift, and go to state 258
-    "** operator"  shift, and go to state 259
+    "++ operator"  shift, and go to state 256
+    "-- operator"  shift, and go to state 257
+    "** operator"  shift, and go to state 258
 
     $default  reduce using rule 156 (expAritmetica)
 
 
-state 293
+state 291
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4287,14 +4275,14 @@ state 293
   157              | exp "mod operator" exp .
   158              | exp . "** operator" exp
 
-    "++ operator"  shift, and go to state 257
-    "-- operator"  shift, and go to state 258
-    "** operator"  shift, and go to state 259
+    "++ operator"  shift, and go to state 256
+    "-- operator"  shift, and go to state 257
+    "** operator"  shift, and go to state 258
 
     $default  reduce using rule 157 (expAritmetica)
 
 
-state 294
+state 292
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4311,12 +4299,12 @@ state 294
   158              | exp . "** operator" exp
   158              | exp "** operator" exp .
 
-    "** operator"  shift, and go to state 259
+    "** operator"  shift, and go to state 258
 
     $default  reduce using rule 158 (expAritmetica)
 
 
-state 295
+state 293
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4333,78 +4321,78 @@ state 295
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
 
     $default  reduce using rule 146 (expBool)
 
 
-state 296
+state 294
 
    92 entradasalida: "print statement" '(' exp ')' .
 
     $default  reduce using rule 92 (entradasalida)
 
 
-state 297
+state 295
 
    91 entradasalida: "read statement" '(' exp ')' .
 
     $default  reduce using rule 91 (entradasalida)
 
 
-state 298
+state 296
 
    40 lcorchetesExp: '[' error ']' .
 
     $default  reduce using rule 40 (lcorchetesExp)
 
 
-state 299
+state 297
 
    38 lcorchetesExp: '[' exp ']' .
 
     $default  reduce using rule 38 (lcorchetesExp)
 
 
-state 300
+state 298
 
   126 llamadafuncion: identificador '(' lvarovalor ')' .
 
     $default  reduce using rule 126 (llamadafuncion)
 
 
-state 301
+state 299
 
    39 lcorchetesExp: lcorchetesExp . '[' exp ']'
    41              | lcorchetesExp . '[' error ']'
   178 lAccesoAtributos: '.' identificador lcorchetesExp .
 
-    '['  shift, and go to state 270
+    '['  shift, and go to state 268
 
     $default  reduce using rule 178 (lAccesoAtributos)
 
 
-state 302
+state 300
 
    41 lcorchetesExp: lcorchetesExp '[' error . ']'
   127 llamadafuncion: error . '(' lvarovalor ')'
 
-    ']'  shift, and go to state 316
+    ']'  shift, and go to state 314
     '('  shift, and go to state 184
 
 
-state 303
+state 301
 
    39 lcorchetesExp: lcorchetesExp '[' exp . ']'
   144 expBool: exp . "and operator" exp
@@ -4421,35 +4409,35 @@ state 303
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
-    ']'             shift, and go to state 317
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+    ']'             shift, and go to state 315
 
 
-state 304
+state 302
 
   176 lAccesoAtributos: lAccesoAtributos '.' identificador .
   177                 | lAccesoAtributos '.' identificador . lcorchetesExp
 
-    '['  shift, and go to state 218
+    '['  shift, and go to state 217
 
     $default  reduce using rule 176 (lAccesoAtributos)
 
-    lcorchetesExp  go to state 318
+    lcorchetesExp  go to state 316
 
 
-state 305
+state 303
 
   127 llamadafuncion: error . '(' lvarovalor ')'
   132 lvarovalor2: lvarovalor2 ',' error .
@@ -4459,7 +4447,7 @@ state 305
     $default  reduce using rule 132 (lvarovalor2)
 
 
-state 306
+state 304
 
   130 lvarovalor2: lvarovalor2 ',' exp .
   144 expBool: exp . "and operator" exp
@@ -4476,24 +4464,24 @@ state 306
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 130 (lvarovalor2)
 
 
-state 307
+state 305
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4509,24 +4497,43 @@ state 307
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
+
+
+state 306
+
+   98 loopfor: "for loop" '(' error ';' expBool . ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
+  135 exp: expBool .
+
+    ';'  shift, and go to state 317
+
+    $default  reduce using rule 135 (exp)
+
+
+state 307
+
+  100 loopfor: "for loop" '(' identificador ';' error . ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
+  127 llamadafuncion: error . '(' lvarovalor ')'
+
+    ';'  shift, and go to state 318
+    '('  shift, and go to state 184
 
 
 state 308
 
-   98 loopfor: "for loop" '(' error ';' expBool . ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
+   96 loopfor: "for loop" '(' identificador ';' expBool . ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}'
   135 exp: expBool .
 
     ';'  shift, and go to state 319
@@ -4535,25 +4542,6 @@ state 308
 
 
 state 309
-
-  100 loopfor: "for loop" '(' identificador ';' error . ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
-  127 llamadafuncion: error . '(' lvarovalor ')'
-
-    ';'  shift, and go to state 320
-    '('  shift, and go to state 184
-
-
-state 310
-
-   96 loopfor: "for loop" '(' identificador ';' expBool . ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}'
-  135 exp: expBool .
-
-    ';'  shift, and go to state 321
-
-    $default  reduce using rule 135 (exp)
-
-
-state 311
 
   111 selectorif: "if" '(' errorif ')' "then" . '{' $@18 bloquedeclare listainstrucciones '}' lelseif
   112           | "if" '(' errorif ')' "then" . instruccion ';'
@@ -4568,9 +4556,9 @@ state 311
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '{'                   shift, and go to state 322
+    '{'                   shift, and go to state 320
 
-    instruccion     go to state 323
+    instruccion     go to state 321
     asignacion      go to state 167
     entradasalida   go to state 168
     retorno         go to state 169
@@ -4579,14 +4567,14 @@ state 311
     identificador   go to state 175
 
 
-state 312
+state 310
 
   105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" . '{' $@16 bloquedeclare listainstrucciones '}'
 
-    '{'  shift, and go to state 324
+    '{'  shift, and go to state 322
 
 
-state 313
+state 311
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
@@ -4605,7 +4593,7 @@ state 313
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 325
+    '}'                   shift, and go to state 323
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -4620,7 +4608,7 @@ state 313
     identificador   go to state 175
 
 
-state 314
+state 312
 
   127 llamadafuncion: error . '(' lvarovalor ')'
   173 larreglo: larreglo ',' error .
@@ -4630,7 +4618,7 @@ state 314
     $default  reduce using rule 173 (larreglo)
 
 
-state 315
+state 313
 
   144 expBool: exp . "and operator" exp
   145        | exp . "or operator" exp
@@ -4647,53 +4635,53 @@ state 315
   158              | exp . "** operator" exp
   171 larreglo: larreglo ',' exp .
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 171 (larreglo)
 
 
-state 316
+state 314
 
    41 lcorchetesExp: lcorchetesExp '[' error ']' .
 
     $default  reduce using rule 41 (lcorchetesExp)
 
 
-state 317
+state 315
 
    39 lcorchetesExp: lcorchetesExp '[' exp ']' .
 
     $default  reduce using rule 39 (lcorchetesExp)
 
 
-state 318
+state 316
 
    39 lcorchetesExp: lcorchetesExp . '[' exp ']'
    41              | lcorchetesExp . '[' error ']'
   177 lAccesoAtributos: lAccesoAtributos '.' identificador lcorchetesExp .
 
-    '['  shift, and go to state 270
+    '['  shift, and go to state 268
 
     $default  reduce using rule 177 (lAccesoAtributos)
 
 
-state 319
+state 317
 
    98 loopfor: "for loop" '(' error ';' expBool ';' . errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 326
+    error            shift, and go to state 324
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -4702,26 +4690,26 @@ state 319
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    asignacion      go to state 327
-    errorloopfor    go to state 328
-    llamadafuncion  go to state 201
-    exp             go to state 329
-    expID           go to state 330
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    asignacion      go to state 325
+    errorloopfor    go to state 326
+    llamadafuncion  go to state 200
+    exp             go to state 327
+    expID           go to state 328
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 320
+state 318
 
   100 loopfor: "for loop" '(' identificador ';' error ';' . errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 326
+    error            shift, and go to state 324
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -4730,26 +4718,26 @@ state 320
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    asignacion      go to state 327
-    errorloopfor    go to state 331
-    llamadafuncion  go to state 201
-    exp             go to state 329
-    expID           go to state 330
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    asignacion      go to state 325
+    errorloopfor    go to state 329
+    llamadafuncion  go to state 200
+    exp             go to state 327
+    expID           go to state 328
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 321
+state 319
 
    96 loopfor: "for loop" '(' identificador ';' expBool ';' . errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 326
+    error            shift, and go to state 324
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -4758,56 +4746,56 @@ state 321
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    asignacion      go to state 327
-    errorloopfor    go to state 332
-    llamadafuncion  go to state 201
-    exp             go to state 329
-    expID           go to state 330
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    asignacion      go to state 325
+    errorloopfor    go to state 330
+    llamadafuncion  go to state 200
+    exp             go to state 327
+    expID           go to state 328
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 322
+state 320
 
   111 selectorif: "if" '(' errorif ')' "then" '{' . $@18 bloquedeclare listainstrucciones '}' lelseif
 
     $default  reduce using rule 110 ($@18)
 
-    $@18  go to state 333
+    $@18  go to state 331
 
 
-state 323
+state 321
 
   112 selectorif: "if" '(' errorif ')' "then" instruccion . ';'
   113           | "if" '(' errorif ')' "then" instruccion . "else" instruccion ';'
 
-    "else"  shift, and go to state 334
-    ';'     shift, and go to state 335
+    "else"  shift, and go to state 332
+    ';'     shift, and go to state 333
 
 
-state 324
+state 322
 
   105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" '{' . $@16 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 104 ($@16)
 
-    $@16  go to state 336
+    $@16  go to state 334
 
 
-state 325
+state 323
 
   107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' . "while loop" '(' errorloopwhile ')'
 
-    "while loop"  shift, and go to state 337
+    "while loop"  shift, and go to state 335
 
 
-state 326
+state 324
 
    89 asignacion: error . ASSIGN exp
   103 errorloopfor: error .
@@ -4819,21 +4807,21 @@ state 326
     $default  reduce using rule 103 (errorloopfor)
 
 
-state 327
+state 325
 
   101 errorloopfor: asignacion .
 
     $default  reduce using rule 101 (errorloopfor)
 
 
-state 328
+state 326
 
    98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor . ')' '{' $@14 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 338
+    ')'  shift, and go to state 336
 
 
-state 329
+state 327
 
   102 errorloopfor: exp .
   144 expBool: exp . "and operator" exp
@@ -4850,60 +4838,60 @@ state 329
   157              | exp . "mod operator" exp
   158              | exp . "** operator" exp
 
-    "<=> operator"  shift, and go to state 248
-    "and operator"  shift, and go to state 249
-    "or operator"   shift, and go to state 250
-    "+ operator"    shift, and go to state 251
-    "- operator"    shift, and go to state 252
-    "* operator"    shift, and go to state 253
-    "/ operator"    shift, and go to state 254
-    "div operator"  shift, and go to state 255
-    "mod operator"  shift, and go to state 256
-    "++ operator"   shift, and go to state 257
-    "-- operator"   shift, and go to state 258
-    "** operator"   shift, and go to state 259
-    COMPARISON      shift, and go to state 260
+    "<=> operator"  shift, and go to state 247
+    "and operator"  shift, and go to state 248
+    "or operator"   shift, and go to state 249
+    "+ operator"    shift, and go to state 250
+    "- operator"    shift, and go to state 251
+    "* operator"    shift, and go to state 252
+    "/ operator"    shift, and go to state 253
+    "div operator"  shift, and go to state 254
+    "mod operator"  shift, and go to state 255
+    "++ operator"   shift, and go to state 256
+    "-- operator"   shift, and go to state 257
+    "** operator"   shift, and go to state 258
+    COMPARISON      shift, and go to state 259
 
     $default  reduce using rule 102 (errorloopfor)
 
 
-state 330
+state 328
 
    88 asignacion: expID . ASSIGN exp
    90           | expID . ASSIGN error
   137 exp: expID .
 
-    ASSIGN  shift, and go to state 214
+    ASSIGN  shift, and go to state 213
 
     $default  reduce using rule 137 (exp)
 
 
-state 331
+state 329
 
   100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor . ')' '{' $@15 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 339
+    ')'  shift, and go to state 337
 
 
-state 332
+state 330
 
    96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor . ')' '{' $@13 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 340
+    ')'  shift, and go to state 338
 
 
-state 333
+state 331
 
   111 selectorif: "if" '(' errorif ')' "then" '{' $@18 . bloquedeclare listainstrucciones '}' lelseif
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 341
+    bloquedeclare  go to state 339
     $@2            go to state 6
 
 
-state 334
+state 332
 
   113 selectorif: "if" '(' errorif ')' "then" instruccion "else" . instruccion ';'
 
@@ -4917,7 +4905,7 @@ state 334
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
 
-    instruccion     go to state 342
+    instruccion     go to state 340
     asignacion      go to state 167
     entradasalida   go to state 168
     retorno         go to state 169
@@ -4926,55 +4914,71 @@ state 334
     identificador   go to state 175
 
 
-state 335
+state 333
 
   112 selectorif: "if" '(' errorif ')' "then" instruccion ';' .
 
     $default  reduce using rule 112 (selectorif)
 
 
-state 336
+state 334
 
   105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" '{' $@16 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 343
+    bloquedeclare  go to state 341
     $@2            go to state 6
+
+
+state 335
+
+  107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' "while loop" . '(' errorloopwhile ')'
+
+    '('  shift, and go to state 342
+
+
+state 336
+
+   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' . '{' $@14 bloquedeclare listainstrucciones '}'
+
+    '{'  shift, and go to state 343
 
 
 state 337
 
-  107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' "while loop" . '(' errorloopwhile ')'
+  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' . '{' $@15 bloquedeclare listainstrucciones '}'
 
-    '('  shift, and go to state 344
+    '{'  shift, and go to state 344
 
 
 state 338
 
-   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' . '{' $@14 bloquedeclare listainstrucciones '}'
+   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' . '{' $@13 bloquedeclare listainstrucciones '}'
 
     '{'  shift, and go to state 345
 
 
 state 339
 
-  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' . '{' $@15 bloquedeclare listainstrucciones '}'
+  111 selectorif: "if" '(' errorif ')' "then" '{' $@18 bloquedeclare . listainstrucciones '}' lelseif
 
-    '{'  shift, and go to state 346
+    $default  reduce using rule 70 (listainstrucciones)
+
+    listainstrucciones  go to state 346
 
 
 state 340
 
-   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' . '{' $@13 bloquedeclare listainstrucciones '}'
+  113 selectorif: "if" '(' errorif ')' "then" instruccion "else" instruccion . ';'
 
-    '{'  shift, and go to state 347
+    ';'  shift, and go to state 347
 
 
 state 341
 
-  111 selectorif: "if" '(' errorif ')' "then" '{' $@18 bloquedeclare . listainstrucciones '}' lelseif
+  105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" '{' $@16 bloquedeclare . listainstrucciones '}'
 
     $default  reduce using rule 70 (listainstrucciones)
 
@@ -4983,25 +4987,9 @@ state 341
 
 state 342
 
-  113 selectorif: "if" '(' errorif ')' "then" instruccion "else" instruccion . ';'
-
-    ';'  shift, and go to state 349
-
-
-state 343
-
-  105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" '{' $@16 bloquedeclare . listainstrucciones '}'
-
-    $default  reduce using rule 70 (listainstrucciones)
-
-    listainstrucciones  go to state 350
-
-
-state 344
-
   107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' "while loop" '(' . errorloopwhile ')'
 
-    error            shift, and go to state 237
+    error            shift, and go to state 236
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -5010,48 +4998,48 @@ state 344
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    errorloopwhile  go to state 351
-    llamadafuncion  go to state 201
-    exp             go to state 239
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    errorloopwhile  go to state 349
+    llamadafuncion  go to state 200
+    exp             go to state 238
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 345
+state 343
 
    98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' . $@14 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 97 ($@14)
 
-    $@14  go to state 352
+    $@14  go to state 350
 
 
-state 346
+state 344
 
   100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' . $@15 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 99 ($@15)
 
-    $@15  go to state 353
+    $@15  go to state 351
 
 
-state 347
+state 345
 
    96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' . $@13 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 95 ($@13)
 
-    $@13  go to state 354
+    $@13  go to state 352
 
 
-state 348
+state 346
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
@@ -5070,7 +5058,7 @@ state 348
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 355
+    '}'                   shift, and go to state 353
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -5085,14 +5073,14 @@ state 348
     identificador   go to state 175
 
 
-state 349
+state 347
 
   113 selectorif: "if" '(' errorif ')' "then" instruccion "else" instruccion ';' .
 
     $default  reduce using rule 113 (selectorif)
 
 
-state 350
+state 348
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
@@ -5111,7 +5099,7 @@ state 350
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 356
+    '}'                   shift, and go to state 354
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -5126,16 +5114,38 @@ state 350
     identificador   go to state 175
 
 
-state 351
+state 349
 
   107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' "while loop" '(' errorloopwhile . ')'
 
-    ')'  shift, and go to state 357
+    ')'  shift, and go to state 355
+
+
+state 350
+
+   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 . bloquedeclare listainstrucciones '}'
+
+    "declare statement"  reduce using rule 5 ($@2)
+    $default             reduce using rule 4 (bloquedeclare)
+
+    bloquedeclare  go to state 356
+    $@2            go to state 6
+
+
+state 351
+
+  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 . bloquedeclare listainstrucciones '}'
+
+    "declare statement"  reduce using rule 5 ($@2)
+    $default             reduce using rule 4 (bloquedeclare)
+
+    bloquedeclare  go to state 357
+    $@2            go to state 6
 
 
 state 352
 
-   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 . bloquedeclare listainstrucciones '}'
+   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
@@ -5146,55 +5156,51 @@ state 352
 
 state 353
 
-  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 . bloquedeclare listainstrucciones '}'
-
-    "declare statement"  reduce using rule 5 ($@2)
-    $default             reduce using rule 4 (bloquedeclare)
-
-    bloquedeclare  go to state 359
-    $@2            go to state 6
-
-
-state 354
-
-   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 . bloquedeclare listainstrucciones '}'
-
-    "declare statement"  reduce using rule 5 ($@2)
-    $default             reduce using rule 4 (bloquedeclare)
-
-    bloquedeclare  go to state 360
-    $@2            go to state 6
-
-
-state 355
-
   111 selectorif: "if" '(' errorif ')' "then" '{' $@18 bloquedeclare listainstrucciones '}' . lelseif
 
-    "else"  shift, and go to state 361
+    "else"  shift, and go to state 359
 
     $default  reduce using rule 114 (lelseif)
 
-    lelseif   go to state 362
-    lelseif1  go to state 363
+    lelseif   go to state 360
+    lelseif1  go to state 361
 
 
-state 356
+state 354
 
   105 loopwhile: "while loop" '(' errorloopwhile ')' "do clause" '{' $@16 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 105 (loopwhile)
 
 
-state 357
+state 355
 
   107 loopwhile: "do clause" '{' $@17 bloquedeclare listainstrucciones '}' "while loop" '(' errorloopwhile ')' .
 
     $default  reduce using rule 107 (loopwhile)
 
 
-state 358
+state 356
 
    98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare . listainstrucciones '}'
+
+    $default  reduce using rule 70 (listainstrucciones)
+
+    listainstrucciones  go to state 362
+
+
+state 357
+
+  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare . listainstrucciones '}'
+
+    $default  reduce using rule 70 (listainstrucciones)
+
+    listainstrucciones  go to state 363
+
+
+state 358
+
+   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare . listainstrucciones '}'
 
     $default  reduce using rule 70 (listainstrucciones)
 
@@ -5203,54 +5209,104 @@ state 358
 
 state 359
 
-  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare . listainstrucciones '}'
-
-    $default  reduce using rule 70 (listainstrucciones)
-
-    listainstrucciones  go to state 365
-
-
-state 360
-
-   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare . listainstrucciones '}'
-
-    $default  reduce using rule 70 (listainstrucciones)
-
-    listainstrucciones  go to state 366
-
-
-state 361
-
   118 lelseif: "else" . '{' $@20 bloquedeclare listainstrucciones '}'
   121 lelseif1: "else" . "if" '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}'
 
-    "if"  shift, and go to state 367
-    '{'   shift, and go to state 368
+    "if"  shift, and go to state 365
+    '{'   shift, and go to state 366
 
 
-state 362
+state 360
 
   111 selectorif: "if" '(' errorif ')' "then" '{' $@18 bloquedeclare listainstrucciones '}' lelseif .
 
     $default  reduce using rule 111 (selectorif)
 
 
-state 363
+state 361
 
   116 lelseif: lelseif1 . "else" '{' $@19 bloquedeclare listainstrucciones '}'
   119        | lelseif1 .
   123 lelseif1: lelseif1 . "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    "else"  shift, and go to state 369
+    "else"  shift, and go to state 367
 
     $default  reduce using rule 119 (lelseif)
+
+
+state 362
+
+   71 listainstrucciones: listainstrucciones . instruccion ';'
+   72                   | listainstrucciones . instruccion1
+   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones . '}'
+
+    error                 shift, and go to state 152
+    "identifier"          shift, and go to state 23
+    "for loop"            shift, and go to state 153
+    "if"                  shift, and go to state 154
+    "while loop"          shift, and go to state 155
+    "do clause"           shift, and go to state 156
+    "return statement"    shift, and go to state 157
+    "break statement"     shift, and go to state 158
+    "continue statement"  shift, and go to state 159
+    "print statement"     shift, and go to state 160
+    "read statement"      shift, and go to state 161
+    "++ operator"         shift, and go to state 162
+    "-- operator"         shift, and go to state 163
+    '}'                   shift, and go to state 368
+
+    instruccion     go to state 165
+    instruccion1    go to state 166
+    asignacion      go to state 167
+    entradasalida   go to state 168
+    retorno         go to state 169
+    loopfor         go to state 170
+    loopwhile       go to state 171
+    selectorif      go to state 172
+    llamadafuncion  go to state 173
+    expID           go to state 174
+    identificador   go to state 175
+
+
+state 363
+
+   71 listainstrucciones: listainstrucciones . instruccion ';'
+   72                   | listainstrucciones . instruccion1
+  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones . '}'
+
+    error                 shift, and go to state 152
+    "identifier"          shift, and go to state 23
+    "for loop"            shift, and go to state 153
+    "if"                  shift, and go to state 154
+    "while loop"          shift, and go to state 155
+    "do clause"           shift, and go to state 156
+    "return statement"    shift, and go to state 157
+    "break statement"     shift, and go to state 158
+    "continue statement"  shift, and go to state 159
+    "print statement"     shift, and go to state 160
+    "read statement"      shift, and go to state 161
+    "++ operator"         shift, and go to state 162
+    "-- operator"         shift, and go to state 163
+    '}'                   shift, and go to state 369
+
+    instruccion     go to state 165
+    instruccion1    go to state 166
+    asignacion      go to state 167
+    entradasalida   go to state 168
+    retorno         go to state 169
+    loopfor         go to state 170
+    loopwhile       go to state 171
+    selectorif      go to state 172
+    llamadafuncion  go to state 173
+    expID           go to state 174
+    identificador   go to state 175
 
 
 state 364
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
-   98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones . '}'
+   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones . '}'
 
     error                 shift, and go to state 152
     "identifier"          shift, and go to state 23
@@ -5282,123 +5338,55 @@ state 364
 
 state 365
 
-   71 listainstrucciones: listainstrucciones . instruccion ';'
-   72                   | listainstrucciones . instruccion1
-  100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones . '}'
+  121 lelseif1: "else" "if" . '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}'
 
-    error                 shift, and go to state 152
-    "identifier"          shift, and go to state 23
-    "for loop"            shift, and go to state 153
-    "if"                  shift, and go to state 154
-    "while loop"          shift, and go to state 155
-    "do clause"           shift, and go to state 156
-    "return statement"    shift, and go to state 157
-    "break statement"     shift, and go to state 158
-    "continue statement"  shift, and go to state 159
-    "print statement"     shift, and go to state 160
-    "read statement"      shift, and go to state 161
-    "++ operator"         shift, and go to state 162
-    "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 371
-
-    instruccion     go to state 165
-    instruccion1    go to state 166
-    asignacion      go to state 167
-    entradasalida   go to state 168
-    retorno         go to state 169
-    loopfor         go to state 170
-    loopwhile       go to state 171
-    selectorif      go to state 172
-    llamadafuncion  go to state 173
-    expID           go to state 174
-    identificador   go to state 175
+    '('  shift, and go to state 371
 
 
 state 366
-
-   71 listainstrucciones: listainstrucciones . instruccion ';'
-   72                   | listainstrucciones . instruccion1
-   96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones . '}'
-
-    error                 shift, and go to state 152
-    "identifier"          shift, and go to state 23
-    "for loop"            shift, and go to state 153
-    "if"                  shift, and go to state 154
-    "while loop"          shift, and go to state 155
-    "do clause"           shift, and go to state 156
-    "return statement"    shift, and go to state 157
-    "break statement"     shift, and go to state 158
-    "continue statement"  shift, and go to state 159
-    "print statement"     shift, and go to state 160
-    "read statement"      shift, and go to state 161
-    "++ operator"         shift, and go to state 162
-    "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 372
-
-    instruccion     go to state 165
-    instruccion1    go to state 166
-    asignacion      go to state 167
-    entradasalida   go to state 168
-    retorno         go to state 169
-    loopfor         go to state 170
-    loopwhile       go to state 171
-    selectorif      go to state 172
-    llamadafuncion  go to state 173
-    expID           go to state 174
-    identificador   go to state 175
-
-
-state 367
-
-  121 lelseif1: "else" "if" . '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}'
-
-    '('  shift, and go to state 373
-
-
-state 368
 
   118 lelseif: "else" '{' . $@20 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 117 ($@20)
 
-    $@20  go to state 374
+    $@20  go to state 372
 
 
-state 369
+state 367
 
   116 lelseif: lelseif1 "else" . '{' $@19 bloquedeclare listainstrucciones '}'
   123 lelseif1: lelseif1 "else" . "if" '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    "if"  shift, and go to state 375
-    '{'   shift, and go to state 376
+    "if"  shift, and go to state 373
+    '{'   shift, and go to state 374
 
 
-state 370
+state 368
 
    98 loopfor: "for loop" '(' error ';' expBool ';' errorloopfor ')' '{' $@14 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 98 (loopfor)
 
 
-state 371
+state 369
 
   100 loopfor: "for loop" '(' identificador ';' error ';' errorloopfor ')' '{' $@15 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 100 (loopfor)
 
 
-state 372
+state 370
 
    96 loopfor: "for loop" '(' identificador ';' expBool ';' errorloopfor ')' '{' $@13 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 96 (loopfor)
 
 
-state 373
+state 371
 
   121 lelseif1: "else" "if" '(' . errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 234
+    error            shift, and go to state 233
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -5407,68 +5395,68 @@ state 373
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    errorif         go to state 377
-    llamadafuncion  go to state 201
-    exp             go to state 236
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    errorif         go to state 375
+    llamadafuncion  go to state 200
+    exp             go to state 235
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 374
+state 372
 
   118 lelseif: "else" '{' $@20 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 378
+    bloquedeclare  go to state 376
     $@2            go to state 6
 
 
-state 375
+state 373
 
   123 lelseif1: lelseif1 "else" "if" . '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    '('  shift, and go to state 379
+    '('  shift, and go to state 377
 
 
-state 376
+state 374
 
   116 lelseif: lelseif1 "else" '{' . $@19 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 115 ($@19)
 
-    $@19  go to state 380
+    $@19  go to state 378
 
 
-state 377
+state 375
 
   121 lelseif1: "else" "if" '(' errorif . ')' "then" '{' $@21 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 381
+    ')'  shift, and go to state 379
 
 
-state 378
+state 376
 
   118 lelseif: "else" '{' $@20 bloquedeclare . listainstrucciones '}'
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 382
+    listainstrucciones  go to state 380
 
 
-state 379
+state 377
 
   123 lelseif1: lelseif1 "else" "if" '(' . errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    error            shift, and go to state 234
+    error            shift, and go to state 233
     "identifier"     shift, and go to state 23
     "integer value"  shift, and go to state 191
     "string"         shift, and go to state 192
@@ -5477,39 +5465,39 @@ state 379
     "boolean value"  shift, and go to state 195
     "not operator"   shift, and go to state 196
     "- operator"     shift, and go to state 197
-    '['              shift, and go to state 199
-    '('              shift, and go to state 200
+    '['              shift, and go to state 198
+    '('              shift, and go to state 199
 
-    errorif         go to state 383
-    llamadafuncion  go to state 201
-    exp             go to state 236
-    expID           go to state 203
-    expBool         go to state 204
-    expAritmetica   go to state 205
-    valor           go to state 206
-    arreglo         go to state 207
-    identificador   go to state 208
+    errorif         go to state 381
+    llamadafuncion  go to state 200
+    exp             go to state 235
+    expID           go to state 202
+    expBool         go to state 203
+    expAritmetica   go to state 204
+    valor           go to state 205
+    arreglo         go to state 206
+    identificador   go to state 207
 
 
-state 380
+state 378
 
   116 lelseif: lelseif1 "else" '{' $@19 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 384
+    bloquedeclare  go to state 382
     $@2            go to state 6
 
 
-state 381
+state 379
 
   121 lelseif1: "else" "if" '(' errorif ')' . "then" '{' $@21 bloquedeclare listainstrucciones '}'
 
-    "then"  shift, and go to state 385
+    "then"  shift, and go to state 383
 
 
-state 382
+state 380
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
@@ -5528,7 +5516,7 @@ state 382
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 386
+    '}'                   shift, and go to state 384
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -5543,44 +5531,44 @@ state 382
     identificador   go to state 175
 
 
-state 383
+state 381
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif . ')' "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    ')'  shift, and go to state 387
+    ')'  shift, and go to state 385
 
 
-state 384
+state 382
 
   116 lelseif: lelseif1 "else" '{' $@19 bloquedeclare . listainstrucciones '}'
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 388
+    listainstrucciones  go to state 386
 
 
-state 385
+state 383
 
   121 lelseif1: "else" "if" '(' errorif ')' "then" . '{' $@21 bloquedeclare listainstrucciones '}'
 
-    '{'  shift, and go to state 389
+    '{'  shift, and go to state 387
 
 
-state 386
+state 384
 
   118 lelseif: "else" '{' $@20 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 118 (lelseif)
 
 
-state 387
+state 385
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif ')' . "then" '{' $@22 bloquedeclare listainstrucciones '}'
 
-    "then"  shift, and go to state 390
+    "then"  shift, and go to state 388
 
 
-state 388
+state 386
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
@@ -5599,7 +5587,7 @@ state 388
     "read statement"      shift, and go to state 161
     "++ operator"         shift, and go to state 162
     "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 391
+    '}'                   shift, and go to state 389
 
     instruccion     go to state 165
     instruccion1    go to state 166
@@ -5614,74 +5602,124 @@ state 388
     identificador   go to state 175
 
 
-state 389
+state 387
 
   121 lelseif1: "else" "if" '(' errorif ')' "then" '{' . $@21 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 120 ($@21)
 
-    $@21  go to state 392
+    $@21  go to state 390
 
 
-state 390
+state 388
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" . '{' $@22 bloquedeclare listainstrucciones '}'
 
-    '{'  shift, and go to state 393
+    '{'  shift, and go to state 391
 
 
-state 391
+state 389
 
   116 lelseif: lelseif1 "else" '{' $@19 bloquedeclare listainstrucciones '}' .
 
     $default  reduce using rule 116 (lelseif)
 
 
-state 392
+state 390
 
   121 lelseif1: "else" "if" '(' errorif ')' "then" '{' $@21 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 394
+    bloquedeclare  go to state 392
     $@2            go to state 6
 
 
-state 393
+state 391
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' . $@22 bloquedeclare listainstrucciones '}'
 
     $default  reduce using rule 122 ($@22)
 
-    $@22  go to state 395
+    $@22  go to state 393
 
 
-state 394
+state 392
 
   121 lelseif1: "else" "if" '(' errorif ')' "then" '{' $@21 bloquedeclare . listainstrucciones '}'
 
     $default  reduce using rule 70 (listainstrucciones)
 
-    listainstrucciones  go to state 396
+    listainstrucciones  go to state 394
 
 
-state 395
+state 393
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 . bloquedeclare listainstrucciones '}'
 
     "declare statement"  reduce using rule 5 ($@2)
     $default             reduce using rule 4 (bloquedeclare)
 
-    bloquedeclare  go to state 397
+    bloquedeclare  go to state 395
     $@2            go to state 6
 
 
-state 396
+state 394
 
    71 listainstrucciones: listainstrucciones . instruccion ';'
    72                   | listainstrucciones . instruccion1
   121 lelseif1: "else" "if" '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones . '}'
+
+    error                 shift, and go to state 152
+    "identifier"          shift, and go to state 23
+    "for loop"            shift, and go to state 153
+    "if"                  shift, and go to state 154
+    "while loop"          shift, and go to state 155
+    "do clause"           shift, and go to state 156
+    "return statement"    shift, and go to state 157
+    "break statement"     shift, and go to state 158
+    "continue statement"  shift, and go to state 159
+    "print statement"     shift, and go to state 160
+    "read statement"      shift, and go to state 161
+    "++ operator"         shift, and go to state 162
+    "-- operator"         shift, and go to state 163
+    '}'                   shift, and go to state 396
+
+    instruccion     go to state 165
+    instruccion1    go to state 166
+    asignacion      go to state 167
+    entradasalida   go to state 168
+    retorno         go to state 169
+    loopfor         go to state 170
+    loopwhile       go to state 171
+    selectorif      go to state 172
+    llamadafuncion  go to state 173
+    expID           go to state 174
+    identificador   go to state 175
+
+
+state 395
+
+  123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare . listainstrucciones '}'
+
+    $default  reduce using rule 70 (listainstrucciones)
+
+    listainstrucciones  go to state 397
+
+
+state 396
+
+  121 lelseif1: "else" "if" '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}' .
+
+    $default  reduce using rule 121 (lelseif1)
+
+
+state 397
+
+   71 listainstrucciones: listainstrucciones . instruccion ';'
+   72                   | listainstrucciones . instruccion1
+  123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones . '}'
 
     error                 shift, and go to state 152
     "identifier"          shift, and go to state 23
@@ -5711,57 +5749,7 @@ state 396
     identificador   go to state 175
 
 
-state 397
-
-  123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare . listainstrucciones '}'
-
-    $default  reduce using rule 70 (listainstrucciones)
-
-    listainstrucciones  go to state 399
-
-
 state 398
-
-  121 lelseif1: "else" "if" '(' errorif ')' "then" '{' $@21 bloquedeclare listainstrucciones '}' .
-
-    $default  reduce using rule 121 (lelseif1)
-
-
-state 399
-
-   71 listainstrucciones: listainstrucciones . instruccion ';'
-   72                   | listainstrucciones . instruccion1
-  123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones . '}'
-
-    error                 shift, and go to state 152
-    "identifier"          shift, and go to state 23
-    "for loop"            shift, and go to state 153
-    "if"                  shift, and go to state 154
-    "while loop"          shift, and go to state 155
-    "do clause"           shift, and go to state 156
-    "return statement"    shift, and go to state 157
-    "break statement"     shift, and go to state 158
-    "continue statement"  shift, and go to state 159
-    "print statement"     shift, and go to state 160
-    "read statement"      shift, and go to state 161
-    "++ operator"         shift, and go to state 162
-    "-- operator"         shift, and go to state 163
-    '}'                   shift, and go to state 400
-
-    instruccion     go to state 165
-    instruccion1    go to state 166
-    asignacion      go to state 167
-    entradasalida   go to state 168
-    retorno         go to state 169
-    loopfor         go to state 170
-    loopwhile       go to state 171
-    selectorif      go to state 172
-    llamadafuncion  go to state 173
-    expID           go to state 174
-    identificador   go to state 175
-
-
-state 400
 
   123 lelseif1: lelseif1 "else" "if" '(' errorif ')' "then" '{' $@22 bloquedeclare listainstrucciones '}' .
 

@@ -240,7 +240,7 @@ public :
     ~TypeArray();
     //Para obtener el tipo primitivo del arreglo.
     TypeS* get_tipo();
-    //Para obtener el tipo de la estructura del arreglo.
+    //Para obtener el tipo de la estructura de los elementos del arreglo.
     TypeS* get_tipoEstructura();
     std::string get_name();
     bool is_array(); 
@@ -249,7 +249,7 @@ private:
     //Tipo primivito del arreglo: El que define los elementos del arreglo
     //e.g. "Los elementos del arreglo son de tipo integer".
     TypeS* tipo_primitivo;
-    //Tipo que define la estructura arreglo.
+    //Tipo que define la estructura de los elementos del arreglo.
     //e.g. "El tipo de la variable es arreglo de arreglos de integer".
     TypeS* tipo_estructura;
     int size;

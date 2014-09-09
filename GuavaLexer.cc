@@ -669,12 +669,12 @@ int yy_flex_debug = 1;
 
 static yyconst flex_int16_t yy_rule_linenum[57] =
     {   0,
-       47,   49,   52,   54,   70,   72,   74,   75,   76,   77,
-       78,   79,   81,   82,   83,   84,   85,   86,   87,   88,
-       89,   90,   91,   92,   93,   94,   95,   96,   98,   99,
-      101,  107,  115,  120,  125,  130,  139,  140,  141,  143,
-      144,  148,  154,  156,  158,  159,  160,  162,  164,  165,
-      166,  167,  168,  169,  170,  172
+       47,   49,   52,   54,   71,   73,   75,   76,   77,   78,
+       79,   80,   82,   83,   84,   85,   86,   87,   88,   89,
+       90,   91,   92,   93,   94,   95,   96,   97,   99,  100,
+      102,  108,  116,  121,  126,  131,  140,  141,  142,  144,
+      145,  149,  155,  157,  159,  160,  161,  163,  165,  166,
+      167,  168,  169,  170,  171,  173
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1127,137 +1127,137 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "GuavaLexer.l"
-{ yylval->boolval = true; return token::BOOL; } 
+#line 71 "GuavaLexer.l"
+{ yylval->boolval = true; return token::BOOL; }  /* Palabras reservadas */
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 72 "GuavaLexer.l"
+#line 73 "GuavaLexer.l"
 { yylval->boolval = false; return token::BOOL; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 74 "GuavaLexer.l"
+#line 75 "GuavaLexer.l"
 { return token::TYPE_INTEGER; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 75 "GuavaLexer.l"
+#line 76 "GuavaLexer.l"
 { return token::TYPE_REAL; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 76 "GuavaLexer.l"
+#line 77 "GuavaLexer.l"
 { return token::TYPE_BOOLEAN; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 77 "GuavaLexer.l"
+#line 78 "GuavaLexer.l"
 { return token::TYPE_CHAR; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 78 "GuavaLexer.l"
+#line 79 "GuavaLexer.l"
 { return token::TYPE_STRING; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 79 "GuavaLexer.l"
+#line 80 "GuavaLexer.l"
 { return token::TYPE_VOID; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 81 "GuavaLexer.l"
+#line 82 "GuavaLexer.l"
 { return token::FOR; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 82 "GuavaLexer.l"
+#line 83 "GuavaLexer.l"
 { return token::MAIN; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 83 "GuavaLexer.l"
+#line 84 "GuavaLexer.l"
 { return token::IF; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 84 "GuavaLexer.l"
+#line 85 "GuavaLexer.l"
 { return token::THEN; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 85 "GuavaLexer.l"
+#line 86 "GuavaLexer.l"
 { return token::ELSE; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 86 "GuavaLexer.l"
+#line 87 "GuavaLexer.l"
 { return token::WHILE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 87 "GuavaLexer.l"
+#line 88 "GuavaLexer.l"
 { return token::DO;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 88 "GuavaLexer.l"
+#line 89 "GuavaLexer.l"
 { return token::RETURN; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 89 "GuavaLexer.l"
+#line 90 "GuavaLexer.l"
 { return token::BREAK; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 90 "GuavaLexer.l"
+#line 91 "GuavaLexer.l"
 { return token::CONTINUE; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 91 "GuavaLexer.l"
+#line 92 "GuavaLexer.l"
 { return token::RECORD; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 92 "GuavaLexer.l"
+#line 93 "GuavaLexer.l"
 { return token::UNION; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 93 "GuavaLexer.l"
+#line 94 "GuavaLexer.l"
 { return token::REFERENCE; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 94 "GuavaLexer.l"
+#line 95 "GuavaLexer.l"
 { return token::ARRAY; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 95 "GuavaLexer.l"
+#line 96 "GuavaLexer.l"
 { return token::FUNCTION; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 96 "GuavaLexer.l"
+#line 97 "GuavaLexer.l"
 { return token::DECLARE; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 98 "GuavaLexer.l"
+#line 99 "GuavaLexer.l"
 { return token::PRINT; } /* Funciones reservadas */
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 99 "GuavaLexer.l"
+#line 100 "GuavaLexer.l"
 { return token::READ; } 
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 101 "GuavaLexer.l"
+#line 102 "GuavaLexer.l"
 {
 	     int digit = atoi(yytext);
              yylval->intval = digit;
@@ -1266,7 +1266,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 107 "GuavaLexer.l"
+#line 108 "GuavaLexer.l"
 {
                         float digit = atof(yytext);
                         yylval->realval = digit;
@@ -1275,7 +1275,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 115 "GuavaLexer.l"
+#line 116 "GuavaLexer.l"
 {
              yylval->strval = yytext;
              return token::STRING;
@@ -1286,7 +1286,7 @@ case 34:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 120 "GuavaLexer.l"
+#line 121 "GuavaLexer.l"
 { driver.error (*yylloc, "missing terminating character \"");
               strcpy(yylval->strval, "");
               return token::STRING;
@@ -1294,7 +1294,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 125 "GuavaLexer.l"
+#line 126 "GuavaLexer.l"
 { driver.error (*yylloc, "multi-character character constant.");
                     yylval->charval = '0';
                     return token::CHAR;
@@ -1303,7 +1303,7 @@ YY_RULE_SETUP
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 130 "GuavaLexer.l"
+#line 131 "GuavaLexer.l"
 {
            if (strcmp(yytext,"\'\\n\'") == 0) { /* Hay que poner todos los caracteres especiales */
                yylval->charval = '\n';
@@ -1315,32 +1315,32 @@ YY_RULE_SETUP
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 139 "GuavaLexer.l"
+#line 140 "GuavaLexer.l"
 { return token::AND; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 140 "GuavaLexer.l"
+#line 141 "GuavaLexer.l"
 { return token::OR;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 141 "GuavaLexer.l"
+#line 142 "GuavaLexer.l"
 { return token::NOT; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 143 "GuavaLexer.l"
+#line 144 "GuavaLexer.l"
 { return token::DIV; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 144 "GuavaLexer.l"
+#line 145 "GuavaLexer.l"
 { return token::MOD; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 148 "GuavaLexer.l"
+#line 149 "GuavaLexer.l"
 {
        yylval->strval = yytext;
        return token::ID;
@@ -1348,77 +1348,77 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 154 "GuavaLexer.l"
+#line 155 "GuavaLexer.l"
 { return yy::GuavaParser::token_type (yytext[0]); } /* [+-*()/{}.,;] */
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 156 "GuavaLexer.l"
+#line 157 "GuavaLexer.l"
 { return yy::GuavaParser::token_type (yytext[0]); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 158 "GuavaLexer.l"
+#line 159 "GuavaLexer.l"
 { return token::POW; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 159 "GuavaLexer.l"
+#line 160 "GuavaLexer.l"
 { return token::MINUSMINUS; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 160 "GuavaLexer.l"
+#line 161 "GuavaLexer.l"
 { return token::PLUSPLUS; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 162 "GuavaLexer.l"
+#line 163 "GuavaLexer.l"
 { return token::ASSIGN; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 164 "GuavaLexer.l"
+#line 165 "GuavaLexer.l"
 { yylval->subtok = 1; return token::COMPARISON; } 
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 165 "GuavaLexer.l"
+#line 166 "GuavaLexer.l"
 { yylval->subtok = 2; return token::COMPARISON; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 166 "GuavaLexer.l"
+#line 167 "GuavaLexer.l"
 { yylval->subtok = 3; return token::COMPARISON; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 167 "GuavaLexer.l"
+#line 168 "GuavaLexer.l"
 { yylval->subtok = 4; return token::COMPARISON; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 168 "GuavaLexer.l"
+#line 169 "GuavaLexer.l"
 { yylval->subtok = 5; return token::COMPARISON; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 169 "GuavaLexer.l"
+#line 170 "GuavaLexer.l"
 { yylval->subtok = 6; return token::COMPARISON; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 170 "GuavaLexer.l"
+#line 171 "GuavaLexer.l"
 { return token::UFO; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 172 "GuavaLexer.l"
+#line 173 "GuavaLexer.l"
 driver.error (*yylloc, "invalid character");
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 174 "GuavaLexer.l"
+#line 175 "GuavaLexer.l"
 ECHO;
 	YY_BREAK
 #line 1425 "GuavaLexer.cc"
@@ -2568,7 +2568,7 @@ void yyfree (void * ptr )
 
 /* %ok-for-header */
 
-#line 174 "GuavaLexer.l"
+#line 175 "GuavaLexer.l"
 
 
 

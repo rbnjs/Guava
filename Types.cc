@@ -264,12 +264,18 @@ TypeS* TypeArray::get_tipoEstructura() { return tipo_estructura; }
  * Si retornamos el tipo de la estructura se debe de hacer una funcion que
  * imprima: 'arreglo de arreglo de ... arreglo de' + tipo_primitivo.
  */
-std::string TypeArray::get_name() { return tipo_primitivo->get_name(); }
+std::string TypeArray::get_name() { 
+    if (tipo_estructura !=0) {
+        return "array of " + tipo_estructura->get_name();
+    }
+    else {
+        return "array of " + tipo_primitivo->get_name();
+    }
+}
 
 int TypeArray::get_dimensiones(){
     return size;
 }
-
 
 /* class Reference */
 
@@ -293,5 +299,3 @@ bool TypeReference::is_array()     { return false; }
 TypeS* TypeReference::get_tipo() { return referencia; }
 
 std::string TypeReference::get_name() { return std::string(""); }
-
-

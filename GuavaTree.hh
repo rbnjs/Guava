@@ -563,7 +563,8 @@ private:
 class Arreglo:public Valor{
 public:
     LArreglo* la;
-    TypeS* tipo;
+    TypeS* tipo_primitivo;
+    TypeS* tipo_estructura;
     int line;
     int column;
 
@@ -572,11 +573,15 @@ public:
     Arreglo(LArreglo*);    
     ~Arreglo();
     TypeS* get_tipo(){ 
-        return tipo;
+        return tipo_primitivo;
+    }
+    TypeS* get_tipoEstructura() {
+        return tipo_estructura;
     }
 
+
     void show(std::string s);
-    void set_line_column(int l, int c){
+    void set_line_column(int l, int c) {
         line = l;
         column = c;
     }

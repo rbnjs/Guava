@@ -744,6 +744,7 @@ namespace yy {
     { 
                                 LVar *tmp = new LVar();
                                 tmp->append(*(yysemantic_stack_[(1) - (1)].classIdentificador));
+                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 (yyval.classLVar) = tmp;
                               }
     break;
@@ -751,7 +752,7 @@ namespace yy {
   case 28:
 
 /* Line 663 of lalr1.cc  */
-#line 289 "GuavaParser.yy"
+#line 290 "GuavaParser.yy"
     { 
                                 (yysemantic_stack_[(3) - (3)].classIdentificador)->line = yylloc.begin.line;
                                 (yysemantic_stack_[(3) - (3)].classIdentificador)->column = yylloc.begin.column;
@@ -763,8 +764,9 @@ namespace yy {
   case 29:
 
 /* Line 663 of lalr1.cc  */
-#line 296 "GuavaParser.yy"
+#line 297 "GuavaParser.yy"
     { LVar *tmp = new LVar ();
+                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 (yyval.classLVar) = tmp;
                               }
     break;
@@ -772,15 +774,16 @@ namespace yy {
   case 30:
 
 /* Line 663 of lalr1.cc  */
-#line 299 "GuavaParser.yy"
+#line 301 "GuavaParser.yy"
     { (yyval.classLVar) = (yysemantic_stack_[(3) - (1)].classLVar); }
     break;
 
   case 31:
 
 /* Line 663 of lalr1.cc  */
-#line 301 "GuavaParser.yy"
+#line 303 "GuavaParser.yy"
     { LVarArreglo* tmp = new LVarArreglo(*(yysemantic_stack_[(2) - (1)].classIdentificador),*(yysemantic_stack_[(2) - (2)].classLCorchetes));
+                                                         tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                          (yyval.classLVarArreglo) = tmp;
                                                        }
     break;
@@ -788,7 +791,7 @@ namespace yy {
   case 32:
 
 /* Line 663 of lalr1.cc  */
-#line 304 "GuavaParser.yy"
+#line 307 "GuavaParser.yy"
     { (yysemantic_stack_[(4) - (1)].classLVarArreglo)->append(*(yysemantic_stack_[(4) - (3)].classIdentificador),*(yysemantic_stack_[(4) - (4)].classLCorchetes));
                                                          (yyval.classLVarArreglo) = (yysemantic_stack_[(4) - (1)].classLVarArreglo);
                                                        }
@@ -797,8 +800,9 @@ namespace yy {
   case 33:
 
 /* Line 663 of lalr1.cc  */
-#line 308 "GuavaParser.yy"
+#line 311 "GuavaParser.yy"
     { LVarArreglo* tmp = new LVarArreglo();
+                                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                         (yyval.classLVarArreglo) = tmp;
                                                        }
     break;
@@ -806,7 +810,7 @@ namespace yy {
   case 34:
 
 /* Line 663 of lalr1.cc  */
-#line 311 "GuavaParser.yy"
+#line 315 "GuavaParser.yy"
     {
                                                         LVarArreglo* tmp = new LVarArreglo();
                                                         (yyval.classLVarArreglo) = tmp;
@@ -816,9 +820,10 @@ namespace yy {
   case 35:
 
 /* Line 663 of lalr1.cc  */
-#line 318 "GuavaParser.yy"
+#line 322 "GuavaParser.yy"
     { 
                                         LCorchetes *tmp =  new LCorchetes(false);
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                         tmp->append((yysemantic_stack_[(3) - (2)].intval));
                                         (yyval.classLCorchetes) = tmp;
                                        }
@@ -827,7 +832,7 @@ namespace yy {
   case 36:
 
 /* Line 663 of lalr1.cc  */
-#line 323 "GuavaParser.yy"
+#line 328 "GuavaParser.yy"
     { 
                                          (yysemantic_stack_[(4) - (1)].classLCorchetes)->append((yysemantic_stack_[(4) - (3)].intval));
                                          (yyval.classLCorchetes) = (yysemantic_stack_[(4) - (1)].classLCorchetes); 
@@ -837,16 +842,17 @@ namespace yy {
   case 37:
 
 /* Line 663 of lalr1.cc  */
-#line 328 "GuavaParser.yy"
+#line 333 "GuavaParser.yy"
     {/*Definicion erronea del tamano del arreglo*/
                                       (yyval.classLCorchetes) = new LCorchetes(true);
+                                      //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     }
     break;
 
   case 38:
 
 /* Line 663 of lalr1.cc  */
-#line 331 "GuavaParser.yy"
+#line 337 "GuavaParser.yy"
     {
                                       (yyval.classLCorchetes) = new LCorchetes(true);
                                      }
@@ -855,9 +861,10 @@ namespace yy {
   case 39:
 
 /* Line 663 of lalr1.cc  */
-#line 335 "GuavaParser.yy"
+#line 341 "GuavaParser.yy"
     { LCorchetesExp* tmp = new LCorchetesExp();
-                                           if((yysemantic_stack_[(3) - (2)].classExp)->get_tipo() == TypeInt::Instance()) {
+                                           tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                           if( (yysemantic_stack_[(3) - (2)].classExp) != 0 && (yysemantic_stack_[(3) - (2)].classExp)->get_tipo() == TypeInt::Instance()) {
                                                 tmp->tipo = (yysemantic_stack_[(3) - (2)].classExp)->get_tipo();
                                            }
                                             else {
@@ -873,9 +880,9 @@ namespace yy {
   case 40:
 
 /* Line 663 of lalr1.cc  */
-#line 347 "GuavaParser.yy"
+#line 354 "GuavaParser.yy"
     { 
-                                           if ((yysemantic_stack_[(4) - (3)].classExp)->get_tipo() != TypeInt::Instance()){
+                                           if ((yysemantic_stack_[(4) - (3)].classExp) != 0 && (yysemantic_stack_[(4) - (3)].classExp)->get_tipo() != TypeInt::Instance()){
                                                std::string msg = mensaje_error_tipos("integer",(yysemantic_stack_[(4) - (3)].classExp)->get_tipo()->get_name());
                                                driver.error(yylloc,msg);
                                                (yysemantic_stack_[(4) - (1)].classLCorchetesExp)->tipo = TypeError::Instance();
@@ -888,9 +895,10 @@ namespace yy {
   case 41:
 
 /* Line 663 of lalr1.cc  */
-#line 356 "GuavaParser.yy"
+#line 363 "GuavaParser.yy"
     {
                                             LCorchetesExp* tmp = new LCorchetesExp();
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             tmp->tipo = TypeError::Instance();
                                          }
     break;
@@ -898,7 +906,7 @@ namespace yy {
   case 42:
 
 /* Line 663 of lalr1.cc  */
-#line 360 "GuavaParser.yy"
+#line 368 "GuavaParser.yy"
     {
                                                 LCorchetesExp* tmp = new LCorchetesExp();
                                                 tmp->tipo = TypeError::Instance();
@@ -908,7 +916,7 @@ namespace yy {
   case 43:
 
 /* Line 663 of lalr1.cc  */
-#line 366 "GuavaParser.yy"
+#line 374 "GuavaParser.yy"
     { (yyval.classLFunciones) = new LFunciones((yysemantic_stack_[(1) - (1)].classFuncion),0);
                                            }
     break;
@@ -916,7 +924,7 @@ namespace yy {
   case 44:
 
 /* Line 663 of lalr1.cc  */
-#line 368 "GuavaParser.yy"
+#line 376 "GuavaParser.yy"
     { 
                                              LFunciones* main_ = new LFunciones((yysemantic_stack_[(2) - (2)].classFuncion),0);
                                              (yysemantic_stack_[(2) - (1)].classLFunciones)->lista = main_;
@@ -927,7 +935,7 @@ namespace yy {
   case 45:
 
 /* Line 663 of lalr1.cc  */
-#line 374 "GuavaParser.yy"
+#line 382 "GuavaParser.yy"
     { (yyval.classLFunciones) = new LFunciones((yysemantic_stack_[(1) - (1)].classFuncion),0);
                                            }
     break;
@@ -935,7 +943,7 @@ namespace yy {
   case 46:
 
 /* Line 663 of lalr1.cc  */
-#line 376 "GuavaParser.yy"
+#line 384 "GuavaParser.yy"
     { 
                                              LFunciones* func = new LFunciones((yysemantic_stack_[(2) - (2)].classFuncion),0);
                                              (yysemantic_stack_[(2) - (1)].classLFunciones)->lista = func;
@@ -946,7 +954,7 @@ namespace yy {
   case 47:
 
 /* Line 663 of lalr1.cc  */
-#line 382 "GuavaParser.yy"
+#line 390 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    int line = yylloc.begin.line;
@@ -961,10 +969,12 @@ namespace yy {
   case 48:
 
 /* Line 663 of lalr1.cc  */
-#line 391 "GuavaParser.yy"
-    { LParam lp = LParam();
+#line 399 "GuavaParser.yy"
+    { LParam* lp = new LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
-                                                   (yyval.classFuncion) = new  Funcion(tipo,Identificador(std::string("main")),lp,*(yysemantic_stack_[(10) - (8)].classBloqueDeclare),*(yysemantic_stack_[(10) - (9)].classListaInstrucciones)); 
+                                                   Funcion* tmp = new  Funcion(tipo, new Identificador(std::string("main")),lp,(yysemantic_stack_[(10) - (8)].classBloqueDeclare),(yysemantic_stack_[(10) - (9)].classListaInstrucciones)); 
+                                                   tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                   (yyval.classFuncion) = tmp;
                                                    if (!error_state) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
@@ -980,7 +990,7 @@ namespace yy {
   case 49:
 
 /* Line 663 of lalr1.cc  */
-#line 406 "GuavaParser.yy"
+#line 416 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope();
                                                          identacion += "  ";
                                                        }
@@ -989,17 +999,17 @@ namespace yy {
   case 50:
 
 /* Line 663 of lalr1.cc  */
-#line 409 "GuavaParser.yy"
+#line 419 "GuavaParser.yy"
     { TypeS* t = TypeError::Instance();
-                                                         LParam lp = LParam();
-                                                         (yyval.classFuncion) = new Funcion(t,Identificador(std::string("main")),lp,*(yysemantic_stack_[(11) - (9)].classBloqueDeclare),*(yysemantic_stack_[(11) - (10)].classListaInstrucciones));
+                                                         LParam* lp = new LParam();
+                                                         (yyval.classFuncion) = new Funcion(t, new Identificador(std::string("main")),lp,(yysemantic_stack_[(11) - (9)].classBloqueDeclare),(yysemantic_stack_[(11) - (10)].classListaInstrucciones));
                                                        }
     break;
 
   case 51:
 
 /* Line 663 of lalr1.cc  */
-#line 415 "GuavaParser.yy"
+#line 425 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope();
                                             offset_actual.push_front(0);
                                           }
@@ -1008,7 +1018,7 @@ namespace yy {
   case 52:
 
 /* Line 663 of lalr1.cc  */
-#line 418 "GuavaParser.yy"
+#line 428 "GuavaParser.yy"
     { 
                                                  insertar_funcion((yysemantic_stack_[(6) - (2)].classTipo),(yysemantic_stack_[(6) - (3)].classIdentificador),(yysemantic_stack_[(6) - (6)].classLParam),&driver,current_scope,yylloc); 
                                                  identacion += "  ";
@@ -1018,30 +1028,37 @@ namespace yy {
   case 53:
 
 /* Line 663 of lalr1.cc  */
-#line 422 "GuavaParser.yy"
-    { //if ($2->get_tipo() == $13->get_tipo()) {
-                                                                                                TypeS* tipo = new TypeFunction((yysemantic_stack_[(12) - (2)].classTipo)->get_tipo(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
-                                                                                                (yyval.classFuncion) = new Funcion(tipo,*(yysemantic_stack_[(12) - (3)].classIdentificador),*(yysemantic_stack_[(12) - (6)].classLParam),*(yysemantic_stack_[(12) - (10)].classBloqueDeclare),*(yysemantic_stack_[(12) - (11)].classListaInstrucciones));
-                                                                                              //}
-                                                                                              //else {
-                                                                                              //  std::string msg = mensaje_error_tipos($2->get_name(),$13->get_tipo()->get_name());
-                                                                                              //}
-                                                                                              if (!error_state) {
-                                                                                                std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
-                                                                                                std::cout << "Parametros y variables:\n";
-                                                                                                driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                std::cout << "}\n";
-                                                                                                driver.tablaSimbolos.exitScope();
+#line 432 "GuavaParser.yy"
+    { TypeS* tipo = new TypeFunction((yysemantic_stack_[(12) - (2)].classTipo)->get_tipo(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
+                                                                               std::list<Instruccion*> lretorno = (yysemantic_stack_[(12) - (11)].classListaInstrucciones)->obtener_return();
+                                                                               Funcion* tmp;
+                                                                               if (lretorno.size() == 0) {
+                                                                                    funcion_sin_return((yysemantic_stack_[(12) - (3)].classIdentificador),&driver,yylloc); 
+                                                                               } else{
+                                                                                    if ( verificar_return((yysemantic_stack_[(12) - (3)].classIdentificador),(yysemantic_stack_[(12) - (2)].classTipo),lretorno,&driver) ){
+                                                                                        tmp = new Funcion(tipo,(yysemantic_stack_[(12) - (3)].classIdentificador),(yysemantic_stack_[(12) - (6)].classLParam),(yysemantic_stack_[(12) - (10)].classBloqueDeclare),(yysemantic_stack_[(12) - (11)].classListaInstrucciones));
+                                                                                    } else {
+                                                                                        tmp = new Funcion();
+                                                                                    }
+                                                                               }
+                                                                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                               (yyval.classFuncion) = tmp;
+                                                                               if (!error_state) {
+                                                                                    std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
+                                                                                    std::cout << "Parametros y variables:\n";
+                                                                                    driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                    std::cout << "}\n";
+                                                                                    driver.tablaSimbolos.exitScope();
                                                                                                 identacion.erase(0,2);
-                                                                                              }
-                                                                                              (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
-                                                                                            }
+                                                                               }
+                                                                               (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                            }
     break;
 
   case 54:
 
 /* Line 663 of lalr1.cc  */
-#line 440 "GuavaParser.yy"
+#line 457 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                 offset_actual.push_front(0);
                                               }
@@ -1050,7 +1067,7 @@ namespace yy {
   case 55:
 
 /* Line 663 of lalr1.cc  */
-#line 443 "GuavaParser.yy"
+#line 460 "GuavaParser.yy"
     {  
                                                       TypeS* v = TypeVoid::Instance();
                                                       insertar_funcion(v,(yysemantic_stack_[(6) - (3)].classIdentificador),(yysemantic_stack_[(6) - (6)].classLParam),&driver,current_scope,yylloc); 
@@ -1061,25 +1078,27 @@ namespace yy {
   case 56:
 
 /* Line 663 of lalr1.cc  */
-#line 448 "GuavaParser.yy"
-    { TypeS* tipo = new TypeFunction(TypeVoid::Instance(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
-                                                                                                    (yyval.classFuncion) = new Funcion(tipo,*(yysemantic_stack_[(12) - (3)].classIdentificador),*(yysemantic_stack_[(12) - (6)].classLParam),*(yysemantic_stack_[(12) - (10)].classBloqueDeclare),*(yysemantic_stack_[(12) - (11)].classListaInstrucciones));
-                                                                                                    if (!error_state) {
-                                                                                                        std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
-                                                                                                        std::cout << "Parametros y variables:\n";
-                                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
-                                                                                                        std::cout << "}\n";
-                                                                                                        driver.tablaSimbolos.exitScope();
-                                                                                                        identacion.erase(0,2);
-                                                                                                    }
-                                                                                                   (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
-                                                                                                  }
+#line 465 "GuavaParser.yy"
+    {  TypeS* tipo = new TypeFunction(TypeVoid::Instance(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
+                                                                                   Funcion* tmp = new Funcion(tipo,(yysemantic_stack_[(12) - (3)].classIdentificador),(yysemantic_stack_[(12) - (6)].classLParam),(yysemantic_stack_[(12) - (10)].classBloqueDeclare),(yysemantic_stack_[(12) - (11)].classListaInstrucciones));
+                                                                                   tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                                   (yyval.classFuncion) = tmp;
+                                                                                   if (!error_state) {
+                                                                                        std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
+                                                                                        std::cout << "Parametros y variables:\n";
+                                                                                        driver.tablaSimbolos.show(current_scope,identacion);
+                                                                                        std::cout << "}\n";
+                                                                                        driver.tablaSimbolos.exitScope();
+                                                                                        identacion.erase(0,2);
+                                                                                    }
+                                                                                    (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                                }
     break;
 
   case 57:
 
 /* Line 663 of lalr1.cc  */
-#line 463 "GuavaParser.yy"
+#line 482 "GuavaParser.yy"
     { current_scope =  driver.tablaSimbolos.enterScope(); 
                                                          identacion += "  ";
                                                        }
@@ -1088,7 +1107,7 @@ namespace yy {
   case 58:
 
 /* Line 663 of lalr1.cc  */
-#line 466 "GuavaParser.yy"
+#line 485 "GuavaParser.yy"
     { (yyval.classFuncion) = new Funcion(); 
                                                                                                 }
     break;
@@ -1096,7 +1115,7 @@ namespace yy {
   case 59:
 
 /* Line 663 of lalr1.cc  */
-#line 470 "GuavaParser.yy"
+#line 489 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                               identacion += "  ";
                                                             }
@@ -1105,7 +1124,7 @@ namespace yy {
   case 60:
 
 /* Line 663 of lalr1.cc  */
-#line 473 "GuavaParser.yy"
+#line 492 "GuavaParser.yy"
     {  (yyval.classFuncion) = new Funcion();
                                                                                            }
     break;
@@ -1113,15 +1132,17 @@ namespace yy {
   case 61:
 
 /* Line 663 of lalr1.cc  */
-#line 476 "GuavaParser.yy"
-    { (yyval.classLParam) = new LParam(); 
+#line 495 "GuavaParser.yy"
+    { LParam* tmp = new LParam(); 
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                               (yyval.classLParam) = tmp;
                              }
     break;
 
   case 62:
 
 /* Line 663 of lalr1.cc  */
-#line 478 "GuavaParser.yy"
+#line 499 "GuavaParser.yy"
     { (yyval.classLParam) = (yysemantic_stack_[(1) - (1)].classLParam); 
                              }
     break;
@@ -1129,10 +1150,11 @@ namespace yy {
   case 63:
 
 /* Line 663 of lalr1.cc  */
-#line 481 "GuavaParser.yy"
+#line 502 "GuavaParser.yy"
     { LParam* tmp = new LParam(); 
                                             tmp->append((yysemantic_stack_[(2) - (1)].classTipo),(yysemantic_stack_[(2) - (2)].classIdentificador));
                                             tmp->appendTipo((yysemantic_stack_[(2) - (1)].classTipo));
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             (yyval.classLParam) = tmp;
                                             insertar_simboloSimple((yysemantic_stack_[(2) - (2)].classIdentificador),(yysemantic_stack_[(2) - (1)].classTipo),std::string("param"),&driver,yylloc);
                                           }
@@ -1141,10 +1163,11 @@ namespace yy {
   case 64:
 
 /* Line 663 of lalr1.cc  */
-#line 487 "GuavaParser.yy"
+#line 509 "GuavaParser.yy"
     { LParam* tmp = new LParam(); 
                                             tmp->append((yysemantic_stack_[(3) - (1)].classTipo),(yysemantic_stack_[(3) - (3)].classIdentificador));
                                             tmp->appendTipo((yysemantic_stack_[(3) - (1)].classTipo));
+                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             (yyval.classLParam) = tmp;
                                             insertar_simboloSimple((yysemantic_stack_[(3) - (3)].classIdentificador),(yysemantic_stack_[(3) - (1)].classTipo),std::string("param"),&driver,yylloc); // llamada a otra funcion
                                           }
@@ -1153,7 +1176,7 @@ namespace yy {
   case 65:
 
 /* Line 663 of lalr1.cc  */
-#line 493 "GuavaParser.yy"
+#line 516 "GuavaParser.yy"
     { 
                                             (yysemantic_stack_[(4) - (1)].classLParam)->append((yysemantic_stack_[(4) - (3)].classTipo),(yysemantic_stack_[(4) - (4)].classIdentificador));
                                             (yysemantic_stack_[(4) - (1)].classLParam)->appendTipo((yysemantic_stack_[(4) - (3)].classTipo));
@@ -1165,7 +1188,7 @@ namespace yy {
   case 66:
 
 /* Line 663 of lalr1.cc  */
-#line 499 "GuavaParser.yy"
+#line 522 "GuavaParser.yy"
     { 
                                                           (yysemantic_stack_[(5) - (1)].classLParam)->append((yysemantic_stack_[(5) - (3)].classTipo),(yysemantic_stack_[(5) - (5)].classIdentificador));
                                                           (yysemantic_stack_[(5) - (1)].classLParam)->appendTipo((yysemantic_stack_[(5) - (3)].classTipo));
@@ -1177,35 +1200,35 @@ namespace yy {
   case 67:
 
 /* Line 663 of lalr1.cc  */
-#line 505 "GuavaParser.yy"
+#line 528 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 68:
 
 /* Line 663 of lalr1.cc  */
-#line 506 "GuavaParser.yy"
+#line 529 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 69:
 
 /* Line 663 of lalr1.cc  */
-#line 507 "GuavaParser.yy"
+#line 530 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 70:
 
 /* Line 663 of lalr1.cc  */
-#line 508 "GuavaParser.yy"
+#line 531 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 71:
 
 /* Line 663 of lalr1.cc  */
-#line 511 "GuavaParser.yy"
+#line 534 "GuavaParser.yy"
     { 
                                                             (yyval.classListaInstrucciones) = new ListaInstrucciones(); 
                                                         }
@@ -1214,7 +1237,7 @@ namespace yy {
   case 72:
 
 /* Line 663 of lalr1.cc  */
-#line 514 "GuavaParser.yy"
+#line 537 "GuavaParser.yy"
     { 
                                                           ListaInstrucciones * result;
                                                           if ( (yysemantic_stack_[(3) - (1)].classListaInstrucciones)->get_tipo() == TypeError::Instance()
@@ -1232,7 +1255,7 @@ namespace yy {
   case 73:
 
 /* Line 663 of lalr1.cc  */
-#line 526 "GuavaParser.yy"
+#line 549 "GuavaParser.yy"
     {
                                                           ListaInstrucciones * result;
                                                           if ( (yysemantic_stack_[(2) - (1)].classListaInstrucciones)->get_tipo() == TypeError::Instance()
@@ -1250,7 +1273,7 @@ namespace yy {
   case 74:
 
 /* Line 663 of lalr1.cc  */
-#line 539 "GuavaParser.yy"
+#line 562 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1258,7 +1281,7 @@ namespace yy {
   case 75:
 
 /* Line 663 of lalr1.cc  */
-#line 541 "GuavaParser.yy"
+#line 564 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1266,10 +1289,11 @@ namespace yy {
   case 76:
 
 /* Line 663 of lalr1.cc  */
-#line 543 "GuavaParser.yy"
+#line 566 "GuavaParser.yy"
     {
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada((yysemantic_stack_[(2) - (2)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -1296,10 +1320,11 @@ namespace yy {
   case 77:
 
 /* Line 663 of lalr1.cc  */
-#line 567 "GuavaParser.yy"
+#line 591 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada((yysemantic_stack_[(2) - (1)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -1326,10 +1351,11 @@ namespace yy {
   case 78:
 
 /* Line 663 of lalr1.cc  */
-#line 591 "GuavaParser.yy"
+#line 616 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada((yysemantic_stack_[(2) - (2)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -1356,10 +1382,11 @@ namespace yy {
   case 79:
 
 /* Line 663 of lalr1.cc  */
-#line 615 "GuavaParser.yy"
+#line 641 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada((yysemantic_stack_[(2) - (1)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -1386,7 +1413,7 @@ namespace yy {
   case 80:
 
 /* Line 663 of lalr1.cc  */
-#line 639 "GuavaParser.yy"
+#line 666 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1394,25 +1421,29 @@ namespace yy {
   case 81:
 
 /* Line 663 of lalr1.cc  */
-#line 641 "GuavaParser.yy"
+#line 668 "GuavaParser.yy"
     {
-                              (yyval.classInstruccion) = new ContinueBreak(0);
+                              ContinueBreak* tmp = new ContinueBreak(0);
+                              tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                              (yyval.classInstruccion) = tmp;
                             }
     break;
 
   case 82:
 
 /* Line 663 of lalr1.cc  */
-#line 644 "GuavaParser.yy"
+#line 673 "GuavaParser.yy"
     {
-                              (yyval.classInstruccion) = new ContinueBreak(1);
+                              ContinueBreak* tmp = new ContinueBreak(1);
+                              tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                              (yyval.classInstruccion) = tmp;
                             }
     break;
 
   case 83:
 
 /* Line 663 of lalr1.cc  */
-#line 649 "GuavaParser.yy"
+#line 680 "GuavaParser.yy"
     {/*Error en la especificacion del incremento o decremento*/
                                          (yyval.classInstruccion) = new Error();
                                        }
@@ -1421,7 +1452,7 @@ namespace yy {
   case 84:
 
 /* Line 663 of lalr1.cc  */
-#line 652 "GuavaParser.yy"
+#line 683 "GuavaParser.yy"
     {/*Error en la especificacion del incremento o decremento*/
                                          (yyval.classInstruccion) = new Error();
                                        }
@@ -1430,7 +1461,7 @@ namespace yy {
   case 85:
 
 /* Line 663 of lalr1.cc  */
-#line 655 "GuavaParser.yy"
+#line 686 "GuavaParser.yy"
     {
                                        }
     break;
@@ -1438,7 +1469,7 @@ namespace yy {
   case 86:
 
 /* Line 663 of lalr1.cc  */
-#line 660 "GuavaParser.yy"
+#line 691 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1446,7 +1477,7 @@ namespace yy {
   case 87:
 
 /* Line 663 of lalr1.cc  */
-#line 662 "GuavaParser.yy"
+#line 693 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1454,7 +1485,7 @@ namespace yy {
   case 88:
 
 /* Line 663 of lalr1.cc  */
-#line 664 "GuavaParser.yy"
+#line 695 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1462,8 +1493,9 @@ namespace yy {
   case 89:
 
 /* Line 663 of lalr1.cc  */
-#line 667 "GuavaParser.yy"
+#line 698 "GuavaParser.yy"
     { /*Caso en el que alguno de los dos tipos sea de tipo error.*/
+                                 Asignacion* tmp;
                                  if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeError::Instance() ||
                                      (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeError::Instance()){
                                      if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == 0){
@@ -1476,9 +1508,13 @@ namespace yy {
                                         std::string msg = mensaje_error_tipos((yysemantic_stack_[(3) - (1)].classExp)->get_tipo()->get_name(), (yysemantic_stack_[(3) - (3)].classExp)->get_tipo()->get_name());
                                         driver.error(yylloc, msg);
                                      }
-                                    (yyval.classAsignacion) = new Asignacion();
+                                    tmp = new Asignacion();
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    (yyval.classAsignacion) = tmp;
                                  } else {
-                                    (yyval.classAsignacion) = new Asignacion((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp));
+                                    tmp = new Asignacion((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp));
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    (yyval.classAsignacion) = tmp;
                                  }
                                }
     break;
@@ -1486,7 +1522,7 @@ namespace yy {
   case 90:
 
 /* Line 663 of lalr1.cc  */
-#line 686 "GuavaParser.yy"
+#line 722 "GuavaParser.yy"
     {
                                  (yyval.classAsignacion) = new Asignacion();
                                }
@@ -1495,7 +1531,7 @@ namespace yy {
   case 91:
 
 /* Line 663 of lalr1.cc  */
-#line 689 "GuavaParser.yy"
+#line 725 "GuavaParser.yy"
     {
                                  (yyval.classAsignacion) = new Asignacion();
                                }
@@ -1504,13 +1540,14 @@ namespace yy {
   case 92:
 
 /* Line 663 of lalr1.cc  */
-#line 694 "GuavaParser.yy"
+#line 730 "GuavaParser.yy"
     {
                                     EntradaSalida* tmp = new EntradaSalida(0,(yysemantic_stack_[(4) - (3)].classExp));  
                                     if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
                                     }
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     (yyval.classEntradaSalida) = tmp;
                                   }
     break;
@@ -1518,13 +1555,14 @@ namespace yy {
   case 93:
 
 /* Line 663 of lalr1.cc  */
-#line 702 "GuavaParser.yy"
+#line 739 "GuavaParser.yy"
     { 
                                     EntradaSalida* tmp = new EntradaSalida(1,(yysemantic_stack_[(4) - (3)].classExp));  
                                     if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                         std::string msg = mensaje_error_tipos("type","error");
                                         driver.error(yylloc,msg);
                                     }
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     (yyval.classEntradaSalida) = tmp;
                                   }
     break;
@@ -1532,18 +1570,18 @@ namespace yy {
   case 94:
 
 /* Line 663 of lalr1.cc  */
-#line 711 "GuavaParser.yy"
+#line 749 "GuavaParser.yy"
     { 
-			    (yyval.classRetorno) = new Retorno(0); 
-                          }
+			    (yyval.classRetorno) = new Retorno(0,yylloc.begin.line,yylloc.begin.column); 
+                      }
     break;
 
   case 95:
 
 /* Line 663 of lalr1.cc  */
-#line 714 "GuavaParser.yy"
+#line 752 "GuavaParser.yy"
     {
-			    Retorno* tmp =  new Retorno((yysemantic_stack_[(3) - (2)].classExp)); 
+			    Retorno* tmp =  new Retorno((yysemantic_stack_[(2) - (2)].classExp),yylloc.begin.line, yylloc.begin.column); 
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                 std::string msg = mensaje_error_tipos("type","error");
                                 driver.error(yylloc,msg);
@@ -1555,7 +1593,7 @@ namespace yy {
   case 96:
 
 /* Line 663 of lalr1.cc  */
-#line 723 "GuavaParser.yy"
+#line 761 "GuavaParser.yy"
     { 
                                                                       variable_no_declarada((yysemantic_stack_[(9) - (3)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   
@@ -1566,9 +1604,9 @@ namespace yy {
   case 97:
 
 /* Line 663 of lalr1.cc  */
-#line 729 "GuavaParser.yy"
+#line 767 "GuavaParser.yy"
     {  ErrorLoopFor* asign_exp = (yysemantic_stack_[(13) - (7)].classErrorLoopFor);
-                                                                            LoopFor* tmp;
+                                                                        LoopFor* tmp;
                                                                             if (asign_exp->is_error()
                                                                                     || (yysemantic_stack_[(13) - (3)].classIdentificador)->get_tipo() == TypeError::Instance()
                                                                                     || (yysemantic_stack_[(13) - (5)].classExp)->get_tipo() == TypeError::Instance()
@@ -1587,6 +1625,7 @@ namespace yy {
                                                                                     tmp->tipo = TypeVoid::Instance();
                                                                                 }
                                                                             }
+                                                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                             (yyval.classLoopFor) = tmp;
                                                                             if (!error_state) {
                                                                                 std::cout << identacion << "for {\n";
@@ -1602,7 +1641,7 @@ namespace yy {
   case 98:
 
 /* Line 663 of lalr1.cc  */
-#line 760 "GuavaParser.yy"
+#line 799 "GuavaParser.yy"
     { 
                                                             }
     break;
@@ -1610,7 +1649,7 @@ namespace yy {
   case 99:
 
 /* Line 663 of lalr1.cc  */
-#line 762 "GuavaParser.yy"
+#line 801 "GuavaParser.yy"
     { 
                                                                    (yyval.classLoopFor) = new LoopFor();
                                                                  }
@@ -1619,7 +1658,7 @@ namespace yy {
   case 100:
 
 /* Line 663 of lalr1.cc  */
-#line 765 "GuavaParser.yy"
+#line 804 "GuavaParser.yy"
     { 
                                                                      variable_no_declarada((yysemantic_stack_[(9) - (3)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front());
                                                                    }
@@ -1628,7 +1667,7 @@ namespace yy {
   case 101:
 
 /* Line 663 of lalr1.cc  */
-#line 768 "GuavaParser.yy"
+#line 807 "GuavaParser.yy"
     { 
                                                                            (yyval.classLoopFor) = new LoopFor();
                                                                          }
@@ -1637,7 +1676,7 @@ namespace yy {
   case 102:
 
 /* Line 663 of lalr1.cc  */
-#line 776 "GuavaParser.yy"
+#line 815 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor((yysemantic_stack_[(1) - (1)].classAsignacion));
                           }
@@ -1646,7 +1685,7 @@ namespace yy {
   case 103:
 
 /* Line 663 of lalr1.cc  */
-#line 779 "GuavaParser.yy"
+#line 818 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor((yysemantic_stack_[(1) - (1)].classExp));
                           }
@@ -1655,7 +1694,7 @@ namespace yy {
   case 104:
 
 /* Line 663 of lalr1.cc  */
-#line 782 "GuavaParser.yy"
+#line 821 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor();
                           }
@@ -1664,7 +1703,7 @@ namespace yy {
   case 105:
 
 /* Line 663 of lalr1.cc  */
-#line 786 "GuavaParser.yy"
+#line 825 "GuavaParser.yy"
     { 
                                                  driver.tablaSimbolos.enterScope();   
                                                  identacion += "  ";
@@ -1674,7 +1713,7 @@ namespace yy {
   case 106:
 
 /* Line 663 of lalr1.cc  */
-#line 790 "GuavaParser.yy"
+#line 829 "GuavaParser.yy"
     { 
                                                              LoopWhile* result;
                                                              ErrorBoolExp* exp_bool = (yysemantic_stack_[(10) - (3)].classErrorBoolExp);
@@ -1688,6 +1727,7 @@ namespace yy {
                                                              else {
                                                                  result = new LoopWhile(exp_bool->exp,(yysemantic_stack_[(10) - (8)].classBloqueDeclare),(yysemantic_stack_[(10) - (9)].classListaInstrucciones));
                                                              }
+                                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                              (yyval.classLoopWhile) = result;
                                                              if (!error_state) {
                                                                  std::cout << identacion << "while {\n"; 
@@ -1702,7 +1742,7 @@ namespace yy {
   case 107:
 
 /* Line 663 of lalr1.cc  */
-#line 812 "GuavaParser.yy"
+#line 852 "GuavaParser.yy"
     { 
                     driver.tablaSimbolos.enterScope();   
                     identacion += "  ";
@@ -1712,7 +1752,7 @@ namespace yy {
   case 108:
 
 /* Line 663 of lalr1.cc  */
-#line 816 "GuavaParser.yy"
+#line 856 "GuavaParser.yy"
     { 
                                                                                    LoopWhile* result;
                                                                                    ErrorBoolExp* exp_bool = (yysemantic_stack_[(10) - (9)].classErrorBoolExp);
@@ -1726,6 +1766,7 @@ namespace yy {
                                                                                    else {
                                                                                        result = new LoopWhile(exp_bool->exp,(yysemantic_stack_[(10) - (4)].classBloqueDeclare),(yysemantic_stack_[(10) - (5)].classListaInstrucciones));
                                                                                    }
+                                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    (yyval.classLoopWhile) = result;
                                                                                    if (!error_state) {
                                                                                        std::cout << identacion << "while {\n";
@@ -1740,9 +1781,10 @@ namespace yy {
   case 109:
 
 /* Line 663 of lalr1.cc  */
-#line 841 "GuavaParser.yy"
-    {
-                             if ( (yysemantic_stack_[(1) - (1)].classExp) == 0 || (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() != TypeBool::Instance()){
+#line 882 "GuavaParser.yy"
+    {    Exp* tmp = (yysemantic_stack_[(1) - (1)].classExp);
+                            //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                            if ( (yysemantic_stack_[(1) - (1)].classExp) == 0 || (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() != TypeBool::Instance()){
                                 (yyval.classErrorBoolExp) = new ErrorBoolExp();
                              } else {
                                 (yyval.classErrorBoolExp) = new ErrorBoolExp((yysemantic_stack_[(1) - (1)].classExp));
@@ -1753,7 +1795,7 @@ namespace yy {
   case 110:
 
 /* Line 663 of lalr1.cc  */
-#line 848 "GuavaParser.yy"
+#line 890 "GuavaParser.yy"
     {
                               (yyval.classErrorBoolExp) = new ErrorBoolExp();
                             }
@@ -1762,7 +1804,7 @@ namespace yy {
   case 111:
 
 /* Line 663 of lalr1.cc  */
-#line 852 "GuavaParser.yy"
+#line 894 "GuavaParser.yy"
     { 
                                           driver.tablaSimbolos.enterScope();   
                                           identacion += "  ";
@@ -1772,7 +1814,7 @@ namespace yy {
   case 112:
 
 /* Line 663 of lalr1.cc  */
-#line 856 "GuavaParser.yy"
+#line 898 "GuavaParser.yy"
     { 
                                                                ErrorBoolExp* err_exp = (yysemantic_stack_[(11) - (3)].classErrorBoolExp);
                                                                SelectorIf * result;
@@ -1786,6 +1828,7 @@ namespace yy {
                                                                else {
                                                                    result = new SelectorIf(err_exp->exp,(yysemantic_stack_[(11) - (8)].classBloqueDeclare),(yysemantic_stack_[(11) - (9)].classListaInstrucciones),(yysemantic_stack_[(11) - (11)].classLElseIf));
                                                                }
+                                                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                (yyval.classSelectorIf) = result;
                                                                driver.tablaSimbolos.exitScope();
                                                                identacion.erase(0,2);
@@ -1795,7 +1838,7 @@ namespace yy {
   case 113:
 
 /* Line 663 of lalr1.cc  */
-#line 873 "GuavaParser.yy"
+#line 916 "GuavaParser.yy"
     { 
                                                                ErrorBoolExp* err_exp = (yysemantic_stack_[(7) - (3)].classErrorBoolExp);
                                                                SelectorIf * result;
@@ -1809,6 +1852,7 @@ namespace yy {
                                                                else {
                                                                    result = new SelectorIf(err_exp->exp,(yysemantic_stack_[(7) - (6)].classInstruccion),0);
                                                                }
+                                                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                (yyval.classSelectorIf) = result;
                                                              }
     break;
@@ -1816,7 +1860,7 @@ namespace yy {
   case 114:
 
 /* Line 663 of lalr1.cc  */
-#line 888 "GuavaParser.yy"
+#line 932 "GuavaParser.yy"
     { 
                                                                        ErrorBoolExp* err_exp = (yysemantic_stack_[(9) - (3)].classErrorBoolExp);
                                                                        SelectorIf * result;
@@ -1830,6 +1874,7 @@ namespace yy {
                                                                        else {
                                                                            result = new SelectorIf(err_exp->exp,(yysemantic_stack_[(9) - (6)].classInstruccion),(yysemantic_stack_[(9) - (8)].classInstruccion));
                                                                        }
+                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                        (yyval.classSelectorIf) = result;
                                                                      }
     break;
@@ -1837,7 +1882,7 @@ namespace yy {
   case 115:
 
 /* Line 663 of lalr1.cc  */
-#line 905 "GuavaParser.yy"
+#line 950 "GuavaParser.yy"
     { 
                                                                       (yyval.classLElseIf) = new LElseIf(false);
                                                                     }
@@ -1846,7 +1891,7 @@ namespace yy {
   case 116:
 
 /* Line 663 of lalr1.cc  */
-#line 908 "GuavaParser.yy"
+#line 953 "GuavaParser.yy"
     { 
                              driver.tablaSimbolos.enterScope();   
                            }
@@ -1855,7 +1900,7 @@ namespace yy {
   case 117:
 
 /* Line 663 of lalr1.cc  */
-#line 911 "GuavaParser.yy"
+#line 956 "GuavaParser.yy"
     { 
                                                                       LElseIf* result; 
                                                                       if ( (yysemantic_stack_[(7) - (1)].classLElseIf)->get_tipo() == TypeError::Instance()
@@ -1868,6 +1913,7 @@ namespace yy {
                                                                           result = new LElseIf((yysemantic_stack_[(7) - (5)].classBloqueDeclare),(yysemantic_stack_[(7) - (6)].classListaInstrucciones));
                                                                           result->lelseif = (yysemantic_stack_[(7) - (1)].classLElseIf);
                                                                       }
+                                                                      result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       (yyval.classLElseIf) = result;
                                                                       driver.tablaSimbolos.exitScope();
                                                                     }
@@ -1876,7 +1922,7 @@ namespace yy {
   case 118:
 
 /* Line 663 of lalr1.cc  */
-#line 926 "GuavaParser.yy"
+#line 972 "GuavaParser.yy"
     { driver.tablaSimbolos.enterScope();
                    }
     break;
@@ -1884,7 +1930,7 @@ namespace yy {
   case 119:
 
 /* Line 663 of lalr1.cc  */
-#line 928 "GuavaParser.yy"
+#line 974 "GuavaParser.yy"
     {
                                                                       LElseIf* result; 
                                                                       if ( 
@@ -1896,6 +1942,7 @@ namespace yy {
                                                                       else {
                                                                           result = new LElseIf((yysemantic_stack_[(6) - (4)].classBloqueDeclare),(yysemantic_stack_[(6) - (5)].classListaInstrucciones));
                                                                       }
+                                                                      result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       (yyval.classLElseIf) = result;
                                                                     }
     break;
@@ -1903,14 +1950,14 @@ namespace yy {
   case 120:
 
 /* Line 663 of lalr1.cc  */
-#line 941 "GuavaParser.yy"
+#line 988 "GuavaParser.yy"
     { }
     break;
 
   case 121:
 
 /* Line 663 of lalr1.cc  */
-#line 945 "GuavaParser.yy"
+#line 992 "GuavaParser.yy"
     { 
                                              driver.tablaSimbolos.enterScope();   
                                             }
@@ -1919,7 +1966,7 @@ namespace yy {
   case 122:
 
 /* Line 663 of lalr1.cc  */
-#line 948 "GuavaParser.yy"
+#line 995 "GuavaParser.yy"
     {
                                                                    LElseIf* result; 
                                                                    if ( 
@@ -1933,6 +1980,7 @@ namespace yy {
                                                                    else {
                                                                        result = new LElseIf((yysemantic_stack_[(11) - (4)].classErrorBoolExp)->exp,(yysemantic_stack_[(11) - (9)].classBloqueDeclare),(yysemantic_stack_[(11) - (10)].classListaInstrucciones));
                                                                    }
+                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    (yyval.classLElseIf) = result;
                                                                    driver.tablaSimbolos.exitScope();
                                                                  }
@@ -1941,7 +1989,7 @@ namespace yy {
   case 123:
 
 /* Line 663 of lalr1.cc  */
-#line 964 "GuavaParser.yy"
+#line 1012 "GuavaParser.yy"
     { 
                                                       driver.tablaSimbolos.enterScope();   
                                                     }
@@ -1950,7 +1998,7 @@ namespace yy {
   case 124:
 
 /* Line 663 of lalr1.cc  */
-#line 967 "GuavaParser.yy"
+#line 1015 "GuavaParser.yy"
     {
                                                                    LElseIf* result; 
                                                                    if ( (yysemantic_stack_[(12) - (1)].classLElseIf)->get_tipo() == TypeError::Instance()
@@ -1964,6 +2012,7 @@ namespace yy {
                                                                    else {
                                                                        result = new LElseIf((yysemantic_stack_[(12) - (5)].classErrorBoolExp)->exp,(yysemantic_stack_[(12) - (10)].classBloqueDeclare),(yysemantic_stack_[(12) - (11)].classListaInstrucciones),(yysemantic_stack_[(12) - (1)].classLElseIf));
                                                                    }
+                                                                   result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    (yyval.classLElseIf) = result;
                                                                    driver.tablaSimbolos.exitScope();
                                                                  }
@@ -1972,7 +2021,7 @@ namespace yy {
   case 125:
 
 /* Line 663 of lalr1.cc  */
-#line 987 "GuavaParser.yy"
+#line 1036 "GuavaParser.yy"
     {
                       if ((yysemantic_stack_[(1) - (1)].classExp) == 0  || (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() != TypeBool::Instance()){
                         (yyval.classErrorBoolExp) = new ErrorBoolExp();
@@ -1985,7 +2034,7 @@ namespace yy {
   case 126:
 
 /* Line 663 of lalr1.cc  */
-#line 994 "GuavaParser.yy"
+#line 1043 "GuavaParser.yy"
     {
                       (yyval.classErrorBoolExp) = new ErrorBoolExp();
                     }
@@ -1994,7 +2043,7 @@ namespace yy {
   case 127:
 
 /* Line 663 of lalr1.cc  */
-#line 998 "GuavaParser.yy"
+#line 1047 "GuavaParser.yy"
     { Symbol *id; 
                                                    LlamadaFuncion* result;
                                                    if ( (id = driver.tablaSimbolos.lookup((yysemantic_stack_[(4) - (1)].classIdentificador)->identificador,0)) == 0){
@@ -2039,6 +2088,7 @@ namespace yy {
                                                             } else {
                                                                 result->tipo = rango;
                                                             }
+                                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                             (yyval.classExp) = result;
                                                         }else{
                                                             std::string msg;
@@ -2058,7 +2108,7 @@ namespace yy {
   case 128:
 
 /* Line 663 of lalr1.cc  */
-#line 1056 "GuavaParser.yy"
+#line 1106 "GuavaParser.yy"
     {/*Llamado a una funcion con identificador erroneo*/
                                                  }
     break;
@@ -2066,7 +2116,7 @@ namespace yy {
   case 129:
 
 /* Line 663 of lalr1.cc  */
-#line 1060 "GuavaParser.yy"
+#line 1110 "GuavaParser.yy"
     { 
                             (yyval.classLVaroValor) = new LVaroValor(false); 
                           }
@@ -2075,7 +2125,7 @@ namespace yy {
   case 130:
 
 /* Line 663 of lalr1.cc  */
-#line 1063 "GuavaParser.yy"
+#line 1113 "GuavaParser.yy"
     { 
                            }
     break;
@@ -2083,7 +2133,7 @@ namespace yy {
   case 131:
 
 /* Line 663 of lalr1.cc  */
-#line 1066 "GuavaParser.yy"
+#line 1116 "GuavaParser.yy"
     { 
                                       (yysemantic_stack_[(3) - (1)].classLVaroValor)->append((yysemantic_stack_[(3) - (3)].classExp));
                                       if ((yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeError::Instance()){
@@ -2096,7 +2146,7 @@ namespace yy {
   case 132:
 
 /* Line 663 of lalr1.cc  */
-#line 1073 "GuavaParser.yy"
+#line 1123 "GuavaParser.yy"
     {
                                       LVaroValor *tmp = new LVaroValor(false);
                                       if ( (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() == TypeError::Instance()){
@@ -2110,7 +2160,7 @@ namespace yy {
   case 133:
 
 /* Line 663 of lalr1.cc  */
-#line 1081 "GuavaParser.yy"
+#line 1131 "GuavaParser.yy"
     { (yyval.classLVaroValor) = new LVaroValor(true);
                                     }
     break;
@@ -2118,7 +2168,7 @@ namespace yy {
   case 134:
 
 /* Line 663 of lalr1.cc  */
-#line 1083 "GuavaParser.yy"
+#line 1133 "GuavaParser.yy"
     {
                                       LVaroValor *tmp = new LVaroValor(true);
                                       (yyval.classLVaroValor) = tmp;
@@ -2128,56 +2178,56 @@ namespace yy {
   case 135:
 
 /* Line 663 of lalr1.cc  */
-#line 1088 "GuavaParser.yy"
+#line 1138 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 136:
 
 /* Line 663 of lalr1.cc  */
-#line 1089 "GuavaParser.yy"
+#line 1139 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 137:
 
 /* Line 663 of lalr1.cc  */
-#line 1090 "GuavaParser.yy"
+#line 1140 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classValor); }
     break;
 
   case 138:
 
 /* Line 663 of lalr1.cc  */
-#line 1091 "GuavaParser.yy"
+#line 1141 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 139:
 
 /* Line 663 of lalr1.cc  */
-#line 1092 "GuavaParser.yy"
+#line 1142 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(3) - (2)].classExp); }
     break;
 
   case 140:
 
 /* Line 663 of lalr1.cc  */
-#line 1093 "GuavaParser.yy"
+#line 1143 "GuavaParser.yy"
     {  /*Supondremos que una llamada a una funcion es una expresion*/}
     break;
 
   case 141:
 
 /* Line 663 of lalr1.cc  */
-#line 1094 "GuavaParser.yy"
+#line 1144 "GuavaParser.yy"
     {}
     break;
 
   case 142:
 
 /* Line 663 of lalr1.cc  */
-#line 1098 "GuavaParser.yy"
+#line 1148 "GuavaParser.yy"
     { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
@@ -2202,7 +2252,7 @@ namespace yy {
   case 143:
 
 /* Line 663 of lalr1.cc  */
-#line 1117 "GuavaParser.yy"
+#line 1167 "GuavaParser.yy"
     { TypeS* tipo;
                                         ExpID* result;
                                         Symbol* id;
@@ -2244,7 +2294,7 @@ namespace yy {
   case 144:
 
 /* Line 663 of lalr1.cc  */
-#line 1153 "GuavaParser.yy"
+#line 1203 "GuavaParser.yy"
     { 
                                         Symbol * id;
                                         Identificador *prueba = (yysemantic_stack_[(2) - (1)].classIdentificador);
@@ -2269,7 +2319,7 @@ namespace yy {
   case 145:
 
 /* Line 663 of lalr1.cc  */
-#line 1174 "GuavaParser.yy"
+#line 1224 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("AND"));
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeBool::Instance() &&
                                    (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeBool::Instance())
@@ -2292,7 +2342,7 @@ namespace yy {
   case 146:
 
 /* Line 663 of lalr1.cc  */
-#line 1191 "GuavaParser.yy"
+#line 1241 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("OR"));
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeBool::Instance() &&
                                    (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeBool::Instance())
@@ -2315,7 +2365,7 @@ namespace yy {
   case 147:
 
 /* Line 663 of lalr1.cc  */
-#line 1208 "GuavaParser.yy"
+#line 1258 "GuavaParser.yy"
     { ExpBin* tmp;
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                    ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2381,7 +2431,7 @@ namespace yy {
   case 148:
 
 /* Line 663 of lalr1.cc  */
-#line 1268 "GuavaParser.yy"
+#line 1318 "GuavaParser.yy"
     { std::string * op = new std::string("NOT");
                                ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (2)].classExp),op);
                                if ((yysemantic_stack_[(2) - (2)].classExp)->get_tipo() == TypeBool::Instance())
@@ -2399,7 +2449,7 @@ namespace yy {
   case 149:
 
 /* Line 663 of lalr1.cc  */
-#line 1281 "GuavaParser.yy"
+#line 1331 "GuavaParser.yy"
     { std::string * op = new std::string("-");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (2)].classExp),op);
                                        if ((yysemantic_stack_[(2) - (2)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2418,7 +2468,7 @@ namespace yy {
   case 150:
 
 /* Line 663 of lalr1.cc  */
-#line 1294 "GuavaParser.yy"
+#line 1344 "GuavaParser.yy"
     { 
                                        std::string * op = new std::string("++");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (1)].classExp),op);
@@ -2437,7 +2487,7 @@ namespace yy {
   case 151:
 
 /* Line 663 of lalr1.cc  */
-#line 1307 "GuavaParser.yy"
+#line 1357 "GuavaParser.yy"
     { std::string * op = new std::string("--");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (1)].classExp),op);
                                        if ((yysemantic_stack_[(2) - (1)].classExp)->get_tipo() == TypeInt::Instance())
@@ -2455,7 +2505,7 @@ namespace yy {
   case 152:
 
 /* Line 663 of lalr1.cc  */
-#line 1319 "GuavaParser.yy"
+#line 1369 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("<=>"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2493,7 +2543,7 @@ namespace yy {
   case 153:
 
 /* Line 663 of lalr1.cc  */
-#line 1351 "GuavaParser.yy"
+#line 1401 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("+"));
                                        Exp* exp1 = (yysemantic_stack_[(3) - (1)].classExp);
                                        Exp* exp2 = (yysemantic_stack_[(3) - (3)].classExp);
@@ -2532,7 +2582,7 @@ namespace yy {
   case 154:
 
 /* Line 663 of lalr1.cc  */
-#line 1384 "GuavaParser.yy"
+#line 1434 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("-"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2569,7 +2619,7 @@ namespace yy {
   case 155:
 
 /* Line 663 of lalr1.cc  */
-#line 1415 "GuavaParser.yy"
+#line 1465 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("*"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2606,7 +2656,7 @@ namespace yy {
   case 156:
 
 /* Line 663 of lalr1.cc  */
-#line 1446 "GuavaParser.yy"
+#line 1496 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("/"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2643,7 +2693,7 @@ namespace yy {
   case 157:
 
 /* Line 663 of lalr1.cc  */
-#line 1477 "GuavaParser.yy"
+#line 1527 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("DIV"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance())
@@ -2667,7 +2717,7 @@ namespace yy {
   case 158:
 
 /* Line 663 of lalr1.cc  */
-#line 1495 "GuavaParser.yy"
+#line 1545 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("MOD"));
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance())
@@ -2691,7 +2741,7 @@ namespace yy {
   case 159:
 
 /* Line 663 of lalr1.cc  */
-#line 1513 "GuavaParser.yy"
+#line 1563 "GuavaParser.yy"
     { //El exponente sera integer, la base integer o real.
                                        ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("**"));
                                        if ((yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeInt::Instance()) {
@@ -2717,7 +2767,7 @@ namespace yy {
   case 160:
 
 /* Line 663 of lalr1.cc  */
-#line 1534 "GuavaParser.yy"
+#line 1584 "GuavaParser.yy"
     { 
                   Valor* v = new Bool((yysemantic_stack_[(1) - (1)].boolval),TypeBool::Instance());
                   (yyval.classValor) = v;
@@ -2727,9 +2777,10 @@ namespace yy {
   case 161:
 
 /* Line 663 of lalr1.cc  */
-#line 1538 "GuavaParser.yy"
+#line 1588 "GuavaParser.yy"
     { 
                   Valor* v = new String((yysemantic_stack_[(1) - (1)].strval),TypeString::Instance());
+                  insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2737,7 +2788,7 @@ namespace yy {
   case 162:
 
 /* Line 663 of lalr1.cc  */
-#line 1542 "GuavaParser.yy"
+#line 1593 "GuavaParser.yy"
     { 
                   Valor* v = new Char((yysemantic_stack_[(1) - (1)].charval),TypeChar::Instance());
                   (yyval.classValor) = v;
@@ -2747,7 +2798,7 @@ namespace yy {
   case 163:
 
 /* Line 663 of lalr1.cc  */
-#line 1546 "GuavaParser.yy"
+#line 1597 "GuavaParser.yy"
     { 
                   Valor* v  = new Integer((yysemantic_stack_[(1) - (1)].intval),TypeInt::Instance());
                   (yyval.classValor) = v;
@@ -2757,7 +2808,7 @@ namespace yy {
   case 164:
 
 /* Line 663 of lalr1.cc  */
-#line 1550 "GuavaParser.yy"
+#line 1601 "GuavaParser.yy"
     { 
                   Valor* v = new Real((yysemantic_stack_[(1) - (1)].realval),TypeReal::Instance());
                   (yyval.classValor) = v;
@@ -2767,7 +2818,7 @@ namespace yy {
   case 165:
 
 /* Line 663 of lalr1.cc  */
-#line 1554 "GuavaParser.yy"
+#line 1605 "GuavaParser.yy"
     {
                   (yyval.classValor) = (yysemantic_stack_[(1) - (1)].classArreglo);
                 }
@@ -2776,7 +2827,7 @@ namespace yy {
   case 166:
 
 /* Line 663 of lalr1.cc  */
-#line 1561 "GuavaParser.yy"
+#line 1612 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeReal::Instance();
                     }
@@ -2785,7 +2836,7 @@ namespace yy {
   case 167:
 
 /* Line 663 of lalr1.cc  */
-#line 1564 "GuavaParser.yy"
+#line 1615 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeInt::Instance();
                     }
@@ -2794,7 +2845,7 @@ namespace yy {
   case 168:
 
 /* Line 663 of lalr1.cc  */
-#line 1567 "GuavaParser.yy"
+#line 1618 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeBool::Instance();
                     }
@@ -2803,7 +2854,7 @@ namespace yy {
   case 169:
 
 /* Line 663 of lalr1.cc  */
-#line 1570 "GuavaParser.yy"
+#line 1621 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeChar::Instance();
                     }
@@ -2812,7 +2863,7 @@ namespace yy {
   case 170:
 
 /* Line 663 of lalr1.cc  */
-#line 1573 "GuavaParser.yy"
+#line 1624 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeString::Instance();
                     }
@@ -2821,13 +2872,13 @@ namespace yy {
   case 171:
 
 /* Line 663 of lalr1.cc  */
-#line 1579 "GuavaParser.yy"
+#line 1630 "GuavaParser.yy"
     {
                             Arreglo* tmp;
                             LArreglo *lr = (yysemantic_stack_[(3) - (2)].classLArreglo);
                             tmp = new Arreglo(lr);
-                            TypeS* tipo = (yysemantic_stack_[(3) - (2)].classLArreglo)->get_tipo();
-                            tmp->tipo = tipo;
+                            tmp->tipo_primitivo = lr->get_tipo();
+                            tmp->tipo_estructura = lr->get_tipoEstructura();
                             (yyval.classArreglo) = tmp;
                           }
     break;
@@ -2835,21 +2886,33 @@ namespace yy {
   case 172:
 
 /* Line 663 of lalr1.cc  */
-#line 1590 "GuavaParser.yy"
+#line 1640 "GuavaParser.yy"
     { 
-                                  if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() != (yysemantic_stack_[(3) - (3)].classExp)->get_tipo()
-                                     || (yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() == TypeError::Instance()
-                                     || (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeError::Instance()){
-                                        std::string msg;
-                                        Exp* e = (yysemantic_stack_[(3) - (3)].classExp);
-                                        LArreglo* a = (yysemantic_stack_[(3) - (1)].classLArreglo);
-                                        if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() != 0 && (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() != 0)
-                                            msg = mensaje_error_tipos((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo()->get_name(),(yysemantic_stack_[(3) - (3)].classExp)->get_tipo()->get_name());
-                                        else
-                                            msg = mensaje_error_tipos("null","null");
-                                        driver.error(yylloc,msg);
-                                        (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo = TypeError::Instance();
-                                  }else{
+                                  //Caso: Tipos no nulos
+                                  std::string msg;
+                                  if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() != 0 && (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() != 0) {
+                                    //Caso: Tipos primitivos diferentes
+                                    if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() != (yysemantic_stack_[(3) - (3)].classExp)->get_tipo()) {
+                                      msg = mensaje_error_tipos((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo()->get_name(),(yysemantic_stack_[(3) - (3)].classExp)->get_tipo()->get_name());
+                                    }
+                                    //Caso: Tipos estructurales diferentes
+                                    else if ((yysemantic_stack_[(3) - (3)].classExp)->get_tipo()->is_array()) {
+                                        Arreglo* expArr = (Arreglo *) (yysemantic_stack_[(3) - (3)].classExp);
+                                        if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipoEstructura() != expArr->get_tipoEstructura()) {
+                                          msg = mensaje_error_tipos((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipoEstructura()->get_name(),expArr->get_tipoEstructura()->get_name());
+                                        }
+                                    }
+                                    driver.error(yylloc,msg);
+                                    (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo_primitivo = TypeError::Instance();
+                                  }
+                                  //Caso: Tipos nulos
+                                  else if ((yysemantic_stack_[(3) - (1)].classLArreglo)->get_tipo() == 0 && (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == 0) {
+                                    msg = mensaje_error_tipos("null","null");
+                                    driver.error(yylloc,msg);
+                                    (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo_primitivo = TypeError::Instance();
+                                  }
+                                  //Caso: Sin Errores
+                                  else {
                                     (yysemantic_stack_[(3) - (1)].classLArreglo)->append((yysemantic_stack_[(3) - (3)].classExp));
                                   }
                                   (yyval.classLArreglo) = (yysemantic_stack_[(3) - (1)].classLArreglo);
@@ -2859,11 +2922,20 @@ namespace yy {
   case 173:
 
 /* Line 663 of lalr1.cc  */
-#line 1608 "GuavaParser.yy"
+#line 1670 "GuavaParser.yy"
     { 
                                   LArreglo *tmp = new LArreglo();
+                                  tmp->tipo_primitivo = (yysemantic_stack_[(1) - (1)].classExp)->get_tipo();
+                                  //Caso para arreglos anidados
+                                  if((yysemantic_stack_[(1) - (1)].classExp)->get_tipo()->is_array() != 0) {
+                                    Arreglo* expArr = (Arreglo *) (yysemantic_stack_[(1) - (1)].classExp);
+                                    tmp->tipo_estructura = expArr->get_tipoEstructura();
+                                  }
+                                  //Caso para arreglos simples
+                                  else {
+                                    tmp->tipo_estructura = 0;
+                                  }
                                   tmp->append((yysemantic_stack_[(1) - (1)].classExp));
-                                  tmp->tipo = (yysemantic_stack_[(1) - (1)].classExp)->get_tipo();
                                   (yyval.classLArreglo) = tmp;
                                 }
     break;
@@ -2871,9 +2943,9 @@ namespace yy {
   case 174:
 
 /* Line 663 of lalr1.cc  */
-#line 1615 "GuavaParser.yy"
+#line 1686 "GuavaParser.yy"
     { 
-                                 (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo = TypeError::Instance();
+                                 (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo_primitivo = TypeError::Instance();
                                  (yyval.classLArreglo) = (yysemantic_stack_[(3) - (1)].classLArreglo); 
                                 }
     break;
@@ -2881,16 +2953,16 @@ namespace yy {
   case 175:
 
 /* Line 663 of lalr1.cc  */
-#line 1619 "GuavaParser.yy"
+#line 1690 "GuavaParser.yy"
     { LArreglo *tmp = new LArreglo(); 
-                                  tmp->tipo = TypeError::Instance();
+                                  tmp->tipo_primitivo = TypeError::Instance();
                                 }
     break;
 
   case 176:
 
 /* Line 663 of lalr1.cc  */
-#line 1624 "GuavaParser.yy"
+#line 1695 "GuavaParser.yy"
     { 
                                       (yyval.classLAccesoAtributos) = new LAccesoAtributos((yysemantic_stack_[(2) - (2)].classIdentificador));
                                     }
@@ -2899,7 +2971,7 @@ namespace yy {
   case 177:
 
 /* Line 663 of lalr1.cc  */
-#line 1627 "GuavaParser.yy"
+#line 1698 "GuavaParser.yy"
     {
                                                         (yysemantic_stack_[(3) - (1)].classLAccesoAtributos)->append((yysemantic_stack_[(3) - (3)].classIdentificador));
                                                         (yyval.classLAccesoAtributos) = (yysemantic_stack_[(3) - (1)].classLAccesoAtributos);
@@ -2909,7 +2981,7 @@ namespace yy {
   case 178:
 
 /* Line 663 of lalr1.cc  */
-#line 1631 "GuavaParser.yy"
+#line 1702 "GuavaParser.yy"
     {
                                                                     (yysemantic_stack_[(4) - (1)].classLAccesoAtributos)->append((yysemantic_stack_[(4) - (3)].classIdentificador));
                                                                     (yyval.classLAccesoAtributos) = (yysemantic_stack_[(4) - (1)].classLAccesoAtributos);
@@ -2919,7 +2991,7 @@ namespace yy {
   case 179:
 
 /* Line 663 of lalr1.cc  */
-#line 1635 "GuavaParser.yy"
+#line 1706 "GuavaParser.yy"
     {
                                                                      (yyval.classLAccesoAtributos) = new LAccesoAtributos((yysemantic_stack_[(3) - (2)].classIdentificador));
                                                                    }
@@ -2928,7 +3000,7 @@ namespace yy {
   case 180:
 
 /* Line 663 of lalr1.cc  */
-#line 1639 "GuavaParser.yy"
+#line 1710 "GuavaParser.yy"
     { std::string str =  std::string((yysemantic_stack_[(1) - (1)].strval));
                     Identificador* id = new Identificador(str);
                     id->line = yylloc.begin.line;
@@ -2940,7 +3012,7 @@ namespace yy {
 
 
 /* Line 663 of lalr1.cc  */
-#line 2944 "GuavaParser.cc"
+#line 3016 "GuavaParser.cc"
 	default:
           break;
       }
@@ -3214,51 +3286,50 @@ namespace yy {
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-  const short int GuavaParser::yypact_ninf_ = -356;
+  const short int GuavaParser::yypact_ninf_ = -354;
   const short int
   GuavaParser::yypact_[] =
   {
-      -356,    20,  -356,    -8,  -356,    10,    23,   309,  -356,    10,
-    -356,  -356,     5,  -356,  -356,  -356,    28,  -356,  -356,    73,
-    -356,  -356,   386,  -356,    24,    29,    40,    73,    73,   277,
-      54,    71,    79,    95,     4,    61,   206,    93,    99,  -356,
-      81,    87,    89,   140,  -356,  -356,  -356,   126,    16,  -356,
-     130,   130,   126,    57,   105,   121,   377,   132,   377,  -356,
-    -356,  -356,  -356,   126,    88,   130,   130,   126,    92,   124,
-      92,   144,   152,  -356,   184,   138,   143,   159,  -356,   191,
-    -356,   204,    90,   208,  -356,   386,   386,   151,  -356,   170,
-     196,   197,   111,   210,   253,  -356,   210,  -356,  -356,  -356,
-    -356,  -356,  -356,    -8,  -356,   211,   377,  -356,   272,  -356,
-    -356,   213,  1156,  1182,  -356,  -356,  -356,  -356,   217,   221,
-     114,    92,    92,    -8,  -356,    -8,   235,   104,  -356,  -356,
-      -8,   244,  -356,  -356,  -356,  -356,   251,   257,   210,   210,
-    -356,   693,  -356,    -8,  -356,   298,  -356,  -356,    -8,  -356,
-    -356,   727,     6,   252,   274,   276,   287,   231,  -356,  -356,
-     278,   286,    73,    73,  -356,   291,  -356,  -356,  -356,  -356,
-    -356,  -356,  -356,  -356,   343,    97,   752,  -356,  -356,  -356,
-     786,  -356,  -356,   370,   174,  -356,   305,   410,   463,  -356,
-     307,  -356,  -356,  -356,  -356,  -356,   370,   370,  -356,   472,
-     482,  -356,  1272,  -356,  -356,  -356,  -356,  -356,   106,   370,
-     370,  -356,  -356,  -356,   535,  -356,  -356,  -356,   544,   174,
-      73,   310,   308,  -356,   811,  -356,   845,  1287,   307,   311,
-     321,  1287,   334,   341,   307,   346,  1287,   307,   349,  1287,
-      -8,   314,  -356,   307,  1287,   -11,     8,  1176,   370,   370,
-     370,   370,   370,   370,   370,   370,   370,  -356,  -356,   370,
-     370,  -356,  1200,  1219,   307,  1287,   147,  1238,   350,   355,
-     554,    73,  -356,  -356,  -356,   597,   370,   607,   391,   398,
-    -356,   616,  -356,  -356,  -356,  1314,  1325,   314,   452,   452,
-     179,   179,   179,   179,   375,  1302,  -356,  -356,  -356,  -356,
-    -356,   310,   160,  1255,   355,   307,  1287,  1287,   372,   283,
-     374,   657,   378,   870,   307,  1287,  -356,  -356,   310,   669,
-     669,   669,  -356,   -12,  -356,   401,    12,  -356,   371,  1287,
-     343,   373,   376,    -8,   161,  -356,    -8,   387,   380,   381,
-     393,  -356,   394,  -356,   463,  -356,  -356,  -356,   904,  -356,
-     929,   392,    -8,    -8,    -8,   430,  -356,  -356,  -356,  -356,
-    -356,     7,  -356,   431,   963,   988,  1022,   397,  -356,     9,
-    -356,  -356,  -356,   410,    -8,   399,  -356,   400,  -356,   410,
-      -8,   434,  1047,   402,  -356,   407,  -356,   440,  1081,  -356,
-     424,  -356,    -8,  -356,  -356,    -8,  1106,  -356,  -356,  1140,
-    -356
+      -354,     2,  -354,   -21,  -354,    -2,    23,   492,  -354,    -2,
+    -354,  -354,    -8,  -354,  -354,  -354,    76,  -354,  -354,    64,
+    -354,  -354,  1186,  -354,    18,    29,    43,    64,    64,   140,
+      48,    54,    82,    68,     4,   107,   201,    62,    70,  -354,
+      75,    88,   101,    97,  -354,  -354,  -354,   138,    13,  -354,
+     152,   152,   138,    78,   119,   132,   169,   163,   169,  -354,
+    -354,  -354,  -354,   138,   109,   152,   152,   138,   180,   113,
+     180,   141,   204,  -354,   197,   165,   176,   211,  -354,   231,
+    -354,   235,    51,   242,  -354,  1186,  1186,   178,  -354,   195,
+     202,   203,   125,   241,   217,  -354,   241,  -354,  -354,  -354,
+    -354,  -354,  -354,   -21,  -354,   263,   169,  -354,   255,  -354,
+    -354,   273,  1135,  1153,  -354,  -354,  -354,  -354,   279,   282,
+     144,   180,   180,   -21,  -354,   -21,   265,   103,  -354,  -354,
+     -21,   267,  -354,  -354,  -354,  -354,   284,   285,   241,   241,
+    -354,   655,  -354,   -21,  -354,   259,  -354,  -354,   -21,  -354,
+    -354,   680,    34,   286,   288,   289,   295,   298,  -354,  -354,
+     294,   297,    64,    64,  -354,   302,  -354,  -354,  -354,  -354,
+    -354,  -354,  -354,  -354,   352,    19,   714,  -354,  -354,  -354,
+     739,  -354,  -354,   230,   167,  -354,   261,   400,   409,  -354,
+     301,  -354,  -354,  -354,  -354,  -354,   230,   230,   462,   471,
+    -354,  1271,  -354,  -354,  -354,  -354,  -354,   137,   230,   230,
+    -354,  -354,  -354,   481,  -354,  -354,  -354,   524,   167,    64,
+     309,   306,  -354,   773,  -354,   798,  1271,   301,   310,   318,
+    1271,   316,   317,   301,   315,  1271,   301,   323,  1271,   -21,
+    1318,  -354,   301,  1271,    84,   143,  1180,   230,   230,   230,
+     230,   230,   230,   230,   230,   230,  -354,  -354,   230,   230,
+    1199,  1218,   301,  1271,   219,  1237,   324,   319,   534,    64,
+    -354,  -354,  -354,   543,   230,   596,   363,   362,  -354,   605,
+    -354,  -354,  -354,  1298,  1309,  1318,   281,   281,   264,   264,
+     264,   264,   341,  1286,  -354,  -354,  -354,  -354,  -354,   309,
+     223,  1254,   319,   301,  1271,  1271,   336,   216,   337,  1098,
+     342,   832,   301,  1271,  -354,  -354,   309,   615,   615,   615,
+    -354,     5,  -354,   370,    12,  -354,   343,  1271,   352,   344,
+     346,   -21,  1150,  -354,   -21,   348,   347,   361,   369,  -354,
+     360,  -354,   409,  -354,  -354,  -354,   857,  -354,   891,   364,
+     -21,   -21,   -21,   378,  -354,  -354,  -354,  -354,  -354,    21,
+    -354,   401,   916,   950,   975,   367,  -354,    27,  -354,  -354,
+    -354,   400,   -21,   368,  -354,   377,  -354,   400,   -21,   415,
+    1009,   382,  -354,   390,  -354,   422,  1034,  -354,   392,  -354,
+     -21,  -354,  -354,   -21,  1068,  -354,  -354,  1093,  -354
   };
 
   /* YYDEFACT[S] -- default reduction number in state S.  Performed when
@@ -3286,41 +3357,40 @@ namespace yy {
        0,     0,     0,     0,    48,     0,    73,    74,    80,    85,
       86,    87,    88,    75,     0,     0,     0,    71,    70,    66,
        0,    71,    50,     0,     0,    83,     0,     0,     0,   107,
-       0,   163,   161,   162,   164,   160,     0,     0,    94,     0,
-       0,   140,     0,   138,   136,   135,   137,   165,   142,     0,
-       0,    78,    76,    72,     0,    84,    79,    77,     0,     0,
-       0,   143,   144,    60,     0,    58,     0,    90,   134,     0,
-     130,   132,     0,     0,   126,     0,   125,   110,     0,   109,
-       5,   148,   149,   175,   173,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,   150,   151,     0,
-       0,    95,     0,     0,    91,    89,     0,     0,     0,   176,
-       0,     0,    56,    53,   128,     0,     0,     0,     0,     0,
-      71,     0,   171,   141,   139,   152,   145,   146,   153,   154,
-     155,   156,   157,   158,   159,   147,    93,    92,    41,    39,
-     127,   179,     0,     0,   177,   133,   131,     0,   136,     0,
-     136,     0,     0,     0,   174,   172,    42,    40,   178,     0,
-       0,     0,   111,     0,   105,     0,   104,   102,     0,   103,
-     138,     0,     0,     5,     0,   113,     5,     0,     0,     0,
-       0,    71,     0,    71,     0,    98,   100,    96,     0,   114,
-       0,     0,     5,     5,     5,   115,   106,   108,    71,    71,
-      71,     0,   112,   120,     0,     0,     0,     0,   118,     0,
-      99,   101,    97,     0,     5,     0,   116,     0,    71,     0,
-       5,     0,     0,     0,    71,     0,   119,     0,     0,   121,
-       0,   117,     5,   123,    71,     5,     0,    71,   122,     0,
-     124
+       0,   163,   161,   162,   164,   160,     0,     0,     0,     0,
+     140,    95,   138,   136,   135,   137,   165,   142,     0,     0,
+      78,    76,    72,     0,    84,    79,    77,     0,     0,     0,
+     143,   144,    60,     0,    58,     0,    90,   134,     0,   130,
+     132,     0,     0,   126,     0,   125,   110,     0,   109,     5,
+     148,   149,   175,   173,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,   150,   151,     0,     0,
+       0,     0,    91,    89,     0,     0,     0,   176,     0,     0,
+      56,    53,   128,     0,     0,     0,     0,     0,    71,     0,
+     171,   141,   139,   152,   145,   146,   153,   154,   155,   156,
+     157,   158,   159,   147,    93,    92,    41,    39,   127,   179,
+       0,     0,   177,   133,   131,     0,   136,     0,   136,     0,
+       0,     0,   174,   172,    42,    40,   178,     0,     0,     0,
+     111,     0,   105,     0,   104,   102,     0,   103,   138,     0,
+       0,     5,     0,   113,     5,     0,     0,     0,     0,    71,
+       0,    71,     0,    98,   100,    96,     0,   114,     0,     0,
+       5,     5,     5,   115,   106,   108,    71,    71,    71,     0,
+     112,   120,     0,     0,     0,     0,   118,     0,    99,   101,
+      97,     0,     5,     0,   116,     0,    71,     0,     5,     0,
+       0,     0,    71,     0,   119,     0,     0,   121,     0,   117,
+       5,   123,    71,     5,     0,    71,   122,     0,   124
   };
 
   /* YYPGOTO[NTERM-NUM].  */
   const short int
   GuavaParser::yypgoto_[] =
   {
-      -356,  -356,  -356,  -356,  -102,  -356,    83,   -27,  -356,   -25,
-    -356,   214,   -19,   -40,  -262,  -356,  -356,   466,  -356,  -356,
-     473,  -356,  -356,  -356,  -356,  -356,  -356,   426,  -356,   -33,
-    -297,  -356,    -4,  -356,  -356,  -356,  -356,  -356,  -356,   -20,
-    -356,  -356,  -356,   141,  -356,  -356,  -356,  -356,  -356,  -356,
-    -356,  -356,  -355,   -52,   280,  -356,   185,  -122,    63,  -356,
-    -356,    45,  -356,  -356,  -356,   -16
+      -354,  -354,  -354,  -354,  -102,  -354,   215,   -25,  -354,   -22,
+    -354,   135,   -19,   -40,  -259,  -354,  -354,   434,  -354,  -354,
+     435,  -354,  -354,  -354,  -354,  -354,  -354,   389,  -354,     1,
+    -292,  -354,    -6,  -354,  -354,  -354,  -354,  -354,  -354,   -32,
+    -354,  -354,  -354,   112,  -354,  -354,  -354,  -354,  -354,  -354,
+    -354,  -354,  -353,   -66,   239,  -354,   177,  -122,    15,  -354,
+    -354,     3,  -354,  -354,  -354,   -16
   };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -3328,12 +3398,12 @@ namespace yy {
   GuavaParser::yydefgoto_[] =
   {
         -1,     1,     2,     3,     5,     6,    29,    30,    86,    31,
-      85,    48,    69,    93,   221,     8,     9,    10,   103,   123,
+      85,    48,    69,    93,   220,     8,     9,    10,   103,   123,
       11,    58,   111,    56,   105,   130,   125,    80,    81,   141,
-     165,   166,   167,   168,   169,   170,   354,   352,   353,   328,
-     171,   336,   240,   238,   172,   333,   362,   380,   374,   363,
-     392,   395,   235,   201,   229,   230,   236,   203,   204,   205,
-     206,    32,   207,   245,   222,   208
+     165,   166,   167,   168,   169,   170,   352,   350,   351,   326,
+     171,   334,   239,   237,   172,   331,   360,   378,   372,   361,
+     390,   393,   234,   200,   228,   229,   235,   202,   203,   204,
+     205,    32,   206,   244,   221,   207
   };
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -3343,237 +3413,217 @@ namespace yy {
   const short int
   GuavaParser::yytable_[] =
   {
-        25,   124,    40,    26,    41,    53,    33,   301,   334,   183,
-      23,    37,    38,    43,   323,   183,    49,    71,   377,   174,
-       4,   140,    -6,   142,   383,   367,    49,   375,   147,   174,
-      96,    70,    23,    76,    49,    49,    70,   342,   281,     7,
-     335,   177,   318,   282,    87,    24,   181,    70,    91,    49,
-      49,    70,    19,    12,   174,    22,    99,   368,   174,   376,
-      54,   184,    55,   184,   283,    72,   109,   184,    73,    33,
-      33,   -54,   -54,   -54,    42,   -54,   -54,    23,   122,    34,
-      46,   138,   139,    23,    35,    40,    40,    41,    41,   173,
-      46,   107,   129,    23,    23,    36,    43,    43,   215,   173,
-    -142,    82,   174,    82,   174,   144,    44,   151,    23,   176,
-      47,   146,   118,    77,   180,   136,   119,   -54,   108,   137,
-      63,    50,    51,    45,   173,   175,    52,    68,   173,   179,
-      23,    46,   145,    61,    23,   175,   185,    72,   280,    62,
-      88,   216,   217,    59,   224,    92,   211,   212,   226,    60,
-     218,   127,   219,    98,   220,    78,    23,    42,    42,   218,
-     175,   219,   152,   220,   175,    23,    65,    66,   112,   113,
-     233,    67,   173,    94,   173,   228,    95,    79,    23,   191,
-     192,   193,   194,   195,   157,   158,   159,    72,    83,   174,
-     100,   174,    94,   160,   161,   101,    97,   330,   330,   330,
-      94,   298,   184,   114,   269,   162,   163,    57,   175,   102,
-     175,   196,   174,   197,   316,   184,   -51,   -51,   -51,    72,
-     -51,   -51,   115,   257,   258,   259,   174,   199,   174,   200,
-    -129,   341,   190,    72,   343,    23,   191,   192,   193,   194,
-     195,   104,   174,   174,   174,    72,    94,   313,   116,   117,
-     358,   359,   360,   106,   121,   304,    64,    23,   110,   173,
-     174,   173,   -51,   120,    74,    75,   174,   126,   196,   131,
-     197,   134,   378,   128,   174,   135,    23,   174,   384,    89,
-      90,    23,   173,   198,   199,   143,   200,    13,    14,    15,
-     394,    17,    18,   397,   148,   175,   173,   175,   173,   178,
-     331,   332,    23,    27,    28,   149,   232,   186,   348,    23,
-     350,   150,   173,   173,   173,   327,   327,   327,   175,    13,
-      14,    15,    16,    17,    18,   364,   365,   366,    39,   187,
-     173,   188,   175,   209,   175,   320,   173,   189,   184,   308,
-     310,   210,   202,   213,   173,   382,   214,   173,   175,   175,
-     175,   388,   251,   252,   253,   254,   255,   256,   257,   258,
-     259,   396,   184,   270,   399,   271,   175,   274,   227,   231,
-     275,   190,   175,   239,    23,   191,   192,   193,   194,   195,
-     175,   241,   242,   175,   244,   247,   276,    13,    14,    15,
-      23,    17,    18,   277,   262,   263,    13,    14,    15,   265,
-      17,    18,   278,   267,   231,   279,   300,   196,   218,   197,
-     311,   234,    27,    28,    23,   191,   192,   193,   194,   195,
-     312,   259,   337,   199,   319,   200,   321,   338,   324,   339,
-     345,   346,   340,   285,   286,   287,   288,   289,   290,   291,
-     292,   293,   344,   347,   294,   295,   349,   196,   357,   197,
-     361,   369,   373,   385,   379,   303,   381,   389,   387,   390,
-     306,   307,   307,   199,   237,   200,   315,    23,   191,   192,
-     193,   194,   195,   243,   393,    20,    23,   191,   192,   193,
-     194,   195,    21,   246,    84,   351,    23,   191,   192,   193,
-     194,   195,   253,   254,   255,   256,   257,   258,   259,   268,
-     196,     0,   197,     0,   329,   329,   329,     0,     0,   196,
-       0,   197,     0,     0,     0,     0,   199,     0,   200,   196,
-       0,   197,     0,     0,     0,   199,     0,   200,     0,   239,
-       0,     0,     0,     0,     0,   199,   264,   200,     0,    23,
-     191,   192,   193,   194,   195,   266,     0,     0,    23,   191,
-     192,   193,   194,   195,     0,   302,     0,     0,    23,   191,
-     192,   193,   194,   195,     0,     0,     0,     0,     0,     0,
-       0,     0,   196,     0,   197,     0,     0,     0,     0,     0,
-       0,   196,     0,   197,     0,     0,     0,     0,   199,     0,
-     200,   196,     0,   197,     0,     0,     0,   199,   305,   200,
-       0,    23,   191,   192,   193,   194,   195,   199,   309,   200,
-       0,    23,   191,   192,   193,   194,   195,   314,     0,     0,
-      23,   191,   192,   193,   194,   195,     0,     0,     0,     0,
-       0,     0,     0,     0,   196,     0,   197,     0,     0,     0,
-       0,     0,     0,     0,   196,     0,   197,     0,     0,     0,
-     199,     0,   200,   196,     0,   197,     0,     0,   152,     0,
-     199,    23,   200,     0,     0,     0,     0,     0,     0,   199,
-     326,   200,     0,    23,   191,   192,   193,   194,   195,     0,
-     157,   158,   159,     0,     0,     0,     0,     0,     0,   160,
-     161,     0,     0,     0,   152,     0,     0,    23,     0,     0,
-       0,   162,   163,     0,     0,     0,   196,   322,   197,   153,
-       0,   154,     0,     0,   155,   156,   157,   158,   159,     0,
-       0,     0,   199,     0,   200,   160,   161,     0,   152,     0,
-       0,    23,     0,     0,     0,     0,     0,   162,   163,     0,
-       0,     0,     0,   153,   164,   154,     0,     0,   155,   156,
-     157,   158,   159,   152,     0,     0,    23,     0,     0,   160,
-     161,     0,     0,     0,     0,     0,     0,     0,   153,     0,
-     154,   162,   163,   155,   156,   157,   158,   159,   182,     0,
-       0,     0,     0,     0,   160,   161,     0,   152,     0,     0,
-      23,     0,     0,     0,     0,     0,   162,   163,     0,     0,
-       0,     0,   153,   223,   154,     0,     0,   155,   156,   157,
-     158,   159,   152,     0,     0,    23,     0,     0,   160,   161,
-       0,     0,     0,     0,     0,     0,     0,   153,     0,   154,
-     162,   163,   155,   156,   157,   158,   159,   225,     0,     0,
-       0,     0,     0,   160,   161,     0,   152,     0,     0,    23,
-       0,     0,     0,     0,     0,   162,   163,     0,     0,     0,
-       0,   153,   272,   154,     0,     0,   155,   156,   157,   158,
+        25,   124,     4,    26,    40,    53,    33,    41,   299,    -6,
+      19,    37,    38,    43,    71,   183,    49,   321,   375,   174,
+     214,   140,  -142,   142,   381,   332,    49,     7,   147,   174,
+      96,    70,    42,    76,    49,    49,    70,   183,    23,   365,
+     340,   177,    22,   316,    87,   373,   181,    70,    91,    49,
+      49,    70,   107,    12,   174,    23,    99,   333,   174,    82,
+      54,    82,    72,   215,   216,    73,   109,   184,    23,    33,
+      33,   366,   217,    34,   218,   173,   219,   374,   122,   108,
+      23,   138,   139,    46,    35,   173,    23,    40,    40,   184,
+      41,    41,   129,    24,    50,    51,    43,    43,    36,    52,
+      44,   174,    46,   174,   144,    23,    45,    23,    55,   127,
+     173,   146,    59,    47,   173,    42,    42,   -54,   -54,   -54,
+      60,   -54,   -54,    65,    66,   175,   118,    61,    67,   179,
+     119,   145,    63,   279,    77,   175,   185,   278,   280,    68,
+      62,   151,    23,   176,    23,   136,   210,   211,   180,   137,
+      13,    14,    15,    46,    17,    18,    23,   173,    72,   173,
+     175,    88,    94,   -54,   175,    95,    27,    28,   227,    78,
+     232,    23,   191,   192,   193,   194,   195,    64,   223,    13,
+      14,    15,   225,    17,    18,    74,    75,   174,    79,   174,
+     217,    39,   218,    97,   219,   328,   328,   328,   184,   281,
+      89,    90,    57,   267,   196,    98,   197,   175,    23,   175,
+     174,   -51,   -51,   -51,    72,   -51,   -51,   100,   121,    83,
+     198,    23,   199,  -129,   174,    94,   174,    94,   101,   339,
+     114,   190,   341,    92,    23,   191,   192,   193,   194,   195,
+     174,   174,   174,   173,    72,   173,    72,   115,   356,   357,
+     358,    72,    94,   302,   116,   117,   128,   -51,   174,    23,
+     178,   102,   231,    23,   174,    23,   173,   196,   318,   197,
+     376,   184,   174,   296,   184,   174,   382,   314,   184,   311,
+     173,   104,   173,   198,   106,   199,   329,   330,   392,   306,
+     308,   395,   110,   175,   120,   175,   173,   173,   173,   190,
+     112,   113,    23,   191,   192,   193,   194,   195,   256,   257,
+     258,   325,   325,   325,   173,   143,   175,   148,   -94,   126,
+     173,   252,   253,   254,   255,   256,   257,   258,   173,   131,
+     175,   173,   175,   134,   201,   196,   135,   197,   149,   150,
+     346,   186,   348,   187,   188,   189,   175,   175,   175,   208,
+     -94,   198,   209,   199,   212,   213,   184,   362,   363,   364,
+     226,   230,   268,   269,   175,   238,   272,   273,   274,   275,
+     175,   276,   217,   240,   241,   243,   246,   380,   175,   277,
+     298,   175,   309,   386,   310,   260,   261,   258,   317,   319,
+     263,   335,   322,   394,   265,   230,   397,   343,   359,   336,
+     337,   233,   338,   342,    23,   191,   192,   193,   194,   195,
+     236,   344,   347,    23,   191,   192,   193,   194,   195,   345,
+     355,   367,   371,   377,   283,   284,   285,   286,   287,   288,
+     289,   290,   291,   379,   383,   292,   293,   196,   385,   197,
+     387,   388,   391,    20,    21,   301,   196,    84,   197,     0,
+     304,   305,   305,   198,   349,   199,   313,   266,     0,     0,
+       0,     0,   198,   242,   199,     0,    23,   191,   192,   193,
+     194,   195,   245,     0,     0,    23,   191,   192,   193,   194,
+     195,     0,   262,     0,     0,    23,   191,   192,   193,   194,
+     195,     0,     0,     0,   327,   327,   327,     0,     0,   196,
+       0,   197,    13,    14,    15,    16,    17,    18,   196,     0,
+     197,     0,     0,     0,     0,   198,     0,   199,   196,   238,
+     197,     0,     0,     0,   198,   264,   199,     0,    23,   191,
+     192,   193,   194,   195,   198,   300,   199,     0,    23,   191,
+     192,   193,   194,   195,   303,     0,     0,    23,   191,   192,
+     193,   194,   195,     0,     0,     0,     0,     0,     0,     0,
+       0,   196,     0,   197,     0,     0,     0,     0,     0,     0,
+       0,   196,     0,   197,     0,     0,     0,   198,     0,   199,
+     196,     0,   197,     0,     0,     0,     0,   198,     0,   199,
+       0,     0,     0,     0,     0,     0,   198,   307,   199,     0,
+      23,   191,   192,   193,   194,   195,   312,     0,     0,    23,
+     191,   192,   193,   194,   195,     0,   324,     0,     0,    23,
+     191,   192,   193,   194,   195,     0,     0,     0,     0,     0,
+       0,     0,     0,   196,     0,   197,     0,     0,     0,     0,
+       0,     0,   196,     0,   197,     0,     0,     0,     0,   198,
+       0,   199,   196,     0,   197,     0,   152,     0,   198,    23,
+     199,     0,     0,     0,     0,     0,     0,     0,   198,     0,
+     199,   153,     0,   154,     0,     0,   155,   156,   157,   158,
      159,   152,     0,     0,    23,     0,     0,   160,   161,     0,
        0,     0,     0,     0,     0,     0,   153,     0,   154,   162,
-     163,   155,   156,   157,   158,   159,   273,     0,     0,     0,
+     163,   155,   156,   157,   158,   159,   164,     0,     0,     0,
        0,     0,   160,   161,     0,   152,     0,     0,    23,     0,
        0,     0,     0,     0,   162,   163,     0,     0,     0,     0,
-     153,   325,   154,     0,     0,   155,   156,   157,   158,   159,
+     153,   182,   154,     0,     0,   155,   156,   157,   158,   159,
      152,     0,     0,    23,     0,     0,   160,   161,     0,     0,
        0,     0,     0,     0,     0,   153,     0,   154,   162,   163,
-     155,   156,   157,   158,   159,   355,     0,     0,     0,     0,
+     155,   156,   157,   158,   159,   222,     0,     0,     0,     0,
        0,   160,   161,     0,   152,     0,     0,    23,     0,     0,
        0,     0,     0,   162,   163,     0,     0,     0,     0,   153,
-     356,   154,     0,     0,   155,   156,   157,   158,   159,   152,
+     224,   154,     0,     0,   155,   156,   157,   158,   159,   152,
        0,     0,    23,     0,     0,   160,   161,     0,     0,     0,
        0,     0,     0,     0,   153,     0,   154,   162,   163,   155,
-     156,   157,   158,   159,   370,     0,     0,     0,     0,     0,
+     156,   157,   158,   159,   270,     0,     0,     0,     0,     0,
      160,   161,     0,   152,     0,     0,    23,     0,     0,     0,
-       0,     0,   162,   163,     0,     0,     0,     0,   153,   371,
+       0,     0,   162,   163,     0,     0,     0,     0,   153,   271,
      154,     0,     0,   155,   156,   157,   158,   159,   152,     0,
        0,    23,     0,     0,   160,   161,     0,     0,     0,     0,
        0,     0,     0,   153,     0,   154,   162,   163,   155,   156,
-     157,   158,   159,   372,     0,     0,     0,     0,     0,   160,
+     157,   158,   159,   323,     0,     0,     0,     0,     0,   160,
      161,     0,   152,     0,     0,    23,     0,     0,     0,     0,
-       0,   162,   163,     0,     0,     0,     0,   153,   386,   154,
+       0,   162,   163,     0,     0,     0,     0,   153,   353,   154,
        0,     0,   155,   156,   157,   158,   159,   152,     0,     0,
       23,     0,     0,   160,   161,     0,     0,     0,     0,     0,
        0,     0,   153,     0,   154,   162,   163,   155,   156,   157,
-     158,   159,   391,     0,     0,     0,     0,     0,   160,   161,
+     158,   159,   354,     0,     0,     0,     0,     0,   160,   161,
        0,   152,     0,     0,    23,     0,     0,     0,     0,     0,
-     162,   163,     0,     0,     0,     0,   153,   398,   154,     0,
-      23,   155,   156,   157,   158,   159,    13,    14,    15,     0,
-      17,    18,   160,   161,     0,     0,     0,     0,     0,     0,
-       0,     0,    27,    28,   162,   163,    23,     0,     0,     0,
-       0,   400,    13,    14,    15,     0,    17,    18,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,   132,    27,    28,
-     248,   249,   250,     0,   251,   252,   253,   254,   255,   256,
-     257,   258,   259,     0,   260,     0,     0,     0,     0,     0,
-       0,     0,   284,   133,   248,   249,   250,     0,   251,   252,
-     253,   254,   255,   256,   257,   258,   259,     0,   260,     0,
-       0,     0,     0,   248,   249,   250,   296,   251,   252,   253,
-     254,   255,   256,   257,   258,   259,     0,   260,     0,     0,
-       0,     0,   248,   249,   250,   297,   251,   252,   253,   254,
-     255,   256,   257,   258,   259,     0,   260,     0,     0,   248,
-     249,   250,   299,   251,   252,   253,   254,   255,   256,   257,
-     258,   259,     0,   260,     0,     0,   248,   249,   250,   317,
-     251,   252,   253,   254,   255,   256,   257,   258,   259,     0,
-     260,   248,   249,   250,   261,   251,   252,   253,   254,   255,
-     256,   257,   258,   259,     0,   260,   248,   249,   250,     0,
-     251,   252,   253,   254,   255,   256,   257,   258,   259,   249,
-     250,     0,   251,   252,   253,   254,   255,   256,   257,   258,
-     259,   250,     0,   251,   252,   253,   254,   255,   256,   257,
-     258,   259
+     162,   163,     0,     0,     0,     0,   153,   368,   154,     0,
+       0,   155,   156,   157,   158,   159,   152,     0,     0,    23,
+       0,     0,   160,   161,     0,     0,     0,     0,     0,     0,
+       0,   153,     0,   154,   162,   163,   155,   156,   157,   158,
+     159,   369,     0,     0,     0,     0,     0,   160,   161,     0,
+     152,     0,     0,    23,     0,     0,     0,     0,     0,   162,
+     163,     0,     0,     0,     0,   153,   370,   154,     0,     0,
+     155,   156,   157,   158,   159,   152,     0,     0,    23,     0,
+       0,   160,   161,     0,     0,     0,     0,     0,     0,     0,
+     153,     0,   154,   162,   163,   155,   156,   157,   158,   159,
+     384,     0,     0,     0,     0,     0,   160,   161,     0,   152,
+       0,     0,    23,     0,     0,     0,     0,     0,   162,   163,
+       0,     0,     0,     0,   153,   389,   154,     0,     0,   155,
+     156,   157,   158,   159,   152,     0,     0,    23,     0,   152,
+     160,   161,    23,     0,     0,     0,     0,     0,     0,   153,
+       0,   154,   162,   163,   155,   156,   157,   158,   159,   396,
+       0,   157,   158,   159,     0,   160,   161,     0,     0,     0,
+     160,   161,     0,     0,     0,     0,     0,   162,   163,    23,
+       0,     0,   162,   163,   398,    13,    14,    15,   320,    17,
+      18,   152,     0,     0,    23,     0,     0,    23,     0,     0,
+       0,    27,    28,    13,    14,    15,     0,    17,    18,     0,
+       0,     0,     0,   157,   158,   159,     0,     0,     0,    27,
+      28,     0,   160,   161,     0,     0,   132,     0,     0,     0,
+      23,     0,     0,     0,   162,   163,    13,    14,    15,     0,
+      17,    18,     0,     0,   133,     0,     0,     0,     0,     0,
+       0,     0,    27,    28,   247,   248,   249,     0,   250,   251,
+     252,   253,   254,   255,   256,   257,   258,     0,   259,     0,
+       0,     0,     0,   247,   248,   249,   282,   250,   251,   252,
+     253,   254,   255,   256,   257,   258,     0,   259,     0,     0,
+       0,     0,   247,   248,   249,   294,   250,   251,   252,   253,
+     254,   255,   256,   257,   258,     0,   259,     0,     0,     0,
+       0,   247,   248,   249,   295,   250,   251,   252,   253,   254,
+     255,   256,   257,   258,     0,   259,     0,     0,   247,   248,
+     249,   297,   250,   251,   252,   253,   254,   255,   256,   257,
+     258,     0,   259,     0,     0,   247,   248,   249,   315,   250,
+     251,   252,   253,   254,   255,   256,   257,   258,     0,   259,
+     247,   248,   249,     0,   250,   251,   252,   253,   254,   255,
+     256,   257,   258,   248,   249,     0,   250,   251,   252,   253,
+     254,   255,   256,   257,   258,   249,     0,   250,   251,   252,
+     253,   254,   255,   256,   257,   258,   250,   251,   252,   253,
+     254,   255,   256,   257,   258
   };
 
   /* YYCHECK.  */
   const short int
   GuavaParser::yycheck_[] =
   {
-        16,   103,    29,    19,    29,     1,    22,   269,    20,     3,
-       4,    27,    28,    29,   311,     3,    32,     1,   373,   141,
-       0,   123,    30,   125,   379,    18,    42,    18,   130,   151,
-      70,    47,     4,    52,    50,    51,    52,   334,    49,    29,
-      52,   143,   304,    54,    63,    17,   148,    63,    67,    65,
-      66,    67,     7,    30,   176,    50,    72,    50,   180,    50,
-      56,    55,     1,    55,    56,    49,    82,    55,    52,    85,
-      86,    10,    11,    12,    29,    14,    15,     4,    94,    55,
-       1,   121,   122,     4,    55,   112,   113,   112,   113,   141,
-       1,     1,   108,     4,     4,    55,   112,   113,     1,   151,
-       3,    56,   224,    58,   226,     1,    52,   140,     4,   142,
-      31,   127,     1,    56,   147,     1,     5,    56,    28,     5,
-      31,    26,    27,    52,   176,   141,    31,     1,   180,   145,
-       4,     1,    28,    52,     4,   151,   152,    49,   240,    52,
-      52,    44,    45,    50,   177,    53,   162,   163,   181,    50,
-      53,   106,    55,     1,    57,    50,     4,   112,   113,    53,
-     176,    55,     1,    57,   180,     4,    26,    27,    85,    86,
-     186,    31,   224,    49,   226,     1,    52,    56,     4,     5,
-       6,     7,     8,     9,    23,    24,    25,    49,    56,   311,
-      52,   313,    49,    32,    33,    52,    52,   319,   320,   321,
-      49,    54,    55,    52,   220,    44,    45,     1,   224,    50,
-     226,    37,   334,    39,    54,    55,    10,    11,    12,    49,
-      14,    15,    52,    44,    45,    46,   348,    53,   350,    55,
-      56,   333,     1,    49,   336,     4,     5,     6,     7,     8,
-       9,    50,   364,   365,   366,    49,    49,   280,    52,    52,
-     352,   353,   354,    49,     1,   271,    42,     4,    50,   311,
-     382,   313,    56,    53,    50,    51,   388,    56,    37,    56,
-      39,    54,   374,     1,   396,    54,     4,   399,   380,    65,
-      66,     4,   334,    52,    53,    50,    55,    10,    11,    12,
-     392,    14,    15,   395,    50,   311,   348,   313,   350,     1,
-     320,   321,     4,    26,    27,    54,     1,    55,   341,     4,
-     343,    54,   364,   365,   366,   319,   320,   321,   334,    10,
-      11,    12,    13,    14,    15,   358,   359,   360,    51,    55,
-     382,    55,   348,    55,   350,    52,   388,    50,    55,   276,
-     277,    55,   157,    52,   396,   378,     3,   399,   364,   365,
-     366,   384,    38,    39,    40,    41,    42,    43,    44,    45,
-      46,   394,    55,    53,   397,    57,   382,    56,   183,   184,
-      49,     1,   388,   188,     4,     5,     6,     7,     8,     9,
-     396,   196,   197,   399,   199,   200,    52,    10,    11,    12,
-       4,    14,    15,    52,   209,   210,    10,    11,    12,   214,
-      14,    15,    56,   218,   219,    56,    56,    37,    53,    39,
-      19,     1,    26,    27,     4,     5,     6,     7,     8,     9,
-      22,    46,    21,    53,    52,    55,    52,    56,    50,    56,
-      50,    50,    56,   248,   249,   250,   251,   252,   253,   254,
-     255,   256,    55,    50,   259,   260,    52,    37,    56,    39,
-      20,    20,    55,    19,    55,   270,    56,    50,    56,    19,
-     275,   276,   277,    53,     1,    55,   281,     4,     5,     6,
-       7,     8,     9,     1,    50,     9,     4,     5,     6,     7,
-       8,     9,     9,     1,    58,   344,     4,     5,     6,     7,
-       8,     9,    40,    41,    42,    43,    44,    45,    46,   219,
-      37,    -1,    39,    -1,   319,   320,   321,    -1,    -1,    37,
-      -1,    39,    -1,    -1,    -1,    -1,    53,    -1,    55,    37,
-      -1,    39,    -1,    -1,    -1,    53,    -1,    55,    -1,   344,
-      -1,    -1,    -1,    -1,    -1,    53,     1,    55,    -1,     4,
-       5,     6,     7,     8,     9,     1,    -1,    -1,     4,     5,
-       6,     7,     8,     9,    -1,     1,    -1,    -1,     4,     5,
-       6,     7,     8,     9,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    37,    -1,    39,    -1,    -1,    -1,    -1,    -1,
-      -1,    37,    -1,    39,    -1,    -1,    -1,    -1,    53,    -1,
-      55,    37,    -1,    39,    -1,    -1,    -1,    53,     1,    55,
-      -1,     4,     5,     6,     7,     8,     9,    53,     1,    55,
-      -1,     4,     5,     6,     7,     8,     9,     1,    -1,    -1,
-       4,     5,     6,     7,     8,     9,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    37,    -1,    39,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    37,    -1,    39,    -1,    -1,    -1,
-      53,    -1,    55,    37,    -1,    39,    -1,    -1,     1,    -1,
-      53,     4,    55,    -1,    -1,    -1,    -1,    -1,    -1,    53,
-       1,    55,    -1,     4,     5,     6,     7,     8,     9,    -1,
-      23,    24,    25,    -1,    -1,    -1,    -1,    -1,    -1,    32,
-      33,    -1,    -1,    -1,     1,    -1,    -1,     4,    -1,    -1,
-      -1,    44,    45,    -1,    -1,    -1,    37,    50,    39,    16,
-      -1,    18,    -1,    -1,    21,    22,    23,    24,    25,    -1,
-      -1,    -1,    53,    -1,    55,    32,    33,    -1,     1,    -1,
-      -1,     4,    -1,    -1,    -1,    -1,    -1,    44,    45,    -1,
-      -1,    -1,    -1,    16,    51,    18,    -1,    -1,    21,    22,
-      23,    24,    25,     1,    -1,    -1,     4,    -1,    -1,    32,
-      33,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    16,    -1,
-      18,    44,    45,    21,    22,    23,    24,    25,    51,    -1,
-      -1,    -1,    -1,    -1,    32,    33,    -1,     1,    -1,    -1,
-       4,    -1,    -1,    -1,    -1,    -1,    44,    45,    -1,    -1,
-      -1,    -1,    16,    51,    18,    -1,    -1,    21,    22,    23,
-      24,    25,     1,    -1,    -1,     4,    -1,    -1,    32,    33,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    16,    -1,    18,
-      44,    45,    21,    22,    23,    24,    25,    51,    -1,    -1,
-      -1,    -1,    -1,    32,    33,    -1,     1,    -1,    -1,     4,
-      -1,    -1,    -1,    -1,    -1,    44,    45,    -1,    -1,    -1,
-      -1,    16,    51,    18,    -1,    -1,    21,    22,    23,    24,
+        16,   103,     0,    19,    29,     1,    22,    29,   267,    30,
+       7,    27,    28,    29,     1,     3,    32,   309,   371,   141,
+       1,   123,     3,   125,   377,    20,    42,    29,   130,   151,
+      70,    47,    29,    52,    50,    51,    52,     3,     4,    18,
+     332,   143,    50,   302,    63,    18,   148,    63,    67,    65,
+      66,    67,     1,    30,   176,     4,    72,    52,   180,    56,
+      56,    58,    49,    44,    45,    52,    82,    55,     4,    85,
+      86,    50,    53,    55,    55,   141,    57,    50,    94,    28,
+       4,   121,   122,     1,    55,   151,     4,   112,   113,    55,
+     112,   113,   108,    17,    26,    27,   112,   113,    55,    31,
+      52,   223,     1,   225,     1,     4,    52,     4,     1,   106,
+     176,   127,    50,    31,   180,   112,   113,    10,    11,    12,
+      50,    14,    15,    26,    27,   141,     1,    52,    31,   145,
+       5,    28,    31,    49,    56,   151,   152,   239,    54,     1,
+      52,   140,     4,   142,     4,     1,   162,   163,   147,     5,
+      10,    11,    12,     1,    14,    15,     4,   223,    49,   225,
+     176,    52,    49,    56,   180,    52,    26,    27,     1,    50,
+     186,     4,     5,     6,     7,     8,     9,    42,   177,    10,
+      11,    12,   181,    14,    15,    50,    51,   309,    56,   311,
+      53,    51,    55,    52,    57,   317,   318,   319,    55,    56,
+      65,    66,     1,   219,    37,     1,    39,   223,     4,   225,
+     332,    10,    11,    12,    49,    14,    15,    52,     1,    56,
+      53,     4,    55,    56,   346,    49,   348,    49,    52,   331,
+      52,     1,   334,    53,     4,     5,     6,     7,     8,     9,
+     362,   363,   364,   309,    49,   311,    49,    52,   350,   351,
+     352,    49,    49,   269,    52,    52,     1,    56,   380,     4,
+       1,    50,     1,     4,   386,     4,   332,    37,    52,    39,
+     372,    55,   394,    54,    55,   397,   378,    54,    55,   278,
+     346,    50,   348,    53,    49,    55,   318,   319,   390,   274,
+     275,   393,    50,   309,    53,   311,   362,   363,   364,     1,
+      85,    86,     4,     5,     6,     7,     8,     9,    44,    45,
+      46,   317,   318,   319,   380,    50,   332,    50,    20,    56,
+     386,    40,    41,    42,    43,    44,    45,    46,   394,    56,
+     346,   397,   348,    54,   157,    37,    54,    39,    54,    54,
+     339,    55,   341,    55,    55,    50,   362,   363,   364,    55,
+      52,    53,    55,    55,    52,     3,    55,   356,   357,   358,
+     183,   184,    53,    57,   380,   188,    56,    49,    52,    52,
+     386,    56,    53,   196,   197,   198,   199,   376,   394,    56,
+      56,   397,    19,   382,    22,   208,   209,    46,    52,    52,
+     213,    21,    50,   392,   217,   218,   395,    50,    20,    56,
+      56,     1,    56,    55,     4,     5,     6,     7,     8,     9,
+       1,    50,    52,     4,     5,     6,     7,     8,     9,    50,
+      56,    20,    55,    55,   247,   248,   249,   250,   251,   252,
+     253,   254,   255,    56,    19,   258,   259,    37,    56,    39,
+      50,    19,    50,     9,     9,   268,    37,    58,    39,    -1,
+     273,   274,   275,    53,   342,    55,   279,   218,    -1,    -1,
+      -1,    -1,    53,     1,    55,    -1,     4,     5,     6,     7,
+       8,     9,     1,    -1,    -1,     4,     5,     6,     7,     8,
+       9,    -1,     1,    -1,    -1,     4,     5,     6,     7,     8,
+       9,    -1,    -1,    -1,   317,   318,   319,    -1,    -1,    37,
+      -1,    39,    10,    11,    12,    13,    14,    15,    37,    -1,
+      39,    -1,    -1,    -1,    -1,    53,    -1,    55,    37,   342,
+      39,    -1,    -1,    -1,    53,     1,    55,    -1,     4,     5,
+       6,     7,     8,     9,    53,     1,    55,    -1,     4,     5,
+       6,     7,     8,     9,     1,    -1,    -1,     4,     5,     6,
+       7,     8,     9,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    37,    -1,    39,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    37,    -1,    39,    -1,    -1,    -1,    53,    -1,    55,
+      37,    -1,    39,    -1,    -1,    -1,    -1,    53,    -1,    55,
+      -1,    -1,    -1,    -1,    -1,    -1,    53,     1,    55,    -1,
+       4,     5,     6,     7,     8,     9,     1,    -1,    -1,     4,
+       5,     6,     7,     8,     9,    -1,     1,    -1,    -1,     4,
+       5,     6,     7,     8,     9,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    37,    -1,    39,    -1,    -1,    -1,    -1,
+      -1,    -1,    37,    -1,    39,    -1,    -1,    -1,    -1,    53,
+      -1,    55,    37,    -1,    39,    -1,     1,    -1,    53,     4,
+      55,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    53,    -1,
+      55,    16,    -1,    18,    -1,    -1,    21,    22,    23,    24,
       25,     1,    -1,    -1,     4,    -1,    -1,    32,    33,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    16,    -1,    18,    44,
       45,    21,    22,    23,    24,    25,    51,    -1,    -1,    -1,
@@ -3603,28 +3653,46 @@ namespace yy {
       24,    25,    51,    -1,    -1,    -1,    -1,    -1,    32,    33,
       -1,     1,    -1,    -1,     4,    -1,    -1,    -1,    -1,    -1,
       44,    45,    -1,    -1,    -1,    -1,    16,    51,    18,    -1,
-       4,    21,    22,    23,    24,    25,    10,    11,    12,    -1,
-      14,    15,    32,    33,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    26,    27,    44,    45,     4,    -1,    -1,    -1,
-      -1,    51,    10,    11,    12,    -1,    14,    15,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    51,    26,    27,
-      34,    35,    36,    -1,    38,    39,    40,    41,    42,    43,
-      44,    45,    46,    -1,    48,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    56,    51,    34,    35,    36,    -1,    38,    39,
+      -1,    21,    22,    23,    24,    25,     1,    -1,    -1,     4,
+      -1,    -1,    32,    33,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    16,    -1,    18,    44,    45,    21,    22,    23,    24,
+      25,    51,    -1,    -1,    -1,    -1,    -1,    32,    33,    -1,
+       1,    -1,    -1,     4,    -1,    -1,    -1,    -1,    -1,    44,
+      45,    -1,    -1,    -1,    -1,    16,    51,    18,    -1,    -1,
+      21,    22,    23,    24,    25,     1,    -1,    -1,     4,    -1,
+      -1,    32,    33,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      16,    -1,    18,    44,    45,    21,    22,    23,    24,    25,
+      51,    -1,    -1,    -1,    -1,    -1,    32,    33,    -1,     1,
+      -1,    -1,     4,    -1,    -1,    -1,    -1,    -1,    44,    45,
+      -1,    -1,    -1,    -1,    16,    51,    18,    -1,    -1,    21,
+      22,    23,    24,    25,     1,    -1,    -1,     4,    -1,     1,
+      32,    33,     4,    -1,    -1,    -1,    -1,    -1,    -1,    16,
+      -1,    18,    44,    45,    21,    22,    23,    24,    25,    51,
+      -1,    23,    24,    25,    -1,    32,    33,    -1,    -1,    -1,
+      32,    33,    -1,    -1,    -1,    -1,    -1,    44,    45,     4,
+      -1,    -1,    44,    45,    51,    10,    11,    12,    50,    14,
+      15,     1,    -1,    -1,     4,    -1,    -1,     4,    -1,    -1,
+      -1,    26,    27,    10,    11,    12,    -1,    14,    15,    -1,
+      -1,    -1,    -1,    23,    24,    25,    -1,    -1,    -1,    26,
+      27,    -1,    32,    33,    -1,    -1,    51,    -1,    -1,    -1,
+       4,    -1,    -1,    -1,    44,    45,    10,    11,    12,    -1,
+      14,    15,    -1,    -1,    51,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    26,    27,    34,    35,    36,    -1,    38,    39,
       40,    41,    42,    43,    44,    45,    46,    -1,    48,    -1,
       -1,    -1,    -1,    34,    35,    36,    56,    38,    39,    40,
       41,    42,    43,    44,    45,    46,    -1,    48,    -1,    -1,
       -1,    -1,    34,    35,    36,    56,    38,    39,    40,    41,
-      42,    43,    44,    45,    46,    -1,    48,    -1,    -1,    34,
-      35,    36,    54,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    -1,    48,    -1,    -1,    34,    35,    36,    54,
-      38,    39,    40,    41,    42,    43,    44,    45,    46,    -1,
-      48,    34,    35,    36,    52,    38,    39,    40,    41,    42,
-      43,    44,    45,    46,    -1,    48,    34,    35,    36,    -1,
-      38,    39,    40,    41,    42,    43,    44,    45,    46,    35,
-      36,    -1,    38,    39,    40,    41,    42,    43,    44,    45,
-      46,    36,    -1,    38,    39,    40,    41,    42,    43,    44,
-      45,    46
+      42,    43,    44,    45,    46,    -1,    48,    -1,    -1,    -1,
+      -1,    34,    35,    36,    56,    38,    39,    40,    41,    42,
+      43,    44,    45,    46,    -1,    48,    -1,    -1,    34,    35,
+      36,    54,    38,    39,    40,    41,    42,    43,    44,    45,
+      46,    -1,    48,    -1,    -1,    34,    35,    36,    54,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    -1,    48,
+      34,    35,    36,    -1,    38,    39,    40,    41,    42,    43,
+      44,    45,    46,    35,    36,    -1,    38,    39,    40,    41,
+      42,    43,    44,    45,    46,    36,    -1,    38,    39,    40,
+      41,    42,    43,    44,    45,    46,    38,    39,    40,    41,
+      42,    43,    44,    45,    46
   };
 
   /* STOS_[STATE-NUM] -- The (internal number of the) accessing
@@ -3651,28 +3719,27 @@ namespace yy {
       32,    33,    44,    45,    51,    88,    89,    90,    91,    92,
       93,    98,   102,   111,   115,   123,    87,    62,     1,   123,
       87,    62,    51,     3,    55,   123,    55,    55,    55,    50,
-       1,     5,     6,     7,     8,     9,    37,    39,    52,    53,
-      55,   111,   114,   115,   116,   117,   118,   120,   123,    55,
-      55,   123,   123,    52,     3,     1,    44,    45,    53,    55,
-      57,    72,   122,    51,    87,    51,    87,   114,     1,   112,
-     113,   114,     1,   123,     1,   110,   114,     1,   101,   114,
-     100,   114,   114,     1,   114,   121,     1,   114,    34,    35,
-      36,    38,    39,    40,    41,    42,    43,    44,    45,    46,
-      48,    52,   114,   114,     1,   114,     1,   114,   112,   123,
-      53,    57,    51,    51,    56,    49,    52,    52,    56,    56,
-      62,    49,    54,    56,    56,   114,   114,   114,   114,   114,
-     114,   114,   114,   114,   114,   114,    56,    56,    54,    54,
-      56,    72,     1,   114,   123,     1,   114,   114,   116,     1,
-     116,    19,    22,    87,     1,   114,    54,    54,    72,    52,
-      52,    52,    50,    88,    50,    51,     1,    90,    97,   114,
-     115,    97,    97,   103,    20,    52,    99,    21,    56,    56,
-      56,    62,    88,    62,    55,    50,    50,    50,    87,    52,
-      87,   101,    95,    96,    94,    51,    51,    56,    62,    62,
-      62,    20,   104,   107,    87,    87,    87,    18,    50,    20,
-      51,    51,    51,    55,   106,    18,    50,   110,    62,    55,
-     105,    56,    87,   110,    62,    19,    51,    56,    87,    50,
-      19,    51,   108,    50,    62,   109,    87,    62,    51,    87,
-      51
+       1,     5,     6,     7,     8,     9,    37,    39,    53,    55,
+     111,   114,   115,   116,   117,   118,   120,   123,    55,    55,
+     123,   123,    52,     3,     1,    44,    45,    53,    55,    57,
+      72,   122,    51,    87,    51,    87,   114,     1,   112,   113,
+     114,     1,   123,     1,   110,   114,     1,   101,   114,   100,
+     114,   114,     1,   114,   121,     1,   114,    34,    35,    36,
+      38,    39,    40,    41,    42,    43,    44,    45,    46,    48,
+     114,   114,     1,   114,     1,   114,   112,   123,    53,    57,
+      51,    51,    56,    49,    52,    52,    56,    56,    62,    49,
+      54,    56,    56,   114,   114,   114,   114,   114,   114,   114,
+     114,   114,   114,   114,    56,    56,    54,    54,    56,    72,
+       1,   114,   123,     1,   114,   114,   116,     1,   116,    19,
+      22,    87,     1,   114,    54,    54,    72,    52,    52,    52,
+      50,    88,    50,    51,     1,    90,    97,   114,   115,    97,
+      97,   103,    20,    52,    99,    21,    56,    56,    56,    62,
+      88,    62,    55,    50,    50,    50,    87,    52,    87,   101,
+      95,    96,    94,    51,    51,    56,    62,    62,    62,    20,
+     104,   107,    87,    87,    87,    18,    50,    20,    51,    51,
+      51,    55,   106,    18,    50,   110,    62,    55,   105,    56,
+      87,   110,    62,    19,    51,    56,    87,    50,    19,    51,
+     108,    50,    62,   109,    87,    62,    51,    87,    51
   };
 
 #if YYDEBUG
@@ -3728,7 +3795,7 @@ namespace yy {
       11,     0,     1,     2,     3,     4,     5,     2,     3,     4,
        5,     0,     3,     2,     1,     1,     2,     2,     2,     2,
        1,     1,     1,     2,     2,     1,     1,     1,     1,     3,
-       3,     3,     4,     4,     2,     3,     0,    13,     0,    13,
+       3,     3,     4,     4,     1,     2,     0,    13,     0,    13,
        0,    13,     1,     1,     1,     0,    10,     0,    10,     1,
        1,     0,    11,     7,     9,     0,     0,     7,     0,     6,
        1,     0,    11,     0,    12,     1,     1,     4,     4,     0,
@@ -3815,40 +3882,40 @@ namespace yy {
      123,    -1,   123,     1,    -1,    92,    -1,    93,    -1,    98,
       -1,   102,    -1,   115,     3,   114,    -1,     1,     3,   114,
       -1,   115,     3,     1,    -1,    33,    55,   114,    56,    -1,
-      32,    55,   114,    56,    -1,    23,    52,    -1,    23,   114,
-      52,    -1,    -1,    16,    55,   123,    52,   116,    52,    97,
-      56,    50,    94,    62,    87,    51,    -1,    -1,    16,    55,
-       1,    52,   116,    52,    97,    56,    50,    95,    62,    87,
-      51,    -1,    -1,    16,    55,   123,    52,     1,    52,    97,
-      56,    50,    96,    62,    87,    51,    -1,    90,    -1,   114,
-      -1,     1,    -1,    -1,    21,    55,   101,    56,    22,    50,
-      99,    62,    87,    51,    -1,    -1,    22,    50,   100,    62,
-      87,    51,    21,    55,   101,    56,    -1,   114,    -1,     1,
-      -1,    -1,    18,    55,   110,    56,    19,    50,   103,    62,
-      87,    51,   104,    -1,    18,    55,   110,    56,    19,    88,
-      52,    -1,    18,    55,   110,    56,    19,    88,    20,    88,
-      52,    -1,    -1,    -1,   107,    20,    50,   105,    62,    87,
-      51,    -1,    -1,    20,    50,   106,    62,    87,    51,    -1,
-     107,    -1,    -1,    20,    18,    55,   110,    56,    19,    50,
-     108,    62,    87,    51,    -1,    -1,   107,    20,    18,    55,
-     110,    56,    19,    50,   109,    62,    87,    51,    -1,   114,
-      -1,     1,    -1,   123,    55,   112,    56,    -1,     1,    55,
-     112,    56,    -1,    -1,   113,    -1,   113,    49,   114,    -1,
-     114,    -1,   113,    49,     1,    -1,     1,    -1,   117,    -1,
-     116,    -1,   118,    -1,   115,    -1,    55,   114,    56,    -1,
-     111,    -1,    55,     1,    56,    -1,   123,    -1,   123,    72,
-      -1,   123,   122,    -1,   114,    35,   114,    -1,   114,    36,
-     114,    -1,   114,    48,   114,    -1,    37,   114,    -1,    39,
-     114,    -1,   114,    44,    -1,   114,    45,    -1,   114,    34,
-     114,    -1,   114,    38,   114,    -1,   114,    39,   114,    -1,
-     114,    40,   114,    -1,   114,    41,   114,    -1,   114,    42,
-     114,    -1,   114,    43,   114,    -1,   114,    46,   114,    -1,
-       9,    -1,     6,    -1,     7,    -1,     5,    -1,     8,    -1,
-     120,    -1,    11,    -1,    10,    -1,    14,    -1,    12,    -1,
-      15,    -1,    53,   121,    54,    -1,   121,    49,   114,    -1,
-     114,    -1,   121,    49,     1,    -1,     1,    -1,    57,   123,
-      -1,   122,    57,   123,    -1,   122,    57,   123,    72,    -1,
-      57,   123,    72,    -1,     4,    -1
+      32,    55,   114,    56,    -1,    23,    -1,    23,   114,    -1,
+      -1,    16,    55,   123,    52,   116,    52,    97,    56,    50,
+      94,    62,    87,    51,    -1,    -1,    16,    55,     1,    52,
+     116,    52,    97,    56,    50,    95,    62,    87,    51,    -1,
+      -1,    16,    55,   123,    52,     1,    52,    97,    56,    50,
+      96,    62,    87,    51,    -1,    90,    -1,   114,    -1,     1,
+      -1,    -1,    21,    55,   101,    56,    22,    50,    99,    62,
+      87,    51,    -1,    -1,    22,    50,   100,    62,    87,    51,
+      21,    55,   101,    56,    -1,   114,    -1,     1,    -1,    -1,
+      18,    55,   110,    56,    19,    50,   103,    62,    87,    51,
+     104,    -1,    18,    55,   110,    56,    19,    88,    52,    -1,
+      18,    55,   110,    56,    19,    88,    20,    88,    52,    -1,
+      -1,    -1,   107,    20,    50,   105,    62,    87,    51,    -1,
+      -1,    20,    50,   106,    62,    87,    51,    -1,   107,    -1,
+      -1,    20,    18,    55,   110,    56,    19,    50,   108,    62,
+      87,    51,    -1,    -1,   107,    20,    18,    55,   110,    56,
+      19,    50,   109,    62,    87,    51,    -1,   114,    -1,     1,
+      -1,   123,    55,   112,    56,    -1,     1,    55,   112,    56,
+      -1,    -1,   113,    -1,   113,    49,   114,    -1,   114,    -1,
+     113,    49,     1,    -1,     1,    -1,   117,    -1,   116,    -1,
+     118,    -1,   115,    -1,    55,   114,    56,    -1,   111,    -1,
+      55,     1,    56,    -1,   123,    -1,   123,    72,    -1,   123,
+     122,    -1,   114,    35,   114,    -1,   114,    36,   114,    -1,
+     114,    48,   114,    -1,    37,   114,    -1,    39,   114,    -1,
+     114,    44,    -1,   114,    45,    -1,   114,    34,   114,    -1,
+     114,    38,   114,    -1,   114,    39,   114,    -1,   114,    40,
+     114,    -1,   114,    41,   114,    -1,   114,    42,   114,    -1,
+     114,    43,   114,    -1,   114,    46,   114,    -1,     9,    -1,
+       6,    -1,     7,    -1,     5,    -1,     8,    -1,   120,    -1,
+      11,    -1,    10,    -1,    14,    -1,    12,    -1,    15,    -1,
+      53,   121,    54,    -1,   121,    49,   114,    -1,   114,    -1,
+     121,    49,     1,    -1,     1,    -1,    57,   123,    -1,   122,
+      57,   123,    -1,   122,    57,   123,    72,    -1,    57,   123,
+      72,    -1,     4,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -3865,16 +3932,16 @@ namespace yy {
      248,   260,   261,   263,   266,   270,   275,   281,   284,   288,
      293,   299,   300,   304,   307,   309,   311,   314,   317,   320,
      323,   325,   327,   329,   332,   335,   337,   339,   341,   343,
-     347,   351,   355,   360,   365,   368,   372,   373,   387,   388,
-     402,   403,   417,   419,   421,   423,   424,   435,   436,   447,
-     449,   451,   452,   464,   472,   482,   483,   484,   492,   493,
-     500,   502,   503,   515,   516,   529,   531,   533,   538,   543,
-     544,   546,   550,   552,   556,   558,   560,   562,   564,   566,
-     570,   572,   576,   578,   581,   584,   588,   592,   596,   599,
-     602,   605,   608,   612,   616,   620,   624,   628,   632,   636,
-     640,   642,   644,   646,   648,   650,   652,   654,   656,   658,
-     660,   662,   666,   670,   672,   676,   678,   681,   685,   690,
-     694
+     347,   351,   355,   360,   365,   367,   370,   371,   385,   386,
+     400,   401,   415,   417,   419,   421,   422,   433,   434,   445,
+     447,   449,   450,   462,   470,   480,   481,   482,   490,   491,
+     498,   500,   501,   513,   514,   527,   529,   531,   536,   541,
+     542,   544,   548,   550,   554,   556,   558,   560,   562,   564,
+     568,   570,   574,   576,   579,   582,   586,   590,   594,   597,
+     600,   603,   606,   610,   614,   618,   622,   626,   630,   634,
+     638,   640,   642,   644,   646,   648,   650,   652,   654,   656,
+     658,   660,   664,   668,   670,   674,   676,   679,   683,   688,
+     692
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
@@ -3883,23 +3950,23 @@ namespace yy {
   {
          0,   153,   153,   156,   156,   171,   173,   173,   178,   183,
      187,   191,   197,   202,   208,   213,   219,   224,   231,   236,
-     241,   244,   248,   253,   253,   269,   269,   284,   289,   296,
-     299,   301,   304,   308,   311,   318,   323,   328,   331,   335,
-     347,   356,   360,   366,   368,   374,   376,   382,   382,   406,
-     406,   415,   418,   415,   440,   443,   440,   463,   463,   470,
-     470,   476,   478,   481,   487,   493,   499,   505,   506,   507,
-     508,   511,   514,   526,   539,   541,   543,   567,   591,   615,
-     639,   641,   644,   649,   652,   655,   660,   662,   664,   667,
-     686,   689,   694,   702,   711,   714,   723,   723,   760,   760,
-     765,   765,   776,   779,   782,   786,   786,   812,   812,   841,
-     848,   852,   852,   873,   888,   905,   908,   908,   926,   926,
-     941,   945,   945,   964,   964,   987,   994,   998,  1056,  1060,
-    1063,  1066,  1073,  1081,  1083,  1088,  1089,  1090,  1091,  1092,
-    1093,  1094,  1098,  1117,  1153,  1174,  1191,  1208,  1268,  1281,
-    1294,  1307,  1319,  1351,  1384,  1415,  1446,  1477,  1495,  1513,
-    1534,  1538,  1542,  1546,  1550,  1554,  1561,  1564,  1567,  1570,
-    1573,  1579,  1590,  1608,  1615,  1619,  1624,  1627,  1631,  1635,
-    1639
+     241,   244,   248,   253,   253,   269,   269,   284,   290,   297,
+     301,   303,   307,   311,   315,   322,   328,   333,   337,   341,
+     354,   363,   368,   374,   376,   382,   384,   390,   390,   416,
+     416,   425,   428,   425,   457,   460,   457,   482,   482,   489,
+     489,   495,   499,   502,   509,   516,   522,   528,   529,   530,
+     531,   534,   537,   549,   562,   564,   566,   591,   616,   641,
+     666,   668,   673,   680,   683,   686,   691,   693,   695,   698,
+     722,   725,   730,   739,   749,   752,   761,   761,   799,   799,
+     804,   804,   815,   818,   821,   825,   825,   852,   852,   882,
+     890,   894,   894,   916,   932,   950,   953,   953,   972,   972,
+     988,   992,   992,  1012,  1012,  1036,  1043,  1047,  1106,  1110,
+    1113,  1116,  1123,  1131,  1133,  1138,  1139,  1140,  1141,  1142,
+    1143,  1144,  1148,  1167,  1203,  1224,  1241,  1258,  1318,  1331,
+    1344,  1357,  1369,  1401,  1434,  1465,  1496,  1527,  1545,  1563,
+    1584,  1588,  1593,  1597,  1601,  1605,  1612,  1615,  1618,  1621,
+    1624,  1630,  1640,  1670,  1686,  1690,  1695,  1698,  1702,  1706,
+    1710
   };
 
   // Print the state stack on the debug stream.
@@ -3977,7 +4044,7 @@ namespace yy {
   }
 
   const int GuavaParser::yyeof_ = 0;
-  const int GuavaParser::yylast_ = 1371;
+  const int GuavaParser::yylast_ = 1364;
   const int GuavaParser::yynnts_ = 66;
   const int GuavaParser::yyempty_ = -2;
   const int GuavaParser::yyfinal_ = 4;
@@ -3992,10 +4059,10 @@ namespace yy {
 } // yy
 
 /* Line 1108 of lalr1.cc  */
-#line 3996 "GuavaParser.cc"
+#line 4063 "GuavaParser.cc"
 
 /* Line 1109 of lalr1.cc  */
-#line 1647 "GuavaParser.yy"
+#line 1718 "GuavaParser.yy"
 
 
 void yy::GuavaParser::error (const yy::GuavaParser::location_type& l, const std::string& m)

@@ -332,7 +332,7 @@ lcorchetes: '[' INTEGER ']'            {
           /*Errores*/
           | '[' error ']'           {/*Definicion erronea del tamano del arreglo*/
                                       $$ = new LCorchetes(true);
-                                      tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                      //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     }
           | lcorchetes '[' error ']' {
                                       $$ = new LCorchetes(true);
@@ -880,7 +880,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
  * Regla utilizada para el manejo de errores en iteraciones indeterminadas.
  */
 errorloopwhile: exp    {    Exp* tmp = $1;
-                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                            //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                             if ( $1 == 0 || $1->get_tipo() != TypeBool::Instance()){
                                 $$ = new ErrorBoolExp();
                              } else {
@@ -1631,28 +1631,38 @@ arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
-                            TypeS* tipo_primitivo = $2->get_tipo();
-                            TypeS* tipo_estructura = new TypeArray $2->get_tipoEstructura();
-                            //tmp->tipo = tipo;
+                            tmp->tipo_primitivo = lr->get_tipo();
+                            tmp->tipo_estructura = lr->get_tipoEstructura();
                             $$ = tmp;
                           };
 
 /*Funciona. Faltan ejemplos mas interesantes.*/
-
 larreglo: larreglo ',' exp      { 
-                                  if ($1->get_tipo() != $3->get_tipo()
-                                     || $1->get_tipo() == TypeError::Instance()
-                                     || $3->get_tipo() == TypeError::Instance()){
-                                        std::string msg;
-                                        Exp* e = $3;
-                                        LArreglo* a = $1;
-                                        if ($1->get_tipo() != 0 && $3->get_tipo() != 0)
-                                            msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
-                                        else
-                                            msg = mensaje_error_tipos("null","null");
-                                        driver.error(yylloc,msg);
-                                        $1->tipo = TypeError::Instance();
-                                  }else{
+                                  //Caso: Tipos no nulos
+                                  std::string msg;
+                                  if ($1->get_tipo() != 0 && $3->get_tipo() != 0) {
+                                    //Caso: Tipos primitivos diferentes
+                                    if ($1->get_tipo() != $3->get_tipo()) {
+                                      msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
+                                    }
+                                    //Caso: Tipos estructurales diferentes
+                                    else if ($3->get_tipo()->is_array()) {
+                                        Arreglo* expArr = (Arreglo *) $3;
+                                        if ($1->get_tipoEstructura() != expArr->get_tipoEstructura()) {
+                                          msg = mensaje_error_tipos($1->get_tipoEstructura()->get_name(),expArr->get_tipoEstructura()->get_name());
+                                        }
+                                    }
+                                    driver.error(yylloc,msg);
+                                    $1->tipo_primitivo = TypeError::Instance();
+                                  }
+                                  //Caso: Tipos nulos
+                                  else if ($1->get_tipo() == 0 && $3->get_tipo() == 0) {
+                                    msg = mensaje_error_tipos("null","null");
+                                    driver.error(yylloc,msg);
+                                    $1->tipo_primitivo = TypeError::Instance();
+                                  }
+                                  //Caso: Sin Errores
+                                  else {
                                     $1->append($3);
                                   }
                                   $$ = $1;
@@ -1660,9 +1670,12 @@ larreglo: larreglo ',' exp      {
         | exp                   { 
                                   LArreglo *tmp = new LArreglo();
                                   tmp->tipo_primitivo = $1->get_tipo();
+                                  //Caso para arreglos anidados
                                   if($1->get_tipo()->is_array() != 0) {
-                                    tmp->tipo_estructura = $1->get_tipoEstructura();
+                                    Arreglo* expArr = (Arreglo *) $1;
+                                    tmp->tipo_estructura = expArr->get_tipoEstructura();
                                   }
+                                  //Caso para arreglos simples
                                   else {
                                     tmp->tipo_estructura = 0;
                                   }
@@ -1671,11 +1684,11 @@ larreglo: larreglo ',' exp      {
                                 }
         /*Errores*/
         | larreglo ',' error    { 
-                                 $1->tipo = TypeError::Instance();
+                                 $1->tipo_primitivo = TypeError::Instance();
                                  $$ = $1; 
                                 }
         | error                 { LArreglo *tmp = new LArreglo(); 
-                                  tmp->tipo = TypeError::Instance();
+                                  tmp->tipo_primitivo = TypeError::Instance();
                                 };
 
 

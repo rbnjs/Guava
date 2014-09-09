@@ -311,14 +311,15 @@ LArreglo::~LArreglo() {
 }
 
 void LArreglo::show(std::string s) {
-   std::cout << s <<"[\n"; 
-   for ( std::list<Exp*>::iterator it = larr.begin();
-         it != larr.end();
-         ++it
-       ){
-            Exp* tmp = *it;
-            tmp->show(s+ "  ");
-       }
+    std::cout << s <<"[\n"; 
+    for ( std::list<Exp*>::iterator it = larr.begin();
+        it != larr.end();
+        ++it
+        )
+    {
+        Exp* tmp = *it;
+        tmp->show(s+ "  ");
+    }
     std::cout <<  s << "]\n";
 } 
 
@@ -328,7 +329,7 @@ Arreglo::Arreglo(){
 }
 
 Arreglo::Arreglo(LArreglo* la_):la(la_){
-    TypeS* tipo = new TypeArray(la->get_tipo(),la->size());
+    TypeS* tipo = new TypeArray(la->get_tipo(),la->get_tipoEstructura(),la->size());
 }
     
 Arreglo::~Arreglo() { 

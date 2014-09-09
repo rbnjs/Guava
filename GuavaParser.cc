@@ -488,7 +488,7 @@ namespace yy {
 /* Line 663 of lalr1.cc  */
 #line 162 "GuavaParser.yy"
     { (yyval.classBloquePrincipal) = new BloquePrincipal((yysemantic_stack_[(3) - (2)].classBloqueDeclare), (yysemantic_stack_[(3) - (3)].classLFunciones));
-                                            if (!error_state) {
+                                            if (!error_state && driver.print_table) {
                                                 //std::cout << "Funciones: " << '\n';
                                                 //driver.tablaSimbolos.show(0,identacion+ "  ");
                                                 std::cout << "Variables globales: \n";
@@ -700,7 +700,7 @@ namespace yy {
     { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
                                                 std::string identificador = (yysemantic_stack_[(6) - (2)].classIdentificador)->identificador;
-                                                if (!error_state) {
+                                                if (!error_state && driver.print_table) {
                                                     identacion.erase(0,2);
                                                     std::cout << identacion << "Union " << identificador << " {\n";
                                                     tabla->show(tabla->currentScope(),identacion+ "  "); 
@@ -726,7 +726,7 @@ namespace yy {
 #line 272 "GuavaParser.yy"
     { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
-                                                if (!error_state) {
+                                                if (!error_state && driver.print_table) {
                                                 std::cout << identacion << "Union " << (yysemantic_stack_[(6) - (2)].classIdentificador)->identificador << " {\n";
                                                 tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                 std::cout << identacion <<"}\n";
@@ -845,14 +845,13 @@ namespace yy {
 #line 333 "GuavaParser.yy"
     {/*Definicion erronea del tamano del arreglo*/
                                       (yyval.classLCorchetes) = new LCorchetes(true);
-                                      //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     }
     break;
 
   case 38:
 
 /* Line 663 of lalr1.cc  */
-#line 337 "GuavaParser.yy"
+#line 336 "GuavaParser.yy"
     {
                                       (yyval.classLCorchetes) = new LCorchetes(true);
                                      }
@@ -861,7 +860,7 @@ namespace yy {
   case 39:
 
 /* Line 663 of lalr1.cc  */
-#line 341 "GuavaParser.yy"
+#line 340 "GuavaParser.yy"
     { LCorchetesExp* tmp = new LCorchetesExp();
                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            if( (yysemantic_stack_[(3) - (2)].classExp) != 0 && (yysemantic_stack_[(3) - (2)].classExp)->get_tipo() == TypeInt::Instance()) {
@@ -880,7 +879,7 @@ namespace yy {
   case 40:
 
 /* Line 663 of lalr1.cc  */
-#line 354 "GuavaParser.yy"
+#line 353 "GuavaParser.yy"
     { 
                                            if ((yysemantic_stack_[(4) - (3)].classExp) != 0 && (yysemantic_stack_[(4) - (3)].classExp)->get_tipo() != TypeInt::Instance()){
                                                std::string msg = mensaje_error_tipos("integer",(yysemantic_stack_[(4) - (3)].classExp)->get_tipo()->get_name());
@@ -895,7 +894,7 @@ namespace yy {
   case 41:
 
 /* Line 663 of lalr1.cc  */
-#line 363 "GuavaParser.yy"
+#line 362 "GuavaParser.yy"
     {
                                             LCorchetesExp* tmp = new LCorchetesExp();
                                             tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
@@ -906,7 +905,7 @@ namespace yy {
   case 42:
 
 /* Line 663 of lalr1.cc  */
-#line 368 "GuavaParser.yy"
+#line 367 "GuavaParser.yy"
     {
                                                 LCorchetesExp* tmp = new LCorchetesExp();
                                                 tmp->tipo = TypeError::Instance();
@@ -916,7 +915,7 @@ namespace yy {
   case 43:
 
 /* Line 663 of lalr1.cc  */
-#line 374 "GuavaParser.yy"
+#line 373 "GuavaParser.yy"
     { (yyval.classLFunciones) = new LFunciones((yysemantic_stack_[(1) - (1)].classFuncion),0);
                                            }
     break;
@@ -924,7 +923,7 @@ namespace yy {
   case 44:
 
 /* Line 663 of lalr1.cc  */
-#line 376 "GuavaParser.yy"
+#line 375 "GuavaParser.yy"
     { 
                                              LFunciones* main_ = new LFunciones((yysemantic_stack_[(2) - (2)].classFuncion),0);
                                              (yysemantic_stack_[(2) - (1)].classLFunciones)->lista = main_;
@@ -935,7 +934,7 @@ namespace yy {
   case 45:
 
 /* Line 663 of lalr1.cc  */
-#line 382 "GuavaParser.yy"
+#line 381 "GuavaParser.yy"
     { (yyval.classLFunciones) = new LFunciones((yysemantic_stack_[(1) - (1)].classFuncion),0);
                                            }
     break;
@@ -943,7 +942,7 @@ namespace yy {
   case 46:
 
 /* Line 663 of lalr1.cc  */
-#line 384 "GuavaParser.yy"
+#line 383 "GuavaParser.yy"
     { 
                                              LFunciones* func = new LFunciones((yysemantic_stack_[(2) - (2)].classFuncion),0);
                                              (yysemantic_stack_[(2) - (1)].classLFunciones)->lista = func;
@@ -954,7 +953,7 @@ namespace yy {
   case 47:
 
 /* Line 663 of lalr1.cc  */
-#line 390 "GuavaParser.yy"
+#line 389 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    int line = yylloc.begin.line;
@@ -969,13 +968,13 @@ namespace yy {
   case 48:
 
 /* Line 663 of lalr1.cc  */
-#line 399 "GuavaParser.yy"
+#line 398 "GuavaParser.yy"
     { LParam* lp = new LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    Funcion* tmp = new  Funcion(tipo, new Identificador(std::string("main")),lp,(yysemantic_stack_[(10) - (8)].classBloqueDeclare),(yysemantic_stack_[(10) - (9)].classListaInstrucciones)); 
                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                    (yyval.classFuncion) = tmp;
-                                                   if (!error_state) {
+                                                   if (!error_state && driver.print_table) {
                                                        std::cout <<  "main {\n"; 
                                                        std::cout << "Parametros y variables:\n";
                                                        driver.tablaSimbolos.show(current_scope,identacion);
@@ -983,14 +982,16 @@ namespace yy {
                                                        std::cout << "}\n";
                                                        identacion.erase(0,2);
                                                    }
-                                                   (yysemantic_stack_[(10) - (9)].classListaInstrucciones)->show("");
+                                                   if (driver.print_tree){
+                                                        (yysemantic_stack_[(10) - (9)].classListaInstrucciones)->show("");
+                                                   }
                                                  }
     break;
 
   case 49:
 
 /* Line 663 of lalr1.cc  */
-#line 416 "GuavaParser.yy"
+#line 417 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope();
                                                          identacion += "  ";
                                                        }
@@ -999,7 +1000,7 @@ namespace yy {
   case 50:
 
 /* Line 663 of lalr1.cc  */
-#line 419 "GuavaParser.yy"
+#line 420 "GuavaParser.yy"
     { TypeS* t = TypeError::Instance();
                                                          LParam* lp = new LParam();
                                                          (yyval.classFuncion) = new Funcion(t, new Identificador(std::string("main")),lp,(yysemantic_stack_[(11) - (9)].classBloqueDeclare),(yysemantic_stack_[(11) - (10)].classListaInstrucciones));
@@ -1009,7 +1010,7 @@ namespace yy {
   case 51:
 
 /* Line 663 of lalr1.cc  */
-#line 425 "GuavaParser.yy"
+#line 426 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope();
                                             offset_actual.push_front(0);
                                           }
@@ -1018,7 +1019,7 @@ namespace yy {
   case 52:
 
 /* Line 663 of lalr1.cc  */
-#line 428 "GuavaParser.yy"
+#line 429 "GuavaParser.yy"
     { 
                                                  insertar_funcion((yysemantic_stack_[(6) - (2)].classTipo),(yysemantic_stack_[(6) - (3)].classIdentificador),(yysemantic_stack_[(6) - (6)].classLParam),&driver,current_scope,yylloc); 
                                                  identacion += "  ";
@@ -1028,7 +1029,7 @@ namespace yy {
   case 53:
 
 /* Line 663 of lalr1.cc  */
-#line 432 "GuavaParser.yy"
+#line 433 "GuavaParser.yy"
     { TypeS* tipo = new TypeFunction((yysemantic_stack_[(12) - (2)].classTipo)->get_tipo(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
                                                                                std::list<Instruccion*> lretorno = (yysemantic_stack_[(12) - (11)].classListaInstrucciones)->obtener_return();
                                                                                Funcion* tmp;
@@ -1043,7 +1044,7 @@ namespace yy {
                                                                                }
                                                                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                (yyval.classFuncion) = tmp;
-                                                                               if (!error_state) {
+                                                                               if (!error_state && driver.print_table) {
                                                                                     std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
                                                                                     std::cout << "Parametros y variables:\n";
                                                                                     driver.tablaSimbolos.show(current_scope,identacion);
@@ -1051,14 +1052,16 @@ namespace yy {
                                                                                     driver.tablaSimbolos.exitScope();
                                                                                                 identacion.erase(0,2);
                                                                                }
-                                                                               (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                               if (driver.print_tree){
+                                                                                    (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                               }
                                                                             }
     break;
 
   case 54:
 
 /* Line 663 of lalr1.cc  */
-#line 457 "GuavaParser.yy"
+#line 460 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                 offset_actual.push_front(0);
                                               }
@@ -1067,7 +1070,7 @@ namespace yy {
   case 55:
 
 /* Line 663 of lalr1.cc  */
-#line 460 "GuavaParser.yy"
+#line 463 "GuavaParser.yy"
     {  
                                                       TypeS* v = TypeVoid::Instance();
                                                       insertar_funcion(v,(yysemantic_stack_[(6) - (3)].classIdentificador),(yysemantic_stack_[(6) - (6)].classLParam),&driver,current_scope,yylloc); 
@@ -1078,12 +1081,12 @@ namespace yy {
   case 56:
 
 /* Line 663 of lalr1.cc  */
-#line 465 "GuavaParser.yy"
+#line 468 "GuavaParser.yy"
     {  TypeS* tipo = new TypeFunction(TypeVoid::Instance(),(yysemantic_stack_[(12) - (6)].classLParam)->get_tipos());
                                                                                    Funcion* tmp = new Funcion(tipo,(yysemantic_stack_[(12) - (3)].classIdentificador),(yysemantic_stack_[(12) - (6)].classLParam),(yysemantic_stack_[(12) - (10)].classBloqueDeclare),(yysemantic_stack_[(12) - (11)].classListaInstrucciones));
                                                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    (yyval.classFuncion) = tmp;
-                                                                                   if (!error_state) {
+                                                                                   if (!error_state && driver.print_table) {
                                                                                         std::cout << (yysemantic_stack_[(12) - (3)].classIdentificador)->identificador << "{\n";
                                                                                         std::cout << "Parametros y variables:\n";
                                                                                         driver.tablaSimbolos.show(current_scope,identacion);
@@ -1091,14 +1094,16 @@ namespace yy {
                                                                                         driver.tablaSimbolos.exitScope();
                                                                                         identacion.erase(0,2);
                                                                                     }
-                                                                                    (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                                    if (driver.print_tree){
+                                                                                        (yysemantic_stack_[(12) - (10)].classBloqueDeclare)->show("");
+                                                                                    }
                                                                                 }
     break;
 
   case 57:
 
 /* Line 663 of lalr1.cc  */
-#line 482 "GuavaParser.yy"
+#line 487 "GuavaParser.yy"
     { current_scope =  driver.tablaSimbolos.enterScope(); 
                                                          identacion += "  ";
                                                        }
@@ -1107,7 +1112,7 @@ namespace yy {
   case 58:
 
 /* Line 663 of lalr1.cc  */
-#line 485 "GuavaParser.yy"
+#line 490 "GuavaParser.yy"
     { (yyval.classFuncion) = new Funcion(); 
                                                                                                 }
     break;
@@ -1115,7 +1120,7 @@ namespace yy {
   case 59:
 
 /* Line 663 of lalr1.cc  */
-#line 489 "GuavaParser.yy"
+#line 494 "GuavaParser.yy"
     { current_scope = driver.tablaSimbolos.enterScope(); 
                                                               identacion += "  ";
                                                             }
@@ -1124,7 +1129,7 @@ namespace yy {
   case 60:
 
 /* Line 663 of lalr1.cc  */
-#line 492 "GuavaParser.yy"
+#line 497 "GuavaParser.yy"
     {  (yyval.classFuncion) = new Funcion();
                                                                                            }
     break;
@@ -1132,7 +1137,7 @@ namespace yy {
   case 61:
 
 /* Line 663 of lalr1.cc  */
-#line 495 "GuavaParser.yy"
+#line 500 "GuavaParser.yy"
     { LParam* tmp = new LParam(); 
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                (yyval.classLParam) = tmp;
@@ -1142,7 +1147,7 @@ namespace yy {
   case 62:
 
 /* Line 663 of lalr1.cc  */
-#line 499 "GuavaParser.yy"
+#line 504 "GuavaParser.yy"
     { (yyval.classLParam) = (yysemantic_stack_[(1) - (1)].classLParam); 
                              }
     break;
@@ -1150,7 +1155,7 @@ namespace yy {
   case 63:
 
 /* Line 663 of lalr1.cc  */
-#line 502 "GuavaParser.yy"
+#line 507 "GuavaParser.yy"
     { LParam* tmp = new LParam(); 
                                             tmp->append((yysemantic_stack_[(2) - (1)].classTipo),(yysemantic_stack_[(2) - (2)].classIdentificador));
                                             tmp->appendTipo((yysemantic_stack_[(2) - (1)].classTipo));
@@ -1163,7 +1168,7 @@ namespace yy {
   case 64:
 
 /* Line 663 of lalr1.cc  */
-#line 509 "GuavaParser.yy"
+#line 514 "GuavaParser.yy"
     { LParam* tmp = new LParam(); 
                                             tmp->append((yysemantic_stack_[(3) - (1)].classTipo),(yysemantic_stack_[(3) - (3)].classIdentificador));
                                             tmp->appendTipo((yysemantic_stack_[(3) - (1)].classTipo));
@@ -1176,7 +1181,7 @@ namespace yy {
   case 65:
 
 /* Line 663 of lalr1.cc  */
-#line 516 "GuavaParser.yy"
+#line 521 "GuavaParser.yy"
     { 
                                             (yysemantic_stack_[(4) - (1)].classLParam)->append((yysemantic_stack_[(4) - (3)].classTipo),(yysemantic_stack_[(4) - (4)].classIdentificador));
                                             (yysemantic_stack_[(4) - (1)].classLParam)->appendTipo((yysemantic_stack_[(4) - (3)].classTipo));
@@ -1188,7 +1193,7 @@ namespace yy {
   case 66:
 
 /* Line 663 of lalr1.cc  */
-#line 522 "GuavaParser.yy"
+#line 527 "GuavaParser.yy"
     { 
                                                           (yysemantic_stack_[(5) - (1)].classLParam)->append((yysemantic_stack_[(5) - (3)].classTipo),(yysemantic_stack_[(5) - (5)].classIdentificador));
                                                           (yysemantic_stack_[(5) - (1)].classLParam)->appendTipo((yysemantic_stack_[(5) - (3)].classTipo));
@@ -1200,35 +1205,35 @@ namespace yy {
   case 67:
 
 /* Line 663 of lalr1.cc  */
-#line 528 "GuavaParser.yy"
+#line 533 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 68:
 
 /* Line 663 of lalr1.cc  */
-#line 529 "GuavaParser.yy"
+#line 534 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 69:
 
 /* Line 663 of lalr1.cc  */
-#line 530 "GuavaParser.yy"
+#line 535 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 70:
 
 /* Line 663 of lalr1.cc  */
-#line 531 "GuavaParser.yy"
+#line 536 "GuavaParser.yy"
     { (yyval.classLParam) = new LParam();    }
     break;
 
   case 71:
 
 /* Line 663 of lalr1.cc  */
-#line 534 "GuavaParser.yy"
+#line 539 "GuavaParser.yy"
     { 
                                                             (yyval.classListaInstrucciones) = new ListaInstrucciones(); 
                                                         }
@@ -1237,7 +1242,7 @@ namespace yy {
   case 72:
 
 /* Line 663 of lalr1.cc  */
-#line 537 "GuavaParser.yy"
+#line 542 "GuavaParser.yy"
     { 
                                                           ListaInstrucciones * result;
                                                           if ( (yysemantic_stack_[(3) - (1)].classListaInstrucciones)->get_tipo() == TypeError::Instance()
@@ -1255,7 +1260,7 @@ namespace yy {
   case 73:
 
 /* Line 663 of lalr1.cc  */
-#line 549 "GuavaParser.yy"
+#line 554 "GuavaParser.yy"
     {
                                                           ListaInstrucciones * result;
                                                           if ( (yysemantic_stack_[(2) - (1)].classListaInstrucciones)->get_tipo() == TypeError::Instance()
@@ -1273,7 +1278,7 @@ namespace yy {
   case 74:
 
 /* Line 663 of lalr1.cc  */
-#line 562 "GuavaParser.yy"
+#line 567 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1281,7 +1286,7 @@ namespace yy {
   case 75:
 
 /* Line 663 of lalr1.cc  */
-#line 564 "GuavaParser.yy"
+#line 569 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1289,7 +1294,7 @@ namespace yy {
   case 76:
 
 /* Line 663 of lalr1.cc  */
-#line 566 "GuavaParser.yy"
+#line 571 "GuavaParser.yy"
     {
                                          Symbol *id;
                                          PlusMinus *result;
@@ -1320,7 +1325,7 @@ namespace yy {
   case 77:
 
 /* Line 663 of lalr1.cc  */
-#line 591 "GuavaParser.yy"
+#line 596 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
@@ -1351,7 +1356,7 @@ namespace yy {
   case 78:
 
 /* Line 663 of lalr1.cc  */
-#line 616 "GuavaParser.yy"
+#line 621 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
@@ -1382,7 +1387,7 @@ namespace yy {
   case 79:
 
 /* Line 663 of lalr1.cc  */
-#line 641 "GuavaParser.yy"
+#line 646 "GuavaParser.yy"
     { 
                                          Symbol *id;
                                          PlusMinus *result;
@@ -1413,7 +1418,7 @@ namespace yy {
   case 80:
 
 /* Line 663 of lalr1.cc  */
-#line 666 "GuavaParser.yy"
+#line 671 "GuavaParser.yy"
     { 
                             }
     break;
@@ -1421,7 +1426,7 @@ namespace yy {
   case 81:
 
 /* Line 663 of lalr1.cc  */
-#line 668 "GuavaParser.yy"
+#line 673 "GuavaParser.yy"
     {
                               ContinueBreak* tmp = new ContinueBreak(0);
                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
@@ -1432,7 +1437,7 @@ namespace yy {
   case 82:
 
 /* Line 663 of lalr1.cc  */
-#line 673 "GuavaParser.yy"
+#line 678 "GuavaParser.yy"
     {
                               ContinueBreak* tmp = new ContinueBreak(1);
                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
@@ -1443,7 +1448,7 @@ namespace yy {
   case 83:
 
 /* Line 663 of lalr1.cc  */
-#line 680 "GuavaParser.yy"
+#line 685 "GuavaParser.yy"
     {/*Error en la especificacion del incremento o decremento*/
                                          (yyval.classInstruccion) = new Error();
                                        }
@@ -1452,7 +1457,7 @@ namespace yy {
   case 84:
 
 /* Line 663 of lalr1.cc  */
-#line 683 "GuavaParser.yy"
+#line 688 "GuavaParser.yy"
     {/*Error en la especificacion del incremento o decremento*/
                                          (yyval.classInstruccion) = new Error();
                                        }
@@ -1461,7 +1466,7 @@ namespace yy {
   case 85:
 
 /* Line 663 of lalr1.cc  */
-#line 686 "GuavaParser.yy"
+#line 691 "GuavaParser.yy"
     {
                                        }
     break;
@@ -1469,7 +1474,7 @@ namespace yy {
   case 86:
 
 /* Line 663 of lalr1.cc  */
-#line 691 "GuavaParser.yy"
+#line 696 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1477,7 +1482,7 @@ namespace yy {
   case 87:
 
 /* Line 663 of lalr1.cc  */
-#line 693 "GuavaParser.yy"
+#line 698 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1485,7 +1490,7 @@ namespace yy {
   case 88:
 
 /* Line 663 of lalr1.cc  */
-#line 695 "GuavaParser.yy"
+#line 700 "GuavaParser.yy"
     { 
                              }
     break;
@@ -1493,7 +1498,7 @@ namespace yy {
   case 89:
 
 /* Line 663 of lalr1.cc  */
-#line 698 "GuavaParser.yy"
+#line 703 "GuavaParser.yy"
     { /*Caso en el que alguno de los dos tipos sea de tipo error.*/
                                  Asignacion* tmp;
                                  if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeError::Instance() ||
@@ -1522,7 +1527,7 @@ namespace yy {
   case 90:
 
 /* Line 663 of lalr1.cc  */
-#line 722 "GuavaParser.yy"
+#line 727 "GuavaParser.yy"
     {
                                  (yyval.classAsignacion) = new Asignacion();
                                }
@@ -1531,7 +1536,7 @@ namespace yy {
   case 91:
 
 /* Line 663 of lalr1.cc  */
-#line 725 "GuavaParser.yy"
+#line 730 "GuavaParser.yy"
     {
                                  (yyval.classAsignacion) = new Asignacion();
                                }
@@ -1540,7 +1545,7 @@ namespace yy {
   case 92:
 
 /* Line 663 of lalr1.cc  */
-#line 730 "GuavaParser.yy"
+#line 735 "GuavaParser.yy"
     {
                                     EntradaSalida* tmp = new EntradaSalida(0,(yysemantic_stack_[(4) - (3)].classExp));  
                                     if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
@@ -1555,7 +1560,7 @@ namespace yy {
   case 93:
 
 /* Line 663 of lalr1.cc  */
-#line 739 "GuavaParser.yy"
+#line 744 "GuavaParser.yy"
     { 
                                     EntradaSalida* tmp = new EntradaSalida(1,(yysemantic_stack_[(4) - (3)].classExp));  
                                     if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
@@ -1570,7 +1575,7 @@ namespace yy {
   case 94:
 
 /* Line 663 of lalr1.cc  */
-#line 749 "GuavaParser.yy"
+#line 754 "GuavaParser.yy"
     { 
 			    (yyval.classRetorno) = new Retorno(0,yylloc.begin.line,yylloc.begin.column); 
                       }
@@ -1579,7 +1584,7 @@ namespace yy {
   case 95:
 
 /* Line 663 of lalr1.cc  */
-#line 752 "GuavaParser.yy"
+#line 757 "GuavaParser.yy"
     {
 			    Retorno* tmp =  new Retorno((yysemantic_stack_[(2) - (2)].classExp),yylloc.begin.line, yylloc.begin.column); 
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
@@ -1593,7 +1598,7 @@ namespace yy {
   case 96:
 
 /* Line 663 of lalr1.cc  */
-#line 761 "GuavaParser.yy"
+#line 766 "GuavaParser.yy"
     { 
                                                                       variable_no_declarada((yysemantic_stack_[(9) - (3)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front()); 
                                                                       driver.tablaSimbolos.enterScope();   
@@ -1604,7 +1609,7 @@ namespace yy {
   case 97:
 
 /* Line 663 of lalr1.cc  */
-#line 767 "GuavaParser.yy"
+#line 772 "GuavaParser.yy"
     {  ErrorLoopFor* asign_exp = (yysemantic_stack_[(13) - (7)].classErrorLoopFor);
                                                                         LoopFor* tmp;
                                                                             if (asign_exp->is_error()
@@ -1627,7 +1632,7 @@ namespace yy {
                                                                             }
                                                                             tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                             (yyval.classLoopFor) = tmp;
-                                                                            if (!error_state) {
+                                                                            if (!error_state &&  driver.print_table ) {
                                                                                 std::cout << identacion << "for {\n";
                                                                                 int cscope = driver.tablaSimbolos.currentScope();
                                                                                 driver.tablaSimbolos.show(cscope,identacion+ "  ");
@@ -1641,7 +1646,7 @@ namespace yy {
   case 98:
 
 /* Line 663 of lalr1.cc  */
-#line 799 "GuavaParser.yy"
+#line 804 "GuavaParser.yy"
     { 
                                                             }
     break;
@@ -1649,7 +1654,7 @@ namespace yy {
   case 99:
 
 /* Line 663 of lalr1.cc  */
-#line 801 "GuavaParser.yy"
+#line 806 "GuavaParser.yy"
     { 
                                                                    (yyval.classLoopFor) = new LoopFor();
                                                                  }
@@ -1658,7 +1663,7 @@ namespace yy {
   case 100:
 
 /* Line 663 of lalr1.cc  */
-#line 804 "GuavaParser.yy"
+#line 809 "GuavaParser.yy"
     { 
                                                                      variable_no_declarada((yysemantic_stack_[(9) - (3)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front());
                                                                    }
@@ -1667,7 +1672,7 @@ namespace yy {
   case 101:
 
 /* Line 663 of lalr1.cc  */
-#line 807 "GuavaParser.yy"
+#line 812 "GuavaParser.yy"
     { 
                                                                            (yyval.classLoopFor) = new LoopFor();
                                                                          }
@@ -1676,7 +1681,7 @@ namespace yy {
   case 102:
 
 /* Line 663 of lalr1.cc  */
-#line 815 "GuavaParser.yy"
+#line 820 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor((yysemantic_stack_[(1) - (1)].classAsignacion));
                           }
@@ -1685,7 +1690,7 @@ namespace yy {
   case 103:
 
 /* Line 663 of lalr1.cc  */
-#line 818 "GuavaParser.yy"
+#line 823 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor((yysemantic_stack_[(1) - (1)].classExp));
                           }
@@ -1694,7 +1699,7 @@ namespace yy {
   case 104:
 
 /* Line 663 of lalr1.cc  */
-#line 821 "GuavaParser.yy"
+#line 826 "GuavaParser.yy"
     {
                             (yyval.classErrorLoopFor) = new ErrorLoopFor();
                           }
@@ -1703,7 +1708,7 @@ namespace yy {
   case 105:
 
 /* Line 663 of lalr1.cc  */
-#line 825 "GuavaParser.yy"
+#line 830 "GuavaParser.yy"
     { 
                                                  driver.tablaSimbolos.enterScope();   
                                                  identacion += "  ";
@@ -1713,7 +1718,7 @@ namespace yy {
   case 106:
 
 /* Line 663 of lalr1.cc  */
-#line 829 "GuavaParser.yy"
+#line 834 "GuavaParser.yy"
     { 
                                                              LoopWhile* result;
                                                              ErrorBoolExp* exp_bool = (yysemantic_stack_[(10) - (3)].classErrorBoolExp);
@@ -1729,7 +1734,7 @@ namespace yy {
                                                              }
                                                              result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                              (yyval.classLoopWhile) = result;
-                                                             if (!error_state) {
+                                                             if (!error_state && driver.print_table) {
                                                                  std::cout << identacion << "while {\n"; 
                                                                  driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
                                                                  std::cout << identacion << "}\n ";
@@ -1742,7 +1747,7 @@ namespace yy {
   case 107:
 
 /* Line 663 of lalr1.cc  */
-#line 852 "GuavaParser.yy"
+#line 857 "GuavaParser.yy"
     { 
                     driver.tablaSimbolos.enterScope();   
                     identacion += "  ";
@@ -1752,7 +1757,7 @@ namespace yy {
   case 108:
 
 /* Line 663 of lalr1.cc  */
-#line 856 "GuavaParser.yy"
+#line 861 "GuavaParser.yy"
     { 
                                                                                    LoopWhile* result;
                                                                                    ErrorBoolExp* exp_bool = (yysemantic_stack_[(10) - (9)].classErrorBoolExp);
@@ -1768,7 +1773,7 @@ namespace yy {
                                                                                    }
                                                                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    (yyval.classLoopWhile) = result;
-                                                                                   if (!error_state) {
+                                                                                   if (!error_state && driver.print_table) {
                                                                                        std::cout << identacion << "while {\n";
                                                                                        driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
                                                                                        std::cout << identacion << "}\n ";
@@ -1781,13 +1786,17 @@ namespace yy {
   case 109:
 
 /* Line 663 of lalr1.cc  */
-#line 882 "GuavaParser.yy"
+#line 887 "GuavaParser.yy"
     {    Exp* tmp = (yysemantic_stack_[(1) - (1)].classExp);
-                            //tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                            ErrorBoolExp* tmp1;
                             if ( (yysemantic_stack_[(1) - (1)].classExp) == 0 || (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() != TypeBool::Instance()){
-                                (yyval.classErrorBoolExp) = new ErrorBoolExp();
+                                tmp1 = new ErrorBoolExp();
+                                tmp1->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                (yyval.classErrorBoolExp) = tmp1;
                              } else {
-                                (yyval.classErrorBoolExp) = new ErrorBoolExp((yysemantic_stack_[(1) - (1)].classExp));
+                                tmp1 = new ErrorBoolExp((yysemantic_stack_[(1) - (1)].classExp));
+                                tmp1->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                (yyval.classErrorBoolExp) = tmp1;
                              }
                             }
     break;
@@ -1795,7 +1804,7 @@ namespace yy {
   case 110:
 
 /* Line 663 of lalr1.cc  */
-#line 890 "GuavaParser.yy"
+#line 899 "GuavaParser.yy"
     {
                               (yyval.classErrorBoolExp) = new ErrorBoolExp();
                             }
@@ -1804,7 +1813,7 @@ namespace yy {
   case 111:
 
 /* Line 663 of lalr1.cc  */
-#line 894 "GuavaParser.yy"
+#line 903 "GuavaParser.yy"
     { 
                                           driver.tablaSimbolos.enterScope();   
                                           identacion += "  ";
@@ -1814,7 +1823,7 @@ namespace yy {
   case 112:
 
 /* Line 663 of lalr1.cc  */
-#line 898 "GuavaParser.yy"
+#line 907 "GuavaParser.yy"
     { 
                                                                ErrorBoolExp* err_exp = (yysemantic_stack_[(11) - (3)].classErrorBoolExp);
                                                                SelectorIf * result;
@@ -1838,7 +1847,7 @@ namespace yy {
   case 113:
 
 /* Line 663 of lalr1.cc  */
-#line 916 "GuavaParser.yy"
+#line 925 "GuavaParser.yy"
     { 
                                                                ErrorBoolExp* err_exp = (yysemantic_stack_[(7) - (3)].classErrorBoolExp);
                                                                SelectorIf * result;
@@ -1860,7 +1869,7 @@ namespace yy {
   case 114:
 
 /* Line 663 of lalr1.cc  */
-#line 932 "GuavaParser.yy"
+#line 941 "GuavaParser.yy"
     { 
                                                                        ErrorBoolExp* err_exp = (yysemantic_stack_[(9) - (3)].classErrorBoolExp);
                                                                        SelectorIf * result;
@@ -1882,7 +1891,7 @@ namespace yy {
   case 115:
 
 /* Line 663 of lalr1.cc  */
-#line 950 "GuavaParser.yy"
+#line 959 "GuavaParser.yy"
     { 
                                                                       (yyval.classLElseIf) = new LElseIf(false);
                                                                     }
@@ -1891,7 +1900,7 @@ namespace yy {
   case 116:
 
 /* Line 663 of lalr1.cc  */
-#line 953 "GuavaParser.yy"
+#line 962 "GuavaParser.yy"
     { 
                              driver.tablaSimbolos.enterScope();   
                            }
@@ -1900,7 +1909,7 @@ namespace yy {
   case 117:
 
 /* Line 663 of lalr1.cc  */
-#line 956 "GuavaParser.yy"
+#line 965 "GuavaParser.yy"
     { 
                                                                       LElseIf* result; 
                                                                       if ( (yysemantic_stack_[(7) - (1)].classLElseIf)->get_tipo() == TypeError::Instance()
@@ -1922,7 +1931,7 @@ namespace yy {
   case 118:
 
 /* Line 663 of lalr1.cc  */
-#line 972 "GuavaParser.yy"
+#line 981 "GuavaParser.yy"
     { driver.tablaSimbolos.enterScope();
                    }
     break;
@@ -1930,7 +1939,7 @@ namespace yy {
   case 119:
 
 /* Line 663 of lalr1.cc  */
-#line 974 "GuavaParser.yy"
+#line 983 "GuavaParser.yy"
     {
                                                                       LElseIf* result; 
                                                                       if ( 
@@ -1950,14 +1959,14 @@ namespace yy {
   case 120:
 
 /* Line 663 of lalr1.cc  */
-#line 988 "GuavaParser.yy"
+#line 997 "GuavaParser.yy"
     { }
     break;
 
   case 121:
 
 /* Line 663 of lalr1.cc  */
-#line 992 "GuavaParser.yy"
+#line 1001 "GuavaParser.yy"
     { 
                                              driver.tablaSimbolos.enterScope();   
                                             }
@@ -1966,7 +1975,7 @@ namespace yy {
   case 122:
 
 /* Line 663 of lalr1.cc  */
-#line 995 "GuavaParser.yy"
+#line 1004 "GuavaParser.yy"
     {
                                                                    LElseIf* result; 
                                                                    if ( 
@@ -1989,7 +1998,7 @@ namespace yy {
   case 123:
 
 /* Line 663 of lalr1.cc  */
-#line 1012 "GuavaParser.yy"
+#line 1021 "GuavaParser.yy"
     { 
                                                       driver.tablaSimbolos.enterScope();   
                                                     }
@@ -1998,7 +2007,7 @@ namespace yy {
   case 124:
 
 /* Line 663 of lalr1.cc  */
-#line 1015 "GuavaParser.yy"
+#line 1024 "GuavaParser.yy"
     {
                                                                    LElseIf* result; 
                                                                    if ( (yysemantic_stack_[(12) - (1)].classLElseIf)->get_tipo() == TypeError::Instance()
@@ -2021,12 +2030,16 @@ namespace yy {
   case 125:
 
 /* Line 663 of lalr1.cc  */
-#line 1036 "GuavaParser.yy"
-    {
+#line 1045 "GuavaParser.yy"
+    {  ErrorBoolExp* tmp;
                       if ((yysemantic_stack_[(1) - (1)].classExp) == 0  || (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() != TypeBool::Instance()){
-                        (yyval.classErrorBoolExp) = new ErrorBoolExp();
+                        tmp = new ErrorBoolExp();
+                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                        (yyval.classErrorBoolExp) = tmp;
                       } else {
-                        (yyval.classErrorBoolExp) = new ErrorBoolExp((yysemantic_stack_[(1) - (1)].classExp));
+                        tmp = new ErrorBoolExp((yysemantic_stack_[(1) - (1)].classExp));
+                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                        (yyval.classErrorBoolExp) = tmp;
                       }
                     }
     break;
@@ -2034,7 +2047,7 @@ namespace yy {
   case 126:
 
 /* Line 663 of lalr1.cc  */
-#line 1043 "GuavaParser.yy"
+#line 1056 "GuavaParser.yy"
     {
                       (yyval.classErrorBoolExp) = new ErrorBoolExp();
                     }
@@ -2043,7 +2056,7 @@ namespace yy {
   case 127:
 
 /* Line 663 of lalr1.cc  */
-#line 1047 "GuavaParser.yy"
+#line 1060 "GuavaParser.yy"
     { Symbol *id; 
                                                    LlamadaFuncion* result;
                                                    if ( (id = driver.tablaSimbolos.lookup((yysemantic_stack_[(4) - (1)].classIdentificador)->identificador,0)) == 0){
@@ -2108,7 +2121,7 @@ namespace yy {
   case 128:
 
 /* Line 663 of lalr1.cc  */
-#line 1106 "GuavaParser.yy"
+#line 1119 "GuavaParser.yy"
     {/*Llamado a una funcion con identificador erroneo*/
                                                  }
     break;
@@ -2116,7 +2129,7 @@ namespace yy {
   case 129:
 
 /* Line 663 of lalr1.cc  */
-#line 1110 "GuavaParser.yy"
+#line 1123 "GuavaParser.yy"
     { 
                             (yyval.classLVaroValor) = new LVaroValor(false); 
                           }
@@ -2125,7 +2138,7 @@ namespace yy {
   case 130:
 
 /* Line 663 of lalr1.cc  */
-#line 1113 "GuavaParser.yy"
+#line 1126 "GuavaParser.yy"
     { 
                            }
     break;
@@ -2133,7 +2146,7 @@ namespace yy {
   case 131:
 
 /* Line 663 of lalr1.cc  */
-#line 1116 "GuavaParser.yy"
+#line 1129 "GuavaParser.yy"
     { 
                                       (yysemantic_stack_[(3) - (1)].classLVaroValor)->append((yysemantic_stack_[(3) - (3)].classExp));
                                       if ((yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeError::Instance()){
@@ -2146,12 +2159,13 @@ namespace yy {
   case 132:
 
 /* Line 663 of lalr1.cc  */
-#line 1123 "GuavaParser.yy"
+#line 1136 "GuavaParser.yy"
     {
                                       LVaroValor *tmp = new LVaroValor(false);
-                                      if ( (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() == TypeError::Instance()){
+                                      if ( (yysemantic_stack_[(1) - (1)].classExp) != 0 && (yysemantic_stack_[(1) - (1)].classExp)->get_tipo() == TypeError::Instance()){
                                         tmp->tipo = (yysemantic_stack_[(1) - (1)].classExp)->get_tipo();
                                       }
+                                      tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                       tmp->append((yysemantic_stack_[(1) - (1)].classExp));
                                       (yyval.classLVaroValor) = tmp; 
                                     }
@@ -2160,7 +2174,7 @@ namespace yy {
   case 133:
 
 /* Line 663 of lalr1.cc  */
-#line 1131 "GuavaParser.yy"
+#line 1145 "GuavaParser.yy"
     { (yyval.classLVaroValor) = new LVaroValor(true);
                                     }
     break;
@@ -2168,7 +2182,7 @@ namespace yy {
   case 134:
 
 /* Line 663 of lalr1.cc  */
-#line 1133 "GuavaParser.yy"
+#line 1147 "GuavaParser.yy"
     {
                                       LVaroValor *tmp = new LVaroValor(true);
                                       (yyval.classLVaroValor) = tmp;
@@ -2178,73 +2192,79 @@ namespace yy {
   case 135:
 
 /* Line 663 of lalr1.cc  */
-#line 1138 "GuavaParser.yy"
+#line 1152 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 136:
 
 /* Line 663 of lalr1.cc  */
-#line 1139 "GuavaParser.yy"
+#line 1153 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 137:
 
 /* Line 663 of lalr1.cc  */
-#line 1140 "GuavaParser.yy"
+#line 1154 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classValor); }
     break;
 
   case 138:
 
 /* Line 663 of lalr1.cc  */
-#line 1141 "GuavaParser.yy"
+#line 1155 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(1) - (1)].classExp); }
     break;
 
   case 139:
 
 /* Line 663 of lalr1.cc  */
-#line 1142 "GuavaParser.yy"
+#line 1156 "GuavaParser.yy"
     { (yyval.classExp) = (yysemantic_stack_[(3) - (2)].classExp); }
     break;
 
   case 140:
 
 /* Line 663 of lalr1.cc  */
-#line 1143 "GuavaParser.yy"
+#line 1157 "GuavaParser.yy"
     {  /*Supondremos que una llamada a una funcion es una expresion*/}
     break;
 
   case 141:
 
 /* Line 663 of lalr1.cc  */
-#line 1144 "GuavaParser.yy"
+#line 1158 "GuavaParser.yy"
     {}
     break;
 
   case 142:
 
 /* Line 663 of lalr1.cc  */
-#line 1148 "GuavaParser.yy"
+#line 1162 "GuavaParser.yy"
     { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada((yysemantic_stack_[(1) - (1)].classIdentificador)->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
+
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID((yysemantic_stack_[(1) - (1)].classIdentificador));
                                 result->tipo = tipo;
+                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 (yyval.classExp) = result;
                             }
                             else {
                                std::string msg ("Type has not been declared or doesn't exists in current context");
                                driver.error(yylloc,msg);
                                result = new ExpID();
+                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                (yyval.classExp) = result;
                             }
+
                           } else {
-                          (yyval.classExp) = new ExpID();
+                          result = new ExpID();
+                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                          (yyval.classExp) = result;
                           }
                        }
     break;
@@ -2252,7 +2272,7 @@ namespace yy {
   case 143:
 
 /* Line 663 of lalr1.cc  */
-#line 1167 "GuavaParser.yy"
+#line 1187 "GuavaParser.yy"
     { TypeS* tipo;
                                         ExpID* result;
                                         Symbol* id;
@@ -2261,6 +2281,7 @@ namespace yy {
                                             tipo = obtener_tipo_simbolo(id);
                                             if (tipo != 0){
                                                 result = new ExpID((yysemantic_stack_[(2) - (1)].classIdentificador), (yysemantic_stack_[(2) - (2)].classLCorchetesExp));
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
 
                                                 if ((yysemantic_stack_[(2) - (2)].classLCorchetesExp)->get_tipo() == TypeInt::Instance() &&
                                                     tipo->is_array()) {
@@ -2283,10 +2304,10 @@ namespace yy {
                                                 }
                                                 (yyval.classExp) = result;
                                             }
-                                        } 
-                                        // Caso en que la variable no ha sido declarada
-                                        else{
-                                            (yyval.classExp) = new ExpID();
+                                        } else{
+                                            result = new ExpID();
+                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                            (yyval.classExp) = result;
                                         }
                                       }
     break;
@@ -2294,24 +2315,30 @@ namespace yy {
   case 144:
 
 /* Line 663 of lalr1.cc  */
-#line 1203 "GuavaParser.yy"
+#line 1224 "GuavaParser.yy"
     { 
                                         Symbol * id;
                                         Identificador *prueba = (yysemantic_stack_[(2) - (1)].classIdentificador);
+                                        ExpID* result;
                                         if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                         //Caso en el que la variable es un record o union.
                                             if (!es_estructura_error(id->sym_catg, (yysemantic_stack_[(2) - (1)].classIdentificador)->identificador,&driver,yylloc)){
                                                 std::list<Identificador*> tmp = (yysemantic_stack_[(2) - (2)].classLAccesoAtributos)->get_list();
                                                 TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                                ExpID* result = new ExpID((yysemantic_stack_[(2) - (1)].classIdentificador),(yysemantic_stack_[(2) - (2)].classLAccesoAtributos));
+                                                result = new ExpID((yysemantic_stack_[(2) - (1)].classIdentificador),(yysemantic_stack_[(2) - (2)].classLAccesoAtributos));
                                                 result->tipo = tipo;
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                 (yyval.classExp) = result;
                                             }
                                             else {
-                                                (yyval.classExp) = new ExpID();
+                                                result = new ExpID();
+                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                (yyval.classExp) = result;
                                             }
                                         } else {
-                                            (yyval.classExp) = new ExpID();
+                                            result = new ExpID();
+                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                            (yyval.classExp) = result;
                                         }
                                       }
     break;
@@ -2319,8 +2346,9 @@ namespace yy {
   case 145:
 
 /* Line 663 of lalr1.cc  */
-#line 1224 "GuavaParser.yy"
+#line 1251 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("AND"));
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeBool::Instance() &&
                                    (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = (yysemantic_stack_[(3) - (1)].classExp)->get_tipo();
@@ -2342,8 +2370,9 @@ namespace yy {
   case 146:
 
 /* Line 663 of lalr1.cc  */
-#line 1241 "GuavaParser.yy"
+#line 1269 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("OR"));
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeBool::Instance() &&
                                    (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = (yysemantic_stack_[(3) - (1)].classExp)->get_tipo();
@@ -2365,7 +2394,7 @@ namespace yy {
   case 147:
 
 /* Line 663 of lalr1.cc  */
-#line 1258 "GuavaParser.yy"
+#line 1287 "GuavaParser.yy"
     { ExpBin* tmp;
                                if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                    ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
@@ -2392,6 +2421,7 @@ namespace yy {
                                           break;
                                  }
                                  tmp->tipo = TypeBool::Instance();
+                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                } 
                                else if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() != (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                         ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() &&
@@ -2402,6 +2432,7 @@ namespace yy {
                                  std::string msg = mensaje_diff_operandos(std::string("<=>"),(yysemantic_stack_[(3) - (1)].classExp)->get_tipo()->get_name(),(yysemantic_stack_[(3) - (3)].classExp)->get_tipo()->get_name(),expected);
                                  driver.error(yylloc,msg);
                                  tmp->tipo = TypeError::Instance();
+                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                }
                                else if ( (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() && 
                                          (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeBool::Instance() &&
@@ -2409,6 +2440,7 @@ namespace yy {
                                        ){
                                         tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("="));
                                         tmp->tipo = TypeBool::Instance();
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                }else {
                                 tmp = new ExpBin();
                                  if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() != TypeInt::Instance() &&
@@ -2431,9 +2463,10 @@ namespace yy {
   case 148:
 
 /* Line 663 of lalr1.cc  */
-#line 1318 "GuavaParser.yy"
+#line 1350 "GuavaParser.yy"
     { std::string * op = new std::string("NOT");
                                ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (2)].classExp),op);
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                if ((yysemantic_stack_[(2) - (2)].classExp)->get_tipo() == TypeBool::Instance())
                                { tmp->tipo = (yysemantic_stack_[(2) - (2)].classExp)->get_tipo();
                                }
@@ -2449,9 +2482,10 @@ namespace yy {
   case 149:
 
 /* Line 663 of lalr1.cc  */
-#line 1331 "GuavaParser.yy"
+#line 1364 "GuavaParser.yy"
     { std::string * op = new std::string("-");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (2)].classExp),op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(2) - (2)].classExp)->get_tipo() == TypeInt::Instance() ||
                                            (yysemantic_stack_[(2) - (2)].classExp)->get_tipo() == TypeReal::Instance())
                                        { tmp->tipo = (yysemantic_stack_[(2) - (2)].classExp)->get_tipo();
@@ -2468,10 +2502,11 @@ namespace yy {
   case 150:
 
 /* Line 663 of lalr1.cc  */
-#line 1344 "GuavaParser.yy"
+#line 1378 "GuavaParser.yy"
     { 
                                        std::string * op = new std::string("++");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (1)].classExp),op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(2) - (1)].classExp)->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = (yysemantic_stack_[(2) - (1)].classExp)->get_tipo();
                                        }
@@ -2487,9 +2522,10 @@ namespace yy {
   case 151:
 
 /* Line 663 of lalr1.cc  */
-#line 1357 "GuavaParser.yy"
+#line 1392 "GuavaParser.yy"
     { std::string * op = new std::string("--");
                                        ExpUn* tmp = new ExpUn((yysemantic_stack_[(2) - (1)].classExp),op);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(2) - (1)].classExp)->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = (yysemantic_stack_[(2) - (1)].classExp)->get_tipo();
                                        }
@@ -2505,8 +2541,9 @@ namespace yy {
   case 152:
 
 /* Line 663 of lalr1.cc  */
-#line 1369 "GuavaParser.yy"
+#line 1405 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("<=>"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                             (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()))
@@ -2543,10 +2580,9 @@ namespace yy {
   case 153:
 
 /* Line 663 of lalr1.cc  */
-#line 1401 "GuavaParser.yy"
+#line 1438 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("+"));
-                                       Exp* exp1 = (yysemantic_stack_[(3) - (1)].classExp);
-                                       Exp* exp2 = (yysemantic_stack_[(3) - (3)].classExp);
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() && 
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                             (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()))
@@ -2582,8 +2618,9 @@ namespace yy {
   case 154:
 
 /* Line 663 of lalr1.cc  */
-#line 1434 "GuavaParser.yy"
+#line 1470 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("-"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                             (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()))
@@ -2619,8 +2656,9 @@ namespace yy {
   case 155:
 
 /* Line 663 of lalr1.cc  */
-#line 1465 "GuavaParser.yy"
+#line 1502 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("*"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                             (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()))
@@ -2656,8 +2694,9 @@ namespace yy {
   case 156:
 
 /* Line 663 of lalr1.cc  */
-#line 1496 "GuavaParser.yy"
+#line 1534 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("/"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                             (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()))
@@ -2693,8 +2732,9 @@ namespace yy {
   case 157:
 
 /* Line 663 of lalr1.cc  */
-#line 1527 "GuavaParser.yy"
+#line 1566 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("DIV"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = (yysemantic_stack_[(3) - (1)].classExp)->get_tipo();
@@ -2717,8 +2757,9 @@ namespace yy {
   case 158:
 
 /* Line 663 of lalr1.cc  */
-#line 1545 "GuavaParser.yy"
+#line 1585 "GuavaParser.yy"
     { ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("MOD"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == (yysemantic_stack_[(3) - (3)].classExp)->get_tipo() &&
                                            (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance())
                                        { tmp->tipo = (yysemantic_stack_[(3) - (1)].classExp)->get_tipo();
@@ -2741,9 +2782,10 @@ namespace yy {
   case 159:
 
 /* Line 663 of lalr1.cc  */
-#line 1563 "GuavaParser.yy"
+#line 1604 "GuavaParser.yy"
     { //El exponente sera integer, la base integer o real.
                                        ExpBin* tmp = new ExpBin((yysemantic_stack_[(3) - (1)].classExp),(yysemantic_stack_[(3) - (3)].classExp),std::string("**"));
+                                       tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        if ((yysemantic_stack_[(3) - (3)].classExp)->get_tipo() == TypeInt::Instance()) {
                                            if((yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeInt::Instance() ||
                                               (yysemantic_stack_[(3) - (1)].classExp)->get_tipo() == TypeReal::Instance()) {
@@ -2767,9 +2809,10 @@ namespace yy {
   case 160:
 
 /* Line 663 of lalr1.cc  */
-#line 1584 "GuavaParser.yy"
+#line 1626 "GuavaParser.yy"
     { 
                   Valor* v = new Bool((yysemantic_stack_[(1) - (1)].boolval),TypeBool::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2777,10 +2820,11 @@ namespace yy {
   case 161:
 
 /* Line 663 of lalr1.cc  */
-#line 1588 "GuavaParser.yy"
+#line 1631 "GuavaParser.yy"
     { 
                   Valor* v = new String((yysemantic_stack_[(1) - (1)].strval),TypeString::Instance());
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2788,9 +2832,10 @@ namespace yy {
   case 162:
 
 /* Line 663 of lalr1.cc  */
-#line 1593 "GuavaParser.yy"
+#line 1637 "GuavaParser.yy"
     { 
                   Valor* v = new Char((yysemantic_stack_[(1) - (1)].charval),TypeChar::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2798,9 +2843,10 @@ namespace yy {
   case 163:
 
 /* Line 663 of lalr1.cc  */
-#line 1597 "GuavaParser.yy"
+#line 1642 "GuavaParser.yy"
     { 
                   Valor* v  = new Integer((yysemantic_stack_[(1) - (1)].intval),TypeInt::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2808,9 +2854,10 @@ namespace yy {
   case 164:
 
 /* Line 663 of lalr1.cc  */
-#line 1601 "GuavaParser.yy"
+#line 1647 "GuavaParser.yy"
     { 
                   Valor* v = new Real((yysemantic_stack_[(1) - (1)].realval),TypeReal::Instance());
+                  v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   (yyval.classValor) = v;
                 }
     break;
@@ -2818,7 +2865,7 @@ namespace yy {
   case 165:
 
 /* Line 663 of lalr1.cc  */
-#line 1605 "GuavaParser.yy"
+#line 1652 "GuavaParser.yy"
     {
                   (yyval.classValor) = (yysemantic_stack_[(1) - (1)].classArreglo);
                 }
@@ -2827,7 +2874,7 @@ namespace yy {
   case 166:
 
 /* Line 663 of lalr1.cc  */
-#line 1612 "GuavaParser.yy"
+#line 1657 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeReal::Instance();
                     }
@@ -2836,7 +2883,7 @@ namespace yy {
   case 167:
 
 /* Line 663 of lalr1.cc  */
-#line 1615 "GuavaParser.yy"
+#line 1660 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeInt::Instance();
                     }
@@ -2845,7 +2892,7 @@ namespace yy {
   case 168:
 
 /* Line 663 of lalr1.cc  */
-#line 1618 "GuavaParser.yy"
+#line 1663 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeBool::Instance();
                     }
@@ -2854,7 +2901,7 @@ namespace yy {
   case 169:
 
 /* Line 663 of lalr1.cc  */
-#line 1621 "GuavaParser.yy"
+#line 1666 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeChar::Instance();
                     }
@@ -2863,7 +2910,7 @@ namespace yy {
   case 170:
 
 /* Line 663 of lalr1.cc  */
-#line 1624 "GuavaParser.yy"
+#line 1669 "GuavaParser.yy"
     { 
                       (yyval.classTipo) = TypeString::Instance();
                     }
@@ -2872,13 +2919,14 @@ namespace yy {
   case 171:
 
 /* Line 663 of lalr1.cc  */
-#line 1630 "GuavaParser.yy"
+#line 1675 "GuavaParser.yy"
     {
                             Arreglo* tmp;
                             LArreglo *lr = (yysemantic_stack_[(3) - (2)].classLArreglo);
                             tmp = new Arreglo(lr);
                             tmp->tipo_primitivo = lr->get_tipo();
                             tmp->tipo_estructura = lr->get_tipoEstructura();
+                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                             (yyval.classArreglo) = tmp;
                           }
     break;
@@ -2886,7 +2934,7 @@ namespace yy {
   case 172:
 
 /* Line 663 of lalr1.cc  */
-#line 1640 "GuavaParser.yy"
+#line 1686 "GuavaParser.yy"
     { 
                                   //Caso: Tipos no nulos
                                   std::string msg;
@@ -2922,7 +2970,7 @@ namespace yy {
   case 173:
 
 /* Line 663 of lalr1.cc  */
-#line 1670 "GuavaParser.yy"
+#line 1716 "GuavaParser.yy"
     { 
                                   LArreglo *tmp = new LArreglo();
                                   tmp->tipo_primitivo = (yysemantic_stack_[(1) - (1)].classExp)->get_tipo();
@@ -2935,6 +2983,7 @@ namespace yy {
                                   else {
                                     tmp->tipo_estructura = 0;
                                   }
+                                  tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                   tmp->append((yysemantic_stack_[(1) - (1)].classExp));
                                   (yyval.classLArreglo) = tmp;
                                 }
@@ -2943,7 +2992,7 @@ namespace yy {
   case 174:
 
 /* Line 663 of lalr1.cc  */
-#line 1686 "GuavaParser.yy"
+#line 1733 "GuavaParser.yy"
     { 
                                  (yysemantic_stack_[(3) - (1)].classLArreglo)->tipo_primitivo = TypeError::Instance();
                                  (yyval.classLArreglo) = (yysemantic_stack_[(3) - (1)].classLArreglo); 
@@ -2953,7 +3002,7 @@ namespace yy {
   case 175:
 
 /* Line 663 of lalr1.cc  */
-#line 1690 "GuavaParser.yy"
+#line 1737 "GuavaParser.yy"
     { LArreglo *tmp = new LArreglo(); 
                                   tmp->tipo_primitivo = TypeError::Instance();
                                 }
@@ -2962,7 +3011,7 @@ namespace yy {
   case 176:
 
 /* Line 663 of lalr1.cc  */
-#line 1695 "GuavaParser.yy"
+#line 1742 "GuavaParser.yy"
     { 
                                       (yyval.classLAccesoAtributos) = new LAccesoAtributos((yysemantic_stack_[(2) - (2)].classIdentificador));
                                     }
@@ -2971,7 +3020,7 @@ namespace yy {
   case 177:
 
 /* Line 663 of lalr1.cc  */
-#line 1698 "GuavaParser.yy"
+#line 1745 "GuavaParser.yy"
     {
                                                         (yysemantic_stack_[(3) - (1)].classLAccesoAtributos)->append((yysemantic_stack_[(3) - (3)].classIdentificador));
                                                         (yyval.classLAccesoAtributos) = (yysemantic_stack_[(3) - (1)].classLAccesoAtributos);
@@ -2981,7 +3030,7 @@ namespace yy {
   case 178:
 
 /* Line 663 of lalr1.cc  */
-#line 1702 "GuavaParser.yy"
+#line 1749 "GuavaParser.yy"
     {
                                                                     (yysemantic_stack_[(4) - (1)].classLAccesoAtributos)->append((yysemantic_stack_[(4) - (3)].classIdentificador));
                                                                     (yyval.classLAccesoAtributos) = (yysemantic_stack_[(4) - (1)].classLAccesoAtributos);
@@ -2991,7 +3040,7 @@ namespace yy {
   case 179:
 
 /* Line 663 of lalr1.cc  */
-#line 1706 "GuavaParser.yy"
+#line 1753 "GuavaParser.yy"
     {
                                                                      (yyval.classLAccesoAtributos) = new LAccesoAtributos((yysemantic_stack_[(3) - (2)].classIdentificador));
                                                                    }
@@ -3000,7 +3049,7 @@ namespace yy {
   case 180:
 
 /* Line 663 of lalr1.cc  */
-#line 1710 "GuavaParser.yy"
+#line 1757 "GuavaParser.yy"
     { std::string str =  std::string((yysemantic_stack_[(1) - (1)].strval));
                     Identificador* id = new Identificador(str);
                     id->line = yylloc.begin.line;
@@ -3012,7 +3061,7 @@ namespace yy {
 
 
 /* Line 663 of lalr1.cc  */
-#line 3016 "GuavaParser.cc"
+#line 3065 "GuavaParser.cc"
 	default:
           break;
       }
@@ -3951,22 +4000,22 @@ namespace yy {
          0,   153,   153,   156,   156,   171,   173,   173,   178,   183,
      187,   191,   197,   202,   208,   213,   219,   224,   231,   236,
      241,   244,   248,   253,   253,   269,   269,   284,   290,   297,
-     301,   303,   307,   311,   315,   322,   328,   333,   337,   341,
-     354,   363,   368,   374,   376,   382,   384,   390,   390,   416,
-     416,   425,   428,   425,   457,   460,   457,   482,   482,   489,
-     489,   495,   499,   502,   509,   516,   522,   528,   529,   530,
-     531,   534,   537,   549,   562,   564,   566,   591,   616,   641,
-     666,   668,   673,   680,   683,   686,   691,   693,   695,   698,
-     722,   725,   730,   739,   749,   752,   761,   761,   799,   799,
-     804,   804,   815,   818,   821,   825,   825,   852,   852,   882,
-     890,   894,   894,   916,   932,   950,   953,   953,   972,   972,
-     988,   992,   992,  1012,  1012,  1036,  1043,  1047,  1106,  1110,
-    1113,  1116,  1123,  1131,  1133,  1138,  1139,  1140,  1141,  1142,
-    1143,  1144,  1148,  1167,  1203,  1224,  1241,  1258,  1318,  1331,
-    1344,  1357,  1369,  1401,  1434,  1465,  1496,  1527,  1545,  1563,
-    1584,  1588,  1593,  1597,  1601,  1605,  1612,  1615,  1618,  1621,
-    1624,  1630,  1640,  1670,  1686,  1690,  1695,  1698,  1702,  1706,
-    1710
+     301,   303,   307,   311,   315,   322,   328,   333,   336,   340,
+     353,   362,   367,   373,   375,   381,   383,   389,   389,   417,
+     417,   426,   429,   426,   460,   463,   460,   487,   487,   494,
+     494,   500,   504,   507,   514,   521,   527,   533,   534,   535,
+     536,   539,   542,   554,   567,   569,   571,   596,   621,   646,
+     671,   673,   678,   685,   688,   691,   696,   698,   700,   703,
+     727,   730,   735,   744,   754,   757,   766,   766,   804,   804,
+     809,   809,   820,   823,   826,   830,   830,   857,   857,   887,
+     899,   903,   903,   925,   941,   959,   962,   962,   981,   981,
+     997,  1001,  1001,  1021,  1021,  1045,  1056,  1060,  1119,  1123,
+    1126,  1129,  1136,  1145,  1147,  1152,  1153,  1154,  1155,  1156,
+    1157,  1158,  1162,  1187,  1224,  1251,  1269,  1287,  1350,  1364,
+    1378,  1392,  1405,  1438,  1470,  1502,  1534,  1566,  1585,  1604,
+    1626,  1631,  1637,  1642,  1647,  1652,  1657,  1660,  1663,  1666,
+    1669,  1675,  1686,  1716,  1733,  1737,  1742,  1745,  1749,  1753,
+    1757
   };
 
   // Print the state stack on the debug stream.
@@ -4059,10 +4108,10 @@ namespace yy {
 } // yy
 
 /* Line 1108 of lalr1.cc  */
-#line 4063 "GuavaParser.cc"
+#line 4112 "GuavaParser.cc"
 
 /* Line 1109 of lalr1.cc  */
-#line 1718 "GuavaParser.yy"
+#line 1765 "GuavaParser.yy"
 
 
 void yy::GuavaParser::error (const yy::GuavaParser::location_type& l, const std::string& m)

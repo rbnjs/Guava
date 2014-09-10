@@ -524,6 +524,7 @@ void Asignacion::show(std::string s) {
     convert.flush();
     convert << column;
     std::string columna = convert.str();
+
     std::cout << s << "Asignacion, linea: " << linea << ", columna: " << columna << "\n";
     if(id != 0) id->show(s + "  ");
     if (exp != 0){

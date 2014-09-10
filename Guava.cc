@@ -30,27 +30,33 @@ void mensajeAyuda(){
 int main (int argc, char *argv[]){
     bool uso_ninguna_opcion = true; 
     GuavaDriver driver;
+    driver.print_table = false;
+    driver.print_tree = false;
+    int i;
     /* Revisamos las opciones. */
-    for (int i = 1; i < argc; ++i){
-        if (argv[i] == std::string ("-p")){
+    for (i = 1; i < argc; ++i){
+        std::string arg (argv[i]);
+        if (arg.compare(std::string ("-p")) == 0){
             driver.trace_parsing = true;
             uso_ninguna_opcion = false;
         }
-        else if (argv[i] == std::string ("-s")){
+        else if (arg.compare(std::string ("-s")) == 0 ){
             driver.trace_scanning = true;
             uso_ninguna_opcion = false;
         }
-        else if (!driver.parse (argv[i])){
-            uso_ninguna_opcion = false;
-        }else if (argv[i] == std::string("-t")){
+        else if (arg.compare(std::string("-t")) == 0){
             uso_ninguna_opcion = false;
             driver.print_tree = true;
-        }else if(argv[i] == std::string("st")){
+        }
+        else if(arg.compare(std::string("-st")) == 0){
             uso_ninguna_opcion = false;
             driver.print_table = true;
+        } else if (!driver.parse (argv[argc - 1])) {
+            uso_ninguna_opcion = false;
         }
+
     }
-    if (uso_ninguna_opcion && argc == 1){
+    if (argc == 1){
         mensajeAyuda();
     }
 }

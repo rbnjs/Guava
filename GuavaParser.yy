@@ -919,8 +919,14 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                }
                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                $$ = result;
-                                                               driver.tablaSimbolos.exitScope();
-                                                               identacion.erase(0,2);
+                                                               if (!error_state && driver.print_table) {
+                                                                    std::cout << identacion << "if {\n"; 
+                                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                    std::cout << identacion << "}\n ";
+                                                                    driver.tablaSimbolos.exitScope();
+                                                                    identacion.erase(0,2);
+                                                               }
+
                                                              }
           | IF '(' errorif ')' THEN instruccion ';'          { 
                                                                ErrorBoolExp* err_exp = $3;
@@ -976,7 +982,14 @@ lelseif: /* Vacio */                                                {
                                                                       }
                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
-                                                                      driver.tablaSimbolos.exitScope();
+
+                                                                      if (!error_state && driver.print_table) {
+                                                                            std::cout << identacion << "if {\n"; 
+                                                                            driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                            std::cout << identacion << "}\n ";
+                                                                            driver.tablaSimbolos.exitScope();
+                                                                            identacion.erase(0,2);
+                                                                      }
                                                                     }
         | ELSE '{' { driver.tablaSimbolos.enterScope();
                    }

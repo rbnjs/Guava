@@ -20,37 +20,49 @@
 
 void mensajeAyuda(){
     std::cout << "Compiler for the Guava Programming Language.\n";
-    std::cout << "Usage: "<< "guava [-p] [-s] [-t] [-st] [source code]" << std::endl ;
+    std::cout << "Usage: "<< "guava [-p] [-s] [-t] [-st] [-h] [source code]" << std::endl ;
     std::cout << "-p: Trace the parsing of the file.\n";
     std::cout << "-s: Trace the scanning of the file.\n";
     std::cout << "-t: Print the Abstract Syntax Tree of the file's source code.\n";
     std::cout << "-st: Print the Symbol Table.\n";
+    std::cout << "-h: Print this help text.\n";
 }
 
 int main (int argc, char *argv[]){
-    bool uso_ninguna_opcion = true; 
+    int i = 0;
+    bool uso_opcion = true; 
     GuavaDriver driver;
-    /* Revisamos las opciones. */
-    for (int i = 1; i < argc; ++i){
-        if (argv[i] == std::string ("-p")){
+    /* Si no son elegidas opciones */
+    if (argc == 1){
+        mensajeAyuda();
+    }
+    /* Revisamos y colocamos las opciones. */
+    for (i = 1; i < argc; ++i){
+        if (argv[i] == std::string("-p")){
             driver.trace_parsing = true;
-            uso_ninguna_opcion = false;
         }
-        else if (argv[i] == std::string ("-s")){
+        else if (argv[i] == std::string("-s")){
             driver.trace_scanning = true;
-            uso_ninguna_opcion = false;
         }
-        else if (!driver.parse (argv[i])){
+        /*else if (!driver.parse (argv[i])){
             uso_ninguna_opcion = false;
-        }else if (argv[i] == std::string("-t")){
-            uso_ninguna_opcion = false;
+        }*/else if (argv[i] == std::string("-t")){
             driver.print_tree = true;
-        }else if(argv[i] == std::string("st")){
-            uso_ninguna_opcion = false;
+        }
+        else if(argv[i] == std::string("-st")){
             driver.print_table = true;
         }
+        else if(argv[i] == std::string("-h")){
+            uso_opcion = false;
+            mensajeAyuda();
+        }
+        else {
+            uso_opcion = false;
+            std::cout << "Not recognized option.\n";
+        }
     }
-    if (uso_ninguna_opcion && argc == 1){
-        mensajeAyuda();
+    /* Se realiza el parseo del archivo */
+    if(uso_opcion) {
+        driver.parse(argv[i]);
     }
 }

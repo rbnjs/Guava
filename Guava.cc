@@ -29,40 +29,33 @@ void mensajeAyuda(){
 }
 
 int main (int argc, char *argv[]){
-    int i = 0;
-    bool uso_opcion = true; 
+    bool uso_ninguna_opcion = true; 
     GuavaDriver driver;
-    /* Si no son elegidas opciones */
-    if (argc == 1){
-        mensajeAyuda();
-    }
-    /* Revisamos y colocamos las opciones. */
+    driver.print_table = false;
+    driver.print_tree = false;
+    int i;
+    /* Revisamos las opciones. */
     for (i = 1; i < argc; ++i){
-        if (argv[i] == std::string("-p")){
+        std::string arg (argv[i]);
+        if (arg.compare(std::string ("-p")) == 0){
             driver.trace_parsing = true;
         }
-        else if (argv[i] == std::string("-s")){
+        else if (arg.compare(std::string ("-s")) == 0 ){
             driver.trace_scanning = true;
         }
-        /*else if (!driver.parse (argv[i])){
+        else if (arg.compare(std::string("-t")) == 0){
             uso_ninguna_opcion = false;
-        }*/else if (argv[i] == std::string("-t")){
+        }else if (argv[i] == std::string("-t")){
             driver.print_tree = true;
         }
-        else if(argv[i] == std::string("-st")){
+        else if(arg.compare(std::string("-st")) == 0){
+            uso_ninguna_opcion = false;
             driver.print_table = true;
-        }
-        else if(argv[i] == std::string("-h")){
-            uso_opcion = false;
-            mensajeAyuda();
-        }
-        else {
-            uso_opcion = false;
-            std::cout << "Not recognized option.\n";
+        } else if (!driver.parse (argv[argc - 1])) {
+            uso_ninguna_opcion = false;
         }
     }
-    /* Se realiza el parseo del archivo */
-    if(uso_opcion) {
-        driver.parse(argv[i]);
+    if (argc == 1){
+        mensajeAyuda();
     }
 }

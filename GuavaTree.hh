@@ -321,6 +321,7 @@ public:
         line = l;
         column = c;
     }
+    std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) );
 };
 
 /**

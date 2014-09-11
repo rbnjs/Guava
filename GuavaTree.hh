@@ -340,10 +340,12 @@ public:
     TypeS* get_tipo() { return tipo; }
 
     virtual void show(std::string);
+
     void set_line_column(int l, int c){
         line = l;
         column = c;
     }
+    std::string revision_tipo_exp_bool(Exp* exp_1, Exp* exp_2, ExpBin* tmp, std::string (*f)(std::string,std::string) );
 };
 
 

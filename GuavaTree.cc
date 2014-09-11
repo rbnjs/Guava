@@ -134,6 +134,30 @@ void ExpBin::show(std::string s){
 }
 
 
+std::string ExpBin::revision_tipo_exp_bool(Exp* exp_1, Exp* exp_2, ExpBin* tmp, std::string (*f)(std::string,std::string)){
+    std::string msg ("");
+    if (exp_1 == 0 || exp_2 == 0){ 
+        tmp->tipo = TypeError::Instance();
+        return msg;
+    }
+
+    if (exp_1->get_tipo() == TypeBool::Instance() &&
+        exp_2->get_tipo() == TypeBool::Instance())
+    { 
+        tmp->tipo = exp_1->get_tipo();
+    } 
+    else if (exp_1->get_tipo() != TypeBool::Instance()) {
+        msg = f("boolean",exp_1->get_tipo()->get_name());
+        tmp->tipo = TypeError::Instance();
+    }
+    else {
+        msg = f("boolean",exp_2->get_tipo()->get_name());
+        tmp->tipo = TypeError::Instance();
+    } 
+    return msg;
+}
+
+
 /* Lista Instrucciones */
 
 ListaInstrucciones::ListaInstrucciones() {

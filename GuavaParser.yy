@@ -919,8 +919,14 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                }
                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                $$ = result;
-                                                               driver.tablaSimbolos.exitScope();
-                                                               identacion.erase(0,2);
+                                                               if (!error_state && driver.print_table) {
+                                                                    std::cout << identacion << "if {\n"; 
+                                                                    driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                    std::cout << identacion << "}\n ";
+                                                                    driver.tablaSimbolos.exitScope();
+                                                                    identacion.erase(0,2);
+                                                               }
+
                                                              }
           | IF '(' errorif ')' THEN instruccion ';'          { 
                                                                ErrorBoolExp* err_exp = $3;
@@ -976,7 +982,14 @@ lelseif: /* Vacio */                                                {
                                                                       }
                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
-                                                                      driver.tablaSimbolos.exitScope();
+
+                                                                      if (!error_state && driver.print_table) {
+                                                                            std::cout << identacion << "if {\n"; 
+                                                                            driver.tablaSimbolos.show(driver.tablaSimbolos.currentScope(),identacion+"  ");
+                                                                            std::cout << identacion << "}\n ";
+                                                                            driver.tablaSimbolos.exitScope();
+                                                                            identacion.erase(0,2);
+                                                                      }
                                                                     }
         | ELSE '{' { driver.tablaSimbolos.enterScope();
                    }
@@ -1163,7 +1176,6 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-
                             if((tipo = obtener_tipo_simbolo(id)) != 0) {;
                                 result = new ExpID($1);
                                 result->tipo = tipo;
@@ -1250,38 +1262,15 @@ expID: identificador   { TypeS* tipo;
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               if ($1->get_tipo() == TypeBool::Instance() &&
-                                   $3->get_tipo() == TypeBool::Instance())
-                               { tmp->tipo = $1->get_tipo();
-                               } 
-                               else if ($1->get_tipo() != TypeBool::Instance()) {
-                                 std::string msg = mensaje_error_tipos("boolean",$1->get_tipo()->get_name());
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                               }
-                               else {
-                                 std::string msg = mensaje_error_tipos("boolean",$3->get_tipo()->get_name());
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                               }
+                               std::string msg = tmp->revision_tipo_exp_bool($1,$3,tmp,mensaje_error_tipos);
+                               if (!msg.empty()) driver.error(yylloc,msg);
+                               //generar_codigo_intermedio()
                                $$ = tmp;
                              }
        | exp OR exp          { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               if ($1->get_tipo() == TypeBool::Instance() &&
-                                   $3->get_tipo() == TypeBool::Instance())
-                               { tmp->tipo = $1->get_tipo();
-                               } 
-                               else if ($1->get_tipo() != TypeBool::Instance()) {
-                                 std::string msg = mensaje_error_tipos("boolean",$1->get_tipo()->get_name());
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                               }
-                               else {
-                                 std::string msg = mensaje_error_tipos("boolean",$3->get_tipo()->get_name());
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                               }
+                               std::string msg = tmp->revision_tipo_exp_bool($1,$3,tmp,mensaje_error_tipos);
+                               if (!msg.empty()) driver.error(yylloc,msg);
                                $$ = tmp;
                              }
        | exp COMPARISON exp  { ExpBin* tmp;

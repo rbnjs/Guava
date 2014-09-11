@@ -721,4 +721,3 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
     tabla_actual.push_front(structure->get_tabla());
 }
 
-

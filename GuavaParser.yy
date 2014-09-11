@@ -1339,14 +1339,8 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
        | NOT exp             { std::string * op = new std::string("NOT");
                                ExpUn* tmp = new ExpUn($2,op);
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               if ($2->get_tipo() == TypeBool::Instance())
-                               { tmp->tipo = $2->get_tipo();
-                               }
-                               else {
-                                 std::string msg = mensaje_error_tipos("boolean",$2->get_tipo()->get_name());
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                               }
+                               std::string msg = tmp->revision_unaria($2,TypeBool::Instance(),tmp,mensaje_error_tipos);
+                               if (!msg.empty()) driver.error(yylloc,msg);
                                $$ = tmp;
                              };
 

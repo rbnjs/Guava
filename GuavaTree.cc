@@ -157,6 +157,23 @@ std::string ExpBin::revision_tipo_exp_bool(Exp* exp_1, Exp* exp_2, ExpBin* tmp, 
     return msg;
 }
 
+std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) ){
+    std::string msg ("");
+    if (exp_1 == 0){ 
+        tmp->tipo = TypeError::Instance();
+        return msg;
+    }
+    if (exp_1->get_tipo() == tipo_esperado)
+    { 
+        tmp->tipo = exp_1->get_tipo();
+    }
+    else {
+        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
+        tmp->tipo = TypeError::Instance();
+    }
+    return msg;
+}
+
 
 /* Lista Instrucciones */
 

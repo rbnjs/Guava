@@ -87,6 +87,7 @@ std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 int nombre_cadena  (1);
+int secuencia_temporales (1);
 /* Funciones Auxiliares. */
 
 /**
@@ -471,7 +472,7 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
 
     int offset = offset_actual.front();
 
-    convert << nombre_cadena;
+    convert << nombre_cadena; // Variable global
     if (offset != -1){
         offset_actual.pop_front();
         tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
@@ -481,6 +482,50 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
         tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
     }
     nombre_cadena++;
+}
+/**
+ * Funcion que coloca una variable temporal en la tabla de simbolos
+ * y retorna la dirección de esta.
+ * INCOMPLETO
+ */
+Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo){
+    int scope, line, column;
+    GuavaSymTable *tabla = tabla_actual.front();
+    line = loc.begin.line;
+    std::ostringstream convert;
+    column = loc.begin.column;
+    scope = tabla->currentScope();
+    if (tipo == 0) return 0;
+
+    int offset = offset_actual.front();
+    convert << secuencia_temporales;
+    std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
+    Symbol* nuevo;
+
+    if (!tipo->is_array()){  
+        Symbol *p=  obtener_tipo(tipo->get_name(),d, &d->tablaSimbolos);
+        if (p == 0) {
+            d->error(loc,tipo_no_existe(tipo->get_name()));
+            return 0;
+        }
+        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,offset);
+    } else{
+       nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, offset);
+    }
+
+    if (offset != -1){
+        offset_actual.pop_front();
+        tabla->insert(nuevo);
+        nuevo->offset = offset;
+        offset += tamano_tipo(tipo); 
+        offset_actual.push_front(offset);
+    } else {
+        nuevo->offset = 0;
+        tabla->insert(nuevo);
+    }
+    secuencia_temporales++;
+    return nuevo;
+
 }
 
 /**

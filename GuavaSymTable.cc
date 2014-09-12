@@ -33,31 +33,35 @@ GuavaSymTable::~GuavaSymTable(){
 /**
  * Inserta un simbolo en la tabla de simbolos.
  * */
-void GuavaSymTable::insert(Symbol elem) {
+void GuavaSymTable::insert(Symbol* elem) {
     /* Se verifica si el simbolo ya existe en la tabla */
-    if(this->tabla.count(elem.sym_name) > 0) {
-        for(std::list<Symbol>::iterator it = this->tabla[elem.sym_name].begin();
-            it != this->tabla[elem.sym_name].end(); it++) {
+    if(this->tabla.count(elem->sym_name) > 0) {
+        for(std::list<Symbol*>::iterator it = this->tabla[elem->sym_name].begin();
+            it != this->tabla[elem->sym_name].end(); it++) {
             /* Caso en el que el simbolo se encuentra en el mismo scope. */
             if(elem == *it) {
                 /* EL SIMBOLO EXISTE EN ESTE SCOPE */
             }
         }
         /* Caso en el que el simbolo no existe en el scope, pero si en otros */
-        this->tabla[elem.sym_name].push_back(elem);
+        this->tabla[elem->sym_name].push_back(elem);
     }
     /* Caso en el que el simbolo no pertenece a la tabla. */
     else {
-        std::list<Symbol> empty_list;
+        std::list<Symbol*> empty_list;
         empty_list.push_front(elem);
-        this->tabla[elem.sym_name] = empty_list;
+        this->tabla[elem->sym_name] = empty_list;
     }
+}
+
+void GuavaSymTable::insert(Symbol elem){
+    this->insert(&elem);
 }
 
 /* Inserta un simbolo */
 void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
    Symbol* nuevo = new Symbol(name, catg, sc, type,line,column, offset); 
-   this->insert(*nuevo);
+   this->insert(nuevo);
 }
 
 /**
@@ -65,7 +69,7 @@ void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* t
  */
 void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li = 0,int co = 0, int offset = 0 ){
     Symbol* nuevo = new Symbol(name,catg,scop,t,li,co, offset);
-    this->insert(*nuevo);
+    this->insert(nuevo);
 }
 
 /**
@@ -73,7 +77,7 @@ void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,i
  */
 void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
     Symbol* nuevo = new Symbol(name,catg,sc,type);
-    this->insert(*nuevo);
+    this->insert(nuevo);
 }
 
 /**
@@ -92,11 +96,11 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
          ++pilaIt){
             int alcance = *pilaIt;
             
-            std::list<Symbol>::iterator it = this->tabla[elem].begin();
+            std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
             for ( it ; it != this->tabla[elem].end() ; ++it){
-                Symbol tmp = *it;
-                if (tmp.compare(elem, alcance)) return &(*it);
+                Symbol* tmp = *it;
+                if (tmp->compare(elem, alcance)) return *it;
             }
 
         }
@@ -110,11 +114,11 @@ Symbol* GuavaSymTable::simple_lookup(const std::string elem){
     if (!this->tabla[elem].empty()){
         int alcance = pila.front();
             
-        std::list<Symbol>::iterator it = this->tabla[elem].begin();
+        std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
         for ( it ; it != this->tabla[elem].end() ; ++it){
-            Symbol tmp = *it;
-            if (tmp.compare(elem, alcance)) return &(*it);
+            Symbol* tmp = *it;
+            if (tmp->compare(elem, alcance)) return *it;
         }
     }
     return 0; /* Null si no lo encuentra */
@@ -126,11 +130,11 @@ Symbol* GuavaSymTable::lookup(const std::string elem, int sc){
     if (!this->tabla[elem].empty()){
         int alcance = sc;
 
-        std::list<Symbol>::iterator it = this->tabla[elem].begin();
+        std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
         for ( it ; it != this->tabla[elem].end() ; ++it){
-            Symbol tmp = *it;
-            if (tmp.compare(elem, alcance)) return &(*it);
+            Symbol* tmp = *it;
+            if (tmp->compare(elem, alcance)) return *it;
         }
 
     }
@@ -177,28 +181,28 @@ int GuavaSymTable::currentScope(){
  * Muestra el contenido de la tabla de simbolos.
  * */
 void GuavaSymTable::show(int scope, std::string identacion){
-    std::unordered_map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
+    std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin();
     for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
-        std::list<Symbol>::iterator itList = itTabla->second.begin();
+        std::list<Symbol*>::iterator itList = itTabla->second.begin();
         for (itList ; itList != itTabla->second.end() ; ++itList){
-            Symbol tmp = *itList;
-            if (tmp.scope == scope) tmp.show(identacion);
+            Symbol* tmp = *itList;
+            if (tmp->scope == scope) tmp->show(identacion);
         }
     }
 }
 
 std::list<TypeS*> GuavaSymTable::get_types(int sc){
     std::list<TypeS*> result;
-    std::unordered_map<std::string, std::list<Symbol> >::iterator itTabla = this->tabla.begin();
+    std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin();
     for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
-        std::list<Symbol>::iterator itList = itTabla->second.begin();
+        std::list<Symbol*>::iterator itList = itTabla->second.begin();
         for (itList ; itList != itTabla->second.end() ; ++itList){
-            Symbol tmp = *itList;
-            if (tmp.scope == sc ){
-                if (tmp.sym_catg != "unionType" && tmp.sym_catg != "recordType"){
-                    if (tmp.true_type != 0) result.push_front(tmp.true_type);
+            Symbol* tmp = *itList;
+            if (tmp->scope == sc ){
+                if (tmp->sym_catg != "unionType" && tmp->sym_catg != "recordType"){
+                    if (tmp->true_type != 0) result.push_front(tmp->true_type);
                     else {
-                        Symbol *tmp2 = tmp.type_pointer;
+                        Symbol *tmp2 = tmp->type_pointer;
                         if (tmp2->true_type == 0) continue;
                         result.push_front(tmp2->true_type);
                     }

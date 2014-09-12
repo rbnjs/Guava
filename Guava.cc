@@ -45,12 +45,11 @@ int main (int argc, char *argv[]){
         }
         else if (arg.compare(std::string("-t")) == 0){
             uso_ninguna_opcion = false;
-        }else if (argv[i] == std::string("-t")){
-            driver.print_tree = true;
-        }
-        else if(arg.compare(std::string("-st")) == 0){
+        }else if(arg.compare(std::string("-st")) == 0){
             uso_ninguna_opcion = false;
             driver.print_table = true;
+        } else if (arg.compare(std::string("-h")) == 0){
+            mensajeAyuda();
         } else if (!driver.parse (argv[argc - 1])) {
             uso_ninguna_opcion = false;
         }

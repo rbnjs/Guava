@@ -107,6 +107,24 @@ void ExpUn::show(std::string s) {
     if (operacion != 0) std::cout << s << "Operador: " << *operacion << '\n';
 } 
 
+std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) ){
+    std::string msg ("");
+    if (exp_1 == 0){ 
+        tmp->tipo = TypeError::Instance();
+        return msg;
+    }
+    if (exp_1->get_tipo() == tipo_esperado)
+    { 
+        tmp->tipo = exp_1->get_tipo();
+    }
+    else {
+        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
+        tmp->tipo = TypeError::Instance();
+    }
+    return msg;
+}
+
+
 
 /* Class ExpBin */
 
@@ -134,41 +152,64 @@ void ExpBin::show(std::string s){
 }
 
 
-std::string ExpBin::revision_tipo_exp_bool(Exp* exp_1, Exp* exp_2, ExpBin* tmp, std::string (*f)(std::string,std::string)){
+std::string ExpBin::revision_tipo_bin(Exp* exp_1, Exp* exp_2, ExpBin* tmp,TypeS* tipo_esperado , std::string (*f)(std::string,std::string)){
     std::string msg ("");
     if (exp_1 == 0 || exp_2 == 0){ 
         tmp->tipo = TypeError::Instance();
         return msg;
     }
 
-    if (exp_1->get_tipo() == TypeBool::Instance() &&
-        exp_2->get_tipo() == TypeBool::Instance())
+    if (exp_1->get_tipo() == tipo_esperado &&
+        exp_2->get_tipo() == tipo_esperado)
     { 
         tmp->tipo = exp_1->get_tipo();
     } 
-    else if (exp_1->get_tipo() != TypeBool::Instance()) {
-        msg = f("boolean",exp_1->get_tipo()->get_name());
+    else if (exp_1->get_tipo() != tipo_esperado) {
+        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
         tmp->tipo = TypeError::Instance();
     }
     else {
-        msg = f("boolean",exp_2->get_tipo()->get_name());
+        msg = f(tipo_esperado->get_name(),exp_2->get_tipo()->get_name());
         tmp->tipo = TypeError::Instance();
     } 
     return msg;
 }
 
-std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) ){
+std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int cmpv, 
+                                        std::string (*mensaje_error_tipos)(std::string,std::string), 
+                                        std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string)){
     std::string msg ("");
-    if (exp_1 == 0){ 
+    if (exp_1 == 0 || exp_2 == 0){
         tmp->tipo = TypeError::Instance();
         return msg;
     }
-    if (exp_1->get_tipo() == tipo_esperado)
-    { 
-        tmp->tipo = exp_1->get_tipo();
+    if (exp_1->get_tipo() == exp_2->get_tipo() &&
+        (exp_1->get_tipo() == TypeInt::Instance() ||
+        exp_1->get_tipo() == TypeReal::Instance())) {
+        tmp->tipo = TypeBool::Instance();
+    } 
+    else if (exp_1->get_tipo() != exp_2->get_tipo() &&
+            (exp_1->get_tipo() == TypeInt::Instance() &&
+            exp_2->get_tipo() == TypeReal::Instance()) ||
+            (exp_1->get_tipo() == TypeReal::Instance() &&
+            exp_2->get_tipo() == TypeInt::Instance())) {
+        std::string expected = exp_1->get_tipo()->get_name()+"' or '"+exp_2->get_tipo()->get_name();
+        std::string msg = mensaje_diff_operandos(std::string("<=>"),exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
+        tmp->tipo = TypeError::Instance();
     }
-    else {
-        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
+    else if ( exp_1->get_tipo() == exp_2->get_tipo() && 
+              exp_1->get_tipo() == TypeBool::Instance() &&
+              cmpv == 5){
+        tmp->tipo = TypeBool::Instance();
+    }else {
+        tmp = new ExpBin();
+        if (exp_1->get_tipo() != TypeInt::Instance() &&
+            exp_1->get_tipo() != TypeReal::Instance()) {
+            msg = mensaje_error_tipos("integer' or 'real",exp_1->get_tipo()->get_name());
+        }
+        else {
+            std::string msg = mensaje_error_tipos("integer' or 'real",exp_2->get_tipo()->get_name());
+        }
         tmp->tipo = TypeError::Instance();
     }
     return msg;

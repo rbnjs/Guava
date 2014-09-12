@@ -1262,77 +1262,41 @@ expID: identificador   { TypeS* tipo;
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               std::string msg = tmp->revision_tipo_exp_bool($1,$3,tmp,mensaje_error_tipos);
+                               std::string msg = tmp->revision_tipo_bin($1,$3,tmp,TypeBool::Instance(),mensaje_error_tipos);
                                if (!msg.empty()) driver.error(yylloc,msg);
                                //generar_codigo_intermedio()
                                $$ = tmp;
                              }
        | exp OR exp          { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               std::string msg = tmp->revision_tipo_exp_bool($1,$3,tmp,mensaje_error_tipos);
+                               std::string msg = tmp->revision_tipo_bin($1,$3,tmp,TypeBool::Instance(),mensaje_error_tipos);
                                if (!msg.empty()) driver.error(yylloc,msg);
                                $$ = tmp;
                              }
        | exp COMPARISON exp  { ExpBin* tmp;
-                               if ($1->get_tipo() == $3->get_tipo() &&
-                                   ($1->get_tipo() == TypeInt::Instance() ||
-                                    $1->get_tipo() == TypeReal::Instance())) {
-                                 int cmpv = $2;
-                                 switch(cmpv){
-                                      case 1:
-                                          tmp = new ExpBin($1,$3,std::string(">"));
-                                          break;
-                                      case 2:
-                                          tmp = new ExpBin($1,$3,std::string("<"));
-                                          break;
-                                      case 3:
-                                          tmp = new ExpBin($1,$3,std::string("<="));
-                                          break;
-                                      case 4:
-                                          tmp = new ExpBin($1,$3,std::string(">="));
-                                          break;
-                                      case 5:
-                                          tmp = new ExpBin($1,$3,std::string("="));
-                                          break;
-                                      case 6:
-                                          tmp = new ExpBin($1,$3,std::string("!="));
-                                          break;
-                                 }
-                                 tmp->tipo = TypeBool::Instance();
-                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               } 
-                               else if ($1->get_tipo() != $3->get_tipo() &&
-                                        ($1->get_tipo() == TypeInt::Instance() &&
-                                         $3->get_tipo() == TypeReal::Instance()) ||
-                                        ($1->get_tipo() == TypeReal::Instance() &&
-                                         $3->get_tipo() == TypeInt::Instance())) {
-                                 std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
-                                 std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),$3->get_tipo()->get_name(),expected);
-                                 driver.error(yylloc,msg);
-                                 tmp->tipo = TypeError::Instance();
-                                 tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               }
-                               else if ( $1->get_tipo() == $3->get_tipo() && 
-                                         $1->get_tipo() == TypeBool::Instance() &&
-                                         $2 == 5
-                                       ){
+                               int cmpv = $2;
+                               switch(cmpv){
+                                    case 1:
+                                        tmp = new ExpBin($1,$3,std::string(">"));
+                                        break;
+                                    case 2:
+                                        tmp = new ExpBin($1,$3,std::string("<"));
+                                        break;
+                                    case 3:
+                                        tmp = new ExpBin($1,$3,std::string("<="));
+                                        break;
+                                    case 4:
+                                        tmp = new ExpBin($1,$3,std::string(">="));
+                                        break;
+                                    case 5:
                                         tmp = new ExpBin($1,$3,std::string("="));
-                                        tmp->tipo = TypeBool::Instance();
-                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               }else {
-                                tmp = new ExpBin();
-                                 if ($1->get_tipo() != TypeInt::Instance() &&
-                                     $1->get_tipo() != TypeReal::Instance()) {
-                                     std::cout << "";
-                                     std::string msg = mensaje_error_tipos("integer' or 'real",$1->get_tipo()->get_name());
-                                     driver.error(yylloc,msg);
-                                 }
-                                 else {
-                                   std::string msg = mensaje_error_tipos("integer' or 'real",$3->get_tipo()->get_name());
-                                   driver.error(yylloc,msg);
-                                 }
-                                 tmp->tipo = TypeError::Instance();
+                                        break;
+                                    case 6:
+                                        tmp = new ExpBin($1,$3,std::string("!="));
+                                        break;
                                }
+                               std::string msg = tmp->revision_comparison($1,$3,tmp,cmpv,mensaje_error_tipos,mensaje_diff_operandos);
+                               if (!msg.empty()) driver.error(yylloc,msg);
                                $$ = tmp;
 
                              }

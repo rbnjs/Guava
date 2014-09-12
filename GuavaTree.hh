@@ -27,6 +27,7 @@
  */
 class Exp{
 public:
+    std::string addr;
     virtual TypeS* get_tipo() { return 0; }; 
     virtual void show(std::string) = 0;
     

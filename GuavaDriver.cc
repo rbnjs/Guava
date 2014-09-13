@@ -227,7 +227,7 @@ std::string reportar_existencia_tipo(Symbol *s, std::string id) {
 std::string tipo_no_existe(std::string id){
     std::string msg("Type '");
     msg += id;
-    msg += "' wasn't declared or doesn't exists in current context";
+    msg += "' wasn't declared or doesn't exists in current context.";
     error_state = 1;
     return msg;
 }

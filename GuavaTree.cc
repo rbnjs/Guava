@@ -107,19 +107,35 @@ void ExpUn::show(std::string s) {
     if (operacion != 0) std::cout << s << "Operador: " << *operacion << '\n';
 } 
 
-std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) ){
+std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) ){
     std::string msg ("");
     if (exp_1 == 0){ 
         tmp->tipo = TypeError::Instance();
         return msg;
     }
-    if (exp_1->get_tipo() == tipo_esperado)
-    { 
-        tmp->tipo = exp_1->get_tipo();
+    // Verificación de un solo tipo válido
+    else if (tipo_esperado2 == 0) {
+        if (exp_1->get_tipo() == tipo_esperado1)
+        { 
+            tmp->tipo = exp_1->get_tipo();
+        }
+        else {
+            msg = f(tipo_esperado1->get_name(),exp_1->get_tipo()->get_name());
+            tmp->tipo = TypeError::Instance();
+        }
     }
+    // Verificación de dos tipos válidos
     else {
-        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
-        tmp->tipo = TypeError::Instance();
+        if (exp_1->get_tipo() == tipo_esperado1 ||
+            exp_1->get_tipo() == tipo_esperado2)
+        {
+            tmp->tipo = exp_1->get_tipo();
+        }
+        else {
+            std::string expected = tipo_esperado1->get_name()+"' or '"+tipo_esperado2->get_name();
+            msg = f(expected,exp_1->get_tipo()->get_name());
+            tmp->tipo = TypeError::Instance();
+        }
     }
     return msg;
 }
@@ -152,26 +168,58 @@ void ExpBin::show(std::string s){
 }
 
 
-std::string ExpBin::revision_tipo_bin(Exp* exp_1, Exp* exp_2, ExpBin* tmp,TypeS* tipo_esperado , std::string (*f)(std::string,std::string)){
+std::string ExpBin::revision_binaria(Exp* exp_1, Exp* exp_2, ExpBin* tmp,
+                                     TypeS* tipo_esperado1, TypeS* tipo_esperado2,
+                                     std::string (*mensaje_error_tipos)(std::string,std::string),
+                                     std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string)){
     std::string msg ("");
     if (exp_1 == 0 || exp_2 == 0){ 
         tmp->tipo = TypeError::Instance();
         return msg;
     }
-
-    if (exp_1->get_tipo() == tipo_esperado &&
-        exp_2->get_tipo() == tipo_esperado)
-    { 
-        tmp->tipo = exp_1->get_tipo();
-    } 
-    else if (exp_1->get_tipo() != tipo_esperado) {
-        msg = f(tipo_esperado->get_name(),exp_1->get_tipo()->get_name());
-        tmp->tipo = TypeError::Instance();
+    else if (tipo_esperado2 == 0) {
+        if (exp_1->get_tipo() == tipo_esperado1 &&
+            exp_2->get_tipo() == tipo_esperado1)
+        { 
+            tmp->tipo = exp_1->get_tipo();
+        } 
+        else if (exp_1->get_tipo() != tipo_esperado1) {
+            msg = mensaje_error_tipos(tipo_esperado1->get_name(),exp_1->get_tipo()->get_name());
+            tmp->tipo = TypeError::Instance();
+        }
+        else {
+            msg = mensaje_error_tipos(tipo_esperado1->get_name(),exp_2->get_tipo()->get_name());
+            tmp->tipo = TypeError::Instance();
+        } 
     }
     else {
-        msg = f(tipo_esperado->get_name(),exp_2->get_tipo()->get_name());
-        tmp->tipo = TypeError::Instance();
-    } 
+        if (exp_1->get_tipo() == exp_2->get_tipo() &&
+            (exp_1->get_tipo() == tipo_esperado1 ||
+             exp_1->get_tipo() == tipo_esperado2))
+        {
+            tmp->tipo = exp_1->get_tipo();
+        }
+        else if (exp_1->get_tipo() != exp_2->get_tipo() &&
+                 (exp_1->get_tipo() == tipo_esperado1 &&
+                  exp_2->get_tipo() == tipo_esperado2) ||
+                 (exp_1->get_tipo() == tipo_esperado2 &&
+                  exp_2->get_tipo() == tipo_esperado1)) {
+            std::string expected = exp_1->get_tipo()->get_name()+"' or '"+exp_2->get_tipo()->get_name();
+            msg = mensaje_diff_operandos(tmp->operacion,exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
+            tmp->tipo = TypeError::Instance();
+        }
+        else {
+            std::string expected = tipo_esperado1->get_name()+"' or '"+tipo_esperado2->get_name();
+            if (exp_1->get_tipo() != tipo_esperado1 &&
+                exp_1->get_tipo() != tipo_esperado2) {
+                msg = mensaje_error_tipos(expected,exp_1->get_tipo()->get_name());
+            }
+            else {
+                msg = mensaje_error_tipos(expected,exp_2->get_tipo()->get_name());
+            }
+            tmp->tipo = TypeError::Instance();
+        }
+    }
     return msg;
 }
 
@@ -194,14 +242,15 @@ std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int 
             (exp_1->get_tipo() == TypeReal::Instance() &&
             exp_2->get_tipo() == TypeInt::Instance())) {
         std::string expected = exp_1->get_tipo()->get_name()+"' or '"+exp_2->get_tipo()->get_name();
-        std::string msg = mensaje_diff_operandos(std::string("<=>"),exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
+        std::string msg = mensaje_diff_operandos(std::string("<, <=, >, >=, =, !="),exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
         tmp->tipo = TypeError::Instance();
     }
     else if ( exp_1->get_tipo() == exp_2->get_tipo() && 
               exp_1->get_tipo() == TypeBool::Instance() &&
-              cmpv == 5){
+              (cmpv == 5 || cmpv == 6)){
         tmp->tipo = TypeBool::Instance();
-    }else {
+    }
+    else {
         tmp = new ExpBin();
         if (exp_1->get_tipo() != TypeInt::Instance() &&
             exp_1->get_tipo() != TypeReal::Instance()) {

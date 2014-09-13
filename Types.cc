@@ -269,7 +269,7 @@ std::string TypeArray::get_name() {
         return "array of " + tipo_estructura->get_name();
     }
     else {
-        return "array of " + tipo_primitivo->get_name();
+        return tipo_primitivo->get_name();
     }
 }
 

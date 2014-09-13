@@ -322,7 +322,7 @@ public:
         line = l;
         column = c;
     }
-    std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado, ExpUn* tmp, std::string (*f)(std::string,std::string) );
+    std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
 };
 
 /**
@@ -347,9 +347,12 @@ public:
         line = l;
         column = c;
     }
-    std::string revision_tipo_bin(Exp* exp_1, Exp* exp_2, ExpBin* tmp, TypeS* tipo_esperado , std::string (*f)(std::string,std::string) );
+    std::string revision_binaria(Exp* exp_1, Exp* exp_2, ExpBin* tmp, TypeS* tipo_esperado1,
+                                 TypeS* tipo_esperado2, std::string (*mensaje_error_tipos)(std::string,std::string),
+                                 std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
     std::string revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp, int cmpv,
-                                    std::string (*mensaje_error_tipos)(std::string,std::string), std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
+                                    std::string (*mensaje_error_tipos)(std::string,std::string),
+                                    std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
 
 };
 

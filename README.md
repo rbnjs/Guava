@@ -10,7 +10,6 @@ lenguaje revisar la pagina de https://github.com/RubenSerradas/DocumentoDise-oLe
 ¿Que hace falta?
 
 * Documentacion (tipo doxygen).
-* Verificar tipos dentro de las clases.
 * Generar codigo intermedio. Falta las funciones gen (para cada clase) y newtemp()
 * Seria bueno automatizar el testeo (Estoy pensando en Ruby)
 

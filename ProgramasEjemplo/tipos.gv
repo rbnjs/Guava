@@ -1,6 +1,6 @@
 declare {
     integer a,b,c;
-    integer array x[5];
+    integer array x[5][5];
     integer array y[5];
     character d;
     real e;
@@ -16,4 +16,5 @@ function integer resta(integer a, integer b) {
 
 function void main() {
     x := y;
+    x := a+d;
 }

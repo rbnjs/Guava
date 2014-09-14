@@ -1432,6 +1432,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp();
                   $$ = v;
                 }
      | STRING   { 

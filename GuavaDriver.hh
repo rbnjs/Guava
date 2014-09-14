@@ -29,6 +29,7 @@
 # include <string>
 # include <map> 
 # include "GuavaParser.hh"
+# include "Generator.hh"
 
 extern int current_scope;
 extern int attribute_scope;  
@@ -56,6 +57,7 @@ public:
 
     GuavaSymTable tablaSimbolos;
     int result;
+    Generator* gen;
 
     bool print_tree;
     bool print_table;
@@ -66,7 +68,7 @@ public:
     bool trace_scanning;
     // Corre el parser. Retorna 0 si no hay error.
     int parse (const std::string& f);
-    std::string file;
+    std::string file; //Nombre del archivo.
     bool trace_parsing;
     // Manejo de errores.
     void error (const yy::location& l, const std::string& m);
@@ -121,6 +123,8 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
 TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& loc, GuavaSymTable* t);
 
 std::string reportar_tipo_recursivo(std::string t);
+
+std::string newtemp();
 
 TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estilo,GuavaDriver *d, const yy::location& loc);
 

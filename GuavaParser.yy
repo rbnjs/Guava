@@ -1302,7 +1302,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                $$ = tmp;
 
                              }
-       | NOT exp             { std::string * op = new std::string("NOT");
+       | NOT exp             { std::string * op = new std::string("not");
                                ExpUn* tmp = new ExpUn($2,op);
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_unaria($2,TypeBool::Instance(),0,tmp,mensaje_error_tipos);
@@ -1432,7 +1432,6 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp();
                   $$ = v;
                 }
      | STRING   { 
@@ -1565,6 +1564,7 @@ identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);
                     id->line = yylloc.begin.line;
                     id->column = yylloc.begin.column;
+                    id->addr = str;
                     $$ = id;
                   };
 

@@ -103,6 +103,7 @@ public:
     virtual void  set_line_column(int l, int c){}
     virtual void show(std::string) = 0;
     virtual std::string* get_valor_str(){ return 0; }
+
 };
 
 /**
@@ -132,6 +133,11 @@ public:
         line = l;
         column = c;
     }
+    void gen(void (*gen)(std::string)){
+        std::ostringstream convert;
+        convert << valor;
+        gen(addr +":="+ convert.str());         
+    }
 };
 
 /**
@@ -157,6 +163,11 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+    void gen(void (*gen)(std::string)){
+        std::ostringstream convert;
+        convert << valor;
+        gen(addr +":="+ convert.str());         
     }
 };
 
@@ -184,6 +195,11 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+    void gen(void (*gen)(std::string)){
+        std::ostringstream convert;
+        convert << valor;
+        gen(addr +":="+ convert.str());         
     }
 };
 
@@ -216,6 +232,9 @@ public:
     std::string* get_valor_str(){
         return valor;
     }
+    void gen(void (*gen)(std::string)){
+       gen(addr +":="+ *valor);         
+    }
 };
 
 /**
@@ -243,6 +262,12 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+
+    void gen(void (*gen)(std::string)){
+        std::ostringstream convert;
+        convert << valor;
+        gen(addr +":="+ convert.str());         
     }
 };
 
@@ -323,6 +348,11 @@ public:
         column = c;
     }
     std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
+
+    void gen(void (*gen)(std::string)){
+        gen(addr + ":="+*operacion + exp->addr );
+    }
+
 };
 
 /**
@@ -353,6 +383,10 @@ public:
     std::string revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp, int cmpv,
                                     std::string (*mensaje_error_tipos)(std::string,std::string),
                                     std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
+
+    void gen(void (*gen)(std::string)){
+        gen(addr + ":="+ exp1->addr + operacion + exp2->addr );
+    }
 
 };
 

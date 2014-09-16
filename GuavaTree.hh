@@ -16,11 +16,11 @@
  * =====================================================================================
  */
 
-# include "GuavaSymTable.hh"
+# include "GuavaQuads.hh"
 # include <list>
 # include <utility>
-#include <iostream>
-#include <sstream>
+# include <iostream>
+# include <sstream>
 
 /**
  * Clase que define las expresiones del lenguaje.
@@ -28,6 +28,7 @@
 class Exp{
 public:
     std::string addr;
+    std::list<GuavaQuads*> listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
     virtual void show(std::string) = 0;
     

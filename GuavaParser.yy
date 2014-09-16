@@ -1564,7 +1564,6 @@ identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);
                     id->line = yylloc.begin.line;
                     id->column = yylloc.begin.column;
-                    id->addr = str;
                     $$ = id;
                   };
 

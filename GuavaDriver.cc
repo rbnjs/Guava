@@ -677,6 +677,11 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
 }
 /**
  * Inserta una funcion a la tabla.
+ * @param tipo          Tipo que retorna la funcion
+ * @param lp            Lista de parametros.
+ * @param d             Clase manejadora GuavaDriver
+ * @param current_scope Entorno actual
+ * @param loc           Lugar actual de la funcion.
  */
 void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d,int current_scope, const yy::location& loc){
     std::list<std::pair<TypeS*,Identificador*> > lista = lp->get_list();

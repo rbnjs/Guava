@@ -124,7 +124,9 @@ TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& l
 
 std::string reportar_tipo_recursivo(std::string t);
 
-std::string newtemp();
+Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo);
+
+TypeS* obtener_tipo_expresion(Exp* exp_, TypeS* tipoDeseado1,TypeS* tipoDeseado2);
 
 TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estilo,GuavaDriver *d, const yy::location& loc);
 

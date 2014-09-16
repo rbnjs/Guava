@@ -23,9 +23,9 @@
 class GuavaQuads{
 private:
     std::string op;
-    Symbol* arg1;
-    Symbol* arg2;
-    Symbol* result;
+    SimpleSymbol* arg1;
+    SimpleSymbol* arg2;
+    SimpleSymbol* result;
 public: 
     /**
      * Constructor de la clase
@@ -34,18 +34,19 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado
      */
-    GuavaQuads(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): op(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuads(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): op(op_), arg1(arg1_), arg2(arg2_), result(result_){}
     /**
      * Destructor de la clase
      */
     ~GuavaQuads(){}
     /**
-     * Getters
+     * Getters de la clase
      */
     std::string get_op(){ return op; }
-    Symbol* get_arg1()  { return arg1; }
-    Symbol* get_arg2()  { return arg2; }
-    Symbol* get_result(){ return result; }
+    SimpleSymbol* get_arg1()  { return arg1; }
+    SimpleSymbol* get_arg2()  { return arg2; }
+    SimpleSymbol* get_result(){ return result; }
+
     /**
      * Funcion que genera codigo a partir de un Quad
      */

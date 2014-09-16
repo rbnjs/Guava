@@ -27,10 +27,14 @@
  */
 class Exp{
 public:
-    std::string addr;
+    Symbol* addr;
     std::list<GuavaQuads*> listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
     virtual void show(std::string) = 0;
+    /**
+     * Funcion que retorna un apuntador a lista de Quads
+     */
+    virtual std::list<GuavaQuads*>* obtener_quads(){ return 0; };
     
 };
 
@@ -105,6 +109,8 @@ public:
     virtual void show(std::string) = 0;
     virtual std::string* get_valor_str(){ return 0; }
 
+    virtual std::list<GuavaQuads*>* obtener_quads(){ return 0; };
+
 };
 
 /**
@@ -134,11 +140,20 @@ public:
         line = l;
         column = c;
     }
-    void gen(void (*gen)(std::string)){
+    std::list<GuavaQuads*>* obtener_quads(){ 
+        std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
+        std::ostringstream convert;
+        convert << valor;
+        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
+    };
+    /*void gen(void (*gen)(std::string)){
         std::ostringstream convert;
         convert << valor;
         gen(addr +":="+ convert.str());         
-    }
+    }*/
 };
 
 /**
@@ -165,11 +180,20 @@ public:
         line = l;
         column = c;
     }
-    void gen(void (*gen)(std::string)){
+    std::list<GuavaQuads*>* obtener_quads(){ 
+        std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
+        std::ostringstream convert;
+        convert << valor;
+        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
+    };
+    /*void gen(void (*gen)(std::string)){
         std::ostringstream convert;
         convert << valor;
         gen(addr +":="+ convert.str());         
-    }
+    }*/
 };
 
 /**
@@ -197,11 +221,20 @@ public:
         line = l;
         column = c;
     }
-    void gen(void (*gen)(std::string)){
+    std::list<GuavaQuads*>* obtener_quads(){ 
+        std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
+        std::ostringstream convert;
+        convert << valor;
+        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
+    };
+    /*void gen(void (*gen)(std::string)){
         std::ostringstream convert;
         convert << valor;
         gen(addr +":="+ convert.str());         
-    }
+    }*/
 };
 
 /**
@@ -233,9 +266,18 @@ public:
     std::string* get_valor_str(){
         return valor;
     }
-    void gen(void (*gen)(std::string)){
+    std::list<GuavaQuads*>* obtener_quads(){ 
+        std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
+        std::ostringstream convert;
+        convert << valor;
+        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
+    };
+    /*void gen(void (*gen)(std::string)){
        gen(addr +":="+ *valor);         
-    }
+    }*/
 };
 
 /**
@@ -265,11 +307,20 @@ public:
         column = c;
     }
 
-    void gen(void (*gen)(std::string)){
+    std::list<GuavaQuads*>* obtener_quads(){ 
+        std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
+        std::ostringstream convert;
+        convert << valor;
+        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
+    };
+    /*void gen(void (*gen)(std::string)){
         std::ostringstream convert;
         convert << valor;
         gen(addr +":="+ convert.str());         
-    }
+    }*/
 };
 
 /**
@@ -349,10 +400,23 @@ public:
         column = c;
     }
     std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
+    
+    std::list<GuavaQuads*>* obtener_quads(){ 
 
-    void gen(void (*gen)(std::string)){
-        gen(addr + ":="+*operacion + exp->addr );
+        std::list<GuavaQuads*>* quads = exp->obtener_quads();
+
+        std::string op;
+        if (operacion->compare(std::string("-"))){
+            op = "uminus";
+        } else {
+            op = *operacion;
+        }
+
+        GuavaQuads* nuevo = new GuavaQuads(op,exp->addr, 0, addr);
+        quads->push_back(nuevo);
+        return quads;
     }
+
 
 };
 
@@ -385,8 +449,15 @@ public:
                                     std::string (*mensaje_error_tipos)(std::string,std::string),
                                     std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
 
-    void gen(void (*gen)(std::string)){
-        gen(addr + ":="+ exp1->addr + operacion + exp2->addr );
+    std::list<GuavaQuads*>* obtener_quads(){ 
+
+        std::list<GuavaQuads*>* quads1 = exp1->obtener_quads();
+        std::list<GuavaQuads*>* quads2 = exp2->obtener_quads();
+        quads1->splice(quads1->end(),*quads2);
+
+        GuavaQuads* nuevo = new GuavaQuads(operacion,exp1->addr, exp2->addr, addr);
+        quads1->push_back(nuevo);
+        return quads1;
     }
 
 };
@@ -1177,5 +1248,6 @@ public:
         if (lcorchetesexp != 0) lcorchetesexp->show(s);
         if (laccesoatributos != 0) laccesoatributos->show(s);
     }
+
 };
 

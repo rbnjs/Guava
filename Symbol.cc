@@ -27,7 +27,7 @@ Symbol::Symbol(){}
  */
 Symbol::Symbol(std::string name, std::string catg, 
                int scop, Symbol* p,int linea, int columna, 
-               int offset_): sym_name(name), sym_catg(catg), scope(scop), 
+               int offset_): SimpleSymbol(name), sym_catg(catg), scope(scop), 
                              true_type(0), type_pointer(p), line(linea), column(columna), offset(offset_){}
 
 /**
@@ -35,7 +35,7 @@ Symbol::Symbol(std::string name, std::string catg,
  */
 Symbol::Symbol(std::string name, std::string catg,
                int scop, TypeS* type,int linea,
-               int columna, int offset_): sym_name(name),sym_catg(catg),
+               int columna, int offset_): SimpleSymbol(name),sym_catg(catg),
                                                  scope(scop),true_type(type), type_pointer(0),
                                                  line(linea),column(columna), offset(offset_){} 
 

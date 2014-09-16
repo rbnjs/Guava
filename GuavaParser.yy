@@ -1265,6 +1265,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg);
+                               tmp->addr = newtemp(&driver,yylloc,TypeBool::Instance());
                                //generar_codigo_intermedio()
                                $$ = tmp;
                              }
@@ -1273,6 +1274,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg);
+                               tmp->addr = newtemp(&driver,yylloc,TypeBool::Instance());
                                $$ = tmp;
                              }
        | exp COMPARISON exp  { ExpBin* tmp;
@@ -1299,6 +1301,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                }
                                std::string msg = tmp->revision_comparison($1,$3,tmp,cmpv,mensaje_error_tipos,mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg);
+                               tmp->addr = newtemp(&driver,yylloc,TypeBool::Instance());
                                $$ = tmp;
 
                              }
@@ -1307,6 +1310,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_unaria($2,TypeBool::Instance(),0,tmp,mensaje_error_tipos);
                                if (!msg.empty()) driver.error(yylloc,msg);
+                               tmp->addr = newtemp(&driver,yylloc,TypeBool::Instance());
                                $$ = tmp;
                              };
 
@@ -1315,6 +1319,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($2,TypeInt::Instance(),TypeReal::Instance(),tmp,mensaje_error_tipos);
                                        if (!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($2,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp PLUSPLUS          { 
@@ -1323,6 +1328,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($1,TypeInt::Instance(),0,tmp,mensaje_error_tipos);
                                        if(!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                                        $$ = tmp;
                                      }
              | exp MINUSMINUS        { std::string * op = new std::string("--");
@@ -1330,6 +1336,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($1,TypeInt::Instance(),0,tmp,mensaje_error_tipos);
                                        if(!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                                        $$ = tmp;
                                      }
              | exp UFO exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("<=>"));
@@ -1363,6 +1370,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                          }
                                          tmp->tipo = TypeError::Instance();
                                        }
+                                       tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                                        $$ = tmp;
                                      }
              | exp '+' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("+"));
@@ -1370,6 +1378,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp '-' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("-"));
@@ -1377,6 +1386,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp '*' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("*"));
@@ -1384,6 +1394,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg);                                      
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp '/' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("/"));
@@ -1391,6 +1402,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg);                                                 
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp DIV exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("DIV"));
@@ -1398,6 +1410,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),0,mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg);
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp MOD exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("MOD"));
@@ -1405,6 +1418,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),0,mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg);                                      
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      }
              | exp POW exp           { //El exponente sera integer, la base integer o real.
@@ -1426,6 +1440,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
                                            driver.error(yylloc,msg);
                                            tmp->tipo = TypeError::Instance();
                                        }
+                                       tmp->addr = newtemp(&driver,yylloc,obtener_tipo_expresion($1,TypeInt::Instance(),TypeReal::Instance()));
                                        $$ = tmp;
                                      };
 

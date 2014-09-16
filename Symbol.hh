@@ -20,14 +20,23 @@
 #include <unordered_map>
 #include "Types.hh"
 
+/**
+ * Simbolo que solo tiene el nombre
+ */
+class SimpleSymbol{
+public: 
+    std::string sym_name;   /* Nombre del simbolo */
+    SimpleSymbol(){}
+    SimpleSymbol(std::string name): sym_name(name){}
+    ~SimpleSymbol(){}
+};
 
 /** 
  * Clase simbolo de Guava.
  */
-class Symbol{
+class Symbol: public SimpleSymbol{
 public:
 
-    std::string sym_name;   /* Nombre del simbolo */
     std::string sym_catg;   /* Categoria del simbolo */
     int scope;              /* Identificador del scope del simbolo */
 

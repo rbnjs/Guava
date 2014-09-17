@@ -76,7 +76,6 @@ class GuavaDriver;
 
 %code {
 # include "GuavaDriver.hh"
-
 }
 
 %token            END       0 "end of block" 
@@ -717,8 +716,29 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                     tmp = new Asignacion();
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
+                                 } else if ($1->get_tipo() == $3->get_tipo()) {
+                                    if ($1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
+                                        TypeArray* arr1 = (TypeArray*) $1->get_tipo();
+                                        TypeArray* arr2 = (TypeArray*) $3->get_tipo();
+                                        if (arr1->get_tipoEstructura() == arr2->get_tipoEstructura()) {
+                                            tmp = new Asignacion($1,$3);
+                                        }
+                                        else {
+                                            std::string msg = mensaje_error_tipos(arr1->get_name(),arr2->get_name());
+                                            driver.error(yylloc, msg);
+                                            tmp = new Asignacion();
+                                        }
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        $$ = tmp;
+                                    } else {
+                                        tmp = new Asignacion($1,$3);
+                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        $$ = tmp;
+                                    }
                                  } else {
-                                    tmp = new Asignacion($1,$3);
+                                    std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
+                                    driver.error(yylloc,msg);
+                                    tmp = new Asignacion();
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
                                  }
@@ -1188,11 +1208,18 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            if((tipo = obtener_tipo_simbolo(id)) != 0) {;
+                            if((tipo = obtener_tipo_simbolo(id)) != 0) {
                                 result = new ExpID($1);
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                //Operaciones: Codigo intermedio
+                                if (id->scope == 0) {
+                                    result->addr = id;
+                                } else {
+                                    result->addr = (Symbol*) basepointer;
+                                }
                                 $$ = result;
+
                             }
                             else {
                                std::string msg ("Type has not been declared or doesn't exists in current context");
@@ -1202,11 +1229,12 @@ expID: identificador   { TypeS* tipo;
                                $$ = result;
                             }
 
-                          } else {
+                         } else {
                           result = new ExpID();
                           result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                           $$ = result;
-                          }
+                         }
+
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
                                         ExpID* result;

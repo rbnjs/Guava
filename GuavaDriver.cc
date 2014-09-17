@@ -27,6 +27,7 @@ std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 int nombre_cadena  (1);
 int secuencia_temporales (1);
+SimpleSymbol* basepointer = new SimpleSymbol(std::string("bp"));
 
 
 /**

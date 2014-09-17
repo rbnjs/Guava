@@ -15,6 +15,6 @@ function integer resta(integer a, integer b) {
 }
 
 function void main() {
-    x := y;
-    x := a+d;
+    a := 1;
+    b := -a;
 }

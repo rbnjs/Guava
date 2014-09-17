@@ -38,6 +38,7 @@ extern int error_state;
 extern std::string identacion;
 extern std::list<int> offset_actual;
 extern std::list<GuavaSymTable*> tabla_actual;
+extern SimpleSymbol* basepointer;
 
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \

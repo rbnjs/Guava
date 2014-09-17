@@ -34,7 +34,7 @@ public:
     /**
      * Funcion que retorna un apuntador a lista de Quads
      */
-    virtual std::list<GuavaQuads*>* obtener_quads(){ return 0; };
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; };
     
 };
 
@@ -109,7 +109,7 @@ public:
     virtual void show(std::string) = 0;
     virtual std::string* get_valor_str(){ return 0; }
 
-    virtual std::list<GuavaQuads*>* obtener_quads(){ return 0; };
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; };
 
 };
 
@@ -140,7 +140,7 @@ public:
         line = l;
         column = c;
     }
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
         std::ostringstream convert;
         convert << valor;
@@ -180,7 +180,7 @@ public:
         line = l;
         column = c;
     }
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
         std::ostringstream convert;
         convert << valor;
@@ -221,7 +221,7 @@ public:
         line = l;
         column = c;
     }
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
         std::ostringstream convert;
         convert << valor;
@@ -266,7 +266,7 @@ public:
     std::string* get_valor_str(){
         return valor;
     }
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
         std::ostringstream convert;
         convert << valor;
@@ -307,7 +307,7 @@ public:
         column = c;
     }
 
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads = new std::list<GuavaQuads*>;
         std::ostringstream convert;
         convert << valor;
@@ -401,9 +401,9 @@ public:
     }
     std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
     
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
 
-        std::list<GuavaQuads*>* quads = exp->obtener_quads();
+        std::list<GuavaQuads*>* quads = exp->generar_quads();
 
         std::string op;
         if (operacion->compare(std::string("-"))){
@@ -449,10 +449,10 @@ public:
                                     std::string (*mensaje_error_tipos)(std::string,std::string),
                                     std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
 
-    std::list<GuavaQuads*>* obtener_quads(){ 
+    std::list<GuavaQuads*>* generar_quads(){ 
 
-        std::list<GuavaQuads*>* quads1 = exp1->obtener_quads();
-        std::list<GuavaQuads*>* quads2 = exp2->obtener_quads();
+        std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
+        std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
         quads1->splice(quads1->end(),*quads2);
 
         GuavaQuads* nuevo = new GuavaQuads(operacion,exp1->addr, exp2->addr, addr);

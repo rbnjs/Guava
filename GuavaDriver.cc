@@ -538,20 +538,6 @@ Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo){
 
     return nuevo;
 }
-/**
- * Funcion que dado una expresion y uno o mas tipos deseados
- * retorna un tipo
- * @param exp_ Expresion a la cual se le esta revisando el tipo
- * @param tipoDeseado1 Tipo deseado 1
- * @param tipoDeseado1 Tipo deseado 2
- * @return tipo Tipo correcto
- */
-TypeS* obtener_tipo_expresion(Exp* exp_, TypeS* tipoDeseado1,TypeS* tipoDeseado2){
-   if ( exp_ == 0) return TypeError::Instance(); 
-   if (exp_->get_tipo() == tipoDeseado1) return tipoDeseado1;
-   if (exp_->get_tipo() == tipoDeseado2) return tipoDeseado2;
-   return TypeError::Instance();
-}
 
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y

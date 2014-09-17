@@ -10,8 +10,8 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author:  Ruben Serradas, Michael Woo 
+ *   Organization:  USB 
  *
  * =====================================================================================
  */

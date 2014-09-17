@@ -21,7 +21,8 @@
 #include "Types.hh"
 
 /**
- * Simbolo que solo tiene el nombre
+ * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
+ * intermedio.
  */
 class SimpleSymbol{
 public: 

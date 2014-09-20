@@ -52,7 +52,7 @@ public:
      */
     std::string gen(){
         std::string code ("");
-        if (arg2 == 0){
+        if (arg2 != 0){
             code += result->sym_name + ":=" + arg1->sym_name + op + arg2->sym_name;
         }else {
             if (op.compare(std::string(":=")) != 0){
@@ -61,6 +61,7 @@ public:
                 code += result->sym_name + op + arg1->sym_name;
             }
         }
+        code += "\n";
         return code;
     }
 };

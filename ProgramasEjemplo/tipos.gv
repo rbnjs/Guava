@@ -7,7 +7,7 @@ declare {
 }
 
 function integer suma(integer a, integer b) {
-    return a+b;
+    return a+b+1;
 }
 
 function integer resta(integer a, integer b) {
@@ -17,4 +17,5 @@ function integer resta(integer a, integer b) {
 function void main() {
     a := 1;
     b := -a;
+    c := a+b;
 }

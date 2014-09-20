@@ -1182,7 +1182,10 @@ lvarovalor2: lvarovalor2 ',' exp    {
                                       $$ = tmp;
                                     };
 
-exp: expAritmetica  { $$ = $1; }
+exp: expAritmetica  { $1->generar_quads();
+                      std::cout << $1->gen();
+                      $$ = $1; 
+                    }
    | expBool        { $$ = $1; }
    | valor          { $$ = $1; /*Aqui va:
                                 * $$->addr = newtemp(&driver,yylloc,$1->get_tipo());
@@ -1199,7 +1202,13 @@ exp: expAritmetica  { $$ = $1; }
                                 */}
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
-   | llamadafuncion {  /*Supondremos que una llamada a una funcion es una expresion*/}
+   | llamadafuncion {  /** 
+                        * Supondremos que una llamada a una funcion es una expresion.
+                        * Para la generacion de codigo intermedio en el addr
+                        * guardariamos la direccion de lo que retorne la funcion?
+                        * Recordar en Orga aquello de tener un registro que contenga
+                        * lo que devuelven las funciones.
+                        **/}
    | '(' error ')'  {};
 /**
  * Falta el caso recursivo de expID
@@ -1354,7 +1363,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                $$ = tmp;
                              };
 
-expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
+expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminus");
                                        ExpUn* tmp = new ExpUn($2,op);
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($2,TypeInt::Instance(),TypeReal::Instance(),tmp,mensaje_error_tipos);
@@ -1487,30 +1496,47 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("-");
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
+                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | STRING   { 
                   Valor* v = new String($1,TypeString::Instance());
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp(&driver,yylloc,TypeString::Instance());
+                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | CHAR     { 
                   Valor* v = new Char($1,TypeChar::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
+                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | INTEGER  { 
                   Valor* v  = new Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
+                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | REAL     { 
                   Valor* v = new Real($1,TypeReal::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                  v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
+                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | arreglo  {
+                  /**
+                   * Lo que se me ocurre para los arreglos constantes es crear
+                   * un identificador unico temporal que los identifique,
+                   * guardarlo en la tabla de simbolos y al momento de generar
+                   * el codigo intermedio lo hacemos como si fuese una variable:
+                   * con el apuntador al Symbol en lugar de con un temporal.
+                   **/
                   $$ = $1;
                 }
 

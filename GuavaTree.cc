@@ -73,6 +73,15 @@ LCorchetesExp::LCorchetesExp() {
 LCorchetesExp::~LCorchetesExp() {
 }
 
+std::string Exp::gen() {
+    std::string interCode("");
+    for (std::list<GuavaQuads*>::iterator it = listaQuads->begin();it!=listaQuads->end();++it) {
+        GuavaQuads* actual = *it;
+        interCode += actual->gen();
+    }
+    return interCode;
+}
+
 /* Class ExpUn */
 
 ExpUn::ExpUn(Exp *e, std::string* op){

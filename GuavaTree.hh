@@ -1241,6 +1241,8 @@ public:
     Identificador* identificador;
     LCorchetesExp* lcorchetesexp;  
     LAccesoAtributos* laccesoatributos;
+    int offset = -1;
+    Symbol* bp;
 
     ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0), laccesoatributos(0){}
     ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
@@ -1258,6 +1260,30 @@ public:
         if (identificador != 0) identificador->show(s);
         if (lcorchetesexp != 0) lcorchetesexp->show(s);
         if (laccesoatributos != 0) laccesoatributos->show(s);
+    }
+
+    /**
+     * Genera los quads para cada tipo de expresion con identificador
+     * Aun se encuentra incompleta.
+     */
+    std::list<GuavaQuads*>* generar_quads(){ 
+        if (identificador == 0) return 0;
+        // Caso en el que es solo una expresion.
+        if (lcorchetesexp == 0 && laccesoatributos == 0){
+            if (offset == -1) return 0; // Caso en que la variable es global
+            std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
+            std::ostringstream convert;
+            convert << offset;
+            SimpleSymbol* offset = new SimpleSymbol(convert.str());
+            GuavaQuads* nuevo = new GuavaQuads(std::string("+"), bp, offset, addr); 
+            result->push_back(nuevo);
+            return result;
+        } else if (lcorchetesexp != 0){
+            
+        }else if (laccesoatributos != 0){
+            
+        }
+        return 0;
     }
 
 };

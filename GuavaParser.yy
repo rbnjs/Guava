@@ -1225,7 +1225,8 @@ expID: identificador   { TypeS* tipo;
                                 if (id->scope == 0) {
                                     result->addr = id;
                                 } else {
-                                    result->addr = (Symbol*) basepointer;
+                                    result->bp = (Symbol*) basepointer;
+                                    result->addr = newtemp(&driver,yylloc,result->get_tipo());
                                 }
                                 $$ = result;
 
@@ -1569,7 +1570,7 @@ arreglo: '[' larreglo ']' {
                             $$ = tmp;
                           };
 
-/*Funciona. Faltan ejemplos mas interesantes.*/
+
 larreglo: larreglo ',' exp      { 
                                   //Caso: Tipos no nulos
                                   std::string msg;

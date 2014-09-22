@@ -19,6 +19,6 @@ declare{
     integer hola;
 }
 function void main(){
-    e.name[0] := 'a';
+    //e.name[0] := 'a';
     e.atomic_number := 8;
 }

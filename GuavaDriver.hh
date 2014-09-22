@@ -137,6 +137,6 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
 
 TypeS* dereference(TypeS* referencia);
 
-TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc);
+TypeS* verificar_acceso_atributos(Symbol* id, std::list<ProtoExpID*> la, GuavaDriver* driver, const yy::location& loc);
 
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union);

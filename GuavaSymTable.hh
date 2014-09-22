@@ -56,8 +56,8 @@ public:
 
 class TypeStructure: public TypeS{
 public:
-    virtual GuavaSymTable* get_tabla(){ return 0; }
     virtual void set_name(std::string ) = 0;
+    virtual GuavaSymTable* get_tabla(){ return 0; }
 };
 
 class TypeRecord :public TypeStructure{

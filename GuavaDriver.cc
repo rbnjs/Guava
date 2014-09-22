@@ -712,8 +712,13 @@ TypeS* dereference(TypeS* referencia){
 
 /**
  * Verifica que el acceso que se quiere realizar tiene sentido.
+ * @param id Variable a verificar.
+ * @param la Lista de Acceso de atributos
+ * @param driver Manejador de Guava
+ * @pam loc Lugar del parser
+ * @return TypeS* Retorna el tipo del record/union
  */
-TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, GuavaDriver* driver, const yy::location& loc){
+TypeS* verificar_acceso_atributos(Symbol* id, std::list<ProtoExpID*> la, GuavaDriver* driver, const yy::location& loc){
     if (id->true_type != 0) {
         GuavaSymTable* tabla;
         TypeS* tipo = id->true_type; 
@@ -726,23 +731,24 @@ TypeS* verificar_acceso_atributos(Symbol* id, std::list<Identificador*> la, Guav
             tabla = estructura->atributos;
         }
         if (la.empty()) return id->true_type;
-        Identificador* identificador = la.back();
+        ExpID* identificador = (ExpID*) la.back();
         Symbol *tmp; 
         la.pop_back();
 
+        
         //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
 
-        if (( tmp = variable_no_declarada(identificador->identificador, driver, loc, tabla) ) != 0){
+        if (( tmp = variable_no_declarada(identificador->identificador->identificador, driver, loc, tabla) ) != 0){
             return verificar_acceso_atributos(tmp,la, driver, loc ); 
         }     
     } 
     else{
         if (la.empty()) return obtener_tipo_simbolo(id);
-        Identificador* identificador = la.front();
+        ExpID* identificador = (ExpID*) la.front(); // Todos los elementos de la son de tipo ExpID 
         Symbol *tmp; 
         la.pop_front();
 
-        variable_no_declarada(identificador->identificador, driver, loc, &driver->tablaSimbolos);
+        variable_no_declarada(identificador->identificador->identificador, driver, loc, &driver->tablaSimbolos);
     }
 
     return 0;
@@ -784,4 +790,76 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
     }
     tabla_actual.push_front(structure->get_tabla());
 }
+/**
+ * Obtengo los offsets de una lista de acceso de atributos
+ * Falta el caso en el que el programador mete arreglos dentro del record/union
+ * @param la Lista de acceso de atributos
+ * @param t Tabla actual del record
+ * @return offsets Retorna todos los offsets
+ */
+std::list<int> obtener_offset_laccesoatributos(LAccesoAtributos* la, GuavaSymTable* t){
+    std::list<int> offsets;    
+    std::list<ProtoExpID*> lista_id = la->get_list();
+    if (lista_id.empty()){
+        return offsets;
+    }else{
+        std::list<int> offsets1;
+        ExpID* tmp = (ExpID*) lista_id.front();
+        lista_id.pop_front();
+        LAccesoAtributos* la_ = new LAccesoAtributos(lista_id); 
+        Symbol* id = t->lookup(tmp->identificador->identificador);
+        offsets.push_back(id->offset);
+        if (id->true_type != 0){
+            TypeStructure* tipo = (TypeStructure*) id->true_type;
+            offsets1 = obtener_offset_laccesoatributos(la_,tipo->get_tabla());
+        }
+        else offsets1 = obtener_offset_laccesoatributos(la_,t);
+        offsets.splice(offsets.end(), offsets1);
+        return offsets;
+    }
+}
 
+SimpleSymbol* obtener_offset(std::list<int> offsets){
+    int offset_total = 0;
+    std::ostringstream convert;
+    for (std::list<int>::iterator it=offsets.begin(); it != offsets.end(); ++it){
+        offset_total += *it; 
+    }
+    convert << offset_total;
+    return (new SimpleSymbol(convert.str()));
+}
+
+/**
+ * Funcion que agrega los quads para la ExpID.
+ * Pendiente aca que es importante que sea record y union.
+ * Falta el caso en que el record o union tenga un arreglo adentro. 
+ * Faltan pruebas
+ */
+void obtener_quads_records_y_unions(Symbol* id,ExpID* exp_id, GuavaDriver* d, const yy::location& loc){
+    // Obtengo la base
+    std::list<GuavaQuads*>* lista;
+    Symbol* temp;
+    std::ostringstream convert;
+    if (id->scope == 1){
+        exp_id->addr = id;
+    }else{
+        temp = newtemp(d, loc, exp_id->get_tipo() );
+        exp_id->addr = newtemp(d, loc, exp_id->get_tipo() );
+    }
+    TypeStructure* tipo = (TypeStructure*) id->true_type;
+    std::list<int> offsets;
+    offsets = obtener_offset_laccesoatributos(exp_id->laccesoatributos,tipo->get_tabla());
+    SimpleSymbol* numero_offset = obtener_offset(offsets);
+    if (id->scope == 1){
+        GuavaQuads* gq = new GuavaQuads(std::string("[]"),numero_offset,0, exp_id->addr);
+        lista->push_back(gq);
+    }else {
+        convert << id->offset;
+        GuavaQuads* gq = new GuavaQuads(std::string("+"),numero_offset,new SimpleSymbol(convert.str()), temp);
+        GuavaQuads* gq1 = new GuavaQuads(std::string("[]"),temp,0,exp_id->addr);
+        lista->push_back(gq);
+        lista->push_back(gq1);
+    }
+    exp_id->gq = lista;
+
+}

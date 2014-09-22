@@ -271,7 +271,7 @@ record: RECORD identificador '{'{
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
                                                 if (!error_state && driver.print_table) {
-                                                std::cout << identacion << "Union " << $2->identificador << " {\n";
+                                                std::cout << identacion << "Record " << $2->identificador << " {\n";
                                                 tabla->show(tabla->currentScope(),identacion+ "  "); 
                                                 std::cout << identacion <<"}\n";
                                                 identacion.erase(0,2);
@@ -1222,7 +1222,7 @@ expID: identificador   { TypeS* tipo;
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 //Operaciones: Codigo intermedio
-                                if (id->scope == 0) {
+                                if (id->scope == 1) { //El scope de las variables temporales es uno
                                     result->addr = id;
                                 } else {
                                     result->bp = (Symbol*) basepointer;
@@ -1288,21 +1288,24 @@ expID: identificador   { TypeS* tipo;
                                         Identificador *prueba = $1;
                                         ExpID* result;
                                         if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-                                        //Caso en el que la variable es un record o union.
+                                            //Caso en el que la variable es un record o union.
                                             if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                                std::list<Identificador*> tmp = $2->get_list();
+                                                std::list<ProtoExpID*> tmp = $2->get_list();
                                                 TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
                                                 result = new ExpID($1,$2);
                                                 result->tipo = tipo;
                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                //obtener_quads_records_y_unions();
                                                 $$ = result;
                                             }
                                             else {
+                                                // Error
                                                 result = new ExpID();
                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                 $$ = result;
                                             }
                                         } else {
+                                            //Error
                                             result = new ExpID();
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             $$ = result;
@@ -1628,18 +1631,22 @@ larreglo: larreglo ',' exp      {
 
 
 lAccesoAtributos: '.' identificador { 
-                                      $$ = new LAccesoAtributos($2);
+                                      ProtoExpID* exp_id = new ExpID($2);
+                                      $$ = new LAccesoAtributos(exp_id);
                                     }
                 | lAccesoAtributos '.' identificador {
-                                                        $1->append($3);
+                                                        ProtoExpID* exp_id = new ExpID($3);
+                                                        $1->append(exp_id);
                                                         $$ = $1;
                                                      }
                 | lAccesoAtributos '.' identificador lcorchetesExp {
-                                                                    $1->append($3);
+                                                                    ProtoExpID* exp_id = new ExpID($3,$4);
+                                                                    $1->append(exp_id);
                                                                     $$ = $1;
                                                                    }
                 | '.' identificador lcorchetesExp                  {
-                                                                     $$ = new LAccesoAtributos($2);
+                                                                    ProtoExpID* exp_id = new ExpID($2);
+                                                                    $$ = new LAccesoAtributos(exp_id);
                                                                    }
 
 identificador: ID { std::string str =  std::string($1);

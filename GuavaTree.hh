@@ -1198,33 +1198,46 @@ public:
     virtual void show(std::string);
 }; 
 /**
+ * Clase que representa un Exp con identificador
+ */
+class ProtoExpID: public Exp{
+public:
+    bool exp_id(){ return true; }
+};
+
+/**
  * Clase para hacer la revision de LAccesoAtributos.
  */
 class LAccesoAtributos{
-    std::list<Identificador*> lista;  
+    std::list<ProtoExpID*> lista; //Esto es una lista de ExpID
 public:
     LAccesoAtributos(){}
 
-    LAccesoAtributos(Identificador* i){
+    LAccesoAtributos(ProtoExpID* i){
         lista.push_front(i);
     }
+
+    LAccesoAtributos(std::list<ProtoExpID*> l):lista(l){
+    }
+    
 
     ~LAccesoAtributos(){}
 
-    void append(Identificador* i){
+    void append(ProtoExpID* i){
         lista.push_front(i);
     }
     
-    std::list<Identificador*> get_list(){
+    std::list<ProtoExpID*> get_list(){
         return lista;
     }
+
     void show(std::string s){
-        for ( std::list<Identificador*>::iterator it = lista.begin();
+        for ( std::list<ProtoExpID*>::iterator it = lista.begin();
               it != lista.end();
               ++it
             ){
                 std::cout << s << "Lista de Acceso Atributos: ";
-                Identificador* id = *it;
+                Exp* id = *it;
                 id->show(s+ "  ");
             }
     }
@@ -1233,7 +1246,7 @@ public:
 /**
  * Clase para las expresiones de identificador.
  */
-class ExpID: public Exp{
+class ExpID: public ProtoExpID{
 public:
     int line;
     int column;
@@ -1243,6 +1256,7 @@ public:
     LAccesoAtributos* laccesoatributos;
     int offset = -1;
     Symbol* bp;
+    std::list<GuavaQuads*>* gq;
 
     ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0), laccesoatributos(0){}
     ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
@@ -1279,12 +1293,12 @@ public:
             result->push_back(nuevo);
             return result;
         } else if (lcorchetesexp != 0){
-            
         }else if (laccesoatributos != 0){
-            
+            return gq;        
         }
         return 0;
     }
+
 
 };
 

@@ -101,5 +101,7 @@ void Symbol::show(std::string identacion){
         std::cout << " Type: " + ( (true_type != 0) ? to_string(true_type) : to_string(this->type_pointer->true_type) );
         std::cout << " Offset: ";
         std::cout << offset;
+        std::cout << " Scope: ";
+        std::cout << scope;
         std::cout << "\n";
 }

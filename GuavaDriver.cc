@@ -842,6 +842,7 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
         result->addr = newtemp(driver,loc,result->get_tipo());
     }
 }
+
 /**
  * Revisa si un identificador es una variable global y le da un
  * addres
@@ -862,7 +863,7 @@ void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, c
  * Faltan pruebas
  */
 void obtener_quads_records_y_unions(Symbol* id,ExpID* exp_id, GuavaDriver* d, const yy::location& loc){
-    std::list<GuavaQuads*>* lista;
+    /*std::list<GuavaQuads*>* lista;
     Symbol* temp = newtemp(d,loc,TypeInt::Instance());
     std::ostringstream convert;
 
@@ -883,9 +884,9 @@ void obtener_quads_records_y_unions(Symbol* id,ExpID* exp_id, GuavaDriver* d, co
         lista->push_back(gq);
         lista->push_back(gq1);
     }
-    exp_id->gq = lista;
-
+    exp_id->gq = lista;*/
 }
+
 /**
  * Funcion que retorna el contenido del arreglo en cuanto al tipo.
  * @param tipo_arreglo Tipo del arreglo actual

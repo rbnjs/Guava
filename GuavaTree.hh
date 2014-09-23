@@ -1251,12 +1251,12 @@ public:
  */
 class ExpID: public ProtoExpID{
 public:
-    int line;
-    int column;
+    int line,column;
     TypeS* tipo;
-    Identificador* identificador;
-    LCorchetesExp* lcorchetesexp;  
-    LAccesoAtributos* laccesoatributos;
+    ExpID* exp_id = 0;
+    Identificador* identificador = 0;
+    LCorchetesExp* lcorchetesexp = 0;  
+
     //Esto es para los unions y record
     int offset = -1;
     Symbol* bp;
@@ -1265,12 +1265,18 @@ public:
     TypeS* type_array;
     Symbol* array;
 
-    
 
-    ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0), laccesoatributos(0){}
-    ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
-    ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce), laccesoatributos(0){}
-    ExpID(Identificador* id, LAccesoAtributos* la ): identificador(id), laccesoatributos(la),lcorchetesexp(0){}
+    /**
+     * Constructores de la clase.
+     */
+    ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0){}
+    ExpID(Identificador* id): identificador(id){}
+    ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce){}
+    ExpID(ExpID* exp_,Identificador* id): exp_id(exp_),identificador(id){}
+    ExpID(ExpID* exp_,Identificador* id, LCorchetesExp* lce): exp_id(exp_),identificador(id),lcorchetesexp(lce){}
+
+    ~ExpID(){
+    }
 
     TypeS* get_tipo(){ return tipo; }
 
@@ -1282,39 +1288,18 @@ public:
     void show(std::string s){
         if (identificador != 0) identificador->show(s);
         if (lcorchetesexp != 0) lcorchetesexp->show(s);
-        if (laccesoatributos != 0) laccesoatributos->show(s);
     }
 
     /**
      * Genera los quads para cada tipo de expresion con identificador
      * Aun se encuentra incompleta.
      */
-    std::list<GuavaQuads*>* generar_quads(){ 
-        if (identificador == 0) return 0;
-        // Caso en el que es solo una expresion.
-        if (lcorchetesexp == 0 && laccesoatributos == 0){
-            if (offset == -1) return 0; // Caso en que la variable es global
-            std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
-            std::ostringstream convert;
-            convert << offset;
-            SimpleSymbol* offset = new SimpleSymbol(convert.str());
-            GuavaQuads* nuevo = new GuavaQuads(std::string("+"), bp, offset, addr); 
-            result->push_back(nuevo);
-            return result;
-        } else if (lcorchetesexp != 0){
-            //TypeS* tmp_array = contents(type_array);  
-            
-            for (std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
-                    it != lcorchetesexp->lista.end(); ++it){
+    std::list<GuavaQuads*>* generar_quads();
 
-            }
-        }else if (laccesoatributos != 0){
-            return gq;        
-        }
-        return 0;
-    }
-
-
+    /**
+     * Realiza una revision sencilla en un identificador
+     */
+    std::string revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)); 
 
 };
 

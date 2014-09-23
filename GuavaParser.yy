@@ -66,7 +66,6 @@ class GuavaDriver;
     BloquePrincipal *classBloquePrincipal;
     EntradaSalida *classEntradaSalida;
     Identificador *classIdentificador;
-    LAccesoAtributos *classLAccesoAtributos;
     PlusMinus *classPlusMinus;
     Program *classProgram;
     ErrorLoopFor* classErrorLoopFor; 
@@ -113,7 +112,6 @@ MINUSMINUS "-- operator" POW "** operator" UMINUS "unary - operator"
 //%type <int> expBool         /* Tipo */
 //%type <int> expAritmetica /* Falta el tipo para esto. */
 //%type <classLlamadaFuncion> llamadafuncion 
-%type <classLAccesoAtributos> lAccesoAtributos
 %type <classSelectorIf> selectorif 
 %type <classLoopWhile> loopwhile 
 %type <classLoopFor> loopfor 
@@ -1211,6 +1209,7 @@ exp: expAritmetica  { $1->generar_quads();
                         * lo que devuelven las funciones.
                         **/}
    | '(' error ')'  {};
+
 /**
  * Falta el caso recursivo de expID
  */
@@ -1242,10 +1241,10 @@ expID: identificador   { TypeS* tipo;
                          }
 
                        }
-     | identificador lcorchetesExp    { TypeS* tipo;
-                                        ExpID* result;
-                                        NewTemp* newtemp;
-                                        Symbol* id;
+     | identificador lcorchetesExp   { TypeS* tipo;
+                                       ExpID* result;
+                                       NewTemp* newtemp;
+                                       Symbol* id;
                                         // Caso en que la variable ha sido declarada
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                             tipo = obtener_tipo_simbolo(id);
@@ -1253,7 +1252,7 @@ expID: identificador   { TypeS* tipo;
                                                 result = new ExpID($1, $2);
                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                 newtemp = new  NewTemp(&secuencia_temporales, result->get_tipo(), 
-                                                                yylloc.begin.line,yylloc.begin.column,&driver.tablaSimbolos);
+                                                                        yylloc.begin.line,yylloc.begin.column,&driver.tablaSimbolos);
                                                 //result->addr = newtemp(&driver,yyloc,result->get_tipo());
                                                 result->array = id;
 
@@ -1271,7 +1270,7 @@ expID: identificador   { TypeS* tipo;
                                                     result->tipo = TypeError::Instance();
                                                 }
 
-                                            //Caso en el que la estructura del arreglo no es de tipo integer
+                                                //Caso en el que la estructura del arreglo no es de tipo integer
 
                                                 else {
                                                     result->tipo = TypeError::Instance();
@@ -1283,35 +1282,41 @@ expID: identificador   { TypeS* tipo;
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             $$ = result;
                                         }
-                                      }
-     | identificador lAccesoAtributos { 
-                                        Symbol * id;
-                                        Identificador *prueba = $1;
-                                        ExpID* result;
-                                        if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-                                            //Caso en el que la variable es un record o union.
-                                            if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                                std::list<ProtoExpID*> tmp = $2->get_list();
-                                                TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                                result = new ExpID($1,$2);
-                                                result->tipo = tipo;
-                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                revision_scope_id(id,$1,&driver,yyloc);
-                                                $$ = result;
-                                            }
-                                            else {
-                                                // Error
-                                                result = new ExpID();
-                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                $$ = result;
-                                            }
-                                        } else {
-                                            //Error
-                                            result = new ExpID();
-                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                            $$ = result;
+                                    }
+     | expID "." identificador { 
+                                Symbol * id;
+                                Identificador *prueba = $3;
+                                ExpID* result;
+                                /*if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                    //Caso en el que la variable es un record o union.
+                                    if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
+                                        std::list<ProtoExpID*> tmp = $->get_list();
+                                        TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
+                                        result = new ExpID($1,$2);
+                                        result->tipo = tipo;
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        revision_scope_id(id,$1,&driver,yyloc);
+                                        $$ = result;
+                                    }
+                                    else {
+                                        // Error
+                                        result = new ExpID();
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        $$ = result;
                                         }
-                                      };
+                                    } else {
+                                        //Error
+                                        result = new ExpID();
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        $$ = result;
+                                    }*/
+                                }
+       | expID "." identificador 
+                   lcorchetesExp {
+                                 }
+                                               
+
+
 
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
@@ -1629,26 +1634,6 @@ larreglo: larreglo ',' exp      {
         | error                 { LArreglo *tmp = new LArreglo(); 
                                   tmp->tipo_primitivo = TypeError::Instance();
                                 };
-
-
-lAccesoAtributos: '.' identificador { 
-                                      ProtoExpID* exp_id = new ExpID($2);
-                                      $$ = new LAccesoAtributos(exp_id);
-                                    }
-                | lAccesoAtributos '.' identificador {
-                                                        ProtoExpID* exp_id = new ExpID($3);
-                                                        $1->append(exp_id);
-                                                        $$ = $1;
-                                                     }
-                | lAccesoAtributos '.' identificador lcorchetesExp {
-                                                                    ProtoExpID* exp_id = new ExpID($3,$4);
-                                                                    $1->append(exp_id);
-                                                                    $$ = $1;
-                                                                   }
-                | '.' identificador lcorchetesExp                  {
-                                                                    ProtoExpID* exp_id = new ExpID($2);
-                                                                    $$ = new LAccesoAtributos(exp_id);
-                                                                   }
 
 identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);

@@ -928,6 +928,7 @@ BloquePrincipal::BloquePrincipal(BloqueDeclare* b, LFunciones* l) {
     funciones = l;
 }
 
+
 BloquePrincipal::~BloquePrincipal() {}
 
 void BloquePrincipal::show(std::string s) {
@@ -950,3 +951,52 @@ void Program::show(std::string s){
     bloque.show(s+"  ");
 } 
 
+/* class ExpID  */
+
+/**
+ * Obtencion de los quads para la clase ExpID
+ */
+std::list<GuavaQuads*>* ExpID::generar_quads(){
+    if (identificador == 0) return 0;
+    // Caso en el que es solo una expresion.
+    if (lcorchetesexp == 0){
+        if (offset == -1) return 0; // Caso en que la variable es global
+        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
+        std::ostringstream convert;
+        convert << offset;
+        SimpleSymbol* offset = new SimpleSymbol(convert.str());
+        GuavaQuads* nuevo = new GuavaQuads(std::string("+"), bp, offset, addr); 
+        result->push_back(nuevo);
+        return result;
+    } else if (lcorchetesexp != 0){
+        //TypeS* tmp_array = contents(type_array);  
+        //newtemo
+            
+        for (std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
+                it != lcorchetesexp->lista.end(); ++it){
+        }
+    }        
+    return 0;
+}
+
+std::string ExpID::revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)){
+    std::string msg ("");
+    if (id == 0){
+        result = new ExpID();
+        result->set_line_column(line,column);
+        return msg;
+    }
+    if((tipo = obtener_tipo_simbolo(id)) != 0) {
+        result = new ExpID(identificador);
+        result->tipo = tipo;
+        result->set_line_column(line,column);
+        //Operaciones: Codigo intermedio
+        //revision_scope_id(id,result,&driver, yyloc);
+    }
+    else {
+        std::string msg ("Type has not been declared or doesn't exists in current context");
+        result = new ExpID();
+        result->set_line_column(line,column);
+    }
+    return msg;
+}

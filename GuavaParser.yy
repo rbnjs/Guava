@@ -1210,113 +1210,102 @@ exp: expAritmetica  { $1->generar_quads();
                         **/}
    | '(' error ')'  {};
 
-/**
- * Falta el caso recursivo de expID
+/*
+ * En construccion
  */
 expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
-                         if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
-                            if((tipo = obtener_tipo_simbolo(id)) != 0) {
-                                result = new ExpID($1);
-                                result->tipo = tipo;
-                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                //Operaciones: Codigo intermedio
-                                revision_scope_id(id,result,&driver, yyloc);
-                                $$ = result;
-
+                         std::string msg;
+                         if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {  
+                            //En esta funcion inicializo result
+                            msg = ExpID::revision_exp_id(id,$1,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
+                            revision_scope_id(id,result,&driver,yylloc); //Aqui inicializo el addr
+                            if (!msg.empty()){
+                                driver.error(yylloc,msg);
                             }
-                            else {
-                               std::string msg ("Type has not been declared or doesn't exists in current context");
-                               driver.error(yylloc,msg);
-                               result = new ExpID();
-                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                               $$ = result;
-                            }
-
+                            $$ = result;
                          } else {
                           result = new ExpID();
                           result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                           $$ = result;
                          }
-
                        }
      | identificador lcorchetesExp   { TypeS* tipo;
                                        ExpID* result;
-                                       NewTemp* newtemp;
+                                       NewTemp* newtemp = new  NewTemp(&secuencia_temporales, 
+                                                                        result->get_tipo(), yylloc.begin.line,
+                                                                        yylloc.begin.column,&driver.tablaSimbolos);
+                                       std::string msg;
                                        Symbol* id;
                                         // Caso en que la variable ha sido declarada
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
-                                            tipo = obtener_tipo_simbolo(id);
-                                            if (tipo != 0){
-                                                result = new ExpID($1, $2);
-                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                newtemp = new  NewTemp(&secuencia_temporales, result->get_tipo(), 
-                                                                        yylloc.begin.line,yylloc.begin.column,&driver.tablaSimbolos);
-                                                //result->addr = newtemp(&driver,yyloc,result->get_tipo());
-                                                result->array = id;
-
-                                                if ($2->get_tipo() == TypeInt::Instance() &&
-                                                    tipo->is_array()) {
-                                                    //Se asigna el tipo del arreglo a la variable.
-                                                    result->tipo = tipo->get_tipo();
-                                                }
-
-                                                //Caso en el que el identificador NO es un arreglo
-                                            
-                                                else if (!tipo->is_array()){
-                                                    std::string msg = mensaje_error_tipos("array",tipo->get_name());
-                                                    driver.error(yylloc, msg);
-                                                    result->tipo = TypeError::Instance();
-                                                }
-
-                                                //Caso en el que la estructura del arreglo no es de tipo integer
-
-                                                else {
-                                                    result->tipo = TypeError::Instance();
-                                                }
-                                                $$ = result;
+                                            msg = ExpID::revision_exp_id_arreglo(id,$1,newtemp,$2,result, 
+                                                                                 yylloc.begin.line,yylloc.begin.column,
+                                                                                 obtener_tipo_simbolo,mensaje_error_tipos);
+                                            if (!msg.empty()){
+                                                driver.error(yylloc,msg);
                                             }
                                         } else{
                                             result = new ExpID();
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                            $$ = result;
                                         }
+                                        $$ = result;
                                     }
      | expID "." identificador { 
                                 Symbol * id;
                                 Identificador *prueba = $3;
                                 ExpID* result;
-                                /*if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, tabla_actual.front())) != 0){
-                                    //Caso en el que la variable es un record o union.
-                                    if (!es_estructura_error(id->sym_catg, $1->identificador,&driver,yylloc)){
-                                        std::list<ProtoExpID*> tmp = $->get_list();
-                                        TypeS* tipo = verificar_acceso_atributos(id, tmp, &driver,yylloc);
-                                        result = new ExpID($1,$2);
-                                        result->tipo = tipo;
-                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                        revision_scope_id(id,$1,&driver,yyloc);
-                                        $$ = result;
-                                    }
-                                    else {
-                                        // Error
-                                        result = new ExpID();
-                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                        $$ = result;
-                                        }
-                                    } else {
-                                        //Error
-                                        result = new ExpID();
-                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                        $$ = result;
-                                    }*/
+                                TypeS* tipo;
+                                ExpID* exp_id = (ExpID*) $1; //La expresion es de tipo ExpID
+                                std::string msg ("");
+                                if (exp_id->get_tabla() == 0){
+                                    // No es estructura. 
+                                    if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
+                                    driver.error(yylloc,msg);
+                                    result = new ExpID();
+                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                } else if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, exp_id->tabla)) != 0){
+                                    tipo = obtener_tipo_simbolo(id);
+                                    result = new ExpID(exp_id,$3);
+                                    result->tipo = tipo;
+                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                } else {
+                                    //Error
+                                    result = new ExpID();
+                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 }
+                                $$ = result;
+                              }
        | expID "." identificador 
-                   lcorchetesExp {
-                                 }
+                   lcorchetesExp { 
+                                   Symbol * id;
+                                   Identificador* identificador = $3;
+                                   ExpID* result;
+                                   TypeS* tipo;
+                                   ExpID* exp_id = (ExpID*) $1;
+                                   std::string msg;
+                                   if (exp_id->get_tabla() == 0){
+                                        // No es estructura  
+                                        if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
+                                        driver.error(yylloc,msg);
+                                        result = new ExpID();
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                   } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
+                                        //En esta funcion inicializo result
+                                        msg = ExpID::revision_exp_id(id,$3,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
+                                        revision_scope_id(id,result,&driver,yylloc); //Aqui inicializo el addr PENDIENTE
+                                        if (!msg.empty()){
+                                            driver.error(yylloc,msg);
+                                        }
+                                   } else{
+                                        // Error     
+                                        result = new ExpID();
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                   }
+                                   $$ = result;
+                                 };
                                                
-
-
 
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));

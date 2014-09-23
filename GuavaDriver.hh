@@ -84,8 +84,8 @@ public:
 
 TypeS* obtener_tipo_simbolo(Symbol* id);
 
-bool es_estructura_error(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc);
-
+std::string mensaje_estructura_error(std::string nombre);
+    
 bool es_estructura(std::string categoria);
 
 Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t);
@@ -137,8 +137,6 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
 void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d,int current_scope, const yy::location& loc);
 
 TypeS* dereference(TypeS* referencia);
-
-TypeS* verificar_acceso_atributos(Symbol* id, std::list<ProtoExpID*> la, GuavaDriver* driver, const yy::location& loc);
 
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union);
 

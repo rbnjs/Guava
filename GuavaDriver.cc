@@ -107,19 +107,16 @@ TypeS* obtener_tipo_simbolo(Symbol* id){
 }
 
 /**
- * Avisa si la variable es de categoria estructura
- * e imprime .
+ * Retorna un mensaje de error para la impresion y
+ * pone error_state en 1
  */
-bool es_estructura_error(std::string categoria,std::string nombre ,  GuavaDriver* driver, const yy::location& loc){
-    if ((categoria.compare("unionType") != 0) && categoria.compare("recordType") != 0){
-        std::string msg2 ("The ");
-        msg2 += categoria+" '"+nombre+"' is not a record nor an union.";
-        driver->error(loc,msg2);
-        error_state = 1;
-        return true;
-    }
-    return false;
+std::string mensaje_estructura_error(std::string nombre){
+    std::string msg2 ("The variable ");
+    msg2 += nombre+"' is not a record nor an union.";
+    error_state = 1;
+    return msg2;
 }
+
 /**
  * Indica si una categoria es igual a unionVar
  * o recordVar
@@ -710,49 +707,7 @@ TypeS* dereference(TypeS* referencia){
     return tmp;
 }
 
-/**
- * Verifica que el acceso que se quiere realizar tiene sentido.
- * @param id Variable a verificar.
- * @param la Lista de Acceso de atributos
- * @param driver Manejador de Guava
- * @pam loc Lugar del parser
- * @return TypeS* Retorna el tipo del record/union
- */
-TypeS* verificar_acceso_atributos(Symbol* id, std::list<ProtoExpID*> la, GuavaDriver* driver, const yy::location& loc){
-    if (id->true_type != 0) {
-        GuavaSymTable* tabla;
-        TypeS* tipo = id->true_type; 
-        if (tipo->is_structure()) {
-            TypeRecord* estructura = (TypeRecord*) tipo;
-            tabla = estructura->atributos;
-        }
-        else {
-            TypeUnion* estructura = (TypeUnion*) tipo;
-            tabla = estructura->atributos;
-        }
-        if (la.empty()) return id->true_type;
-        ExpID* identificador = (ExpID*) la.back();
-        Symbol *tmp; 
-        la.pop_back();
 
-        
-        //variable_no_declarada(std::string name, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* t)
-
-        if (( tmp = variable_no_declarada(identificador->identificador->identificador, driver, loc, tabla) ) != 0){
-            return verificar_acceso_atributos(tmp,la, driver, loc ); 
-        }     
-    } 
-    else{
-        if (la.empty()) return obtener_tipo_simbolo(id);
-        ExpID* identificador = (ExpID*) la.front(); // Todos los elementos de la son de tipo ExpID 
-        Symbol *tmp; 
-        la.pop_front();
-
-        variable_no_declarada(identificador->identificador->identificador, driver, loc, &driver->tablaSimbolos);
-    }
-
-    return 0;
-}
 
 /**
  * Verifica la existencia de un tipo y lo agrega a la tabla. 

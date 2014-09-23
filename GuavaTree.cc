@@ -978,9 +978,18 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
     }        
     return 0;
 }
-
+/**
+ * Realiza una revision sencilla de exp_id e inicializa result
+ * @param id Simbolo buscado en la tabla de simbolos
+ * @param identificador Identificador
+ * @param result Resultado que se desea inicializar
+ * @param line Linea
+ * @param column Columna
+ * @param obtener_tipo_simbolo Apuntador a funcion que obtiene un simbolo y retorna un TypeS*
+ */
 std::string ExpID::revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)){
     std::string msg ("");
+    TypeS* tipo;
     if (id == 0){
         result = new ExpID();
         result->set_line_column(line,column);
@@ -990,13 +999,58 @@ std::string ExpID::revision_exp_id(Symbol* id,Identificador* identificador,ExpID
         result = new ExpID(identificador);
         result->tipo = tipo;
         result->set_line_column(line,column);
-        //Operaciones: Codigo intermedio
-        //revision_scope_id(id,result,&driver, yyloc);
+        
+        //Asigno una nueva tabla a ExpID
+        if (tipo->is_structure()){
+           TypeStructure* structure = (TypeStructure *) tipo; 
+           result->tabla = structure->get_tabla(); 
+        }
+
     }
     else {
         std::string msg ("Type has not been declared or doesn't exists in current context");
         result = new ExpID();
         result->set_line_column(line,column);
     }
+    return msg;
+}
+
+
+std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* newtemp,
+                                            LCorchetesExp* lce,ExpID* result,int line, int column,
+                                            TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipos)(std::string,std::string)){
+
+    TypeS* tipo = obtener_tipo_simbolo(id);
+    std::string msg ("");
+
+    if (tipo != 0){
+        result = new ExpID(identificador, lce);
+        result->set_line_column(line,column);
+        result->array = id;
+
+        if (lce->get_tipo() == TypeInt::Instance() &&
+            tipo->is_array()) {
+            //Se asigna el tipo del arreglo a la variable.
+            result->tipo = tipo->get_tipo();
+            //Asigno una nueva tabla a ExpID
+            if (result->tipo->is_structure()){
+                TypeStructure* structure = (TypeStructure*) result->tipo;
+                result->tabla = structure->get_tabla();
+            }
+        }
+
+        //Caso en el que el identificador NO es un arreglo
+                                            
+        else if (!tipo->is_array()){
+            std::string msg = mensaje_error_tipos("array",tipo->get_name());
+            result->tipo = TypeError::Instance();
+            return msg;
+        }
+        //Caso en el que la estructura del arreglo no es de tipo integer
+        else {
+            result->tipo = TypeError::Instance();
+        }
+    }
+    result->temp = newtemp;
     return msg;
 }

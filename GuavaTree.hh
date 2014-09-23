@@ -41,6 +41,8 @@ public:
      * codigo intermedio asociado.
      */
     std::string gen();
+
+    virtual GuavaSymTable* get_tabla(){return 0;}
 };
 
 /**
@@ -1256,6 +1258,8 @@ public:
     ExpID* exp_id = 0;
     Identificador* identificador = 0;
     LCorchetesExp* lcorchetesexp = 0;  
+    NewTemp* temp;
+    GuavaSymTable* tabla;
 
     //Esto es para los unions y record
     int offset = -1;
@@ -1280,6 +1284,8 @@ public:
 
     TypeS* get_tipo(){ return tipo; }
 
+    GuavaSymTable* get_tabla(){ return tabla; }
+
     void set_line_column(int l, int c){
         line = l;
         column = c;
@@ -1299,7 +1305,16 @@ public:
     /**
      * Realiza una revision sencilla en un identificador
      */
-    std::string revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)); 
+    static std::string revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)); 
+
+    /**
+     * Realiza la revison del caso arreglo sencillo.
+     */
+    static std::string revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* newtemp,
+                                                      LCorchetesExp* lce,ExpID* result,int line, int column,
+                                                      TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
+
+
 
 };
 

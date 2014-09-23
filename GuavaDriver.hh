@@ -39,6 +39,7 @@ extern std::string identacion;
 extern std::list<int> offset_actual;
 extern std::list<GuavaSymTable*> tabla_actual;
 extern SimpleSymbol* basepointer;
+extern int secuencia_temporales;
 
 // Prototipo de lexer para Flex
 # define YY_DECL                                      \
@@ -140,3 +141,9 @@ TypeS* dereference(TypeS* referencia);
 TypeS* verificar_acceso_atributos(Symbol* id, std::list<ProtoExpID*> la, GuavaDriver* driver, const yy::location& loc);
 
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union);
+
+void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc);
+
+void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc);
+
+TypeS* contents(TypeS*);

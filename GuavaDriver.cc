@@ -818,7 +818,9 @@ std::list<int> obtener_offset_laccesoatributos(LAccesoAtributos* la, GuavaSymTab
         return offsets;
     }
 }
-
+/**
+ * Suma todos los offsets de una lista.
+ */
 SimpleSymbol* obtener_offset(std::list<int> offsets){
     int offset_total = 0;
     std::ostringstream convert;
@@ -828,6 +830,30 @@ SimpleSymbol* obtener_offset(std::list<int> offsets){
     convert << offset_total;
     return (new SimpleSymbol(convert.str()));
 }
+/**
+ * Revisa si un identificador es una variable global y le da un
+ * addres
+ */
+void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
+    if (id->scope == 1) { //El scope de las variables temporales es uno
+        result->addr = id;
+    } else {
+        result->bp = (Symbol*) basepointer;
+        result->addr = newtemp(driver,loc,result->get_tipo());
+    }
+}
+/**
+ * Revisa si un identificador es una variable global y le da un
+ * addres
+ */
+void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc){
+    if (id->scope == 1) { //El scope de las variables temporales es uno
+        result->addr = id;
+    } else {
+        result->bp = (Symbol*) basepointer;
+        result->addr = newtemp(driver,loc,result->get_tipo());
+    }
+}
 
 /**
  * Funcion que agrega los quads para la ExpID.
@@ -836,30 +862,40 @@ SimpleSymbol* obtener_offset(std::list<int> offsets){
  * Faltan pruebas
  */
 void obtener_quads_records_y_unions(Symbol* id,ExpID* exp_id, GuavaDriver* d, const yy::location& loc){
-    // Obtengo la base
     std::list<GuavaQuads*>* lista;
-    Symbol* temp;
+    Symbol* temp = newtemp(d,loc,TypeInt::Instance());
     std::ostringstream convert;
-    if (id->scope == 1){
-        exp_id->addr = id;
-    }else{
-        temp = newtemp(d, loc, exp_id->get_tipo() );
-        exp_id->addr = newtemp(d, loc, exp_id->get_tipo() );
-    }
+
+    revision_scope_id(id,exp_id,d,loc);
+
     TypeStructure* tipo = (TypeStructure*) id->true_type;
     std::list<int> offsets;
     offsets = obtener_offset_laccesoatributos(exp_id->laccesoatributos,tipo->get_tabla());
     SimpleSymbol* numero_offset = obtener_offset(offsets);
+
     if (id->scope == 1){
-        GuavaQuads* gq = new GuavaQuads(std::string("[]"),numero_offset,0, exp_id->addr);
+        GuavaQuads* gq = new GuavaQuads(std::string("[]"),exp_id->identificador->addr,numero_offset, exp_id->addr);
         lista->push_back(gq);
     }else {
         convert << id->offset;
         GuavaQuads* gq = new GuavaQuads(std::string("+"),numero_offset,new SimpleSymbol(convert.str()), temp);
-        GuavaQuads* gq1 = new GuavaQuads(std::string("[]"),temp,0,exp_id->addr);
+        GuavaQuads* gq1 = new GuavaQuads(std::string("[]"),exp_id->bp,temp,exp_id->addr);
         lista->push_back(gq);
         lista->push_back(gq1);
     }
     exp_id->gq = lista;
 
+}
+/**
+ * Funcion que retorna el contenido del arreglo en cuanto al tipo.
+ * @param tipo_arreglo Tipo del arreglo actual
+ */
+TypeS* contents(TypeArray* tipo_arreglo){
+    if (tipo_arreglo == 0 || !tipo_arreglo->is_array()) return 0;
+    TypeArray* tmp = (TypeArray*) tipo_arreglo->get_tipoEstructura();
+    if (tmp->is_array()){
+        return tmp->get_tipoEstructura();
+    }else{
+        return tmp->get_tipo();
+    }
 }

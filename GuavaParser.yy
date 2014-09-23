@@ -337,6 +337,7 @@ lcorchetes: '[' INTEGER ']'            {
                                      };
 
 lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
+                                           tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            if( $2 != 0 && $2->get_tipo() == TypeInt::Instance()) {
                                                 tmp->tipo = $2->get_tipo();
@@ -1222,12 +1223,7 @@ expID: identificador   { TypeS* tipo;
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 //Operaciones: Codigo intermedio
-                                if (id->scope == 1) { //El scope de las variables temporales es uno
-                                    result->addr = id;
-                                } else {
-                                    result->bp = (Symbol*) basepointer;
-                                    result->addr = newtemp(&driver,yylloc,result->get_tipo());
-                                }
+                                revision_scope_id(id,result,&driver, yyloc);
                                 $$ = result;
 
                             }
@@ -1248,6 +1244,7 @@ expID: identificador   { TypeS* tipo;
                        }
      | identificador lcorchetesExp    { TypeS* tipo;
                                         ExpID* result;
+                                        NewTemp* newtemp;
                                         Symbol* id;
                                         // Caso en que la variable ha sido declarada
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
@@ -1255,6 +1252,10 @@ expID: identificador   { TypeS* tipo;
                                             if (tipo != 0){
                                                 result = new ExpID($1, $2);
                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                newtemp = new  NewTemp(&secuencia_temporales, result->get_tipo(), 
+                                                                yylloc.begin.line,yylloc.begin.column,&driver.tablaSimbolos);
+                                                //result->addr = newtemp(&driver,yyloc,result->get_tipo());
+                                                result->array = id;
 
                                                 if ($2->get_tipo() == TypeInt::Instance() &&
                                                     tipo->is_array()) {
@@ -1295,7 +1296,7 @@ expID: identificador   { TypeS* tipo;
                                                 result = new ExpID($1,$2);
                                                 result->tipo = tipo;
                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                //obtener_quads_records_y_unions();
+                                                revision_scope_id(id,$1,&driver,yyloc);
                                                 $$ = result;
                                             }
                                             else {

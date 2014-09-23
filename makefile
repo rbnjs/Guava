@@ -57,6 +57,6 @@ GuavaQuads.o: GuavaQuads.hh
 
 clean:
 
-	-rm *.o GuavaParser.hh GuavaParser.cc *.output location.hh position.hh stack.hh guava GuavaLexer.cc
+	-rm *.o GuavaParser.hh GuavaParser.cc *.output *.gch location.hh position.hh stack.hh guava GuavaLexer.cc
 
 

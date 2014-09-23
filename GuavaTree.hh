@@ -21,6 +21,7 @@
 # include <utility>
 # include <iostream>
 # include <sstream>
+#include <functional>
 
 /**
  * Clase que define las expresiones del lenguaje.
@@ -51,6 +52,7 @@ public:
     int line;
     int column;
     TypeS* tipo;
+    Symbol* bp;
     
     TypeS* get_tipo() { return tipo; }; 
     Identificador();
@@ -359,6 +361,7 @@ public:
     std::list<Exp*> lista;
     int line;
     int column;
+    Symbol* addr;
 
     LCorchetesExp();
     ~LCorchetesExp();
@@ -1254,9 +1257,15 @@ public:
     Identificador* identificador;
     LCorchetesExp* lcorchetesexp;  
     LAccesoAtributos* laccesoatributos;
+    //Esto es para los unions y record
     int offset = -1;
     Symbol* bp;
     std::list<GuavaQuads*>* gq;
+    //Esto es para los acceso a arreglos
+    TypeS* type_array;
+    Symbol* array;
+
+    
 
     ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0), laccesoatributos(0){}
     ExpID(Identificador* id): identificador(id), lcorchetesexp(0),laccesoatributos(0){}
@@ -1293,11 +1302,18 @@ public:
             result->push_back(nuevo);
             return result;
         } else if (lcorchetesexp != 0){
+            //TypeS* tmp_array = contents(type_array);  
+            
+            for (std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
+                    it != lcorchetesexp->lista.end(); ++it){
+
+            }
         }else if (laccesoatributos != 0){
             return gq;        
         }
         return 0;
     }
+
 
 
 };

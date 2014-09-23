@@ -16,7 +16,73 @@
  * =====================================================================================
  */
 #include <string>
+#include <iostream>     // std::cout, std::ios
+#include <sstream>      // std::ostringstream
 #include "GuavaSymTable.hh"
+
+
+
+
+class NewTemp{
+private:
+    int* secuencia_temporales;
+    TypeS* tipo;
+    int line, column;
+    GuavaSymTable* tabla;
+public:
+
+    NewTemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_):
+        secuencia_temporales(secuencia),tipo(tipo_),line(line_),column(column_),tabla(table_){}
+
+    ~NewTemp(){}
+
+    /**
+     * Funcion que dado una instancia de la clase Tipo
+     * y la tabla de simbolos retorna la direccion en donde esta el tipo.
+     */
+    Symbol* buscar_tipo_new_temp(std::string str){
+        Symbol *s = tabla->lookup(str);
+        if (s == 0) return 0;
+        if (s->true_type == 0) return 0;
+        return s;
+    }
+
+    /**
+     * Funcion que coloca una variable temporal en la tabla de simbolos
+     * y retorna esta misma.
+     * No es necesario calcular el offset de las variables temporales
+     * @param d: Clase manejadora GuavaDriver
+     * @param loc: location del yyparse
+     * @param tipo: tipo del temp
+     */
+    Symbol* newtemp(){
+        int scope;
+        std::ostringstream convert;
+        scope = tabla->currentScope();
+        if (tipo == 0) return 0;
+
+        convert << secuencia_temporales;
+        std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
+        secuencia_temporales++;
+
+        Symbol* nuevo;
+    
+        if (!tipo->is_array() && !tipo->is_structure()){
+            Symbol *p= buscar_tipo_new_temp(tipo->get_name());
+            if (p == 0) {
+                return 0;
+            }
+            nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
+        } else{
+            nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
+        }
+
+        return nuevo;
+    }
+
+};
+
+
 /**
  * Clase que representa un Quad
  */

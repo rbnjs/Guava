@@ -1,0 +1,33 @@
+declare {
+    integer a,b,c;
+    integer array x[5][5];
+    integer array y[5];
+    character d;
+    real e;
+
+    /*union R {
+        integer a,b,c;
+        integer array x[5][5];
+        character d;
+        union U {
+            integer a,b,c;
+        };
+        U array rea[5];
+    };
+
+    R union f;*/
+}
+
+function integer suma(integer a, integer b) {
+    return a+b+1;
+}
+
+function integer resta(integer a, integer b) {
+    return a-b;
+}
+
+function void main() {
+    a := 1;
+    b := -a;
+    c := a+b;
+}

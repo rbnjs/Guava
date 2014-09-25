@@ -111,7 +111,7 @@ TypeS* obtener_tipo_simbolo(Symbol* id){
  * pone error_state en 1
  */
 std::string mensaje_estructura_error(std::string nombre){
-    std::string msg2 ("The variable ");
+    std::string msg2 ("The variable '");
     msg2 += nombre+"' is not a record nor an union.";
     error_state = 1;
     return msg2;
@@ -351,7 +351,7 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
     }
 
     for(it; it!=l.end(); ++it) {
-        s = d->tablaSimbolos.simple_lookup(it->identificador);
+        s = tabla->simple_lookup(it->identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
         else {
@@ -386,7 +386,7 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
     line = loc.begin.line;
     column = loc.begin.column;
     scope = tabla->currentScope();
-    s = d->tablaSimbolos.simple_lookup(identificador->identificador);
+    s = tabla->simple_lookup(identificador->identificador);
     if (s != 0) {
         d->error(loc,reportar_existencia(s,identificador->identificador));
         return;
@@ -399,7 +399,7 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
         offset += tamano_tipo(t); 
         offset_actual.push_front(offset);
     } else {
-            tabla->insert(identificador->identificador,estilo,scope,p,line,column,0);
+        tabla->insert(identificador->identificador,estilo,scope,p,line,column,0);
     }
 }
 
@@ -563,7 +563,7 @@ TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& l
  * @return msg Mensaje final
  */
 std::string reportar_tipo_recursivo(std::string t){
-    std::string msg ("Can not declare a variable of a undefined type ''");
+    std::string msg ("Cannot declare a variable of a undefined type ''");
     msg += t;
     msg += "'";
     error_state = 1;
@@ -585,7 +585,7 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
     TypeS* parent = 0;
 
     for(it; it!=l.end(); ++it) {
-        s = d->tablaSimbolos.simple_lookup(it->identificador);
+        s = tabla->simple_lookup(it->identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
         else if ( (parent = tabla->get_parent()) != 0) {
@@ -636,7 +636,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
 
     for(it; it != l.end(); ++it) {
         par = *it;
-        s = d->tablaSimbolos.simple_lookup(par.first.identificador);
+        s = tabla->simple_lookup(par.first.identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,par.first.identificador));
         else if ( (parent = tabla->get_parent()) != 0) {
@@ -695,7 +695,17 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
     std::list<TypeS*> prueba = parametros;
     TypeFunction* function = new TypeFunction(tipo,prueba);
     GuavaSymTable *tabla = tabla_actual.front();
-    tabla->insert_type(id->identificador,std::string("function"),0,function);
+    Symbol *s = d->tablaSimbolos.lookup(id->identificador);
+    //Se verifica la existencia de una funcion con el mismo nombre
+    if (s != 0 && !s->sym_catg.compare("function")) {
+        std::string msg("Function: '");
+        msg += id->identificador;
+        msg += "' has been already declared in the current context.";
+        d->error(loc,msg);
+    }
+    else {
+        tabla->insert_type(id->identificador,std::string("function"),0,function);
+    }
 }
 
 /**
@@ -714,12 +724,12 @@ TypeS* dereference(TypeS* referencia){
  */
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union){
     TypeStructure *structure;
-    if (is_union){
+    if (is_union) {
         structure = new TypeUnion();
         offset_actual.push_front(-1);
         GuavaSymTable* tmp = structure->get_tabla();
         tmp->set_parent(structure);
-    } else{
+    } else {
         structure = new TypeRecord();
         offset_actual.push_front(0);
         GuavaSymTable* tmp = structure->get_tabla();
@@ -729,7 +739,7 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
     GuavaSymTable *tabla = tabla_actual.front();
     int n = tabla->currentScope();
     identacion += "  ";
-    Symbol * tmp = 0;
+    Symbol *tmp;
     if ( (tmp = tabla->lookup(id->identificador)) == 0){
         if (tabla->get_parent() == 0){
             tabla->insert_type(id->identificador, std::string("unionType"),n,structure); 
@@ -787,7 +797,7 @@ SimpleSymbol* obtener_offset(std::list<int> offsets){
 }
 /**
  * Revisa si un identificador es una variable global y le da un
- * addres
+ * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
     if (id->scope == 1) { //El scope de las variables temporales es uno
@@ -800,7 +810,7 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
 
 /**
  * Revisa si un identificador es una variable global y le da un
- * addres
+ * address
  */
 void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc){
     if (id->scope == 1) { //El scope de las variables temporales es uno

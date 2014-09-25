@@ -80,7 +80,7 @@ std::string to_string(TypeS* t){
         std::ostringstream convert;
         convert << tam;
         result += convert.str();
-        result += "] of" + to_string(t->get_tipo()); 
+        result += "] of " + to_string(t->get_tipo()); 
 
         return result;
     }

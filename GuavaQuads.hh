@@ -36,6 +36,11 @@ public:
 
     ~NewTemp(){}
 
+
+    void set_tipo(TypeS* tipo_){
+        tipo = tipo_;
+    }
+
     /**
      * Funcion que dado una instancia de la clase Tipo
      * y la tabla de simbolos retorna la direccion en donde esta el tipo.

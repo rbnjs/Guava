@@ -1260,11 +1260,12 @@ public:
     LCorchetesExp* lcorchetesexp = 0;  
     NewTemp* temp;
     GuavaSymTable* tabla;
-
-    //Esto es para los unions y record
     int offset = -1;
     Symbol* bp;
-    std::list<GuavaQuads*>* gq;
+
+    //Unions y records
+    int offset_structure = 0;
+
     //Esto es para los acceso a arreglos
     TypeS* type_array;
     Symbol* array;
@@ -1314,7 +1315,8 @@ public:
                                                       LCorchetesExp* lce,ExpID* result,int line, int column,
                                                       TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
 
-
+    void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
+    
 
 };
 

@@ -701,16 +701,19 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
 /**
  * Dereferencia un TypeS* tipo Referencia.
  * Funciona como un & en C/C++
+ * @param referencia Referencia a la cual hacerle dereferencia
  */
 TypeS* dereference(TypeS* referencia){
     TypeS* tmp = referencia->get_tipo();
     return tmp;
 }
 
-
-
 /**
  * Verifica la existencia de un tipo y lo agrega a la tabla. 
+ * @param identificador Identificador del tipo
+ * @param d Manejador GuavaDriver
+ * @param loc Lugar en donde se encuentra el parser en el momento de llamar a la funcion
+ * @param is_union Variable booleana que nos dice si el tipo es union o no
  */
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union){
     TypeStructure *structure;
@@ -745,49 +748,10 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
     }
     tabla_actual.push_front(structure->get_tabla());
 }
-/**
- * Obtengo los offsets de una lista de acceso de atributos
- * Falta el caso en el que el programador mete arreglos dentro del record/union
- * @param la Lista de acceso de atributos
- * @param t Tabla actual del record
- * @return offsets Retorna todos los offsets
- */
-std::list<int> obtener_offset_laccesoatributos(LAccesoAtributos* la, GuavaSymTable* t){
-    std::list<int> offsets;    
-    std::list<ProtoExpID*> lista_id = la->get_list();
-    if (lista_id.empty()){
-        return offsets;
-    }else{
-        std::list<int> offsets1;
-        ExpID* tmp = (ExpID*) lista_id.front();
-        lista_id.pop_front();
-        LAccesoAtributos* la_ = new LAccesoAtributos(lista_id); 
-        Symbol* id = t->lookup(tmp->identificador->identificador);
-        offsets.push_back(id->offset);
-        if (id->true_type != 0){
-            TypeStructure* tipo = (TypeStructure*) id->true_type;
-            offsets1 = obtener_offset_laccesoatributos(la_,tipo->get_tabla());
-        }
-        else offsets1 = obtener_offset_laccesoatributos(la_,t);
-        offsets.splice(offsets.end(), offsets1);
-        return offsets;
-    }
-}
-/**
- * Suma todos los offsets de una lista.
- */
-SimpleSymbol* obtener_offset(std::list<int> offsets){
-    int offset_total = 0;
-    std::ostringstream convert;
-    for (std::list<int>::iterator it=offsets.begin(); it != offsets.end(); ++it){
-        offset_total += *it; 
-    }
-    convert << offset_total;
-    return (new SimpleSymbol(convert.str()));
-}
+
 /**
  * Revisa si un identificador es una variable global y le da un
- * addres
+ * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
     if (id->scope == 1) { //El scope de las variables temporales es uno
@@ -812,42 +776,14 @@ void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, c
 }
 
 /**
- * Funcion que agrega los quads para la ExpID.
- * Pendiente aca que es importante que sea record y union.
- * Falta el caso en que el record o union tenga un arreglo adentro. 
- * Faltan pruebas
- */
-void obtener_quads_records_y_unions(Symbol* id,ExpID* exp_id, GuavaDriver* d, const yy::location& loc){
-    /*std::list<GuavaQuads*>* lista;
-    Symbol* temp = newtemp(d,loc,TypeInt::Instance());
-    std::ostringstream convert;
-
-    revision_scope_id(id,exp_id,d,loc);
-
-    TypeStructure* tipo = (TypeStructure*) id->true_type;
-    std::list<int> offsets;
-    offsets = obtener_offset_laccesoatributos(exp_id->laccesoatributos,tipo->get_tabla());
-    SimpleSymbol* numero_offset = obtener_offset(offsets);
-
-    if (id->scope == 1){
-        GuavaQuads* gq = new GuavaQuads(std::string("[]"),exp_id->identificador->addr,numero_offset, exp_id->addr);
-        lista->push_back(gq);
-    }else {
-        convert << id->offset;
-        GuavaQuads* gq = new GuavaQuads(std::string("+"),numero_offset,new SimpleSymbol(convert.str()), temp);
-        GuavaQuads* gq1 = new GuavaQuads(std::string("[]"),exp_id->bp,temp,exp_id->addr);
-        lista->push_back(gq);
-        lista->push_back(gq1);
-    }
-    exp_id->gq = lista;*/
-}
-
-/**
  * Funcion que retorna el contenido del arreglo en cuanto al tipo.
  * @param tipo_arreglo Tipo del arreglo actual
  */
-TypeS* contents(TypeArray* tipo_arreglo){
-    if (tipo_arreglo == 0 || !tipo_arreglo->is_array()) return 0;
+TypeS* contents(TypeS* tipo){
+    if (tipo == 0 || !tipo->is_array()) return 0;
+
+    TypeArray* tipo_arreglo = (TypeArray*) tipo;
+
     TypeArray* tmp = (TypeArray*) tipo_arreglo->get_tipoEstructura();
     if (tmp->is_array()){
         return tmp->get_tipoEstructura();
@@ -855,3 +791,4 @@ TypeS* contents(TypeArray* tipo_arreglo){
         return tmp->get_tipo();
     }
 }
+

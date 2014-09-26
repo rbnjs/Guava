@@ -953,11 +953,10 @@ void Program::show(std::string s){
 
 /* class ExpID  */
 
-/**
- * Obtencion de los quads para la clase ExpID
- */
-std::list<GuavaQuads*>* ExpID::generar_quads(){
-    if (identificador == 0) return 0;
+/*  
+ *  
+ *    
+ *    if (identificador == 0) return 0;
     // Caso en el que es solo una expresion.
     if (lcorchetesexp == 0){
         if (offset == -1) return 0; // Caso en que la variable es global
@@ -977,7 +976,57 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
         }
     }        
     return 0;
+ *
+ *  */
+
+
+/**
+ * Obtencion de los quads para la clase ExpID
+ */
+std::list<GuavaQuads*>* ExpID::generar_quads(){
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
+    std::ostringstream convert;
+    Symbol* r;
+    if (identificador == 0) return 0;
+
+    // Me voy moviendo por la expresion hasta llegar a la 
+    // "base" de esta
+    if (exp_id != 0){
+        if (tabla != 0){
+            r = tabla->lookup(identificador->identificador);
+            exp_id->offset_structure += r->offset;
+        }
+        result = exp_id->generar_quads(); 
+    }
+
+    //Caso en el que no es un arreglo
+    if (lcorchetesexp == 0){
+        //Caso en el que esta solo
+        if (tabla == 0){
+            if (bp != 0){
+                //Caso en el que no es global
+                convert << offset;
+                SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
+            }else{
+                //Caso en el que es global
+                GuavaQuads* nuevo_q = new GuavaQuads(":=",identificador->addr,0,addr);
+            }
+        } else {
+            //Caso en el que no esta solo
+            if (bp != 0){
+                // Caso en el que no es global 
+                 
+            } else {
+
+            }
+        }
+    } else{
+        //Caso arreglo
+    }
+    return 0;
 }
+
 /**
  * Realiza una revision sencilla de exp_id e inicializa result
  * @param id Simbolo buscado en la tabla de simbolos
@@ -986,6 +1035,7 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
  * @param line Linea
  * @param column Columna
  * @param obtener_tipo_simbolo Apuntador a funcion que obtiene un simbolo y retorna un TypeS*
+ * @return msg Mensaje de error.
  */
 std::string ExpID::revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)){
     std::string msg ("");
@@ -1012,10 +1062,23 @@ std::string ExpID::revision_exp_id(Symbol* id,Identificador* identificador,ExpID
         result = new ExpID();
         result->set_line_column(line,column);
     }
+    result->offset = id->offset; 
     return msg;
 }
 
-
+/**
+ * Revision de expresiones id de tipo arreglo
+ * @param id Simbolo de la variable a revisar. Esta sale de la Tabla de simbolos.
+ * @param identificador Identificador de la variable
+ * @param newtemp Clase que se utiliza para generar los temporales
+ * @param lce Lista de expresiones de corchete
+ * @oaram result Resultado. Esta variable sera inicializada o modificada.
+ * @param line Linea
+ * @param column Columna
+ * @param obtener_tipo_simbolo Funcion que dado un simbolo retorna un tipo
+ * @param mensaje_error_tipos Funcion que dado dos nombres de tipo retorna un mensaje de error.
+ * @return msg Retorna un string que contiene un mensaje de error para imprimir luego por pantalla.
+ */
 std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* newtemp,
                                             LCorchetesExp* lce,ExpID* result,int line, int column,
                                             TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipos)(std::string,std::string)){
@@ -1053,4 +1116,13 @@ std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identifica
     }
     result->temp = newtemp;
     return msg;
+}
+/**
+ * Inicializa una ExpresionID de tipo Arreglo 
+ */
+void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
+    array = id;
+    type_array = contents(tipo);
+    addr = temp->newtemp();
+    
 }

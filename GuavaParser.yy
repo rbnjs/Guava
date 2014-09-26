@@ -1220,7 +1220,9 @@ expID: identificador   { TypeS* tipo;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {  
                             //En esta funcion inicializo result
                             msg = ExpID::revision_exp_id(id,$1,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
-                            revision_scope_id(id,result,&driver,yylloc); //Aqui inicializo el addr
+                            revision_scope_id(id,$1,&driver,yylloc); //Aqui inicializo el addr del identificador
+                            result->addr = $1->addr;
+
                             if (!msg.empty()){
                                 driver.error(yylloc,msg);
                             }
@@ -1243,6 +1245,8 @@ expID: identificador   { TypeS* tipo;
                                             msg = ExpID::revision_exp_id_arreglo(id,$1,newtemp,$2,result, 
                                                                                  yylloc.begin.line,yylloc.begin.column,
                                                                                  obtener_tipo_simbolo,mensaje_error_tipos);
+                                            newtemp->set_tipo(result->tipo);
+                                            result->init_array(id,result->tipo,contents);
                                             if (!msg.empty()){
                                                 driver.error(yylloc,msg);
                                             }
@@ -1285,6 +1289,7 @@ expID: identificador   { TypeS* tipo;
                                    TypeS* tipo;
                                    ExpID* exp_id = (ExpID*) $1;
                                    std::string msg;
+                                   
                                    if (exp_id->get_tabla() == 0){
                                         // No es estructura  
                                         if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
@@ -1293,8 +1298,13 @@ expID: identificador   { TypeS* tipo;
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
                                         //En esta funcion inicializo result
-                                        msg = ExpID::revision_exp_id(id,$3,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
-                                        revision_scope_id(id,result,&driver,yylloc); //Aqui inicializo el addr PENDIENTE
+                                        NewTemp* newtemp = new  NewTemp(&secuencia_temporales, 
+                                                                        result->get_tipo(), yylloc.begin.line,
+                                                                        yylloc.begin.column,&driver.tablaSimbolos);
+                                        msg = ExpID::revision_exp_id_arreglo(id,$3,newtemp,$4,result,yylloc.begin.line,
+                                                                             yylloc.begin.column,obtener_tipo_simbolo, mensaje_error_tipos);
+                                        newtemp->set_tipo(result->tipo);
+                                        result->init_array(id,result->tipo,contents);
                                         if (!msg.empty()){
                                             driver.error(yylloc,msg);
                                         }

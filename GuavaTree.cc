@@ -1026,6 +1026,7 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
     }
     return 0;
 }
+<<<<<<< HEAD
 
 /**
  * Realiza una revision sencilla de exp_id e inicializa result
@@ -1126,3 +1127,5 @@ void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
     addr = temp->newtemp();
     
 }
+=======
+>>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd

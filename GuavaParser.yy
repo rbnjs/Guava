@@ -196,7 +196,7 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           LVariables *tmpLV = new LVariables(tmp,$3);
                                                           $$ = tmpLV;
                                                         } 
-          | lvariables identificador  ARRAY lvararreglo ';' { 
+          | lvariables identificador ARRAY lvararreglo ';' { 
                                                               TypeS* tmp = insertar_simboloArregloEstructura($4,$2->identificador,&driver,yylloc);
                                                               LVariables *tmpLV = new LVariables(tmp,$4);
                                                               $1->listaVar = tmpLV;
@@ -213,14 +213,13 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           $1->listaVar = tmpLV;
                                                           $$ = $1;
                                                         }
-          | identificador RECORD lvar                   {
+          | identificador RECORD lvar ';'               {
                                                           TypeS* tmp = insertar_simboloEstructura($3,$1->identificador,std::string("recordType"),&driver,yylloc); 
                                                           LVariables *tmpLV = new LVariables(tmp,$3); 
                                                           $$ = tmpLV;
                                                         }
           | lvariables identificador RECORD lvar ';'    { 
-                                                          TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,
-                                                          std::string("recordType"),&driver,yylloc); 
+                                                          TypeS* tmp = insertar_simboloEstructura($4,$2->identificador,std::string("recordType"),&driver,yylloc); 
                                                           LVariables *tmpLV = new LVariables(tmp,$4); 
                                                           $1->listaVar = tmpLV;
                                                           $$ = $1;
@@ -247,8 +246,8 @@ lvariables: lvariables tipo lvar ';'                    { LVariables *tmp = new 
                                                           $$ = new LVariables();
                                                         };
 
-union: UNION identificador '{' { 
-                                verificar_existencia_tipo($2, &driver,yylloc,true);
+union: UNION identificador '{' { //Se agrega la estructura a la tabla como un tipo nuevo 
+                                 verificar_existencia_tipo($2, &driver,yylloc,true);
                                }
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
@@ -263,8 +262,8 @@ union: UNION identificador '{' {
                                                 tabla_actual.pop_front();
                                              }
 
-record: RECORD identificador '{'{
-                                    verificar_existencia_tipo($2,&driver,yylloc, false);
+record: RECORD identificador '{'{ //Se agrega la estructura a la tabla como un tipo nuevo
+                                  verificar_existencia_tipo($2,&driver,yylloc, false);
                                 } 
                                lvariables '}' { 
                                                 GuavaSymTable* tabla = tabla_actual.front();
@@ -1098,7 +1097,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                         driver.error(yylloc,msg);
                                                         error_state = 1;
                                                         $$ = new LlamadaFuncion();
-                                                    }else {
+                                                   } else {
                                                         TypeS* tipo = obtener_tipo_simbolo(id);
                                                         if (tipo != 0 && tipo->is_func()){
                                                             TypeFunction * func = (TypeFunction*) tipo;
@@ -1108,34 +1107,38 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                             int expected = func->parametros.size();
                                                             int given = $3->lvarovalor.size();
                                                             std::list<Exp*>::iterator lvarovalor = $3->lvarovalor.begin();
-                                                            Exp* tmp;
-                                                            while (parametros != func->parametros.end()
-                                                                   && lvarovalor != $3->lvarovalor.end()
-                                                                  ){
-                                                                  tmp = *lvarovalor;
-                                                                  if (tmp->get_tipo() != *parametros) {
-                                                                    std::string msg = mensaje_error_tipos(tmp->get_tipo()->get_name(),(*parametros)->get_name());
-                                                                    driver.error(yylloc,msg);
-                                                                    result->tipo = TypeError::Instance();
-                                                                    break;
-                                                                  }
-                                                                  ++parametros;
-                                                                  ++lvarovalor;
-                                                            }
-                                                            if (lvarovalor != $3->lvarovalor.end() && parametros != func->parametros.end()){
-                                                                std::string msg ("Expected ");
+                                                            Exp* tmpArg;
+                                                            TypeS* tmpPar;
+                                                            if (expected != given) {
+                                                                std::string msg("Expected ");
                                                                 msg += std::to_string(expected);
                                                                 msg += " arguments, ";
                                                                 msg += std::to_string(given);
                                                                 msg += " provided.";
                                                                 driver.error(yylloc,msg);
                                                                 result->tipo = TypeError::Instance();
-                                                            } else {
-                                                                result->tipo = rango;
+                                                                $$ = result;
                                                             }
-                                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                            $$ = result;
-                                                        }else{
+                                                            else {
+                                                                result->tipo = rango;
+                                                                while (parametros != func->parametros.end()
+                                                                       && lvarovalor != $3->lvarovalor.end())
+                                                                {
+                                                                    tmpArg = *lvarovalor;
+                                                                    tmpPar = *parametros;
+                                                                    if (tmpArg->get_tipo() != tmpPar) {
+                                                                        std::string msg = mensaje_error_tipos(tmpPar->get_name(),tmpArg->get_tipo()->get_name());
+                                                                        driver.error(yylloc,msg);
+                                                                        result->tipo = TypeError::Instance();
+                                                                        break;
+                                                                    }
+                                                                    ++parametros;
+                                                                    ++lvarovalor;
+                                                                }
+                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                $$= result;
+                                                            }
+                                                        } else {
                                                             std::string msg;
                                                             if (tipo == 0){
                                                                 msg = mensaje_error_tipos("null","function");
@@ -1145,7 +1148,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                             driver.error(yylloc,msg);
                                                             $$ = new LlamadaFuncion();
                                                         }
-                                                    }
+                                                   }
 
                                                  }
               | error '(' lvarovalor ')'         {/*Llamado a una funcion con identificador erroneo*/
@@ -1210,13 +1213,11 @@ exp: expAritmetica  { $1->generar_quads();
                         **/}
    | '(' error ')'  {};
 
-/*
- * En construccion
- */
 expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          std::string msg;
+<<<<<<< HEAD
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {  
                             //En esta funcion inicializo result
                             msg = ExpID::revision_exp_id(id,$1,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
@@ -1224,6 +1225,23 @@ expID: identificador   { TypeS* tipo;
                             result->addr = $1->addr;
 
                             if (!msg.empty()){
+=======
+                         if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
+                            if ((tipo = obtener_tipo_simbolo(id)) != 0) {
+                                result = new ExpID($1);
+                                result->tipo = tipo;
+                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
+                                if (tipo->is_structure() || tipo->is_union()) {
+                                    TypeStructure* structure = (TypeStructure *) tipo;
+                                    result->tabla = structure->get_tabla();
+                                }
+                                //Se asigna el address a la expresion
+                                revision_scope_id(id,result,&driver,yylloc);
+                            }
+                            else {
+                                std::string msg("Type has not been declared or doesn't exists in current context.");
+>>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                 driver.error(yylloc,msg);
                             }
                             $$ = result;
@@ -1235,11 +1253,10 @@ expID: identificador   { TypeS* tipo;
                        }
      | identificador lcorchetesExp   { TypeS* tipo;
                                        ExpID* result;
-                                       NewTemp* newtemp = new  NewTemp(&secuencia_temporales, 
-                                                                        result->get_tipo(), yylloc.begin.line,
-                                                                        yylloc.begin.column,&driver.tablaSimbolos);
+
                                        std::string msg;
                                        Symbol* id;
+<<<<<<< HEAD
                                         // Caso en que la variable ha sido declarada
                                         if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                             msg = ExpID::revision_exp_id_arreglo(id,$1,newtemp,$2,result, 
@@ -1257,19 +1274,68 @@ expID: identificador   { TypeS* tipo;
                                         $$ = result;
                                     }
      | expID "." identificador { 
+=======
+                                       if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
+                                           if ((tipo = obtener_tipo_simbolo(id)) != 0) {
+                                               result = new ExpID($1,$2);
+                                               result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                           }
+                                           //Se verifica que la lista de expresiones sea de Integers y el simbolo un arreglo
+                                           if ($2->get_tipo() == TypeInt::Instance() &&
+                                               tipo->is_array()) {
+                                               /**
+                                                *
+                                                *
+                                                * MOSCA, FALTA VERIFICAR CUANDO NO SE INDICA BIEN EL INDICE.
+                                                * Ejemplo: La variable es: integer array x[5][5] y se hace la asignacion asi: a := x[2]
+                                                * estariamos asignando un arreglo de enteros. Pensando un poco ese tipo de asignaciones
+                                                * es un poco pelua al momento de la verificacion de tipos: habria que cambiar en """gran""" medida
+                                                * el arbol; mi opinion: No permitamos eso, :).
+                                                *
+                                                *
+                                                **/
+                                               result->tipo = tipo->get_tipo();
+                                               //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
+                                               if (result->tipo->is_structure() || result->tipo->is_union()) {
+                                                   TypeStructure* structure = (TypeStructure *) tipo->get_tipo();
+                                                   result->tabla = structure->get_tabla();
+                                               }
+                                           }
+                                           //Caso en el que el simbolo no es un arreglo
+                                           else if (!tipo->is_array()) {
+                                               std::string msg = mensaje_error_tipos("array",tipo->get_name());
+                                               result->tipo = TypeError::Instance();
+                                               driver.error(yylloc,msg);
+                                           }
+                                           //Caso en el que la lista de expresiones no se de tipo Integers
+                                           else {
+                                               std::string msg("Access to array index cannot be done.");
+                                               result->tipo = TypeError::Instance();
+                                               driver.error(yylloc,msg);
+                                           }
+                                           //Se asigna el address a la expresion
+                                           result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
+                                                                          yylloc.begin.column,&driver.tablaSimbolos);
+                                        } else {
+                                           result = new ExpID();
+                                           result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                       }
+                                       $$ = result;
+                                     }
+     | expID '.' identificador { 
+>>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                 Symbol * id;
-                                Identificador *prueba = $3;
                                 ExpID* result;
                                 TypeS* tipo;
                                 ExpID* exp_id = (ExpID*) $1; //La expresion es de tipo ExpID
                                 std::string msg ("");
+                                //Caso en el que la expresion no sea una estructura
                                 if (exp_id->get_tabla() == 0){
-                                    // No es estructura. 
                                     if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
                                     driver.error(yylloc,msg);
                                     result = new ExpID();
                                     result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                } else if ((id = variable_no_declarada(prueba->identificador,&driver,yylloc, exp_id->tabla)) != 0){
+                                } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->tabla)) != 0){
                                     tipo = obtener_tipo_simbolo(id);
                                     result = new ExpID(exp_id,$3);
                                     result->tipo = tipo;
@@ -1281,22 +1347,25 @@ expID: identificador   { TypeS* tipo;
                                 }
                                 $$ = result;
                               }
-       | expID "." identificador 
+       | expID '.' identificador 
                    lcorchetesExp { 
                                    Symbol * id;
-                                   Identificador* identificador = $3;
                                    ExpID* result;
                                    TypeS* tipo;
                                    ExpID* exp_id = (ExpID*) $1;
                                    std::string msg;
+<<<<<<< HEAD
                                    
+=======
+                                   //Caso en el que la expresion no sea una estructura
+>>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                    if (exp_id->get_tabla() == 0){
-                                        // No es estructura  
                                         if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
                                         driver.error(yylloc,msg);
                                         result = new ExpID();
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
+<<<<<<< HEAD
                                         //En esta funcion inicializo result
                                         NewTemp* newtemp = new  NewTemp(&secuencia_temporales, 
                                                                         result->get_tipo(), yylloc.begin.line,
@@ -1307,15 +1376,39 @@ expID: identificador   { TypeS* tipo;
                                         result->init_array(id,result->tipo,contents);
                                         if (!msg.empty()){
                                             driver.error(yylloc,msg);
+=======
+                                        if ((tipo = obtener_tipo_simbolo(id)) != 0) {
+                                            result = new ExpID($3);
+                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                            //Se verifica que el simbolo sea un arreglo
+                                            if (tipo->is_array()) {
+                                                result->tipo = tipo->get_tipo();
+                                                //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
+                                                if (result->tipo->is_structure() || result->tipo->is_union()) {
+                                                    TypeStructure* structure = (TypeStructure *) tipo->get_tipo();
+                                                    result->tabla = structure->get_tabla();
+                                                }
+                                            }
+                                            //Caso en el que el simbolo no es un arreglo
+                                            else {
+                                                std::string msg = mensaje_error_tipos("array",tipo->get_name());
+                                                result->tipo = TypeError::Instance();
+                                                driver.error(yylloc,msg);
+                                            }
+                                            //Se asigna el address a la expresion
+                                            revision_scope_id(id,result,&driver,yylloc);
                                         }
-                                   } else{
+                                        else {
+                                            std::string msg("Type has not been declared or doesn't exists in current context.");
+>>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
+                                        }
+                                   } else {
                                         // Error     
                                         result = new ExpID();
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    }
                                    $$ = result;
                                  };
-                                               
 
 /*Faltan pruebas*/
 expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));

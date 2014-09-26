@@ -1026,7 +1026,6 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
     }
     return 0;
 }
-<<<<<<< HEAD
 
 /**
  * Realiza una revision sencilla de exp_id e inicializa result
@@ -1118,6 +1117,7 @@ std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identifica
     result->temp = newtemp;
     return msg;
 }
+
 /**
  * Inicializa una ExpresionID de tipo Arreglo 
  */
@@ -1127,5 +1127,3 @@ void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
     addr = temp->newtemp();
     
 }
-=======
->>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd

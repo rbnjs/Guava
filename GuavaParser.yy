@@ -1217,15 +1217,6 @@ expID: identificador   { TypeS* tipo;
                          ExpID* result;
                          Symbol* id;
                          std::string msg;
-<<<<<<< HEAD
-                         if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {  
-                            //En esta funcion inicializo result
-                            msg = ExpID::revision_exp_id(id,$1,result,yylloc.begin.line,yylloc.begin.column,obtener_tipo_simbolo);
-                            revision_scope_id(id,$1,&driver,yylloc); //Aqui inicializo el addr del identificador
-                            result->addr = $1->addr;
-
-                            if (!msg.empty()){
-=======
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                             if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                 result = new ExpID($1);
@@ -1241,7 +1232,6 @@ expID: identificador   { TypeS* tipo;
                             }
                             else {
                                 std::string msg("Type has not been declared or doesn't exists in current context.");
->>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                 driver.error(yylloc,msg);
                             }
                             $$ = result;
@@ -1256,25 +1246,6 @@ expID: identificador   { TypeS* tipo;
 
                                        std::string msg;
                                        Symbol* id;
-<<<<<<< HEAD
-                                        // Caso en que la variable ha sido declarada
-                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
-                                            msg = ExpID::revision_exp_id_arreglo(id,$1,newtemp,$2,result, 
-                                                                                 yylloc.begin.line,yylloc.begin.column,
-                                                                                 obtener_tipo_simbolo,mensaje_error_tipos);
-                                            newtemp->set_tipo(result->tipo);
-                                            result->init_array(id,result->tipo,contents);
-                                            if (!msg.empty()){
-                                                driver.error(yylloc,msg);
-                                            }
-                                        } else{
-                                            result = new ExpID();
-                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                        }
-                                        $$ = result;
-                                    }
-     | expID "." identificador { 
-=======
                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                            if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                                result = new ExpID($1,$2);
@@ -1323,7 +1294,6 @@ expID: identificador   { TypeS* tipo;
                                        $$ = result;
                                      }
      | expID '.' identificador { 
->>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                 Symbol * id;
                                 ExpID* result;
                                 TypeS* tipo;
@@ -1354,30 +1324,14 @@ expID: identificador   { TypeS* tipo;
                                    TypeS* tipo;
                                    ExpID* exp_id = (ExpID*) $1;
                                    std::string msg;
-<<<<<<< HEAD
-                                   
-=======
                                    //Caso en el que la expresion no sea una estructura
->>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                    if (exp_id->get_tabla() == 0){
                                         if (exp_id->identificador != 0) msg = mensaje_estructura_error(exp_id->identificador->identificador);
                                         driver.error(yylloc,msg);
                                         result = new ExpID();
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
-<<<<<<< HEAD
-                                        //En esta funcion inicializo result
-                                        NewTemp* newtemp = new  NewTemp(&secuencia_temporales, 
-                                                                        result->get_tipo(), yylloc.begin.line,
-                                                                        yylloc.begin.column,&driver.tablaSimbolos);
-                                        msg = ExpID::revision_exp_id_arreglo(id,$3,newtemp,$4,result,yylloc.begin.line,
-                                                                             yylloc.begin.column,obtener_tipo_simbolo, mensaje_error_tipos);
-                                        newtemp->set_tipo(result->tipo);
-                                        result->init_array(id,result->tipo,contents);
-                                        if (!msg.empty()){
-                                            driver.error(yylloc,msg);
-=======
-                                        if ((tipo = obtener_tipo_simbolo(id)) != 0) {
+                                       if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                             result = new ExpID($3);
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             //Se verifica que el simbolo sea un arreglo
@@ -1400,7 +1354,6 @@ expID: identificador   { TypeS* tipo;
                                         }
                                         else {
                                             std::string msg("Type has not been declared or doesn't exists in current context.");
->>>>>>> 41ab83b12164e9c769cbdecc220b941525147bbd
                                         }
                                    } else {
                                         // Error     

@@ -1311,7 +1311,7 @@ public:
     /**
      * Realiza la revison del caso arreglo sencillo.
      */
-    static std::string revision_exp_id_arreglo(Symbol* id ,Identificador* identificador,
+    static std::string revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* temp,
                                                       LCorchetesExp* lce,ExpID* result,int line, int column,
                                                       TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
 

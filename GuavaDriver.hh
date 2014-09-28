@@ -128,6 +128,8 @@ std::string reportar_tipo_recursivo(std::string t);
 
 Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo);
 
+Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo, GuavaSymTable* tabla);
+
 TypeS* obtener_tipo_expresion(Exp* exp_, TypeS* tipoDeseado1,TypeS* tipoDeseado2);
 
 TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estilo,GuavaDriver *d, const yy::location& loc);
@@ -141,6 +143,8 @@ TypeS* dereference(TypeS* referencia);
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union);
 
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc);
+
+void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* tabla);
 
 void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc);
 

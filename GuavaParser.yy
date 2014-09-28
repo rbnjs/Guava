@@ -1228,7 +1228,11 @@ expID: identificador   { TypeS* tipo;
                                     result->tabla = structure->get_tabla();
                                 }
                                 //Se asigna el address a la expresion
-                                revision_scope_id(id,result,&driver,yylloc);
+                                if (result->tipo->is_structure()){
+                                    revision_scope_id(id,result,&driver,yylloc, result->tabla);
+                                }else{
+                                    revision_scope_id(id,result,&driver,yylloc);
+                                }
                             }
                             else {
                                 std::string msg("Type has not been declared or doesn't exists in current context.");
@@ -1350,7 +1354,11 @@ expID: identificador   { TypeS* tipo;
                                                 driver.error(yylloc,msg);
                                             }
                                             //Se asigna el address a la expresion
-                                            revision_scope_id(id,result,&driver,yylloc);
+                                            if (result->tipo->is_structure()){
+                                                revision_scope_id(id,result,&driver,yylloc, result->tabla);
+                                            }else{
+                                                revision_scope_id(id,result,&driver,yylloc);
+                                            }
                                         }
                                         else {
                                             std::string msg("Type has not been declared or doesn't exists in current context.");

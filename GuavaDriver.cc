@@ -267,6 +267,7 @@ std::string mensaje_diff_operandos(std::string operador, std::string op1, std::s
 /**
  * Funcion que dado una instancia de la clase Tipo
  * y la tabla de simbolos retorna la direccion en donde esta el tipo.
+ * DEPRECADA. La d nunca se usa.
  */
 Symbol* obtener_tipo(std::string str, GuavaDriver *d, GuavaSymTable* t){
     Symbol *s = t->lookup(str);
@@ -274,6 +275,18 @@ Symbol* obtener_tipo(std::string str, GuavaDriver *d, GuavaSymTable* t){
     if (s->true_type == 0) return 0;
     return s;
 }
+
+/**
+ * Funcion que dado una instancia de la clase Tipo
+ * y la tabla de simbolos retorna la direccion en donde esta el tipo.
+ */
+Symbol* obtener_tipo(std::string str, GuavaSymTable* t){
+    Symbol *s = t->lookup(str);
+    if (s == 0) return 0;
+    if (s->true_type == 0) return 0;
+    return s;
+}
+
 
 /**
  * "Encaja" el tamaño dado de un TypeS
@@ -493,6 +506,42 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
  * @param d: Clase manejadora GuavaDriver
  * @param loc: location del yyparse
  * @param tipo: tipo del temp
+ * @param tabla Tabla en la que se quiere buscar el tipo de la variable
+ */
+Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo, GuavaSymTable* tabla){
+    int scope, line, column;
+    line = loc.begin.line;
+    std::ostringstream convert;
+    column = loc.begin.column;
+    scope = tabla->currentScope();
+    if (tipo == 0) return 0;
+
+
+    convert << secuencia_temporales;
+    std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
+    secuencia_temporales++;
+
+    Symbol* nuevo;
+    
+    if (!tipo->is_array() && !tipo->is_structure()){
+        Symbol *p= obtener_tipo(tipo->get_name(),tabla);
+        if (p == 0) {
+            return 0;
+        }
+        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
+    } else{
+        nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
+    }
+    return nuevo;
+}
+
+
+/**
+ * Funcion que coloca una variable temporal en la tabla de simbolos
+ * y retorna esta misma.
+ * @param d: Clase manejadora GuavaDriver
+ * @param loc: location del yyparse
+ * @param tipo: tipo del temp
  */
 Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo){
     int scope, line, column;
@@ -504,38 +553,24 @@ Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo){
     if (tipo == 0) return 0;
 
 
-    int offset = offset_actual.front();
     convert << secuencia_temporales;
     std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
     secuencia_temporales++;
 
     Symbol* nuevo;
     
-    if (!tipo->is_array()){
-        Symbol *p= obtener_tipo(tipo->get_name(),d, &d->tablaSimbolos);
+    if (!tipo->is_array() && !tipo->is_structure()){
+        Symbol *p= obtener_tipo(tipo->get_name(),tabla);
         if (p == 0) {
-        d->error(loc,tipo_no_existe(tipo->get_name()));
-        return 0;
-     }
-        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,offset);
+            return 0;
+        }
+        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
     } else{
-        nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, offset);
+        nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
     }
-
-
-    if (offset != -1){
-        offset_actual.pop_front();
-        tabla->insert(nuevo);
-        nuevo->offset = offset;
-        offset = tamano_tipo(tipo);
-        offset_actual.push_front(offset);
-    } else {
-        nuevo->offset = 0;
-        tabla->insert(nuevo);
-    }
-
     return nuevo;
 }
+
 
 /**
  * Dado un tipo "tipo", busca en la tabla ese tipo y
@@ -763,6 +798,20 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
  * Revisa si un identificador es una variable global y le da un
  * address
  */
+void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* tabla){
+    if (id->scope == 1) { //El scope de las variables temporales es uno
+        result->addr = id;
+    } else {
+        result->bp = (Symbol*) basepointer;
+        result->addr = newtemp(driver,loc,result->get_tipo(),tabla);
+    }
+}
+
+
+/**
+ * Revisa si un identificador es una variable global y le da un
+ * address
+ */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
     if (id->scope == 1) { //El scope de las variables temporales es uno
         result->addr = id;
@@ -771,6 +820,7 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
         result->addr = newtemp(driver,loc,result->get_tipo());
     }
 }
+
 
 /**
  * Revisa si un identificador es una variable global y le da un

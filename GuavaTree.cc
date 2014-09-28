@@ -981,53 +981,6 @@ void Program::show(std::string s){
 
 
 /**
- * Obtencion de los quads para la clase ExpID
- */
-std::list<GuavaQuads*>* ExpID::generar_quads(){
-    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
-    std::ostringstream convert;
-    Symbol* r;
-    if (identificador == 0) return 0;
-
-    // Me voy moviendo por la expresion hasta llegar a la 
-    // "base" de esta
-    if (exp_id != 0){
-        if (tabla != 0){
-            r = tabla->lookup(identificador->identificador);
-            exp_id->offset_structure += r->offset;
-        }
-        result = exp_id->generar_quads(); 
-    }
-
-    //Caso en el que no es un arreglo
-    if (lcorchetesexp == 0){
-        //Caso en el que esta solo
-        if (tabla == 0){
-            if (bp != 0){
-                //Caso en el que no es global
-                convert << offset;
-                SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
-                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
-            }else{
-                //Caso en el que es global
-                GuavaQuads* nuevo_q = new GuavaQuads(":=",identificador->addr,0,addr);
-            }
-        } else {
-            //Caso en el que no esta solo
-            if (bp != 0){
-                // Caso en el que no es global 
-                 
-            } else {
-
-            }
-        }
-    } else{
-        //Caso arreglo
-    }
-    return 0;
-}
-
-/**
  * Realiza una revision sencilla de exp_id e inicializa result
  * @param id Simbolo buscado en la tabla de simbolos
  * @param identificador Identificador

@@ -852,3 +852,90 @@ TypeS* contents(TypeS* tipo){
     }
 }
 
+
+/**
+ * Obtencion de los quads para la clase ExpID
+ * Esto hay que probarlo bastante.
+ */
+std::list<GuavaQuads*>* ExpID::generar_quads(){
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
+    std::ostringstream convert;
+    Symbol* r;
+    if (identificador == 0) return 0;
+
+    // Me voy moviendo por la expresion hasta llegar a la 
+    // "base" de esta
+    if (exp_id != 0){
+        if (tabla != 0){
+            r = tabla->lookup(identificador->identificador);
+            exp_id->offset_structure += r->offset;
+        }
+        result = exp_id->generar_quads(); 
+    }
+
+    //Caso en el que no es un arreglo
+    if (lcorchetesexp == 0){
+        //Caso en el que esta solo
+        if (tabla == 0){
+            if (bp != 0){
+                //Caso en el que no es global
+                convert << offset;
+                SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
+                result->push_back(nuevo_q);
+            }else{
+                //Caso en el que es global
+                GuavaQuads* nuevo_q = new GuavaQuads(":=",identificador->addr,0,addr);
+                result->push_back(nuevo_q);
+            }
+        } else {
+            //Caso en el que no esta solo
+            if (bp != 0){
+                // Caso en el que no es global        
+                Symbol* f = tabla->lookup(identificador->identificador);
+                convert << (offset_structure + f->offset);
+                SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
+                result->push_back(nuevo_q);
+            } else {
+                Symbol* f = tabla->lookup(identificador->identificador);
+                convert << f->offset;
+                SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+                GuavaQuads* nuevo_q = new GuavaQuads(":=",addr,offset_,addr);
+                result->push_back(nuevo_q);
+            }
+        }
+        return result;
+    } else{
+        //Caso arreglo
+        TypeS* tipo = type_array;
+        std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
+        Exp *exp_ini = *it;
+        ++it;
+        convert << tamano_tipo(tipo);
+        SimpleSymbol* width = new SimpleSymbol(convert.str());
+        GuavaQuads* nuevo_q = new GuavaQuads("*",exp_ini->addr,width, addr);
+        result->push_back(nuevo_q);
+        for (it; it != lcorchetesexp->lista.end(); ++it  ){
+            tipo = contents(tipo);
+            Symbol * t = temp->newtemp();
+            Exp* exp_ = *it;
+            convert.flush();
+            convert << tamano_tipo(tipo);
+            width = new SimpleSymbol(convert.str());
+            GuavaQuads* nuevo_q1 = new GuavaQuads("*",exp_->addr,width,t);
+            GuavaQuads* nuevo_q2 = new GuavaQuads("+",addr,t,array);
+            result->push_back(nuevo_q1);
+            result->push_back(nuevo_q2);
+        }
+        GuavaQuads* nuevo_q3;
+        if (bp != 0){
+            nuevo_q3 = new GuavaQuads("[]",bp,array,addr);
+        } else {
+            nuevo_q3 = new GuavaQuads("[]",identificador->addr,array, addr);
+        }
+        result->push_back(nuevo_q3);
+        return result;
+    }
+    return 0;
+}

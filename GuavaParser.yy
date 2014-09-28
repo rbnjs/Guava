@@ -155,7 +155,6 @@ bloqueprincipal: {
                      driver.tablaSimbolos.enterScope(); 
                      offset_actual.push_front(0);
                  } 
-
                 bloquedeclare lfunciones  { $$ = new BloquePrincipal($2, $3);
                                             if (!error_state && driver.print_table) {
                                                 //std::cout << "Funciones: " << '\n';

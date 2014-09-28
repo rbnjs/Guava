@@ -93,9 +93,9 @@ public:
 class GuavaQuads{
 private:
     std::string op;
-    SimpleSymbol* arg1;
-    SimpleSymbol* arg2;
-    SimpleSymbol* result;
+    SimpleSymbol* arg1 = 0;
+    SimpleSymbol* arg2 = 0;
+    SimpleSymbol* result = 0;
 public: 
     /**
      * Constructor de la clase
@@ -109,6 +109,7 @@ public:
      * Destructor de la clase
      */
     ~GuavaQuads(){}
+
     /**
      * Getters de la clase
      */
@@ -116,11 +117,14 @@ public:
     SimpleSymbol* get_arg1()  { return arg1; }
     SimpleSymbol* get_arg2()  { return arg2; }
     SimpleSymbol* get_result(){ return result; }
+    void set_op(std::string s){
+        op = s;
+    }
 
     /**
      * Funcion que genera codigo a partir de un Quad
      */
-    std::string gen(){
+    virtual std::string gen(){
         std::string code ("");
         if (arg2 != 0){
             code += result->sym_name + ":=" + arg1->sym_name + op + arg2->sym_name;
@@ -133,5 +137,23 @@ public:
         }
         code += "\n";
         return code;
+    }
+};
+
+
+class GuavaLabel: public GuavaQuads{
+public:
+    /**
+     * Constructor para GuavaLabel.
+     * @param label Label que sera guardado en op.
+     */
+    GuavaLabel(std::string label): GuavaQuads(label,0,0,0){}
+
+    GuavaLabel();
+
+    ~GuavaLabel(){}
+
+    virtual std::string gen(){
+        return (this->get_op() + ":\n");
     }
 };

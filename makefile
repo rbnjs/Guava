@@ -50,7 +50,7 @@ Generator.o: Generator.hh
 
 GuavaQuads.o: GuavaQuads.hh
 
-	g++ -g -c -std=c++11 GuavaQuads.hh
+	g++ -g -c -std=c++11 GuavaQuads.cc GuavaQuads.hh
 
 
 .PHONY: clean

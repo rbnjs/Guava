@@ -1166,6 +1166,7 @@ class LFunciones{
 public:
     Funcion* funcion;   /* Funcion */
     LFunciones* lista; /* Lista de funciones */
+    std::list<GuavaQuads*>* lista_quads; /* Lista de quads */
     
     LFunciones();
     LFunciones(Funcion*, LFunciones*);

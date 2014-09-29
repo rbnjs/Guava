@@ -491,6 +491,7 @@ public:
     virtual bool selector_if() { return false; } 
     virtual int get_line() { return 0; }
     virtual int get_column() { return 0; }
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; }
 };
 
 
@@ -521,6 +522,7 @@ public:
     TypeS* get_tipo() { return tipo; }
     void show(std::string);
     std::list<Instruccion*> obtener_return();
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**
@@ -1146,6 +1148,8 @@ public:
     LParam* parametros; 
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listaI;
+    std::list<GuavaQuads*>* lista_quads;
+    GuavaQuads* next;
 
     void set_line_column(int l, int c){
         line = l;
@@ -1157,6 +1161,13 @@ public:
     ~Funcion();
 
     void show(std::string);
+
+    std::list<GuavaQuads*>* generar_quads(){
+        next = new GuavaLabel();
+        std::list<GuavaQuads*>* quads =  listaI->generar_quads();
+        quads->push_back(next);
+        return quads;
+    }
 };
 
 /**

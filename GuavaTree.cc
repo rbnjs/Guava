@@ -315,6 +315,27 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
     if (listainstrucciones != 0 ) resultado.splice(resultado.end(),listainstrucciones->obtener_return());
     return resultado;
 }
+/**
+ * Genera los quads para una lista de instrucciones
+ */
+std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
+    std::list<GuavaQuads*>* l_quads1 = 0;
+    std::list<GuavaQuads*>* l_quads2 = 0;
+    if (instruccion != 0) l_quads1 = instruccion->generar_quads(); 
+    else return 0;
+
+    if (listainstrucciones != 0) l_quads2 = listainstrucciones->generar_quads();
+    else return 0;
+
+    if (l_quads1 != 0 && l_quads2 != 0){
+        l_quads1->splice(l_quads1->end(), (*l_quads2));
+        return l_quads1;
+    }else {
+        if (l_quads1 != 0) return l_quads1;
+        else return l_quads2;
+    }
+    return 0;
+}
 
 
 /* Class LVarArreglo */

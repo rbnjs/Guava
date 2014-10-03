@@ -2,7 +2,7 @@ all: guava
 
 guava: Generator.o Types.o Symbol.o GuavaQuads.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-	g++ -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	g++ -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh
 
@@ -48,7 +48,7 @@ Generator.o: Generator.hh
 
 	g++ -g -c -std=c++11 Generator.hh
 
-GuavaQuads.o: GuavaQuads.hh
+GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc
 
 	g++ -g -c -std=c++11 GuavaQuads.cc GuavaQuads.hh
 

@@ -537,6 +537,8 @@ listainstrucciones: /* Vacio */                         {
                                                         }
                   | listainstrucciones instruccion ';'  { 
                                                           ListaInstrucciones * result;
+                                                          $2->next = new GuavaLabel();
+                                                          $1->set_next($2);
                                                           if ( $1->get_tipo() == TypeError::Instance()
                                                                || $2->get_tipo() == TypeError::Instance()) {
                                                              result = new ListaInstrucciones($2,$1); 
@@ -549,6 +551,8 @@ listainstrucciones: /* Vacio */                         {
                                                         }
                   | listainstrucciones instruccion1     {
                                                           ListaInstrucciones * result;
+                                                          $2->next = new GuavaLabel();
+                                                          $1->set_next($2);
                                                           if ( $1->get_tipo() == TypeError::Instance()
                                                                || $2->get_tipo() == TypeError::Instance()) {
                                                             result = new ListaInstrucciones($2,$1); 
@@ -933,11 +937,9 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                    driver.error(yylloc,msg);
                                                                } 
                                                                else {
-                                                                   result = new SelectorIf(err_exp->exp,$8,$9,$11);
+                                                                   result = new SelectorIfComplejo(err_exp->exp,$8,$9,$11);
                                                                }
                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                                               //labels = $3->bool_label(); 
-                                                               //labels->true_label = new GuavaLabel();
                                                                $$ = result;
                                                                if (!error_state && driver.print_table) {
                                                                     std::cout << identacion << "if {\n"; 
@@ -959,7 +961,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                    driver.error(yylloc,msg);
                                                                } 
                                                                else {
-                                                                   result = new SelectorIf(err_exp->exp,$6,0);
+                                                                   result = new SelectorIfSimple(err_exp->exp,$6,0);
                                                                }
                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                $$ = result;
@@ -975,7 +977,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                            driver.error(yylloc,msg);
                                                                        } 
                                                                        else {
-                                                                           result = new SelectorIf(err_exp->exp,$6,$8);
+                                                                           result = new SelectorIfSimple(err_exp->exp,$6,$8);
                                                                        }
                                                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                        $$ = result;

@@ -21,8 +21,6 @@
 #include "GuavaSymTable.hh"
 
 
-
-
 class NewTemp{
 private:
     int* secuencia_temporales;
@@ -85,6 +83,7 @@ public:
         return nuevo;
     }
 };
+
 
 class GuavaQuads{
 private:
@@ -198,5 +197,19 @@ public:
         convert_c << column;
         std::string comment = "#" + this->get_op() + ", line: " + convert_l.str() + "column: " + convert_c.str() +  "\n";
         return comment;
+    }
+};
+
+class GuavaGoTo:public GuavaQuads{
+public:
+    SimpleSymbol* go_to;
+    GuavaGoTo(Symbol* label): GuavaQuads("goto"), go_to(label){}
+    GuavaGoTo(GuavaQuads* label): GuavaQuads("goto"){
+        go_to = new SimpleSymbol(label->get_op());
+    }
+    ~GuavaGoTo(){}
+
+    virtual std::string gen(){
+        return "goto " + go_to->sym_name; 
     }
 };

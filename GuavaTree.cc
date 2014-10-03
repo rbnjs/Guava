@@ -323,7 +323,6 @@ void ListaInstrucciones::show(std::string s) {
 }
 /**
  * Funcion que obtiene todos los returns dentro de una lista de instrucciones.
- * Faltan pruebas.
  */
 std::list<Instruccion*> ListaInstrucciones::obtener_return(){
     std::list<Instruccion*> resultado;
@@ -343,11 +342,16 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
 }
 /**
  * Genera los quads para una lista de instrucciones
+ * Falta colocar los labels.
  */
 std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
     std::list<GuavaQuads*>* l_quads1 = 0;
     std::list<GuavaQuads*>* l_quads2 = 0;
-    if (instruccion != 0) l_quads1 = instruccion->generar_quads(); 
+
+    if (instruccion != 0){
+        l_quads1 = instruccion->generar_quads(); 
+        l_quads1->push_back(instruccion->next); //Coloco al final del codigo el label de instruccion.
+    }
     else return 0;
 
     if (listainstrucciones != 0) l_quads2 = listainstrucciones->generar_quads();
@@ -361,6 +365,11 @@ std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
         else return l_quads2;
     }
     return 0;
+}
+
+void ListaInstrucciones::set_next(Instruccion* instr){
+    if (instruccion == 0 || instr == 0) return;
+    instruccion->next = instr->next;
 }
 
 
@@ -621,29 +630,62 @@ void LElseIf::show(std::string s) {
 
 /* Class SelectorIf */
 
-SelectorIf::SelectorIf(Exp* e, BloqueDeclare* d = 0, ListaInstrucciones* l = 0, LElseIf* lif = 0) {
-    exp = e;
-    declaraciones = d;
-    listainstrucciones = l;
-    lelseif = lif;
-    instruccion1 = 0;
-    instruccion2 = 0;
-    tipo = TypeVoid::Instance();
+std::list<GuavaQuads*>* SelectorIf::generar_quads(){
+    return 0;
 }
 
-SelectorIf::SelectorIf(Exp* e, Instruccion* i, Instruccion* i2 = 0) {
-    exp = e;
-    instruccion1 = i;
-    instruccion2 = i2;
-    listainstrucciones = 0;
-    declaraciones = 0;
-    tipo = TypeVoid::Instance();
+/* Class SelectorIfSimple */
+
+
+SelectorIfSimple::SelectorIfSimple(Exp* e, Instruccion* i1, Instruccion* i2): SelectorIf(e), instruccion1(i1),instruccion2(i2){
 }
 
-SelectorIf::~SelectorIf() {
+void SelectorIfSimple::show(std::string s){
+    std::ostringstream convert; 
+    convert << line;
+    std::string linea = convert.str();
+    convert.flush();
+    convert << column;
+    std::string columna = convert.str();
+    std::cout << s << "If, linea: " << linea << ", columna: " << columna << "\n";
+    exp->show("  "+s);
+    std::cout << s << "Then: \n";
+    if ( instruccion1 != 0)  instruccion1->show("  "+s);
+    if (instruccion2 != 0) std::cout << s << "Else: \n";
+    if (instruccion2 != 0) instruccion2->show("  "+s);
 }
 
-void SelectorIf::show(std::string s) {
+std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
+    BoolLabel* label = exp->bool_label(); 
+    label->true_label = new GuavaLabel();
+    instruccion1->next = next;
+
+    if (instruccion2 == 0){
+        label->false_label = next;
+    } else {
+        label->false_label = new GuavaLabel();
+    }
+
+    std::list<GuavaQuads*>* result = exp->generar_quads();
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_1 = instruccion1->generar_quads();
+    result->splice(result->end(), *code_1);
+
+    if (instruccion2 != 0){
+        GuavaQuads* go_to = new GuavaGoTo(next);  
+        result->push_back(go_to);
+        result->push_back(label->false_label);
+        std::list<GuavaQuads*>* code_2 = instruccion2->generar_quads();
+        result->splice(result->end(),*code_2);
+    }
+}
+
+/* Class SelectorIfComplejo */
+
+SelectorIfComplejo::SelectorIfComplejo(Exp* e, BloqueDeclare* bd, 
+                                       ListaInstrucciones* li, LElseIf* lei): SelectorIf(e), declaraciones(bd), listainstrucciones(li), lelseif(lei) {}
+
+void SelectorIfComplejo::show(std::string s) {
     std::ostringstream convert; 
     convert << line;
     std::string linea = convert.str();
@@ -655,11 +697,13 @@ void SelectorIf::show(std::string s) {
     exp->show("  "+s);
     std::cout << s << "Then: \n";
     if (listainstrucciones != 0) listainstrucciones->show("  "+s);
-    if ( instruccion1 != 0)  instruccion1->show("  "+s);
-    if ((lelseif!= 0 ) || (instruccion2 != 0))std::cout << s << "Else: \n";
+    if (lelseif!= 0)std::cout << s << "Else: \n";
     if (lelseif != 0) lelseif->show("  "+s);
-    if (instruccion2 != 0) instruccion2->show("  "+s);
 } 
+
+std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
+    return 0;
+}
 
 /* Class LoopWhile */
 

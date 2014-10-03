@@ -562,12 +562,7 @@ public:
     std::list<Instruccion*> obtener_return();
     std::list<GuavaQuads*>* generar_quads();
 
-    /**
-     * Obtiene el next de la ultima instruccion.
-     */
-    GuavaQuads* next(){
-        return listainstrucciones->next();
-    }
+    void set_next(Instruccion* inst);
 
 };
 
@@ -855,32 +850,76 @@ public:
     Exp* exp;
     int line;
     int column;
-    BloqueDeclare* declaraciones;
-    ListaInstrucciones* listainstrucciones;
-    Instruccion* instruccion1; 
-    Instruccion* instruccion2;
-    LElseIf* lelseif;
 
-    SelectorIf(): tipo(TypeError::Instance()), exp(0), declaraciones(0), listainstrucciones(0),instruccion1(0),instruccion2(0),lelseif(0){} 
-    SelectorIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
-    SelectorIf(Exp*, Instruccion*, Instruccion*);    
-    ~SelectorIf(); 
+    SelectorIf(): tipo(TypeError::Instance()){}
+    SelectorIf(Exp* exp_): exp(exp_), tipo(TypeVoid::Instance()){}
+    ~SelectorIf(){}
+
     TypeS* get_tipo() { return tipo; } 
     
-    void show(std::string);
+    virtual void show(std::string) { }
 
     void set_line_column(int l, int c){
         line = l;
         column = c;
     }
-
     
-    bool selector_if() { return false; }
+    bool selector_if() { return true; }
+
+    virtual ListaInstrucciones* obtener_lista_instrucciones(){
+        return 0;
+    }
+
+    virtual Instruccion* obtener_instruccion1(){ return 0; }
+
+    virtual Instruccion* obtener_instruccion2(){ return 0; }
+
+    virtual std::list<GuavaQuads*>* generar_quads();
+};
+
+/** 
+ * Clase del SelectorIfSimple
+ */
+class SelectorIfSimple: public SelectorIf{
+public:
+    Instruccion* instruccion1; 
+    Instruccion* instruccion2;
+
+    SelectorIfSimple(Exp*, Instruccion*, Instruccion*);    
+    ~SelectorIfSimple(){}
+
+    /* Getters y setters */
+
+    Instruccion* obtener_instruccion1(){ return instruccion1; }
+
+    Instruccion* obtener_instruccion2(){ return instruccion2; }
+
+    std::list<GuavaQuads*>* generar_quads();
+
+    void show(std::string);
+
+};
+
+class SelectorIfComplejo: public SelectorIf{
+public:
+    BloqueDeclare* declaraciones;
+    ListaInstrucciones* listainstrucciones;
+    LElseIf* lelseif;
+
+    SelectorIfComplejo(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
+
+    ~SelectorIfComplejo(){}
 
     ListaInstrucciones* obtener_lista_instrucciones(){
         return listainstrucciones;
     }
+
+    std::list<GuavaQuads*>* generar_quads();
+
+    void show(std::string);
+    
 };
+
 /**
  *
  */

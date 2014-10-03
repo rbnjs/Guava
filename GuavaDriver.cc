@@ -881,11 +881,11 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
                 //Caso en el que no es global
                 convert << offset;
                 SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
-                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
+                GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
                 result->push_back(nuevo_q);
             }else{
                 //Caso en el que es global
-                GuavaQuads* nuevo_q = new GuavaQuads(":=",identificador->addr,0,addr);
+                GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",identificador->addr,0,addr);
                 result->push_back(nuevo_q);
             }
         } else {
@@ -895,13 +895,13 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
                 Symbol* f = tabla->lookup(identificador->identificador);
                 convert << (offset_structure + f->offset);
                 SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
-                GuavaQuads* nuevo_q = new GuavaQuads("[]",bp,offset_,addr);
+                GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
                 result->push_back(nuevo_q);
             } else {
                 Symbol* f = tabla->lookup(identificador->identificador);
                 convert << f->offset;
                 SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
-                GuavaQuads* nuevo_q = new GuavaQuads(":=",addr,offset_,addr);
+                GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",addr,offset_,addr);
                 result->push_back(nuevo_q);
             }
         }
@@ -914,7 +914,7 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
         ++it;
         convert << tamano_tipo(tipo);
         SimpleSymbol* width = new SimpleSymbol(convert.str());
-        GuavaQuads* nuevo_q = new GuavaQuads("*",exp_ini->addr,width, addr);
+        GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, addr);
         result->push_back(nuevo_q);
         for (it; it != lcorchetesexp->lista.end(); ++it  ){
             tipo = contents(tipo);
@@ -923,16 +923,16 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
             convert.flush();
             convert << tamano_tipo(tipo);
             width = new SimpleSymbol(convert.str());
-            GuavaQuads* nuevo_q1 = new GuavaQuads("*",exp_->addr,width,t);
-            GuavaQuads* nuevo_q2 = new GuavaQuads("+",addr,t,array);
+            GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t);
+            GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",addr,t,array);
             result->push_back(nuevo_q1);
             result->push_back(nuevo_q2);
         }
         GuavaQuads* nuevo_q3;
         if (bp != 0){
-            nuevo_q3 = new GuavaQuads("[]",bp,array,addr);
+            nuevo_q3 = new GuavaQuadsExp("[]",bp,array,addr);
         } else {
-            nuevo_q3 = new GuavaQuads("[]",identificador->addr,array, addr);
+            nuevo_q3 = new GuavaQuadsExp("[]",identificador->addr,array, addr);
         }
         result->push_back(nuevo_q3);
         return result;

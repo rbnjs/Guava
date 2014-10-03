@@ -23,6 +23,20 @@
 # include <sstream>
 #include <functional>
 
+
+/**
+ * Clase que representa los Labels booleanos.
+ *
+ */
+class BoolLabel{
+public:
+    GuavaQuads* true_label;
+    GuavaQuads* false_label;
+    BoolLabel(GuavaQuads* true_, GuavaQuads* false_):  true_label(true_), false_label(false_){}
+    BoolLabel(){}
+    ~BoolLabel(){}
+};
+
 /**
  * Clase que define las expresiones del lenguaje.
  */
@@ -41,6 +55,8 @@ public:
      * codigo intermedio asociado.
      */
     std::string gen();
+
+    virtual BoolLabel* bool_label(){return 0;}
 
     virtual GuavaSymTable* get_tabla(){return 0;}
 };
@@ -152,7 +168,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
@@ -192,7 +208,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
@@ -233,7 +249,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
@@ -278,7 +294,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
@@ -319,7 +335,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuads(std::string(":="),nombre, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
@@ -410,9 +426,9 @@ public:
     }
     std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
     
-    std::list<GuavaQuads*>* generar_quads(){
+    virtual std::list<GuavaQuads*>* generar_quads(){
         listaQuads = exp->generar_quads();
-        GuavaQuads* nuevo = new GuavaQuads(*operacion,exp->addr, 0, addr);
+        GuavaQuads* nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
         //Se verifica si la expresion es un identificador
         if (listaQuads == 0) {
             listaQuads = new std::list<GuavaQuads*>();
@@ -420,8 +436,13 @@ public:
         listaQuads->push_back(nuevo);
         return listaQuads;
     }
+};
 
+class ExpUnBool: public ExpUn{
+    BoolLabel* labels_bool;
+    ExpUnBool(Exp* , std::string*);
 
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**
@@ -435,9 +456,14 @@ public:
     Exp* exp1;
     Exp* exp2;
     std::string operacion;
+
+    /**
+     * Constructor para las expresiones binarias.
+     */
     ExpBin();
     ExpBin(Exp*,Exp*,std::string);
     ~ExpBin();
+
     TypeS* get_tipo() { return tipo; }
 
     virtual void show(std::string);
@@ -446,6 +472,7 @@ public:
         line = l;
         column = c;
     }
+
     std::string revision_binaria(Exp* exp_1, Exp* exp_2, ExpBin* tmp, TypeS* tipo_esperado1,
                                  TypeS* tipo_esperado2, std::string (*mensaje_error_tipos)(std::string,std::string),
                                  std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
@@ -453,10 +480,10 @@ public:
                                     std::string (*mensaje_error_tipos)(std::string,std::string),
                                     std::string (*mensaje_diff_operandos)(std::string,std::string,std::string,std::string));
 
-    std::list<GuavaQuads*>* generar_quads(){ 
+    virtual std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
         std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
-        GuavaQuads * nuevo = new GuavaQuads(operacion,exp1->addr,exp2->addr,addr);
+        GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
         //Se verifica que la expresion izquierda no sea un identificador
         if (quads1 != 0) {
             quads1->splice(quads1->end(),*quads2);
@@ -479,11 +506,22 @@ public:
 };
 
 
+
+class ExpBinBool: public ExpBin{
+public:
+    BoolLabel* labels_bool;
+    ExpBinBool(Exp*,Exp*,std::string);
+    ~ExpBinBool(){}
+    virtual std::list<GuavaQuads*>* generar_quads();
+};
+
+
 /**
  * Clase principal de instruccion.
  */
 class Instruccion{
 public:
+    GuavaQuads* next;
     virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
     virtual void show(std::string) = 0;
     virtual bool es_return(){ return false; }
@@ -523,6 +561,14 @@ public:
     void show(std::string);
     std::list<Instruccion*> obtener_return();
     std::list<GuavaQuads*>* generar_quads();
+
+    /**
+     * Obtiene el next de la ultima instruccion.
+     */
+    GuavaQuads* next(){
+        return listainstrucciones->next();
+    }
+
 };
 
 /**
@@ -835,7 +881,9 @@ public:
         return listainstrucciones;
     }
 };
-
+/**
+ *
+ */
 class ErrorBoolExp{
 bool error;
 public:
@@ -854,6 +902,10 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+    
+    BoolLabel* bool_label(){
+        return exp->bool_label();
     }
 
 };

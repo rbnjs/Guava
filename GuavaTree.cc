@@ -149,6 +149,16 @@ std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tip
     return msg;
 }
 
+/* Class ExpUnBool  */
+
+ExpUnBool::ExpUnBool(Exp* e, std::string* s): ExpUn(e,s) {
+   labels_bool = new BoolLabel(); 
+
+}
+
+std::list<GuavaQuads*>* ExpUnBool::generar_quads(){
+   return 0; 
+}
 
 
 /* Class ExpBin */
@@ -271,6 +281,22 @@ std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int 
         tmp->tipo = TypeError::Instance();
     }
     return msg;
+}
+
+/* ExpBinBool  */
+
+/**
+ * Se construye ExpBinBool de la misma forma que un ExpBin
+ */
+ExpBinBool::ExpBinBool(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op) {
+    labels_bool = new BoolLabel();
+}
+
+/** 
+ * Retorna una lista de GuavaQuads.
+ */
+std::list<GuavaQuads*>* ExpBinBool::generar_quads(){
+    return 0;
 }
 
 

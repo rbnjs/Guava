@@ -923,6 +923,7 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                         }
                 bloquedeclare listainstrucciones '}' lelseif { 
                                                                ErrorBoolExp* err_exp = $3;
+                                                               BoolLabel* labels;
                                                                SelectorIf * result;
                                                                if (err_exp->get_error()
                                                                    || err_exp->get_tipo() == TypeError::Instance()
@@ -935,6 +936,8 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                    result = new SelectorIf(err_exp->exp,$8,$9,$11);
                                                                }
                                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                               //labels = $3->bool_label(); 
+                                                               //labels->true_label = new GuavaLabel();
                                                                $$ = result;
                                                                if (!error_state && driver.print_table) {
                                                                     std::cout << identacion << "if {\n"; 

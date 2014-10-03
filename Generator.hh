@@ -28,8 +28,8 @@ public:
      * @param name: Nombre del archivo intermedio a escribir.
      */
     Generator(std::string name): file_name(name+".ic"){
-       file.open(file_name); 
     }
+
 
     /**
      * Destructor de la clase Generator.
@@ -47,6 +47,9 @@ public:
     void gen(std::string code){
         if (file.is_open()){
             file << code + "\n";
+        } else {
+            file.open(file_name); 
+            if (file.is_open()) file << code + "\n";
         }
     }
 };

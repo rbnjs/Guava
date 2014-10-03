@@ -25,7 +25,7 @@ int secuencia_label_unico = 0;
   * Constructor de GuavaLabel que sirve como
   * un newlabel
   */
-GuavaLabel::GuavaLabel(): GuavaQuads("label",0,0,0){
+GuavaLabel::GuavaLabel(): GuavaQuads("label"){
     std::ostringstream convert;
     convert << secuencia_label_unico;
     secuencia_label_unico;

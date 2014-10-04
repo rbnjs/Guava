@@ -59,6 +59,8 @@ public:
     virtual BoolLabel* bool_label(){return 0;}
 
     virtual GuavaSymTable* get_tabla(){return 0;}
+
+    virtual bool exp_id(){ return false; }
 };
 
 /**
@@ -1107,6 +1109,13 @@ public:
     ListaInstrucciones* obtener_lista_instrucciones(){
         return listainstrucciones;
     }
+
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; }
+};
+
+
+class LoopForExp:public LoopFor{
+
 };
 
 /**

@@ -59,6 +59,8 @@ public:
     virtual BoolLabel* bool_label(){return 0;}
 
     virtual GuavaSymTable* get_tabla(){return 0;}
+
+    virtual bool exp_id(){ return false; }
 };
 
 /**
@@ -1086,11 +1088,11 @@ class LoopFor: public InstruccionConLista{
 public:
     Identificador* identificador;
     TypeS* tipo;
-    Exp* exp;
+    Exp* exp_bool;
     int line;
     int column;
     Asignacion* asignacion;
-    Exp* exp2;
+    Exp* exp_aritmetica;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
 
@@ -1099,7 +1101,7 @@ public:
         column = c;
     }
 
-    LoopFor():identificador(0), tipo (TypeError::Instance()), exp (0), asignacion(0), exp2(0), declaraciones(0),listainstrucciones(0){}
+    LoopFor():identificador(0), tipo (TypeError::Instance()), exp_bool (0), asignacion(0), exp_aritmetica(0), declaraciones(0),listainstrucciones(0){}
     LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
     LoopFor(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopFor();  
@@ -1110,6 +1112,23 @@ public:
     ListaInstrucciones* obtener_lista_instrucciones(){
         return listainstrucciones;
     }
+
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; }
+};
+
+
+class LoopForExp:public LoopFor{
+public:
+    LoopForExp(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
+    ~LoopForExp(){}
+    std::list<GuavaQuads*>* generar_quads();
+};
+
+class LoopForAsignacion: public LoopFor{
+public:
+    LoopForAsignacion(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
+    ~LoopForAsignacion(){}
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**
@@ -1446,7 +1465,7 @@ public:
      * Genera los quads para cada tipo de expresion con identificador
      * Aun se encuentra incompleta.
      */
-    std::list<GuavaQuads*>* generar_quads();
+    virtual std::list<GuavaQuads*>* generar_quads();
 
     /**
      * Realiza una revision sencilla en un identificador
@@ -1462,6 +1481,22 @@ public:
 
     void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
     
-
 };
 
+class ExpIdentificador: public ExpID{
+public:
+    ExpIdentificador(Identificador* id);
+    ExpIdentificador(ExpID* exp_,Identificador* id);
+    ~ExpIdentificador(){}
+
+    virtual std::list<GuavaQuads*>* generar_quads();
+    
+};
+
+class ExpIDLCorchetes: public ExpID{
+public:
+    ExpIDLCorchetes(Identificador* id, LCorchetesExp* lce );
+    ExpIDLCorchetes(ExpID*,Identificador*, LCorchetesExp* );
+    ~ExpIDLCorchetes(){}
+    virtual std::list<GuavaQuads*>* generar_quads();
+};

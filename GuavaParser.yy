@@ -792,23 +792,50 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                     }
                                 
                                 bloquedeclare listainstrucciones '}' {  ErrorLoopFor* asign_exp = $7;
+                                                                        Exp* exp;
                                                                         LoopFor* tmp;
                                                                             if (asign_exp->is_error()
                                                                                     || $3->get_tipo() == TypeError::Instance()
                                                                                     || $5->get_tipo() == TypeError::Instance()
                                                                                ){
+                                                                               //Caso error.
                                                                                 tmp = new LoopFor();
                                                                                 std::string msg = mensaje_error_tipos("error","void");
                                                                                 driver.error(yylloc,msg);
                                                                             } else{
-                                                                                if (asign_exp->exp != 0){
-                                                                                    tmp = new 
-                                                                                        LoopFor($3, $5,asign_exp->exp,$11,$12);
-                                                                                    tmp->tipo = TypeVoid::Instance();
+                                                                                if ( (exp = asign_exp->exp) != 0){
+                                                                                    //Caso en el que es una expresion.
+                                                                                    //Identificador debe ser del mismo tipo
+                                                                                    //de la expresion
+                                                                                    if ($3->get_tipo() == exp->get_tipo()){
+                                                                                        tmp = new 
+                                                                                            LoopFor($3, $5,asign_exp->exp,$11,$12);
+                                                                                        tmp->tipo = TypeVoid::Instance();
+                                                                                    }else{
+                                                                                        tmp = new LoopFor();
+                                                                                        std::string msg;
+                                                                                        if (exp->get_tipo() != 0){
+                                                                                            msg = 
+                                                                                            mensaje_error_tipos(exp->get_tipo()->get_name(),"integer");
+                                                                                        } else {
+                                                                                            msg = 
+                                                                                            mensaje_error_tipos("unknown","integer");
+                                                                                        }
+                                                                                        driver.error(yylloc,msg);
+                                                                                    }
                                                                                 } else {
-                                                                                    tmp = new 
-                                                                                        LoopFor($3, $5,asign_exp->asign,$11,$12);
-                                                                                    tmp->tipo = TypeVoid::Instance();
+                                                                                    //Caso en el que se usa una asignacion.
+                                                                                    //En la asignacion debe usarse el mismo identificador.
+                                                                                    ExpID* exp_id = (ExpID*) asign_exp->asign->id;
+                                                                                    if (exp_id->identificador->identificador.compare($3->identificador) ){
+                                                                                        tmp = new 
+                                                                                            LoopFor($3, $5,asign_exp->asign,$11,$12);
+                                                                                        tmp->tipo = TypeVoid::Instance();
+                                                                                    } else {
+                                                                                        driver.error(yylloc,
+                                                                                            "You are not using the same identifier in the assignment 'slot'");
+                                                                                        tmp = new LoopFor();
+                                                                                    }
                                                                                 }
                                                                             }
                                                                             tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
@@ -840,10 +867,29 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
  * acotada
  */
 errorloopfor : asignacion {
-                            $$ = new ErrorLoopFor($1);
+                            if ($1->exp != 0 && $1->exp->exp_id()){
+                                //La expresion debe ser 
+                                //de tipo exp_id
+                                $$ = new ErrorLoopFor($1);
+                            } else {
+                                $$ = new ErrorLoopFor();
+                            }
                           }
              | expAritmetica        {
-                                      $$ = new ErrorLoopFor($1);
+                                      //Solo se permite que se usen expAritmeticas de tipo integer.
+                                      if ($1->get_tipo() == TypeInt::Instance()){
+                                        $$ = new ErrorLoopFor($1);
+                                      } else {
+                                        $$ = new ErrorLoopFor();
+                                        TypeS* tipo = $1->get_tipo();
+                                        std::string msg;
+                                        if (tipo != 0) {
+                                            msg = mensaje_error_tipos(tipo->get_name(),"integer");
+                                        }else{
+                                            msg = mensaje_error_tipos("unknown","integer");
+                                        }
+                                        driver.error(yylloc,msg);
+                                      }
                                     }
              | error      {
                             $$ = new ErrorLoopFor();
@@ -1223,7 +1269,7 @@ expID: identificador   { TypeS* tipo;
                          std::string msg;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                             if ((tipo = obtener_tipo_simbolo(id)) != 0) {
-                                result = new ExpID($1);
+                                result = new ExpIdentificador($1);
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
@@ -1259,7 +1305,7 @@ expID: identificador   { TypeS* tipo;
                                        Symbol* id;
                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                            if ((tipo = obtener_tipo_simbolo(id)) != 0) {
-                                               result = new ExpID($1,$2);
+                                               result = new ExpIDLCorchetes($1,$2);
                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            }
                                            //Se verifica que la lista de expresiones sea de Integers y el simbolo un arreglo
@@ -1318,7 +1364,7 @@ expID: identificador   { TypeS* tipo;
                                     result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->tabla)) != 0){
                                     tipo = obtener_tipo_simbolo(id);
-                                    result = new ExpID(exp_id,$3);
+                                    result = new ExpIdentificador(exp_id,$3);
                                     result->tipo = tipo;
                                     result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 } else {
@@ -1343,7 +1389,8 @@ expID: identificador   { TypeS* tipo;
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
                                        if ((tipo = obtener_tipo_simbolo(id)) != 0) {
-                                            result = new ExpID($3);
+                                            ExpID* exp_id = (ExpID*) $1;
+                                            result = new ExpIDLCorchetes(exp_id,$3,$4);
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             //Se verifica que el simbolo sea un arreglo
                                             if (tipo->is_array()) {

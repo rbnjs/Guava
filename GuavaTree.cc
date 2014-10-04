@@ -879,9 +879,9 @@ void Asignacion::show(std::string s) {
 
 LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
-    exp = e1;
+    exp_bool = e1;
     asignacion = 0;
-    exp2 = e2;
+    exp_aritmetica = e2;
     declaraciones = d;
     listainstrucciones = l;
     tipo = TypeVoid::Instance();
@@ -889,9 +889,9 @@ LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstr
 
 LoopFor::LoopFor(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
-    exp = e1;
+    exp_bool = e1;
     asignacion = asig;
-    exp2 = 0;
+    exp_aritmetica = 0;
     declaraciones = d;
     listainstrucciones = l;
     tipo = TypeVoid::Instance();
@@ -910,12 +910,29 @@ void LoopFor::show(std::string s) {
 
     std::cout << s << "Loop For, linea: " << linea << ", columna: " << columna << " \n";
     identificador->show("  "+s);
-    exp->show("  "+s);
+    exp_bool->show("  "+s);
     if (asignacion != 0) asignacion->show(" "+s);
-    if (exp2 != 0) exp2->show("  "+s);
+    if (exp_aritmetica != 0) exp_aritmetica->show("  "+s);
     listainstrucciones->show("  "+s);
 } 
 
+/* Class LoopForExp */
+
+LoopForExp::LoopForExp(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,e2,d,l){}
+
+std::list<GuavaQuads*>* LoopForExp::generar_quads(){
+    return 0; 
+}
+
+
+/* Class LoopForAsignacion */
+
+LoopForAsignacion::LoopForAsignacion(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,asig,d,l){}
+
+std::list<GuavaQuads*>* LoopForAsignacion::generar_quads(){
+    return 0;
+}
+   
 
 /* Class PlusMinus */
 
@@ -1155,32 +1172,6 @@ void Program::show(std::string s){
 
 /* class ExpID  */
 
-/*  
- *  
- *    
- *    if (identificador == 0) return 0;
-    // Caso en el que es solo una expresion.
-    if (lcorchetesexp == 0){
-        if (offset == -1) return 0; // Caso en que la variable es global
-        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
-        std::ostringstream convert;
-        convert << offset;
-        SimpleSymbol* offset = new SimpleSymbol(convert.str());
-        GuavaQuads* nuevo = new GuavaQuads(std::string("+"), bp, offset, addr); 
-        result->push_back(nuevo);
-        return result;
-    } else if (lcorchetesexp != 0){
-        //TypeS* tmp_array = contents(type_array);  
-        //newtemo
-            
-        for (std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
-                it != lcorchetesexp->lista.end(); ++it){
-        }
-    }        
-    return 0;
- *
- *  */
-
 
 /**
  * Realiza una revision sencilla de exp_id e inicializa result
@@ -1282,3 +1273,68 @@ void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
     addr = temp->newtemp();
     
 }
+
+
+/* Class ExpIdentificador */
+
+ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id){}
+
+ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id){}
+
+std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
+    std::ostringstream convert;
+    Symbol* r;
+    if (identificador == 0) return 0;
+
+    // Me voy moviendo por la expresion hasta llegar a la 
+    // "base" de esta
+    if (exp_id != 0){
+        if (tabla != 0){
+            r = tabla->lookup(identificador->identificador);
+            exp_id->offset_structure += r->offset;
+        }
+        result = exp_id->generar_quads(); 
+    }
+
+    //Caso en el que esta solo
+    if (tabla == 0){
+        if (bp != 0){
+            //Caso en el que no es global
+            convert << offset;
+            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
+            result->push_back(nuevo_q);
+        }else{
+            //Caso en el que es global
+            GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",identificador->addr,0,addr);
+            result->push_back(nuevo_q);
+        }
+    } else {
+        //Caso en el que no esta solo
+        if (bp != 0){
+            // Caso en el que no es global        
+            Symbol* f = tabla->lookup(identificador->identificador);
+            convert << (offset_structure + f->offset);
+            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
+            result->push_back(nuevo_q);
+        } else {
+            Symbol* f = tabla->lookup(identificador->identificador);
+            convert << f->offset;
+            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",addr,offset_,addr);
+            result->push_back(nuevo_q);
+        }
+    }
+    return result;
+}
+
+/* Class ExpIDLCorchetes */
+
+ExpIDLCorchetes::ExpIDLCorchetes(Identificador* id, LCorchetesExp* lce ): ExpID(id,lce){}
+
+ExpIDLCorchetes::ExpIDLCorchetes(ExpID* exp_,Identificador* id, LCorchetesExp* lce): ExpID(exp_,id,lce){}
+
+
+

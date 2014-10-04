@@ -818,14 +818,9 @@ public:
     GuavaQuads* next;
 
     LElseIf(bool);
-    LElseIf(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li){
-        exp = e;
-        listainstrucciones = li;
-        tipo = TypeVoid::Instance();
-        lelseif = 0;
-    }
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
-    LElseIf(BloqueDeclare*, ListaInstrucciones*);
+    LElseIf(BloqueDeclare*, ListaInstrucciones*, LElseIf*);
+
     ~LElseIf();
     TypeS* get_tipo(){return tipo;}
 
@@ -842,8 +837,22 @@ public:
 
     bool es_vacio(){ return (exp == 0 && lelseif == 0 && declaraciones == 0 && listainstrucciones == 0); }
 
-    std::list<GuavaQuads*>* generar_quads();
+    virtual std::list<GuavaQuads*>* generar_quads();
 
+};
+
+class Else: public LElseIf{
+public:
+    Else(BloqueDeclare* b, ListaInstrucciones* li, LElseIf* leif = 0);
+    ~Else(){}
+    std::list<GuavaQuads*>* generar_quads();
+};
+
+class ElseIf: public LElseIf{
+public:
+    ElseIf(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li, LElseIf* leif = 0);
+    ~ElseIf(){}
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**

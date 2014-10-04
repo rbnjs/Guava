@@ -999,8 +999,7 @@ lelseif: /* Vacio */                                                {
                                                                           driver.error(yylloc,msg);
                                                                       } 
                                                                       else {
-                                                                          result = new LElseIf($5,$6);
-                                                                          result->lelseif = $1;
+                                                                          result = new Else($5,$6,$1);
                                                                       }
                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
@@ -1024,7 +1023,7 @@ lelseif: /* Vacio */                                                {
                                                                           driver.error(yylloc,msg);
                                                                       } 
                                                                       else {
-                                                                          result = new LElseIf($4,$5);
+                                                                          result = new Else($4,$5);
                                                                       }
                                                                       result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                       $$ = result;
@@ -1047,7 +1046,7 @@ lelseif1: ELSE IF '(' errorif ')' THEN '{' {
                                                                        driver.error(yylloc,msg);
                                                                    } 
                                                                    else {
-                                                                       result = new LElseIf($4->exp,$9,$10);
+                                                                       result = new ElseIf($4->exp,$9,$10);
                                                                    }
                                                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    $$ = result;
@@ -1067,7 +1066,7 @@ lelseif1: ELSE IF '(' errorif ')' THEN '{' {
                                                                        driver.error(yylloc,msg);
                                                                    } 
                                                                    else {
-                                                                       result = new LElseIf($5->exp,$10,$11,$1);
+                                                                       result = new ElseIf($5->exp,$10,$11,$1);
                                                                    }
                                                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                    $$ = result;

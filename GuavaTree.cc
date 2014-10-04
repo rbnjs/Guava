@@ -596,18 +596,10 @@ LElseIf::LElseIf(bool error) {
     }
 }
 
-LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif = 0) {
-    exp = e;
-    declaraciones = d;
-    listainstrucciones = li;
-    lelseif = lif;
-    tipo = TypeVoid::Instance();
+LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif = 0):exp(e),declaraciones(d),listainstrucciones(li),lelseif(lif),tipo(TypeVoid::Instance()) {
 }
 
-LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li) {
-    declaraciones = d;
-    listainstrucciones = li;
-    tipo = TypeVoid::Instance();
+LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif = 0): declaraciones(d), listainstrucciones(li), tipo(TypeVoid::Instance()), lelseif(lif){
 }
 
 LElseIf::~LElseIf() {
@@ -626,10 +618,59 @@ void LElseIf::show(std::string s) {
     }
 } 
 
-
 std::list<GuavaQuads*>* LElseIf::generar_quads(){
-    return 0;
+    return 0;    
 }
+
+/* Class Else */
+
+Else::Else(BloqueDeclare* b, ListaInstrucciones* li, LElseIf* leif): LElseIf(b,li,leif){
+}
+
+std::list<GuavaQuads*>* Else::generar_quads(){
+    listainstrucciones->next = next;
+    std::list<GuavaQuads*>* result;
+    if (lelseif != 0){
+       result = lelseif->generar_quads(); 
+       std::list<GuavaQuads*>* code = listainstrucciones->generar_quads();
+       result->splice(result->end(),*code);
+    }else {
+        result = listainstrucciones->generar_quads();
+    }
+    return result;
+}
+
+/* Class ElseIf */
+
+ElseIf::ElseIf(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li, LElseIf* leif): LElseIf(e,bd,li,leif){}
+
+
+std::list<GuavaQuads*>* ElseIf::generar_quads(){
+    BoolLabel* label = exp->bool_label();
+    label->true_label = new GuavaLabel();
+    std::list<GuavaQuads*>* result;
+    std::list<GuavaQuads*>* code_leif;
+    listainstrucciones->next = next;
+    if (lelseif != 0){
+        label->false_label = new GuavaLabel();
+        code_leif = lelseif->generar_quads();
+    } else{
+        label->false_label = next;
+    }
+    result = exp->generar_quads();
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_li = listainstrucciones->generar_quads();
+    result->splice(result->end(),*code_li);
+
+    if (code_leif != 0){
+        GuavaQuads* go_to = new GuavaGoTo(next);
+        result->push_back(go_to);
+        result->push_back(label->false_label);
+        result->splice(result->end(),*code_leif);
+    }    
+    return result;
+}
+
 
 /* Class SelectorIf */
 

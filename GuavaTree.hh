@@ -553,6 +553,7 @@ public:
     TypeS* tipo;
     Instruccion* instruccion;
     ListaInstrucciones* listainstrucciones;
+    GuavaQuads* next;
 
     ListaInstrucciones();
     ListaInstrucciones(Instruccion*, ListaInstrucciones*);    
@@ -807,13 +808,14 @@ public:
  */
 class LElseIf: public InstruccionConLista{
 public:
-    TypeS* tipo;
-    Exp* exp;
+    TypeS* tipo = 0;
+    Exp* exp = 0;
     int line;
     int column;
-    BloqueDeclare* declaraciones;
-    ListaInstrucciones* listainstrucciones;
-    LElseIf* lelseif;
+    BloqueDeclare* declaraciones = 0;
+    ListaInstrucciones* listainstrucciones = 0;
+    LElseIf* lelseif = 0;
+    GuavaQuads* next;
 
     LElseIf(bool);
     LElseIf(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li){
@@ -837,6 +839,10 @@ public:
     ListaInstrucciones* obtener_lista_instrucciones(){
         return listainstrucciones;
     }
+
+    bool es_vacio(){ return (exp == 0 && lelseif == 0 && declaraciones == 0 && listainstrucciones == 0); }
+
+    std::list<GuavaQuads*>* generar_quads();
 
 };
 

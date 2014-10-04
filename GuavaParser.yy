@@ -537,8 +537,8 @@ listainstrucciones: /* Vacio */                         {
                                                         }
                   | listainstrucciones instruccion ';'  { 
                                                           ListaInstrucciones * result;
-                                                          $2->next = new GuavaLabel();
-                                                          $1->set_next($2);
+                                                          //$2->next = new GuavaLabel();
+                                                          //$1->set_next($2);
                                                           if ( $1->get_tipo() == TypeError::Instance()
                                                                || $2->get_tipo() == TypeError::Instance()) {
                                                              result = new ListaInstrucciones($2,$1); 
@@ -551,8 +551,8 @@ listainstrucciones: /* Vacio */                         {
                                                         }
                   | listainstrucciones instruccion1     {
                                                           ListaInstrucciones * result;
-                                                          $2->next = new GuavaLabel();
-                                                          $1->set_next($2);
+                                                          //$2->next = new GuavaLabel();
+                                                          //$1->set_next($2);
                                                           if ( $1->get_tipo() == TypeError::Instance()
                                                                || $2->get_tipo() == TypeError::Instance()) {
                                                             result = new ListaInstrucciones($2,$1); 

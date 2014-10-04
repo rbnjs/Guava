@@ -347,6 +347,8 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
 std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
     std::list<GuavaQuads*>* l_quads1 = 0;
     std::list<GuavaQuads*>* l_quads2 = 0;
+    next = new GuavaLabel();
+    instruccion->next = next;
 
     if (instruccion != 0){
         l_quads1 = instruccion->generar_quads(); 
@@ -587,8 +589,6 @@ void BloqueDeclare::show(std::string s) {}
 /* Class LElseIf */
 
 LElseIf::LElseIf(bool error) {
-    exp = 0;
-    lelseif = 0;
     if (error){
         tipo = TypeError::Instance();
     } else{
@@ -605,8 +605,6 @@ LElseIf::LElseIf(Exp* e, BloqueDeclare* d, ListaInstrucciones* li, LElseIf* lif 
 }
 
 LElseIf::LElseIf(BloqueDeclare* d, ListaInstrucciones* li) {
-    exp = 0;
-    lelseif = 0;
     declaraciones = d;
     listainstrucciones = li;
     tipo = TypeVoid::Instance();
@@ -627,6 +625,11 @@ void LElseIf::show(std::string s) {
         listainstrucciones->show(s+ "  ");
     }
 } 
+
+
+std::list<GuavaQuads*>* LElseIf::generar_quads(){
+    return 0;
+}
 
 /* Class SelectorIf */
 
@@ -664,6 +667,7 @@ std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
         label->false_label = next;
     } else {
         label->false_label = new GuavaLabel();
+        instruccion2->next = next;
     }
 
     std::list<GuavaQuads*>* result = exp->generar_quads();
@@ -678,6 +682,7 @@ std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
         std::list<GuavaQuads*>* code_2 = instruccion2->generar_quads();
         result->splice(result->end(),*code_2);
     }
+    return result;
 }
 
 /* Class SelectorIfComplejo */
@@ -702,7 +707,31 @@ void SelectorIfComplejo::show(std::string s) {
 } 
 
 std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
-    return 0;
+    BoolLabel* label = exp->bool_label(); 
+    label->true_label = new GuavaLabel();
+    
+    bool sin_else = lelseif->es_vacio();
+
+    if ( sin_else ){
+        label->false_label = next;
+    } else {
+        label->false_label = new GuavaLabel();
+        lelseif->next = next;    
+    }
+
+    std::list<GuavaQuads*>* result = exp->generar_quads();
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_1 = listainstrucciones->generar_quads(); 
+    result->splice(result->end(),*code_1);
+
+    if (!sin_else){
+        GuavaQuads* go_to = new GuavaGoTo(next);
+        result->push_back(go_to);
+        result->push_back(label->false_label);
+        std::list<GuavaQuads*>* code_2 = lelseif->generar_quads();
+        result->splice(result->end(),*code_2);
+    }     
+    return result;
 }
 
 /* Class LoopWhile */

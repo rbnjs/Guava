@@ -101,6 +101,7 @@ void GuavaDriver::error (const std::string& m)
  * simbolo id.
  */ 
 TypeS* obtener_tipo_simbolo(Symbol* id){
+    if (id == 0) return 0;
     if (id->true_type != 0) return id->true_type;
     if (id->type_pointer != 0) return obtener_tipo_simbolo(id->type_pointer);
     return 0;

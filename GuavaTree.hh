@@ -975,8 +975,14 @@ public:
     int column;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
+    GuavaQuads* begin;
+    GuavaQuads* next;
+
+
+    /* Constructores y destructores. */
     LoopWhile(): exp(0), tipo(TypeError::Instance()), declaraciones(0), listainstrucciones(0){}
     LoopWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
+
     TypeS* get_tipo() { return tipo; } 
     ~LoopWhile();
 
@@ -991,6 +997,24 @@ public:
         return listainstrucciones;
     }
 
+    virtual std::list<GuavaQuads*>* generar_quads(){ return 0; }
+
+};
+
+class WhileDo: public LoopWhile{
+public:
+    WhileDo(Exp*, BloqueDeclare*, ListaInstrucciones*);
+    ~WhileDo(){}
+
+    std::list<GuavaQuads*>* generar_quads();
+};
+
+class DoWhile: public LoopWhile{
+public:
+    DoWhile(Exp*, BloqueDeclare*, ListaInstrucciones*);
+    ~DoWhile(){}
+
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**

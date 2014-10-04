@@ -800,6 +800,47 @@ void LoopWhile::show(std::string s) {
     if (listainstrucciones != 0)listainstrucciones->show("  "+s);
 } 
 
+/* Class WhileDo */
+
+WhileDo::WhileDo(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li): LoopWhile(e,bd,li){}
+
+std::list<GuavaQuads*>* WhileDo::generar_quads(){
+    begin = new GuavaLabel(); 
+    BoolLabel* label = exp->bool_label();
+    label->true_label = new GuavaLabel();
+    label->false_label = next;
+    listainstrucciones->next = next;
+    std::list<GuavaQuads*>* result = exp->generar_quads();
+    result->push_front(begin);
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_li = listainstrucciones->generar_quads();
+    result->splice(result->end(), *code_li);
+    GuavaQuads* go_to = new GuavaGoTo(begin);
+    result->push_back(go_to);
+
+}
+
+/* Class DoWhile */
+
+DoWhile::DoWhile(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li): LoopWhile(e,bd,li){}
+
+
+std::list<GuavaQuads*>* DoWhile::generar_quads(){
+    begin = new GuavaLabel(); 
+    BoolLabel* label = exp->bool_label();
+    label->true_label = new GuavaLabel();
+    label->false_label = next;
+    listainstrucciones->next = next;
+     
+    std::list<GuavaQuads*>* result = listainstrucciones->generar_quads();
+    result->push_front(begin);
+    std::list<GuavaQuads*>* code_exp = exp->generar_quads();
+    result->splice(result->end(), *code_exp);
+    result->push_back(label->true_label);
+    GuavaQuads* go_to = new GuavaGoTo(begin);
+    result->push_back(go_to);
+}
+
 /* Class Asignacion */
 
 Asignacion::Asignacion() {

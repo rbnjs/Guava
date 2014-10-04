@@ -785,7 +785,8 @@ retorno: RETURN       {
                           }
 
 loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { 
-                                                                      variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
+                                                                      Symbol* id = variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
+                                                                      $3->tipo = obtener_tipo_simbolo(id);
                                                                       driver.tablaSimbolos.enterScope();   
                                                                       identacion += "  "; 
                                                                     }
@@ -841,9 +842,9 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
 errorloopfor : asignacion {
                             $$ = new ErrorLoopFor($1);
                           }
-             | exp        {
-                            $$ = new ErrorLoopFor($1);
-                          }
+             | expAritmetica        {
+                                      $$ = new ErrorLoopFor($1);
+                                    }
              | error      {
                             $$ = new ErrorLoopFor();
                           };
@@ -863,7 +864,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                                  driver.error(yylloc,msg);
                                                              } 
                                                              else {
-                                                                 result = new LoopWhile(exp_bool->exp,$8,$9);
+                                                                 result = new WhileDo(exp_bool->exp,$8,$9);
                                                              }
                                                              result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                              $$ = result;
@@ -890,7 +891,7 @@ loopwhile: WHILE '(' errorloopwhile ')' DO '{' {
                                                                                        driver.error(yylloc,msg);
                                                                                    } 
                                                                                    else {
-                                                                                       result = new LoopWhile(exp_bool->exp,$4,$5);
+                                                                                       result = new DoWhile(exp_bool->exp,$4,$5);
                                                                                    }
                                                                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                    $$ = result;

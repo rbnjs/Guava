@@ -1231,6 +1231,9 @@ expID: identificador   { TypeS* tipo;
                                     TypeStructure* structure = (TypeStructure *) tipo;
                                     result->tabla = structure->get_tabla();
                                 }
+                                /**
+                                 * REVISAR ESTA PARTE, EL IF SIGUIENTE PUEDE HACERCE DENTRO DEL ANTERIOR
+                                 **/
                                 //Se asigna el address a la expresion
                                 if (result->tipo->is_structure()){
                                     revision_scope_id(id,result,&driver,yylloc, result->tabla);

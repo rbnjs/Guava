@@ -486,7 +486,10 @@ public:
         GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
         //Se verifica que la expresion izquierda no sea un identificador
         if (quads1 != 0) {
-            quads1->splice(quads1->end(),*quads2);
+            //Se verifica que la expresion derecha no sea un identificador
+            if (quads2 != 0) {
+                quads1->splice(quads1->end(),*quads2);
+            }
             quads1->push_back(nuevo);
             listaQuads = quads1;
         }

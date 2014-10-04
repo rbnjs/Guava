@@ -814,7 +814,8 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
  * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
-    if (id->scope == 1) { //El scope de las variables temporales es uno
+    //El scope de las variables temporales y globales es 1.
+    if (id->scope == 1) {
         result->addr = id;
     } else {
         result->bp = (Symbol*) basepointer;

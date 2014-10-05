@@ -151,13 +151,19 @@ std::string ExpUn::revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tip
 
 /* Class ExpUnBool  */
 
-ExpUnBool::ExpUnBool(Exp* e, std::string* s): ExpUn(e,s) {
-   labels_bool = new BoolLabel(); 
+ExpUnBool::ExpUnBool(Exp* e, std::string* s): ExpUn(e,s),ExpBool() {
 
 }
-
+/**  
+ * Genera los quads para la expresion NOT
+ * La unica expresion Booleana unaria es NOT
+ */
 std::list<GuavaQuads*>* ExpUnBool::generar_quads(){
-   return 0; 
+    BoolLabel *label_exp = exp->bool_label(); 
+    if (label_exp == 0) return 0;
+    label_exp->true_label = labels_bool->false_label;
+    label_exp->false_label = labels_bool->true_label;
+    return exp->generar_quads();
 }
 
 
@@ -288,8 +294,7 @@ std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int 
 /**
  * Se construye ExpBinBool de la misma forma que un ExpBin
  */
-ExpBinBool::ExpBinBool(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op) {
-    labels_bool = new BoolLabel();
+ExpBinBool::ExpBinBool(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op),ExpBool() {
 }
 
 /** 
@@ -877,9 +882,9 @@ void Asignacion::show(std::string s) {
 
 /* Class LoopFor */
 
-LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l) {
+LoopFor::LoopFor(ExpID* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
-    exp_bool = e1;
+    exp_bool = e1; // e1 expresion booleana
     asignacion = 0;
     exp_aritmetica = e2;
     declaraciones = d;
@@ -887,7 +892,7 @@ LoopFor::LoopFor(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstr
     tipo = TypeVoid::Instance();
 }
 
-LoopFor::LoopFor(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l) {
+LoopFor::LoopFor(ExpID* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l) {
     identificador = id;
     exp_bool = e1;
     asignacion = asig;
@@ -918,19 +923,50 @@ void LoopFor::show(std::string s) {
 
 /* Class LoopForExp */
 
-LoopForExp::LoopForExp(Identificador* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,e2,d,l){}
+LoopForExp::LoopForExp(ExpID* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,e2,d,l){}
 
 std::list<GuavaQuads*>* LoopForExp::generar_quads(){
-    return 0; 
+    begin = new GuavaLabel();
+    BoolLabel* label = exp_bool->bool_label();
+    label->true_label = new GuavaLabel();
+    label->false_label = next;
+    listainstrucciones->next = begin;
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+    result->push_back(begin);
+    std::list<GuavaQuads*>* bool_code = exp_bool->generar_quads();
+    result->splice(result->end(),*bool_code);
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_l = listainstrucciones->generar_quads(); 
+    result->splice(result->end(), *code_l);
+    std::list<GuavaQuads*>* code_step = exp_aritmetica->generar_quads();
+    result->splice(result->end(),*code_step);
+    GuavaQuads* go_to = new GuavaGoTo(begin);
+    result->push_back(go_to);
 }
 
 
 /* Class LoopForAsignacion */
 
-LoopForAsignacion::LoopForAsignacion(Identificador* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,asig,d,l){}
+LoopForAsignacion::LoopForAsignacion(ExpID* id, Exp* e1,Asignacion* asig,BloqueDeclare* d, ListaInstrucciones* l): LoopFor(id,e1,asig,d,l){}
 
 std::list<GuavaQuads*>* LoopForAsignacion::generar_quads(){
-    return 0;
+    begin = new GuavaLabel();
+    BoolLabel* label = exp_bool->bool_label();
+    label->true_label = new GuavaLabel();
+    label->false_label = next;
+    listainstrucciones->next = begin;
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+    result->push_back(begin);
+    std::list<GuavaQuads*>* bool_code = exp_bool->generar_quads();
+    result->splice(result->end(),*bool_code);
+    result->push_back(label->true_label);
+    std::list<GuavaQuads*>* code_l = listainstrucciones->generar_quads(); 
+    result->splice(result->end(), *code_l);
+    std::list<GuavaQuads*>* code_step = asignacion->generar_quads();
+    result->splice(result->end(),*code_step);
+    GuavaQuads* go_to = new GuavaGoTo(begin);
+    result->push_back(go_to);
+
 }
    
 
@@ -1272,6 +1308,13 @@ void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
     type_array = contents(tipo);
     addr = temp->newtemp();
     
+}
+
+bool ExpID::operator==(ExpID id){
+    bool result_recursivo;
+    if (exp_id != 0 && id.exp_id != 0) result_recursivo = (exp_id == id.exp_id);
+    if ((exp_id == 0 && id.exp_id != 0) || (exp_id != 0 && id.exp_id == 0)) return false;
+    return ( result_recursivo && (identificador == id.identificador) && (lcorchetesexp == id.lcorchetesexp));
 }
 
 

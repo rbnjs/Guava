@@ -784,18 +784,23 @@ retorno: RETURN       {
                             $$ = tmp;
                           }
 
-loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' { 
-                                                                      Symbol* id = variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front()); 
-                                                                      $3->tipo = obtener_tipo_simbolo(id);
-                                                                      driver.tablaSimbolos.enterScope();   
-                                                                      identacion += "  "; 
-                                                                    }
+loopfor: FOR '(' expID ';' expBool ';' errorloopfor ')' '{' { 
+                                                                ExpID* exp_id = (ExpID*) $3;
+                                                                Identificador* identificador = exp_id->identificador;
+                                                                Symbol* id = variable_no_declarada(identificador->identificador
+                                                                ,&driver,yylloc, tabla_actual.front()); 
+                                                                exp_id->tipo = obtener_tipo_simbolo(id);
+                                                                driver.tablaSimbolos.enterScope();   
+                                                                identacion += "  "; 
+                                                            }
                                 
                                 bloquedeclare listainstrucciones '}' {  ErrorLoopFor* asign_exp = $7;
                                                                         Exp* exp;
                                                                         LoopFor* tmp;
-                                                                            if (asign_exp->is_error()
-                                                                                    || $3->get_tipo() == TypeError::Instance()
+                                                                        ExpID* exp_id = (ExpID*) $3;
+                                                                        Identificador* identificador = exp_id->identificador;
+                                                                        if (asign_exp->is_error()
+                                                                                    || exp_id->get_tipo() == TypeError::Instance()
                                                                                     || $5->get_tipo() == TypeError::Instance()
                                                                                ){
                                                                                //Caso error.
@@ -807,9 +812,9 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                                     //Caso en el que es una expresion.
                                                                                     //Identificador debe ser del mismo tipo
                                                                                     //de la expresion
-                                                                                    if ($3->get_tipo() == exp->get_tipo()){
+                                                                                    if (exp_id->get_tipo() == exp->get_tipo()){
                                                                                         tmp = new 
-                                                                                            LoopFor($3, $5,asign_exp->exp,$11,$12);
+                                                                                            LoopFor(exp_id, $5,asign_exp->exp,$11,$12);
                                                                                         tmp->tipo = TypeVoid::Instance();
                                                                                     }else{
                                                                                         tmp = new LoopFor();
@@ -826,10 +831,12 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                                                                                 } else {
                                                                                     //Caso en el que se usa una asignacion.
                                                                                     //En la asignacion debe usarse el mismo identificador.
-                                                                                    ExpID* exp_id = (ExpID*) asign_exp->asign->id;
-                                                                                    if (exp_id->identificador->identificador.compare($3->identificador) ){
+                                                                                    //Este caso es chevere de revisar pero esta bastante complicado. PENDIENTE
+                                                                                    ExpID* exp_id_tmp = (ExpID*) asign_exp->asign->id;
+                                                                                    Identificador* identificador_tmp = exp_id_tmp->identificador;
+                                                                                    if (identificador_tmp->identificador.compare(identificador->identificador) ){
                                                                                         tmp = new 
-                                                                                            LoopFor($3, $5,asign_exp->asign,$11,$12);
+                                                                                            LoopFor(exp_id, $5,asign_exp->asign,$11,$12);
                                                                                         tmp->tipo = TypeVoid::Instance();
                                                                                     } else {
                                                                                         driver.error(yylloc,
@@ -855,9 +862,11 @@ loopfor: FOR '(' identificador ';' expBool ';' errorloopfor ')' '{' {
                         bloquedeclare listainstrucciones '}' { 
                                                                    $$ = new LoopFor();
                                                                  }
-       | FOR '(' identificador ';' error  ';' errorloopfor ')' '{' { 
-                                                                     variable_no_declarada($3->identificador,&driver,yylloc, tabla_actual.front());
-                                                                   }
+       | FOR '(' expID ';' error  ';' errorloopfor ')' '{' { 
+                                                             ExpID* exp_id = (ExpID*) $3;
+                                                             Identificador* id = exp_id->identificador;
+                                                             variable_no_declarada(id->identificador,&driver,yylloc, tabla_actual.front());
+                                                           }
                                 bloquedeclare listainstrucciones '}' { 
                                                                            $$ = new LoopFor();
                                                                          };
@@ -1469,7 +1478,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
 
                              }
        | NOT exp             { std::string * op = new std::string("not");
-                               ExpUn* tmp = new ExpUn($2,op);
+                               ExpUn* tmp = new ExpUnBool($2,op);
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_unaria($2,TypeBool::Instance(),0,tmp,mensaje_error_tipos);
                                if (!msg.empty()) driver.error(yylloc,msg);

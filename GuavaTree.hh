@@ -38,6 +38,16 @@ public:
 };
 
 /**
+ * Clase que representa todas las clases booleanas
+ */
+class ExpBool{
+public:
+    BoolLabel* labels_bool;
+    ExpBool(){labels_bool = new BoolLabel();}
+    ~ExpBool(){};
+};
+
+/**
  * Clase que define las expresiones del lenguaje.
  */
 class Exp{
@@ -61,6 +71,16 @@ public:
     virtual GuavaSymTable* get_tabla(){return 0;}
 
     virtual bool exp_id(){ return false; }
+
+    virtual bool exp_un(){ return false; }
+
+    virtual bool exp_bin(){ return false; }
+
+    virtual bool exp_llamada(){ return false; }
+
+    virtual bool operator==(Exp* e){
+        return true;
+    }
 };
 
 /**
@@ -84,6 +104,10 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+
+    bool operator==(Identificador id){
+        return identificador.compare(id.identificador);
     }
 };
 
@@ -110,6 +134,20 @@ public:
     void set_line_column(int l, int c){
         line = l;
         column = c;
+    }
+
+    bool operator==(LArreglo la){
+        if (la.size() != larr.size()) return false;
+        std::list<Exp*>::iterator it_la = la.larr.begin();
+        for (std::list<Exp*>::iterator it = larr.begin();
+             it != larr.end(); ++it ){
+            if (*it == *it_la){
+
+            } else{
+                return false;
+            }
+        }
+        return true;
     }
 };
 
@@ -180,6 +218,10 @@ public:
         convert << valor;
         gen(addr +":="+ convert.str());         
     }*/
+
+    bool operator==(Real r){
+        return (valor == r.valor);
+    }
 };
 
 /**
@@ -220,6 +262,9 @@ public:
         convert << valor;
         gen(addr +":="+ convert.str());         
     }*/
+    bool operator==(Integer r){
+        return (valor == r.valor);
+    }
 };
 
 /**
@@ -261,6 +306,9 @@ public:
         convert << valor;
         gen(addr +":="+ convert.str());         
     }*/
+    bool operator==(Char r){
+        return (valor == r.valor);
+    }
 };
 
 /**
@@ -309,16 +357,18 @@ public:
 /**
  * Clase que define el tipo de datos booleanos.
  */
-class Bool: public Valor{
+class Bool: public Valor, public ExpBool{
 public:
     bool valor;
     TypeS* tipo;
     int line;
     int column;
 
-    bool is_bool() { return false; }
+    bool is_bool() { return true; }
 
-    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}  
+    virtual BoolLabel* bool_label(){return labels_bool;}
+
+    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {}  
     bool  get_valor() { return valor; }
     TypeS* get_tipo() { return tipo; }
     ~Bool();
@@ -334,19 +384,18 @@ public:
     }
 
     std::list<GuavaQuads*>* generar_quads(){ 
-        std::ostringstream convert;
-        convert << valor;
-        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
-        listaQuads = new std::list<GuavaQuads*>();
-        listaQuads->push_back(nuevo);
-        return listaQuads;
+        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+        if (valor){
+            GuavaQuads* go_to = new GuavaGoTo(labels_bool->true_label);
+        }else {
+            GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
+        }
+        return result;
     };
-    /*void gen(void (*gen)(std::string)){
-        std::ostringstream convert;
-        convert << valor;
-        gen(addr +":="+ convert.str());         
-    }*/
+
+    bool operator==(Bool b){
+        return (valor == b.valor);
+    }
 };
 
 /**
@@ -370,6 +419,7 @@ public:
         line = l;
         column = c;
     }
+
 };
 
 /**
@@ -402,6 +452,7 @@ public:
         line = l;
         column = c;
     }
+
 };
 
 /**
@@ -438,11 +489,19 @@ public:
         listaQuads->push_back(nuevo);
         return listaQuads;
     }
+
+    bool operator==(Exp* un_){
+        if (!un_->exp_un()) return false;
+        ExpUn* un = (ExpUn*) un_;
+        return ((exp == un->exp) && operacion->compare(*un->operacion) && (corchetes == un->corchetes) );
+    }
 };
 
-class ExpUnBool: public ExpUn{
-    BoolLabel* labels_bool;
+class ExpUnBool: public ExpUn, public ExpBool{
+public:
     ExpUnBool(Exp* , std::string*);
+
+    virtual BoolLabel* bool_label(){return labels_bool;}
 
     std::list<GuavaQuads*>* generar_quads();
 };
@@ -505,15 +564,21 @@ public:
         return listaQuads;
     }
 
+    bool operator==(Exp* e_){
+        if (!e_->exp_bin()) return false;
+        ExpBin* e = (ExpBin*) e_;
+        return ((exp1 == e->exp1) && (exp2 == e->exp2));
+    }
+
 };
 
 
 
-class ExpBinBool: public ExpBin{
+class ExpBinBool: public ExpBin, public ExpBool{
 public:
-    BoolLabel* labels_bool;
     ExpBinBool(Exp*,Exp*,std::string);
     ~ExpBinBool(){}
+    BoolLabel* bool_label(){return labels_bool;}
     virtual std::list<GuavaQuads*>* generar_quads();
 };
 
@@ -770,6 +835,14 @@ public:
     void set_line_column(int l, int c) {
         line = l;
         column = c;
+    }
+
+    bool operator==(Arreglo a){
+        if (la == a.la){
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 
@@ -1042,6 +1115,7 @@ public:
     }
 
     void show(std::string);
+
 };
 
 /**
@@ -1079,11 +1153,95 @@ public:
 };
 
 /**
+ * Clase que representa un Exp con identificador
+ */
+class ProtoExpID: public Exp{
+public:
+    bool exp_id(){ return true; }
+};
+
+
+/**
+ * Clase para las expresiones de identificador.
+ */
+class ExpID: public ProtoExpID{
+public:
+    int line,column;
+    TypeS* tipo;
+    ExpID* exp_id = 0;
+    Identificador* identificador = 0;
+    LCorchetesExp* lcorchetesexp = 0;  
+    NewTemp* temp;
+    GuavaSymTable* tabla;
+    int offset = -1;
+    Symbol* bp;
+
+    //Unions y records
+    int offset_structure = 0;
+
+    //Esto es para los acceso a arreglos
+    TypeS* type_array;
+    Symbol* array;
+
+
+    /**
+     * Constructores de la clase.
+     */
+    ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0){}
+    ExpID(Identificador* id): identificador(id){}
+    ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce){}
+    ExpID(ExpID* exp_,Identificador* id): exp_id(exp_),identificador(id){}
+    ExpID(ExpID* exp_,Identificador* id, LCorchetesExp* lce): exp_id(exp_),identificador(id),lcorchetesexp(lce){}
+
+    ~ExpID(){
+    }
+
+    TypeS* get_tipo(){ return tipo; }
+
+    GuavaSymTable* get_tabla(){ return tabla; }
+
+    void set_line_column(int l, int c){
+        line = l;
+        column = c;
+    }
+
+    void show(std::string s){
+        if (identificador != 0) identificador->show(s);
+        if (lcorchetesexp != 0) lcorchetesexp->show(s);
+    }
+
+    /**
+     * Genera los quads para cada tipo de expresion con identificador
+     * Aun se encuentra incompleta.
+     */
+    virtual std::list<GuavaQuads*>* generar_quads();
+
+    /**
+     * Realiza una revision sencilla en un identificador
+     */
+    static std::string revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)); 
+
+    /**
+     * Realiza la revison del caso arreglo sencillo.
+     */
+    static std::string revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* temp,
+                                                      LCorchetesExp* lce,ExpID* result,int line, int column,
+                                                      TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
+
+    void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
+    
+    bool operator==(ExpID);
+};
+
+
+
+
+/**
  * Clase que describe los bloques de instrucciones con iteraciones acotadas.
  */
 class LoopFor: public InstruccionConLista{
 public:
-    Identificador* identificador;
+    ExpID* identificador;
     TypeS* tipo;
     Exp* exp_bool;
     int line;
@@ -1092,6 +1250,8 @@ public:
     Exp* exp_aritmetica;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
+    GuavaQuads* next;
+    GuavaQuads* begin;
 
     void set_line_column(int l, int c){
         line = l;
@@ -1099,8 +1259,8 @@ public:
     }
 
     LoopFor():identificador(0), tipo (TypeError::Instance()), exp_bool (0), asignacion(0), exp_aritmetica(0), declaraciones(0),listainstrucciones(0){}
-    LoopFor(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
-    LoopFor(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
+    LoopFor(ExpID*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
+    LoopFor(ExpID*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopFor();  
     TypeS* get_tipo() { return tipo; } 
     
@@ -1116,14 +1276,14 @@ public:
 
 class LoopForExp:public LoopFor{
 public:
-    LoopForExp(Identificador*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
+    LoopForExp(ExpID*, Exp*, Exp*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopForExp(){}
     std::list<GuavaQuads*>* generar_quads();
 };
 
 class LoopForAsignacion: public LoopFor{
 public:
-    LoopForAsignacion(Identificador*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
+    LoopForAsignacion(ExpID*, Exp*, Asignacion*, BloqueDeclare*, ListaInstrucciones*);
     ~LoopForAsignacion(){}
     std::list<GuavaQuads*>* generar_quads();
 };
@@ -1227,6 +1387,7 @@ public:
     TypeS* get_tipo(){ return tipo; }
     
     void show(std::string);
+
 };
 
 /**
@@ -1363,13 +1524,6 @@ public:
 
     virtual void show(std::string);
 }; 
-/**
- * Clase que representa un Exp con identificador
- */
-class ProtoExpID: public Exp{
-public:
-    bool exp_id(){ return true; }
-};
 
 /**
  * Clase para hacer la revision de LAccesoAtributos.
@@ -1409,76 +1563,6 @@ public:
     }
 };
 
-/**
- * Clase para las expresiones de identificador.
- */
-class ExpID: public ProtoExpID{
-public:
-    int line,column;
-    TypeS* tipo;
-    ExpID* exp_id = 0;
-    Identificador* identificador = 0;
-    LCorchetesExp* lcorchetesexp = 0;  
-    NewTemp* temp;
-    GuavaSymTable* tabla;
-    int offset = -1;
-    Symbol* bp;
-
-    //Unions y records
-    int offset_structure = 0;
-
-    //Esto es para los acceso a arreglos
-    TypeS* type_array;
-    Symbol* array;
-
-
-    /**
-     * Constructores de la clase.
-     */
-    ExpID():tipo(TypeError::Instance()), identificador(0), lcorchetesexp(0){}
-    ExpID(Identificador* id): identificador(id){}
-    ExpID(Identificador* id, LCorchetesExp* lce ): identificador(id), lcorchetesexp(lce){}
-    ExpID(ExpID* exp_,Identificador* id): exp_id(exp_),identificador(id){}
-    ExpID(ExpID* exp_,Identificador* id, LCorchetesExp* lce): exp_id(exp_),identificador(id),lcorchetesexp(lce){}
-
-    ~ExpID(){
-    }
-
-    TypeS* get_tipo(){ return tipo; }
-
-    GuavaSymTable* get_tabla(){ return tabla; }
-
-    void set_line_column(int l, int c){
-        line = l;
-        column = c;
-    }
-
-    void show(std::string s){
-        if (identificador != 0) identificador->show(s);
-        if (lcorchetesexp != 0) lcorchetesexp->show(s);
-    }
-
-    /**
-     * Genera los quads para cada tipo de expresion con identificador
-     * Aun se encuentra incompleta.
-     */
-    virtual std::list<GuavaQuads*>* generar_quads();
-
-    /**
-     * Realiza una revision sencilla en un identificador
-     */
-    static std::string revision_exp_id(Symbol* id,Identificador* identificador,ExpID* result, int line, int column, TypeS* (*obtener_tipo_simbolo)(Symbol*)); 
-
-    /**
-     * Realiza la revison del caso arreglo sencillo.
-     */
-    static std::string revision_exp_id_arreglo(Symbol* id ,Identificador* identificador, NewTemp* temp,
-                                                      LCorchetesExp* lce,ExpID* result,int line, int column,
-                                                      TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
-
-    void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
-    
-};
 
 class ExpIdentificador: public ExpID{
 public:

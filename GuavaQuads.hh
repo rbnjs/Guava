@@ -143,11 +143,13 @@ public:
      */
     std::string gen(){
         std::string code ("");
+        int i = this->get_op().compare(std::string("uminus"));
         if (arg2 != 0){
             code += result->sym_name + ":=" + arg1->sym_name + this->get_op() + arg2->sym_name;
-        }else {
-            if (this->get_op().compare(std::string(":=")) != 0){
-                code += result->sym_name + ":=" + arg1->sym_name;
+        } else {
+            if (this->get_op().compare(std::string(":=")) == 0){
+                code += result->sym_name + this->get_op() + arg1->sym_name;
+                /*code += result->sym_name + ":=" + arg1->sym_name;*/
             } else {
                 code += result->sym_name + this->get_op() + arg1->sym_name;
             }

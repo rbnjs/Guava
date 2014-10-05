@@ -1234,7 +1234,16 @@ lvarovalor2: lvarovalor2 ',' exp    {
                                       $$ = tmp;
                                     };
 
-exp: expAritmetica  { $1->generar_quads();
+exp: expAritmetica  { /**
+                       * Esto es de prueba. Para version final el generador de quads
+                       * y de codigo intermedio debe ir en nodos padres, si no se
+                       * generan listas de quads repetidos.
+                       *
+                       * SOLUCION ALTERNATIVA:
+                       * Cada vez que se imprima codigo intermedio, borrar los quads. MOSCA.
+                       *
+                       **/
+                      $1->generar_quads();
                       std::cout << $1->gen();
                       $$ = $1; 
                     }

@@ -1423,9 +1423,9 @@ public:
     Identificador* identificador = 0;
     LCorchetesExp* lcorchetesexp = 0;  
     NewTemp* temp;
-    GuavaSymTable* tabla;
+    GuavaSymTable* tabla = 0;
     int offset = -1;
-    Symbol* bp;
+    Symbol* bp = 0;
 
     //Unions y records
     int offset_structure = 0;

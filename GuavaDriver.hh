@@ -94,6 +94,8 @@ Symbol* variable_no_declarada(std::string name, GuavaDriver* driver, const yy::l
 
 void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::location & loc);
 
+void continue_break_libres(std::list<Instruccion*>,GuavaDriver* driver);
+
 bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver);
 
 void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);

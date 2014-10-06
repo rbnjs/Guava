@@ -395,6 +395,12 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    Funcion* tmp = new  Funcion(tipo, new Identificador(std::string("main")),lp,$8,$9); 
                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                   std::list<Instruccion*> continue_break = $9->obtener_continue_break();
+                                                   if (!continue_break.empty()){
+                                                        continue_break_libres(continue_break,&driver); 
+                                                        tmp = new Funcion();
+                                                   }
+
                                                    $$ = tmp;
                                                    if (!error_state && driver.print_table) {
                                                        std::cout <<  "main {\n"; 
@@ -438,6 +444,11 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                                                                         tmp = new Funcion();
                                                                                     }
                                                                                }
+                                                                               std::list<Instruccion*> continue_break = $11->obtener_continue_break();
+                                                                               if (!continue_break.empty()){
+                                                                                    continue_break_libres(continue_break,&driver); 
+                                                                                    tmp = new Funcion();
+                                                                               }
                                                                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                                                                $$ = tmp;
                                                                                if (!error_state && driver.print_table) {
@@ -464,6 +475,11 @@ funcion: FUNCTION tipo identificador '('  { current_scope = driver.tablaSimbolos
                                             bloquedeclare listainstrucciones '}'{  TypeS* tipo = new TypeFunction(TypeVoid::Instance(),$6->get_tipos());
                                                                                    Funcion* tmp = new Funcion(tipo,$3,$6,$10,$11);
                                                                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                                   std::list<Instruccion*> continue_break = $11->obtener_continue_break();
+                                                                                   if (!continue_break.empty()){
+                                                                                        continue_break_libres(continue_break,&driver); 
+                                                                                        tmp = new Funcion();
+                                                                                   }
                                                                                    $$ = tmp;
                                                                                    if (!error_state && driver.print_table) {
                                                                                         std::cout << $3->identificador << "{\n";
@@ -1370,7 +1386,7 @@ expID: identificador   { TypeS* tipo;
                                            }
                                            //Se asigna el address a la expresion
                                            // ESTO HAY QUE PROBARLO BIEN
-                                           result->addr = newtemp(&driver,yylloc,result->get_tipo());
+                                           //result->addr = newtemp(&driver,yylloc,result->get_tipo());
                                            result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
                                                                           yylloc.begin.column,&driver.tablaSimbolos);
                                         } else {
@@ -1455,48 +1471,53 @@ expID: identificador   { TypeS* tipo;
                                  };
 
 /*Faltan pruebas*/
-expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND"));
+expBool: exp AND exp         { ExpBin* tmp = new ExpBinBoolLogic($1,$3,std::string("AND"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                               tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
-                               //generar_codigo_intermedio()
+                               //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                $$ = tmp;
                              }
-       | exp OR exp          { ExpBin* tmp = new ExpBin($1,$3,std::string("OR"));
+       | exp OR exp          { ExpBin* tmp = new ExpBinBoolLogic($1,$3,std::string("OR"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                               tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                $$ = tmp;
                              }
        | exp COMPARISON exp  { ExpBin* tmp;
                                int cmpv = $2;
                                switch(cmpv){
                                     case 1:
-                                        tmp = new ExpBin($1,$3,std::string(">"));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string(">"));
                                         break;
                                     case 2:
-                                        tmp = new ExpBin($1,$3,std::string("<"));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string("<"));
                                         break;
                                     case 3:
-                                        tmp = new ExpBin($1,$3,std::string("<="));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string("<="));
                                         break;
                                     case 4:
-                                        tmp = new ExpBin($1,$3,std::string(">="));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string(">="));
                                         break;
                                     case 5:
-                                        tmp = new ExpBin($1,$3,std::string("="));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string("="));
                                         break;
                                     case 6:
-                                        tmp = new ExpBin($1,$3,std::string("!="));
+                                        tmp = new ExpBinBoolComparison($1,$3,std::string("!="));
                                         break;
                                }
                                std::string msg = tmp->revision_comparison($1,$3,tmp,cmpv,mensaje_error_tipos,mensaje_diff_operandos);
                                if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                               tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                $$ = tmp;
 
                              }
@@ -1505,7 +1526,9 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBin($1,$3,std::string("AND")
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_unaria($2,TypeBool::Instance(),0,tmp,mensaje_error_tipos);
                                if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                               tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                               tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                $$ = tmp;
                              };
 
@@ -1514,7 +1537,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($2,TypeInt::Instance(),TypeReal::Instance(),tmp,mensaje_error_tipos);
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp PLUSPLUS          { 
@@ -1523,7 +1548,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($1,TypeInt::Instance(),0,tmp,mensaje_error_tipos);
                                        if(!msg.empty()) driver.error(yylloc,msg);
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp MINUSMINUS        { std::string * op = new std::string("pdecrease");
@@ -1531,7 +1558,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        std::string msg = tmp->revision_unaria($1,TypeInt::Instance(),0,tmp,mensaje_error_tipos);
                                        if(!msg.empty()) driver.error(yylloc,msg);
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp UFO exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("<=>"));
@@ -1565,7 +1594,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                          }
                                          tmp->tipo = TypeError::Instance();
                                        }
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp '+' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("+"));
@@ -1573,7 +1604,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp '-' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("-"));
@@ -1581,7 +1614,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp '*' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("*"));
@@ -1589,7 +1624,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;                                      
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp '/' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("/"));
@@ -1597,7 +1634,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;                                                 
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp DIV exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("DIV"));
@@ -1605,7 +1644,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),0,mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp MOD exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("MOD"));
@@ -1613,7 +1654,9 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),0,mensaje_error_tipos,
                                                                                mensaje_diff_operandos);
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;                                      
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      }
              | exp POW exp           { //El exponente sera integer, la base integer o real.
@@ -1637,14 +1680,18 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                            error_state = 1;
                                            tmp->tipo = TypeError::Instance();
                                        }
-                                       tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
+                                       tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                                        $$ = tmp;
                                      };
 
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
+                  //v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
+                  v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
+                                            yylloc.begin.column,&driver.tablaSimbolos);
                   //generacion de codigo intermedio
                   $$ = v;
                 }
@@ -1652,28 +1699,36 @@ valor: BOOL     {
                   Valor* v = new String($1,TypeString::Instance());
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp(&driver,yylloc,TypeString::Instance());
+                  //v->addr = newtemp(&driver,yylloc,TypeString::Instance());
+                  v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
+                                            yylloc.begin.column,&driver.tablaSimbolos);
                   //generacion de codigo intermedio
                   $$ = v;
                 }
      | CHAR     { 
                   Valor* v = new Char($1,TypeChar::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
+                  //v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
+                  v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
+                                            yylloc.begin.column,&driver.tablaSimbolos);
                   //generacion de codigo intermedio
                   $$ = v;
                 }
      | INTEGER  { 
                   Valor* v  = new Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
+                  //v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
+                  v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                   //generacion de codigo intermedio
                   $$ = v;
                 }
      | REAL     { 
                   Valor* v = new Real($1,TypeReal::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                  v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
+                  //v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
+                  v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                   //generacion de codigo intermedio
                   $$ = v;
                 }

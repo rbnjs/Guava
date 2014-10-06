@@ -137,6 +137,27 @@ void funcion_sin_return(Identificador* fname,GuavaDriver* driver,const yy::locat
     driver->error(loc,msg);
     error_state = 1;
 }
+
+
+void continue_break_libres(std::list<Instruccion*> continues,GuavaDriver* driver){
+    error_state = 1;
+    std::ostringstream convert_line,convert_column;
+    for (std::list<Instruccion*>::iterator it = continues.begin(); it != continues.end(); ++it){
+        ContinueBreak* continue_break = (ContinueBreak*) *it;
+        convert_line << continue_break->line; 
+        convert_column << continue_break->column; 
+        std::string msg ("");
+        if (continue_break->instruccion == 0){
+            msg += "continue statement not within a loop at line " + convert_line.str()+ " column " +convert_column.str()+ " \n";
+        }else {
+            msg+= "break statement not with a loop at line " + convert_line.str()+ " column " +convert_column.str()+ " \n";
+        }
+        convert_line.flush();
+        convert_column.flush();
+        driver->error(msg);
+    }
+}
+
 /**
  * Verifica que todos los returns tengan el tipo correcto.
  * Incompleto.
@@ -875,6 +896,7 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     std::ostringstream convert;
     Symbol* r;
     if (identificador == 0) return 0;
+    addr = temp->newtemp();
 
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta

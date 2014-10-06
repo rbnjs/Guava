@@ -289,29 +289,82 @@ std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int 
     return msg;
 }
 
-/* ExpBinBool  */
+/* ExpBinBoolComparison  */
 
 /**
- * Se construye ExpBinBool de la misma forma que un ExpBin
+ * Se construye ExpBinBoolComparison de la misma forma que un ExpBin
  */
-ExpBinBool::ExpBinBool(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op),ExpBool() {
+ExpBinBoolComparison::ExpBinBoolComparison(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op),ExpBool() {
 }
 
 /** 
  * Retorna una lista de GuavaQuads.
  */
-std::list<GuavaQuads*>* ExpBinBool::generar_quads(){
+std::list<GuavaQuads*>* ExpBinBoolComparison::generar_quads(){
     std::list<GuavaQuads*>* result = exp1->generar_quads();
-    if (result == 0) result = new std::list<GuavaQuads*>;
     std::list<GuavaQuads*>* code = exp2->generar_quads();
     if (code != 0) result->splice(result->end(), *code);
-    GuavaQuads* if_quad = new GuavaQuadsIf(operacion,exp1->addr,exp2->addr,labels_bool->true_label); 
-    GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
-    result->push_back(if_quad);
-    result->push_back(go_to);
+    Symbol* test_symbol = temp->newtemp();
+    GuavaQuads* test = new GuavaQuadsExp(operacion, exp1->addr,exp2->addr,test_symbol);
+    result->push_back(test);
 
+    if ( !labels_bool->true_label->fall() && !labels_bool->false_label->fall()){
+        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,test_symbol,0,labels_bool->true_label); 
+        GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
+        result->push_back(if_quad);
+        result->push_back(go_to);
+    }else if (!labels_bool->true_label->fall()){
+        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,test_symbol,0,labels_bool->true_label); 
+        result->push_back(if_quad);
+    }else if (!labels_bool->true_label->fall()) {
+        GuavaQuads* if_not = new GuavaQuadsIfNot(operacion,test_symbol,0,labels_bool->false_label);
+        result->push_back(if_not);
+    }
+
+    return result;
 }
 
+/* ExpBinBoolLogic */
+
+ExpBinBoolLogic::ExpBinBoolLogic(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2,op),ExpBool() {
+    if (op.compare("AND") == 0){
+        AND = true;
+    }
+}
+
+std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
+    if (AND){
+        BoolLabel* label1 = exp1->bool_label();
+        BoolLabel* label2 = exp2->bool_label();
+        label1->true_label = new GuavaFall();
+        label1->false_label = (!labels_bool->false_label->fall() ? labels_bool->false_label : new GuavaLabel());
+        label2->true_label = labels_bool->true_label;
+        label2->false_label = labels_bool->false_label;
+        std::list<GuavaQuads*>* result = exp1->generar_quads();
+        std::list<GuavaQuads*>* code = exp2->generar_quads();
+        result->splice(result->end(),*code);
+        if (labels_bool->false_label->fall()){
+           result->push_back(label1->false_label); 
+        }
+        return result;
+    } else {
+        BoolLabel* label1 = exp1->bool_label();
+        BoolLabel* label2 = exp2->bool_label();
+        label1->false_label = new GuavaFall();
+        label1->true_label = (!labels_bool->true_label->fall() ? labels_bool->true_label : new GuavaLabel());
+        label2->true_label = labels_bool->true_label;
+        label2->false_label = labels_bool->false_label;
+        std::list<GuavaQuads*>* result = exp1->generar_quads();
+        std::list<GuavaQuads*>* code = exp2->generar_quads();
+        result->splice(result->end(),*code);
+        if (labels_bool->false_label->fall()){
+           result->push_back(label1->false_label); 
+        }
+        return result;
+
+    }
+    return 0;
+}
 
 /* Lista Instrucciones */
 
@@ -353,7 +406,10 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
     if (listainstrucciones != 0 ) resultado.splice(resultado.end(),listainstrucciones->obtener_return());
     return resultado;
 }
-
+/**
+ * Obtiene todas las instrucciones continue o break de una lista de instrucciones.
+ * No lo hace recursivo.
+ */
 std::list<Instruccion*> ListaInstrucciones::obtener_continue_break(){
     std::list<Instruccion*> result;
     if (instruccion == 0) return result;
@@ -361,6 +417,24 @@ std::list<Instruccion*> ListaInstrucciones::obtener_continue_break(){
 
     if (listainstrucciones != 0 ) result.splice(result.end(),listainstrucciones->obtener_continue_break());
     return result;
+}
+/** 
+ * Funcion que coloca el label begin a cada una de las instrucciones
+ * continue
+ */
+void ListaInstrucciones::set_begin(GuavaQuads* begin){
+    if (instruccion == 0) return; 
+
+    if (instruccion->continue_break()){
+        instruccion->set_begin(begin);
+    }
+
+   if (instruccion->tiene_lista_instrucciones()){
+        InstruccionConLista* tmp = (InstruccionConLista*) instruccion;
+        ListaInstrucciones* tmp_lista = tmp->obtener_lista_instrucciones(); 
+        tmp_lista->set_begin(begin);
+    }
+   if (listainstrucciones != 0) listainstrucciones->set_begin(begin);
 }
 
 
@@ -725,7 +799,7 @@ void SelectorIfSimple::show(std::string s){
 
 std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
     BoolLabel* label = exp->bool_label(); 
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     instruccion1->next = next;
 
     if (instruccion2 == 0){
@@ -736,7 +810,7 @@ std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
     }
 
     std::list<GuavaQuads*>* result = exp->generar_quads();
-    result->push_back(label->true_label);
+    ///result->push_back(label->true_label); Se deja caer.
     std::list<GuavaQuads*>* code_1 = instruccion1->generar_quads();
     result->splice(result->end(), *code_1);
 
@@ -773,7 +847,7 @@ void SelectorIfComplejo::show(std::string s) {
 
 std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
     BoolLabel* label = exp->bool_label(); 
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     
     bool sin_else = lelseif->es_vacio();
 
@@ -785,7 +859,7 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
     }
 
     std::list<GuavaQuads*>* result = exp->generar_quads();
-    result->push_back(label->true_label);
+    //result->push_back(label->true_label); Me dejo caer
     std::list<GuavaQuads*>* code_1 = listainstrucciones->generar_quads(); 
     result->splice(result->end(),*code_1);
 
@@ -831,16 +905,18 @@ WhileDo::WhileDo(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li): LoopWhile(e
 std::list<GuavaQuads*>* WhileDo::generar_quads(){
     begin = new GuavaLabel(); 
     BoolLabel* label = exp->bool_label();
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     label->false_label = next;
     listainstrucciones->next = next;
+    listainstrucciones->set_begin(begin);
     std::list<GuavaQuads*>* result = exp->generar_quads();
     result->push_front(begin);
-    result->push_back(label->true_label);
+    //result->push_back(label->true_label);
     std::list<GuavaQuads*>* code_li = listainstrucciones->generar_quads();
     result->splice(result->end(), *code_li);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    return result;
 
 }
 
@@ -852,17 +928,19 @@ DoWhile::DoWhile(Exp* e, BloqueDeclare* bd, ListaInstrucciones* li): LoopWhile(e
 std::list<GuavaQuads*>* DoWhile::generar_quads(){
     begin = new GuavaLabel(); 
     BoolLabel* label = exp->bool_label();
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     label->false_label = next;
     listainstrucciones->next = next;
+    listainstrucciones->set_begin(begin);
      
     std::list<GuavaQuads*>* result = listainstrucciones->generar_quads();
     result->push_front(begin);
     std::list<GuavaQuads*>* code_exp = exp->generar_quads();
     result->splice(result->end(), *code_exp);
-    result->push_back(label->true_label);
+    //result->push_back(label->true_label);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    return result;
 }
 
 /* Class Asignacion */
@@ -947,20 +1025,22 @@ LoopForExp::LoopForExp(ExpID* id, Exp* e1,Exp* e2,BloqueDeclare* d, ListaInstruc
 std::list<GuavaQuads*>* LoopForExp::generar_quads(){
     begin = new GuavaLabel();
     BoolLabel* label = exp_bool->bool_label();
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     label->false_label = next;
     listainstrucciones->next = begin;
+    listainstrucciones->set_begin(begin);
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
     result->push_back(begin);
     std::list<GuavaQuads*>* bool_code = exp_bool->generar_quads();
     result->splice(result->end(),*bool_code);
-    result->push_back(label->true_label);
+    //result->push_back(label->true_label);
     std::list<GuavaQuads*>* code_l = listainstrucciones->generar_quads(); 
     result->splice(result->end(), *code_l);
     std::list<GuavaQuads*>* code_step = exp_aritmetica->generar_quads();
     result->splice(result->end(),*code_step);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    return result;
 }
 
 
@@ -971,20 +1051,22 @@ LoopForAsignacion::LoopForAsignacion(ExpID* id, Exp* e1,Asignacion* asig,BloqueD
 std::list<GuavaQuads*>* LoopForAsignacion::generar_quads(){
     begin = new GuavaLabel();
     BoolLabel* label = exp_bool->bool_label();
-    label->true_label = new GuavaLabel();
+    label->true_label = new GuavaFall();
     label->false_label = next;
     listainstrucciones->next = begin;
+    listainstrucciones->set_begin(begin);
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
     result->push_back(begin);
     std::list<GuavaQuads*>* bool_code = exp_bool->generar_quads();
     result->splice(result->end(),*bool_code);
-    result->push_back(label->true_label);
+    //result->push_back(label->true_label);
     std::list<GuavaQuads*>* code_l = listainstrucciones->generar_quads(); 
     result->splice(result->end(), *code_l);
     std::list<GuavaQuads*>* code_step = asignacion->generar_quads();
     result->splice(result->end(),*code_step);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    return result;
 
 }
    
@@ -1362,6 +1444,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::ostringstream convert;
     Symbol* r;
     if (identificador == 0) return 0;
+    addr = temp->newtemp();
 
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta

@@ -107,6 +107,8 @@ public:
         return "";
     }
 
+    virtual bool fall(){ return false; }
+
 };
 
 /**
@@ -175,6 +177,19 @@ public:
         return (this->get_op() + ":\n");
     }
 };
+/**
+ * Clase que representa Fall
+ */
+class GuavaFall: public GuavaLabel{
+public:
+
+    GuavaFall(): GuavaLabel(){}
+
+    ~GuavaFall(){}
+
+    virtual bool fall(){ return true; } 
+};
+
 /** 
  * Clase que representa un comentario.
  */
@@ -217,6 +232,7 @@ public:
  * de nuestro lenguaje intermedio.
  */
 class GuavaQuadsIf:public GuavaQuadsExp{
+public:
 
     /** 
      * Constructores para la clase GuavaQuadsIf
@@ -229,11 +245,13 @@ class GuavaQuadsIf:public GuavaQuadsExp{
      * @param result_ Label a donde va a saltar.
      */ 
     GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
-    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaLabel* result_): GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
+    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaQuads* result_): 
+                            GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
     ~GuavaQuadsIf(){}
 
     std::string gen(){
         std::string code ("");
         code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
+        return code;
     }
 };

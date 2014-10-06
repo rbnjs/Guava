@@ -301,7 +301,15 @@ ExpBinBool::ExpBinBool(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(exp_1,exp_2
  * Retorna una lista de GuavaQuads.
  */
 std::list<GuavaQuads*>* ExpBinBool::generar_quads(){
-    return 0;
+    std::list<GuavaQuads*>* result = exp1->generar_quads();
+    if (result == 0) result = new std::list<GuavaQuads*>;
+    std::list<GuavaQuads*>* code = exp2->generar_quads();
+    if (code != 0) result->splice(result->end(), *code);
+    GuavaQuads* if_quad = new GuavaQuadsIf(operacion,exp1->addr,exp2->addr,labels_bool->true_label); 
+    GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
+    result->push_back(if_quad);
+    result->push_back(go_to);
+
 }
 
 
@@ -345,6 +353,13 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
     if (listainstrucciones != 0 ) resultado.splice(resultado.end(),listainstrucciones->obtener_return());
     return resultado;
 }
+
+std::list<Instruccion*> ListaInstrucciones::obtener_continue_break(){
+    std::list<Instruccion*> result;
+    return result;
+}
+
+
 /**
  * Genera los quads para una lista de instrucciones
  * Falta colocar los labels.
@@ -972,7 +987,7 @@ std::list<GuavaQuads*>* LoopForAsignacion::generar_quads(){
 
 /* Class PlusMinus */
 
-PlusMinus::PlusMinus(Identificador* id, int t):identificador(id), tipo_inst(t), tipo(TypeVoid::Instance()) {
+PlusMinus::PlusMinus(ExpID* id, int t):identificador(id), tipo_inst(t), tipo(TypeVoid::Instance()) {
 }
 
 PlusMinus::~PlusMinus() {}
@@ -1002,6 +1017,20 @@ void PlusMinus::show(std::string s) {
     std::cout << ", linea: " << linea << ", columna: " << columna << "\n";
     identificador->show("  "+s);
 } 
+
+std::list<GuavaQuads*>* PlusMinus::generar_quads(){
+    if (tipo_inst < 2){
+        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+        GuavaQuads* add = new GuavaQuadsExp("+",identificador->addr, new SimpleSymbol("1"), identificador->addr);
+        result->push_back(add);
+        return result;
+    } else {
+        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+        GuavaQuads* add = new GuavaQuadsExp("-",identificador->addr, new SimpleSymbol("1"), identificador->addr);
+        result->push_back(add);
+        return result;
+    }
+}
 
 /* Class LVaroValor */
 

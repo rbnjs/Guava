@@ -356,6 +356,10 @@ std::list<Instruccion*> ListaInstrucciones::obtener_return(){
 
 std::list<Instruccion*> ListaInstrucciones::obtener_continue_break(){
     std::list<Instruccion*> result;
+    if (instruccion == 0) return result;
+    if (instruccion->continue_break()) result.push_front(instruccion);
+
+    if (listainstrucciones != 0 ) result.splice(result.end(),listainstrucciones->obtener_continue_break());
     return result;
 }
 

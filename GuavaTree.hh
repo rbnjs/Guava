@@ -598,6 +598,7 @@ public:
     virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
     virtual void show(std::string) = 0;
     virtual bool es_return(){ return false; }
+    virtual bool continue_break(){ return true; } 
     virtual bool tiene_lista_instrucciones() { return false; }
     virtual bool selector_if() { return false; } 
     virtual int get_line() { return 0; }

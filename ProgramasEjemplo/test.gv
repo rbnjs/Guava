@@ -1,8 +1,11 @@
 declare {
-    integer a,b;
+    integer array a[50], b[50];
 }
 
 function void main() {
-    b := 0;
-    a := -b;
+    declare {
+        integer x,y;
+    }
+
+    a[1] := 1+b[2];
 }

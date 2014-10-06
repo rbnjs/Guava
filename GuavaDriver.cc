@@ -840,6 +840,10 @@ void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, c
 /**
  * Funcion que retorna el contenido del arreglo en cuanto al tipo.
  * @param tipo_arreglo Tipo del arreglo actual
+ *
+ *
+ * ESTA FUNCION SE PUEDE BORRARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
+ *
  */
 TypeS* contents(TypeS* tipo){
     if (tipo == 0 || !tipo->is_array()) return 0;
@@ -883,31 +887,69 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     }
 
     //Caso arreglo
-    TypeS* tipo = type_array;
+    
+    /**
+     * Esta linea puede ser borrada. Recordar que una ExpIDLCorchetes no es
+     * un arreglo al que hay que buscar el tipo primitivo asociado, en efecto,
+     * YA EL TIPO QUE TRAE LA EXPRESION es el tipo primitivo del arreglo.
+     * Esta expresion es un elemento del arreglo, no el arreglo.
+     **/
+    /*TypeS* tipo = type_array;*/
+    
+    
     std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
     Exp *exp_ini = *it;
     ++it;
+    Symbol* t0;
+    Symbol* t1;
+    Symbol* t2;
+    t0 = temp->newtemp();
     convert << tamano_tipo(tipo);
     SimpleSymbol* width = new SimpleSymbol(convert.str());
-    GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, addr);
+    GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, t0);
     result->push_back(nuevo_q);
+    /**
+     * Se crean las instrucciones de codigo intermedio para el calculo de
+     * tamano del arreglo. Multiplicaciones para numero de elementos por fila,
+     * suma para arreglos multidimensionales (columnas).
+     **/
     for (it; it != lcorchetesexp->lista.end(); ++it  ){
-        tipo = contents(tipo);
-        Symbol * t = temp->newtemp();
+        //tipo = contents(tipo);
+        //Symbol * t = temp->newtemp();
         Exp* exp_ = *it;
-        convert.flush();
-        convert << tamano_tipo(tipo);
-        width = new SimpleSymbol(convert.str());
-        GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t);
-        GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",addr,t,array);
+        //convert.flush();
+        //convert << tamano_tipo(tipo);
+        //width = new SimpleSymbol(convert.str());
+        t1 = temp->newtemp();
+        GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t1);
+        t2 = temp->newtemp();
+        //GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",addr,t,array);
+        GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",t0,t1,t2);
         result->push_back(nuevo_q1);
         result->push_back(nuevo_q2);
+        t0 = t2;
     }
+    /**
+     * Quad final que define la posicion del arreglo que se esta accediendo.
+     **/
     GuavaQuads* nuevo_q3;
+    //Caso en el que el arreglo no es global
+    //FALTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ESTE CASO
     if (bp != 0){
         nuevo_q3 = new GuavaQuadsExp("[]",bp,array,addr);
-    } else {
-        nuevo_q3 = new GuavaQuadsExp("[]",identificador->addr,array, addr);
+    } 
+    //Caso en el que el arreglo es global
+    else {
+        //Se busca en la tabla de simbolos el identificador asociado al arreglo
+        GuavaSymTable* tabla = tabla_actual.front();
+        Symbol* ref_arr = tabla->lookup(identificador->identificador);
+        //nuevo_q3 = new GuavaQuadsExp("[]",identificador->addr,array, addr);
+        
+        //Se verifica si se trata de un arreglo unidimensional o multidimensional
+        if (lcorchetesexp->lista.size() > 1)
+            nuevo_q3 = new GuavaQuadsExp("[]",ref_arr,t2,addr);
+        else
+            nuevo_q3 = new GuavaQuadsExp("[]",ref_arr,t0,addr);
     }
     result->push_back(nuevo_q3);
     return result;

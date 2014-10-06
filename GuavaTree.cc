@@ -1383,8 +1383,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             result->push_back(nuevo_q);
         }else{
             //Caso en el que es global
-            GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",identificador->addr,0,addr);
-            result->push_back(nuevo_q);
+            return 0;
         }
     } else {
         //Caso en el que no esta solo

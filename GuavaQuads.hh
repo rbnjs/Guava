@@ -64,9 +64,9 @@ public:
         scope = tabla->currentScope();
         if (tipo == 0) return 0;
 
-        convert << secuencia_temporales;
+        convert << *secuencia_temporales;
         std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
-        secuencia_temporales++;
+        *secuencia_temporales += 1;
 
         Symbol* nuevo;
     
@@ -148,10 +148,26 @@ public:
      */
     virtual std::string gen(){
         std::string code ("");
+        //Caso Operaciones Binarias
         if (arg2 != 0){
             code += result->sym_name + ":=" + arg1->sym_name + this->get_op() + arg2->sym_name;
-        }else {
-            code += result->sym_name + ":=" +this->get_op() + arg1->sym_name;
+        //Caso Operaciones Unarias
+        } else {
+            if (this->get_op().compare(std::string(":=")) == 0) {
+                code += result->sym_name + ":=" + arg1->sym_name;
+            }
+            // Menos unario
+            if (this->get_op().compare(std::string("uminus")) == 0) {
+                code += result->sym_name + ":=-" + arg1->sym_name;
+            }
+            // Post incremento
+            if (this->get_op().compare(std::string("pincrease")) == 0) {
+                code += result->sym_name + ":=" + arg1->sym_name + "++";
+            }
+            // Post decremento
+            if (this->get_op().compare(std::string("pdecrease")) == 0) {
+                code += result->sym_name + ":=" + arg1->sym_name + "--";
+            }
         }
         code += "\n";
         return code;

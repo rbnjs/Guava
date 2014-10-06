@@ -552,7 +552,10 @@ public:
         GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
         //Se verifica que la expresion izquierda no sea un identificador
         if (quads1 != 0) {
-            quads1->splice(quads1->end(),*quads2);
+            //Se verifica que la expresion derecha no sea un identificador
+            if (quads2 != 0) {
+                quads1->splice(quads1->end(),*quads2);
+            }
             quads1->push_back(nuevo);
             listaQuads = quads1;
         }
@@ -1181,9 +1184,9 @@ public:
     Identificador* identificador = 0;
     LCorchetesExp* lcorchetesexp = 0;  
     NewTemp* temp;
-    GuavaSymTable* tabla;
+    GuavaSymTable* tabla = 0;
     int offset = -1;
-    Symbol* bp;
+    Symbol* bp = 0;
 
     //Unions y records
     int offset_structure = 0;
@@ -1587,7 +1590,6 @@ public:
             }
     }
 };
-
 
 class ExpIdentificador: public ExpID{
 public:

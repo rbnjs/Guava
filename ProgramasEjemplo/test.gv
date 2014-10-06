@@ -1,39 +1,11 @@
 declare {
-    integer a,b,c;
-    integer array x[7][5];
-    integer array y[5];
-    character d;
-    real e;
-
-    union R {
-        integer a,b,c;
-        integer array x[5][5];
-        character d;
-        record U {
-            integer a,b,c;
-        };
-        U array e[5],h[3];
-        U record f;
-    };
-
-    R union f;
-}
-
-function integer suma(integer a, integer b, integer c) {
-    return a+b+1;
-}
-
-function integer a(integer a, integer b) {
-    return a-b;
+    integer array a[50], b[50];
 }
 
 function void main() {
     declare {
-        R union b;
+        integer x,y;
     }
-    a := suma(1,2,3);
-    a := f.a;
-    f.e[1].a := 1;
-    b := f;
-    c := a+c;
+
+    a[1] := 1+b[2];
 }

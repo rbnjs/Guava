@@ -107,13 +107,15 @@ public:
         return "";
     }
 
+    virtual bool fall(){ return false; }
+
 };
 
 /**
  * Clase que representa un Quad para una expresion
  */
 class GuavaQuadsExp:public GuavaQuads{
-private:
+protected:
     SimpleSymbol* arg1 = 0;
     SimpleSymbol* arg2 = 0;
     SimpleSymbol* result = 0;
@@ -140,8 +142,11 @@ public:
 
     /**
      * Funcion que genera codigo a partir de un Quad
+     * El generador muestra el codigo de esta manera:
+     * resultado := arg1 op arg2 (dos argumentos)
+     * resultado := op arg1 (un argumentos)
      */
-    std::string gen(){
+    virtual std::string gen(){
         std::string code ("");
         //Caso Operaciones Binarias
         if (arg2 != 0){
@@ -188,6 +193,19 @@ public:
         return (this->get_op() + ":\n");
     }
 };
+/**
+ * Clase que representa Fall
+ */
+class GuavaFall: public GuavaLabel{
+public:
+
+    GuavaFall(): GuavaLabel(){}
+
+    ~GuavaFall(){}
+
+    virtual bool fall(){ return true; } 
+};
+
 /** 
  * Clase que representa un comentario.
  */
@@ -223,5 +241,33 @@ public:
 
     virtual std::string gen(){
         return "goto " + go_to->sym_name; 
+    }
+};
+/** 
+ * Clase que represena un If dentro 
+ * de nuestro lenguaje intermedio.
+ */
+class GuavaQuadsIf:public GuavaQuadsExp{
+public:
+
+    /** 
+     * Constructores para la clase GuavaQuadsIf
+     *
+     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un SimpleSymbol
+     *
+     * @param op_ Operacion con la que se va a comparar (>, <, = ...)
+     * @param arg1_ Argumento 1. Este seria el addr de la expresion1
+     * @param arg2_ Argumento 2. Este seria el addr de la expresion2
+     * @param result_ Label a donde va a saltar.
+     */ 
+    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
+    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaQuads* result_): 
+                            GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
+    ~GuavaQuadsIf(){}
+
+    std::string gen(){
+        std::string code ("");
+        code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
+        return code;
     }
 };

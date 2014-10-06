@@ -28,6 +28,7 @@ int secuencia_label_unico = 0;
 GuavaLabel::GuavaLabel(): GuavaQuads("label"){
     std::ostringstream convert;
     convert << secuencia_label_unico;
-    secuencia_label_unico;
+    secuencia_label_unico++;
     this->set_op("label"+convert.str());
 }
+

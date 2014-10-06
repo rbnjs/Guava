@@ -76,6 +76,8 @@ public:
 
     virtual bool exp_bin(){ return false; }
 
+    virtual bool exp_bool(){ return false; }
+
     virtual bool exp_llamada(){ return false; }
 
     virtual bool operator==(Exp* e){
@@ -383,6 +385,8 @@ public:
         column = c;
     }
 
+    bool exp_bool(){ return true; }
+
     std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
         if (valor){
@@ -502,6 +506,7 @@ public:
     ExpUnBool(Exp* , std::string*);
 
     virtual BoolLabel* bool_label(){return labels_bool;}
+    bool exp_bool(){ return true; }
 
     std::list<GuavaQuads*>* generar_quads();
 };
@@ -582,6 +587,7 @@ public:
     ExpBinBool(Exp*,Exp*,std::string);
     ~ExpBinBool(){}
     BoolLabel* bool_label(){return labels_bool;}
+    bool exp_bool(){ return true; }
     virtual std::list<GuavaQuads*>* generar_quads();
 };
 
@@ -632,6 +638,8 @@ public:
     void show(std::string);
     std::list<Instruccion*> obtener_return();
     std::list<GuavaQuads*>* generar_quads();
+
+    std::list<Instruccion*> obtener_continue_break();
 
     void set_next(Instruccion* inst);
 
@@ -1238,7 +1246,6 @@ public:
 
 
 
-
 /**
  * Clase que describe los bloques de instrucciones con iteraciones acotadas.
  */
@@ -1298,7 +1305,7 @@ class PlusMinus: public Instruccion{
 public:
     int line;
     int column;
-    Identificador* identificador;
+    ExpID* identificador;
     int tipo_inst; /* 0 para el dremento prefijo.
                     * 1 para el decremento postfijo.
                     * 2 para el incremento prefijo.
@@ -1311,11 +1318,13 @@ public:
     }
     
     PlusMinus():identificador(0),tipo_inst(-1),tipo(TypeError::Instance()){}
-    PlusMinus(Identificador*, int);
+    PlusMinus(ExpID*, int);
     ~PlusMinus();
     TypeS* get_tipo(){ return tipo; }
     
     void show(std::string);
+
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 /**
@@ -1398,6 +1407,7 @@ public:
  */
 class ContinueBreak: public Instruccion{
 public:
+    GuavaQuads* begin;
     TypeS* tipo;
     int line;
     int column;
@@ -1423,6 +1433,20 @@ public:
         }
     }
     TypeS* get_tipo() { return tipo; }
+
+    bool continue_break(){ return true; }
+
+    std::list<GuavaQuads*>* generar_quads(){
+        GuavaQuads* go_to;
+        if (tipo == 0){
+            go_to = new GuavaGoTo(begin);
+        }else {
+            go_to = new GuavaGoTo(next);
+        }
+        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
+        result->push_back(go_to);
+        return result;
+    }
 };
 
 /**

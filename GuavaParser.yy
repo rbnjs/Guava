@@ -568,14 +568,15 @@ instruccion: asignacion     {
                             }
            | llamadafuncion { 
                             }
-           | MINUSMINUS identificador  {
+           | MINUSMINUS expID  {
                                          Symbol *id;
                                          PlusMinus *result;
+                                         ExpID* exp_id = (ExpID*) $2;
                                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                         if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
-                                                 result = new PlusMinus($2,0);
+                                                 result = new PlusMinus(exp_id,0);
                                              } 
                                              else {
                                                  result = new PlusMinus();
@@ -593,14 +594,15 @@ instruccion: asignacion     {
                                              $$ = new PlusMinus();
                                          }
                                        }
-           | identificador MINUSMINUS  { 
+           | expID MINUSMINUS  { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         ExpID* exp_id = (ExpID*) $1;
                                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                         if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
-                                                 result = new PlusMinus($1,1);
+                                                 result = new PlusMinus(exp_id,1);
                                              } 
                                              else {
                                                  result = new PlusMinus();
@@ -618,14 +620,15 @@ instruccion: asignacion     {
                                              $$ = new PlusMinus();
                                          }
                                        }
-           | PLUSPLUS identificador    { 
+           | PLUSPLUS expID    { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         ExpID* exp_id = (ExpID*) $2;
                                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                         if ( (id = variable_no_declarada($2->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                         if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
-                                                 result = new PlusMinus($2,2);
+                                                 result = new PlusMinus(exp_id,2);
                                              } 
                                              else {
                                                  result = new PlusMinus();
@@ -643,14 +646,15 @@ instruccion: asignacion     {
                                              $$ = new PlusMinus();
                                          }
                                        }
-           | identificador PLUSPLUS    { 
+           | expID PLUSPLUS    { 
                                          Symbol *id;
                                          PlusMinus *result;
+                                         ExpID* exp_id = (ExpID*) $1;
                                          result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                         if ( (id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front())) != 0){
+                                         if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
-                                                 result = new PlusMinus($1,3);
+                                                 result = new PlusMinus(exp_id,3);
                                              } 
                                              else {
                                                  result = new PlusMinus();

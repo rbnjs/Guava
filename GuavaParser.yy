@@ -1701,67 +1701,37 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
 valor: BOOL     { 
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-<<<<<<< HEAD
-                  v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
-=======
-                  //v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                             yylloc.begin.column,&driver.tablaSimbolos);
-                  //generacion de codigo intermedio
->>>>>>> 7c9be870381736a789300b5dfd254f82115fca66
                   $$ = v;
                 }
      | STRING   { 
                   Valor* v = new String($1,TypeString::Instance());
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-<<<<<<< HEAD
-                  v->addr = newtemp(&driver,yylloc,TypeString::Instance());
-=======
-                  //v->addr = newtemp(&driver,yylloc,TypeString::Instance());
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                             yylloc.begin.column,&driver.tablaSimbolos);
-                  //generacion de codigo intermedio
->>>>>>> 7c9be870381736a789300b5dfd254f82115fca66
                   $$ = v;
                 }
      | CHAR     { 
                   Valor* v = new Char($1,TypeChar::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-<<<<<<< HEAD
-                  v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
-=======
-                  //v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                             yylloc.begin.column,&driver.tablaSimbolos);
-                  //generacion de codigo intermedio
->>>>>>> 7c9be870381736a789300b5dfd254f82115fca66
                   $$ = v;
                 }
      | INTEGER  { 
                   Valor* v  = new Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-<<<<<<< HEAD
-                  v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
-=======
-                  //v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);
-                  //generacion de codigo intermedio
->>>>>>> 7c9be870381736a789300b5dfd254f82115fca66
                   $$ = v;
                 }
      | REAL     { 
                   Valor* v = new Real($1,TypeReal::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
-<<<<<<< HEAD
-                  v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
-=======
-                  //v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);
-                  //generacion de codigo intermedio
->>>>>>> 7c9be870381736a789300b5dfd254f82115fca66
                   $$ = v;
                 }
      | arreglo  {
@@ -1864,6 +1834,8 @@ identificador: ID { std::string str =  std::string($1);
                     Identificador* id = new Identificador(str);
                     id->line = yylloc.begin.line;
                     id->column = yylloc.begin.column;
+                    id->temp = new NewTemp(&secuencia_temporales, TypeVoid::Instance(), yylloc.begin.line, // Voy a dejar el tipo en void mientras tanto.
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                     $$ = id;
                   };
 

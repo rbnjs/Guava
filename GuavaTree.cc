@@ -472,6 +472,18 @@ void ListaInstrucciones::set_next(Instruccion* instr){
     instruccion->next = instr->next;
 }
 
+/* Class Retorno */
+
+/**
+ * Genera los quads de retorno.
+ * Al final de realizar lo que hace la expresion me voy para next
+ */
+std::list<GuavaQuads*>* Retorno::generar_quads(){
+    std::list<GuavaQuads*>* result = exp->generar_quads();
+    GuavaQuads* go_to = new GuavaGoTo(next);
+    result->push_back(go_to);
+    return result;
+}
 
 /* Class LVarArreglo */
 

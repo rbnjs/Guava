@@ -334,3 +334,18 @@ public:
         return result; 
     }
 };
+
+class GuavaEntradaSalida:public GuavaQuadsExp{
+public:
+    GuavaEntradaSalida(std::string op, SimpleSymbol* arg, SimpleSymbol* addr = 0): GuavaQuadsExp(op,arg,0,addr){}
+    ~GuavaEntradaSalida(){}
+    std::string gen(){
+        std::string result =this->get_op();
+        if (this->get_result() == 0){
+            result += this->get_arg1()->sym_name + "\n";
+        }else{
+            result += this->get_arg1()->sym_name + " " + this->get_result()->sym_name + "\n";
+        }
+        return result;
+    }
+};

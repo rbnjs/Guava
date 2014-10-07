@@ -700,6 +700,8 @@ public:
 
     int get_line() { return line; }
     int get_column() { return column; }
+
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 
@@ -1406,6 +1408,20 @@ public:
     ~EntradaSalida();
 
     void show(std::string);
+
+    std::list<GuavaQuads*>* generar_quads(){
+        bool tipo_entrada_salida = (tipo == 0);
+        GuavaQuads* salida_entrada;
+        std::string operacion (tipo_entrada_salida ? "read" : "print");
+        std::list<GuavaQuads*>* result = argumento->generar_quads();
+        if (tipo_entrada_salida){
+            salida_entrada = new GuavaEntradaSalida(operacion,argumento->addr, argumento->addr);
+        } else {
+            salida_entrada = new GuavaEntradaSalida(operacion, argumento->addr);
+        }
+        result->push_back(salida_entrada);
+        return result;
+    }
 };
 
 /**

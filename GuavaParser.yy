@@ -333,7 +333,7 @@ lcorchetes: '[' INTEGER ']'            {
                                      };
 
 lcorchetesExp: '[' exp ']'               { LCorchetesExp* tmp = new LCorchetesExp();
-                                           tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
+                                           //tmp->addr = newtemp(&driver,yylloc,TypeInt::Instance());
                                            tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            if( $2 != 0 && $2->get_tipo() == TypeInt::Instance()) {
                                                 tmp->tipo = $2->get_tipo();

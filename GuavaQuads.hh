@@ -82,6 +82,7 @@ public:
 
         return nuevo;
     }
+
 };
 
 
@@ -209,7 +210,7 @@ public:
 
     ~GuavaFall(){}
 
-    virtual bool fall(){ return true; } 
+    bool fall(){ return true; } 
 };
 
 /** 

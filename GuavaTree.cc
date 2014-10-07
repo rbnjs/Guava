@@ -1508,8 +1508,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::ostringstream convert;
     Symbol* r;
     if (identificador == 0) return 0;
-    addr = temp->newtemp();
-
+    
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
     if (exp_id != 0){
@@ -1530,7 +1529,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             result->push_back(nuevo_q);
         }else{
             //Caso en el que es global
-            return 0;
+            return new std::list<GuavaQuads*>();
         }
     } else {
         //Caso en el que no esta solo

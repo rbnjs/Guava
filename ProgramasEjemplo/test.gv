@@ -1,5 +1,6 @@
 declare {
-    integer array a2[10], b2[10];
+    integer array a[10], b[10];
+    integer c,d;
     record R {
         integer a,b;
     };
@@ -9,8 +10,8 @@ declare {
 
 function void main() {
     declare {
-        integer array a1[10],b1[10];
+        integer e;
     }
-    a2[1] := 1+b2[1];
-    /*x.a := x.b+1;*/
+
+    x.a := 1+x.a;
 }

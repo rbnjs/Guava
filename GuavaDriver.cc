@@ -874,7 +874,6 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     std::ostringstream convert;
     Symbol* r;
     if (identificador == 0) return 0;
-    addr = temp->newtemp();
 
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
@@ -887,6 +886,7 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     }
 
     std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
+    std::list<GuavaQuads*>* quads_expresion;
     Exp *exp_ini = *it;
     ++it;
     Symbol* t0;
@@ -894,6 +894,12 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     Symbol* t2;
     t0 = temp->newtemp();
     convert << tamano_tipo(tipo);
+    //Se generan los quads asociados a la expresion dentro de los corchetes
+    quads_expresion = exp_ini->generar_quads();
+    result->splice(result->end(),*quads_expresion);
+    /*Se calcula el resultado de la expresion dentro de los corchetes por el
+     *tamano del tipo del arreglo.
+     */
     SimpleSymbol* width = new SimpleSymbol(convert.str());
     GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, t0);
     result->push_back(nuevo_q);
@@ -905,6 +911,8 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     for (it; it != lcorchetesexp->lista.end(); ++it  ){
         Exp* exp_ = *it;
         t1 = temp->newtemp();
+        quads_expresion = exp_->generar_quads();
+        result->splice(result->end(),*quads_expresion);
         GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t1);
         t2 = temp->newtemp();
         GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",t0,t1,t2);

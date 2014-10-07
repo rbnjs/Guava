@@ -937,5 +937,18 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
      */
     addr = t1;
     result->push_back(nuevo_q3);
+    GuavaQuads* comentario = new GuavaComment("EXP ARREGLO",line,column);
+    result->push_front(comentario);
     return result;
+}
+
+
+/**
+ * Funcion que dada una lista de quads imprime toda la lista.
+ * @param lista Lista de quads.
+ */
+void imprimir_quads(std::list<GuavaQuads*>* lista){
+    for (std::list<GuavaQuads*>::iterator it = lista->begin(); it != lista->end(); ++it){
+        std::cout << (*it)->gen();
+    }
 }

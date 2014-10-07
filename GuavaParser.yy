@@ -162,6 +162,11 @@ bloqueprincipal: {
                                                 std::cout << "Variables globales: \n";
                                                 driver.tablaSimbolos.show(1,identacion+ "  ");
                                             }
+                                            if (!error_state && driver.print_quads){
+                                                std::list<GuavaQuads*>* quads = $3->generar_quads();
+                                                std::cout << quads->size();
+                                                imprimir_quads(quads); 
+                                            }
                                          };
 
 bloquedeclare: /* Vacio */  { $$ = new BloqueDeclare(-1); 
@@ -588,7 +593,6 @@ instruccion: asignacion     {
                                          Symbol *id;
                                          PlusMinus *result;
                                          ExpID* exp_id = (ExpID*) $2;
-                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -604,6 +608,7 @@ instruccion: asignacion     {
                                                  }
                                                  driver.error(yylloc,msg);
                                              }
+                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                              $$ = result;
                                          } 
                                          else {
@@ -614,7 +619,6 @@ instruccion: asignacion     {
                                          Symbol *id;
                                          PlusMinus *result;
                                          ExpID* exp_id = (ExpID*) $1;
-                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -630,6 +634,7 @@ instruccion: asignacion     {
                                                  }
                                                  driver.error(yylloc,msg);
                                              }
+                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                              $$ = result;
                                          } 
                                          else {
@@ -640,7 +645,6 @@ instruccion: asignacion     {
                                          Symbol *id;
                                          PlusMinus *result;
                                          ExpID* exp_id = (ExpID*) $2;
-                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -656,6 +660,7 @@ instruccion: asignacion     {
                                                  }
                                                  driver.error(yylloc,msg);
                                              }
+                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                              $$ = result;
                                          } 
                                          else {
@@ -666,7 +671,6 @@ instruccion: asignacion     {
                                          Symbol *id;
                                          PlusMinus *result;
                                          ExpID* exp_id = (ExpID*) $1;
-                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
                                              if (tipo == TypeInt::Instance()){
@@ -682,6 +686,7 @@ instruccion: asignacion     {
                                                  }
                                                  driver.error(yylloc,msg);
                                              }
+                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                              $$ = result;
                                          } 
                                          else {

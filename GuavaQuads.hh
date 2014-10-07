@@ -105,7 +105,7 @@ public:
      * Generador
      */
     virtual std::string gen(){
-        return "";
+        return op + "\n";
     }
 
     virtual bool fall(){ return false; }
@@ -156,7 +156,7 @@ public:
                 code += result->sym_name + ":=" + arg1->sym_name + "[" + arg2->sym_name + "]";
             }
             else {
-                code += result->sym_name + ":=" + arg1->sym_name + this->get_op() + arg2->sym_name;
+                code += result->sym_name + ":=" + arg1->sym_name+ " " + this->get_op() +" "+ arg2->sym_name;
             }
         //Caso Operaciones Unarias
         } else {
@@ -247,7 +247,7 @@ public:
     ~GuavaGoTo(){}
 
     virtual std::string gen(){
-        return "goto " + go_to->sym_name; 
+        return "goto  " + go_to->sym_name + "\n"; 
     }
 };
 /** 
@@ -274,8 +274,8 @@ public:
 
     std::string gen(){
         std::string code ("");
-        if (arg2!= 0) code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
-        else code += "if " + arg1->sym_name+ " " + " goto " + result->sym_name;
+        if (arg2!= 0) code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name + "\n";
+        else code += "if " + arg1->sym_name+ " " + " goto " + result->sym_name +"\n" ;
         return code;
     }
 };
@@ -304,8 +304,8 @@ public:
 
     std::string gen(){
         std::string code ("");
-        if (arg2!= 0) code += "ifnot " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
-        else code += "ifnot " + arg1->sym_name+ " " + " goto " + result->sym_name;
+        if (arg2!= 0) code += "ifnot " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name + "\n";
+        else code += "ifnot " + arg1->sym_name+ " " + " goto " + result->sym_name + "\n";
         return code;
     }
 };
@@ -318,7 +318,7 @@ public:
 
     std::string gen(){
         std::string result ("param ");
-        result += addr->sym_name;
+        result += addr->sym_name + "\n";
         return result;
     }
 };
@@ -331,7 +331,7 @@ public:
     std::string gen(){
         std::string result ("call ");
         result += this->get_op();
-        result += ", " + this->get_arg1()->sym_name;
+        result += ", " + this->get_arg1()->sym_name +"\n";
         return result; 
     }
 };

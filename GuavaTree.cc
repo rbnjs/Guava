@@ -435,7 +435,7 @@ void ListaInstrucciones::set_begin(GuavaQuads* begin){
    if (instruccion->tiene_lista_instrucciones()){
         InstruccionConLista* tmp = (InstruccionConLista*) instruccion;
         ListaInstrucciones* tmp_lista = tmp->obtener_lista_instrucciones(); 
-        tmp_lista->set_begin(begin);
+        if (tmp_lista != 0) tmp_lista->set_begin(begin);
     }
    if (listainstrucciones != 0) listainstrucciones->set_begin(begin);
 }
@@ -449,9 +449,9 @@ std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
     std::list<GuavaQuads*>* l_quads1 = 0;
     std::list<GuavaQuads*>* l_quads2 = 0;
     next = new GuavaLabel();
-    instruccion->next = next;
 
     if (instruccion != 0){
+        instruccion->next = next;
         l_quads1 = instruccion->generar_quads(); 
         l_quads1->push_back(instruccion->next); //Coloco al final del codigo el label de instruccion.
     }
@@ -744,9 +744,10 @@ std::list<GuavaQuads*>* Else::generar_quads(){
     listainstrucciones->next = next;
     std::list<GuavaQuads*>* result;
     if (lelseif != 0){
+       lelseif->next = next;
        result = lelseif->generar_quads(); 
        std::list<GuavaQuads*>* code = listainstrucciones->generar_quads();
-       result->splice(result->end(),*code);
+       if (code != 0) result->splice(result->end(),*code);
     }else {
         result = listainstrucciones->generar_quads();
     }
@@ -762,18 +763,21 @@ std::list<GuavaQuads*>* ElseIf::generar_quads(){
     BoolLabel* label = exp->bool_label();
     label->true_label = new GuavaLabel();
     std::list<GuavaQuads*>* result;
-    std::list<GuavaQuads*>* code_leif;
+    std::list<GuavaQuads*>* code_leif = 0;
     listainstrucciones->next = next;
+
     if (lelseif != 0){
         label->false_label = new GuavaLabel();
+        lelseif->next = next;
         code_leif = lelseif->generar_quads();
     } else{
         label->false_label = next;
     }
+
     result = exp->generar_quads();
     result->push_back(label->true_label);
     std::list<GuavaQuads*>* code_li = listainstrucciones->generar_quads();
-    result->splice(result->end(),*code_li);
+    if (code_li != 0) result->splice(result->end(),*code_li);
 
     if (code_leif != 0){
         GuavaQuads* go_to = new GuavaGoTo(next);
@@ -836,6 +840,9 @@ std::list<GuavaQuads*>* SelectorIfSimple::generar_quads(){
         std::list<GuavaQuads*>* code_2 = instruccion2->generar_quads();
         result->splice(result->end(),*code_2);
     }
+
+    GuavaQuads* comentario = new GuavaComment("SELECTOR IF SIMPLE",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -885,6 +892,8 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
         std::list<GuavaQuads*>* code_2 = lelseif->generar_quads();
         result->splice(result->end(),*code_2);
     }     
+    GuavaQuads* comentario = new GuavaComment("SELECTOR IF SIMPLE",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -931,6 +940,8 @@ std::list<GuavaQuads*>* WhileDo::generar_quads(){
     result->splice(result->end(), *code_li);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    GuavaQuads* comentario = new GuavaComment("LOOP WHILE DO",line,column);
+    result->push_front(comentario);
     return result;
 
 }
@@ -955,6 +966,8 @@ std::list<GuavaQuads*>* DoWhile::generar_quads(){
     //result->push_back(label->true_label);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    GuavaQuads* comentario = new GuavaComment("LOOP DO WHILE",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -1015,6 +1028,8 @@ std::list<GuavaQuads*>* Asignacion::generar_quads(){
         GuavaQuads* exp_result = new GuavaQuadsExp(":=",exp->addr,0,id->addr);
         result->push_back(exp_result);
     }
+    GuavaQuads* comentario = new GuavaComment("ASIGNACION",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -1082,6 +1097,8 @@ std::list<GuavaQuads*>* LoopForExp::generar_quads(){
     result->splice(result->end(),*code_step);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    GuavaQuads* comentario = new GuavaComment("LOOP FOR con EXPRESION",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -1108,6 +1125,8 @@ std::list<GuavaQuads*>* LoopForAsignacion::generar_quads(){
     result->splice(result->end(),*code_step);
     GuavaQuads* go_to = new GuavaGoTo(begin);
     result->push_back(go_to);
+    GuavaQuads* comentario = new GuavaComment("LOOP FOR con ASIGNACION",line,column);
+    result->push_front(comentario);
     return result;
 
 }
@@ -1151,11 +1170,15 @@ std::list<GuavaQuads*>* PlusMinus::generar_quads(){
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
         GuavaQuads* add = new GuavaQuadsExp("+",identificador->addr, new SimpleSymbol("1"), identificador->addr);
         result->push_back(add);
+        GuavaQuads* comentario = new GuavaComment("PLUS PLUS",line,column);
+        result->push_front(comentario);
         return result;
     } else {
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
         GuavaQuads* add = new GuavaQuadsExp("-",identificador->addr, new SimpleSymbol("1"), identificador->addr);
         result->push_back(add);
+        GuavaQuads* comentario = new GuavaComment("MINUS MINUS",line,column);
+        result->push_front(comentario);
         return result;
     }
 }
@@ -1254,6 +1277,8 @@ std::list<GuavaQuads*>* LlamadaFuncion::generar_quads(){
     convert << lvarovalor->size();
     GuavaQuads* call = new GuavaCall(id->identificador,new SimpleSymbol(convert.str()),addr);
     result->push_back(call);
+    GuavaQuads* comentario = new GuavaComment("LLAMADA FUNCION",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -1549,6 +1574,8 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             result->push_back(nuevo_q);
         }
     }
+    GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
+    result->push_front(comentario);
     return result;
 }
 

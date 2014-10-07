@@ -1356,8 +1356,6 @@ expID: identificador   { TypeS* tipo;
                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                            if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                                result = new ExpIDLCorchetes($1,$2);
-                                               result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
-                                                        yylloc.begin.column,&driver.tablaSimbolos);                                    
                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            }
                                            //Se verifica que la lista de expresiones sea de Integers y el simbolo un arreglo

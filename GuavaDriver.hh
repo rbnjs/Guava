@@ -63,6 +63,7 @@ public:
 
     bool print_tree;
     bool print_table;
+    bool print_quads;
 
     // Scanner.
     void scan_begin ();
@@ -151,3 +152,5 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
 void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc);
 
 TypeS* contents(TypeS*);
+
+void imprimir_quads(std::list<GuavaQuads*>* lista);

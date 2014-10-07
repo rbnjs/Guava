@@ -495,6 +495,8 @@ public:
             listaQuads = new std::list<GuavaQuads*>();
         }
         listaQuads->push_back(nuevo);
+        GuavaQuads* comentario = new GuavaComment("EXPRESION UNARIA", line, column);
+        listaQuads->push_front(comentario);
         return listaQuads;
     }
 
@@ -574,6 +576,8 @@ public:
             listaQuads = new std::list<GuavaQuads *>();
             listaQuads->push_back(nuevo);
         }
+        GuavaQuads* comentario = new GuavaComment("EXPRESION BINARIA.",line, column);
+        listaQuads->push_front(comentario);
         return listaQuads;
     }
 
@@ -1419,6 +1423,8 @@ public:
             salida_entrada = new GuavaEntradaSalida(operacion, argumento->addr);
         }
         result->push_back(salida_entrada);
+        GuavaQuads* comentario = new GuavaComment("ENTRADA Y SALIDA.");
+        result->push_front(comentario);
         return result;
     }
 };
@@ -1494,6 +1500,8 @@ public:
         }
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
         result->push_back(go_to);
+        GuavaQuads* comentario = new GuavaComment("CONTINUE/BREAK",line,column);
+        result->push_front(comentario);
         return result;
     }
 
@@ -1538,8 +1546,7 @@ public:
     LParam* parametros; 
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listaI;
-    std::list<GuavaQuads*>* lista_quads;
-    GuavaQuads* next;
+    GuavaQuads* label;
 
     void set_line_column(int l, int c){
         line = l;
@@ -1553,9 +1560,11 @@ public:
     void show(std::string);
 
     std::list<GuavaQuads*>* generar_quads(){
-        next = new GuavaLabel();
+        label = new GuavaLabel(identificador->identificador);
         std::list<GuavaQuads*>* quads =  listaI->generar_quads();
-        quads->push_back(next);
+        quads->push_front(label);
+        GuavaQuads* comentario = new GuavaComment("FUNCION",line,column);
+        quads->push_front(comentario);
         return quads;
     }
 };
@@ -1576,8 +1585,13 @@ public:
     void show(std::string);
 
     std::list<GuavaQuads*>* generar_quads(){
-        std::list<GuavaQuads*>* result = funcion->generar_quads();
-        std::list<GuavaQuads*>* code = lista->generar_quads();
+        std::list<GuavaQuads*>* result = 0;
+        std::list<GuavaQuads*>* code = 0;
+        if (funcion != 0) result = funcion->generar_quads();
+        if (result == 0){
+            result = new std::list<GuavaQuads*>();
+        }
+        if (lista != 0) code = lista->generar_quads();
         if (code != 0) result->splice(result->end(),*code);
         return result;
     }

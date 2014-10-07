@@ -25,6 +25,7 @@ void mensajeAyuda(){
     std::cout << "-s: Trace the scanning of the file.\n";
     std::cout << "-t: Print the Abstract Syntax Tree of the file's source code.\n";
     std::cout << "-st: Print the Symbol Table.\n";
+    std::cout << "-pq: Print the quads of the file's source code.";
     std::cout << "-h: Print this help text.\n";
 }
 
@@ -49,6 +50,10 @@ int main (int argc, char *argv[]){
         else if(arg.compare(std::string("-st")) == 0){
             uso_ninguna_opcion = false;
             driver.print_table = true;
+        }
+        else if (arg.compare(std::string("-pq")) == 0 ){
+            driver.print_quads = true;
+
         }
         else if (arg.compare(std::string("-h")) == 0){
             mensajeAyuda();

@@ -53,6 +53,7 @@ public:
 class Exp{
 public:
     Symbol* addr;
+    NewTemp* temp;
     std::list<GuavaQuads*>* listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
     virtual void show(std::string) = 0;
@@ -210,6 +211,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
@@ -254,6 +256,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
@@ -298,6 +301,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
@@ -346,6 +350,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
@@ -485,6 +490,7 @@ public:
     
     virtual std::list<GuavaQuads*>* generar_quads(){
         listaQuads = exp->generar_quads();
+        addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
         //Se verifica si la expresion es un identificador
         if (listaQuads == 0) {
@@ -549,6 +555,7 @@ public:
     virtual std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
         std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
+        addr = temp->newtemp();
         GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
         //Se verifica que la expresion izquierda no sea un identificador
         if (quads1 != 0) {
@@ -580,12 +587,20 @@ public:
 
 };
 
-
-
-class ExpBinBool: public ExpBin, public ExpBool{
+class ExpBinBoolComparison: public ExpBin, public ExpBool{
 public:
-    ExpBinBool(Exp*,Exp*,std::string);
-    ~ExpBinBool(){}
+    ExpBinBoolComparison(Exp*,Exp*,std::string);
+    ~ExpBinBoolComparison(){}
+    BoolLabel* bool_label(){return labels_bool;}
+    bool exp_bool(){ return true; }
+    virtual std::list<GuavaQuads*>* generar_quads();
+};
+
+class ExpBinBoolLogic: public ExpBin, public ExpBool{
+public:
+    bool AND = false;
+    ExpBinBoolLogic(Exp*,Exp*,std::string);
+    ~ExpBinBoolLogic(){}
     BoolLabel* bool_label(){return labels_bool;}
     bool exp_bool(){ return true; }
     virtual std::list<GuavaQuads*>* generar_quads();
@@ -601,11 +616,13 @@ public:
     virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
     virtual void show(std::string) = 0;
     virtual bool es_return(){ return false; }
+    virtual bool continue_break(){ return true; } 
     virtual bool tiene_lista_instrucciones() { return false; }
     virtual bool selector_if() { return false; } 
     virtual int get_line() { return 0; }
     virtual int get_column() { return 0; }
     virtual std::list<GuavaQuads*>* generar_quads(){ return 0; }
+    virtual void set_begin(GuavaQuads*){ }
 };
 
 
@@ -640,6 +657,8 @@ public:
     std::list<GuavaQuads*>* generar_quads();
 
     std::list<Instruccion*> obtener_continue_break();
+
+    void set_begin(GuavaQuads*);
 
     void set_next(Instruccion* inst);
 
@@ -1125,6 +1144,8 @@ public:
         column = c;
     }
 
+    std::list<GuavaQuads*>* generar_quads();
+
     void show(std::string);
 
 };
@@ -1182,7 +1203,6 @@ public:
     ExpID* exp_id = 0;
     Identificador* identificador = 0;
     LCorchetesExp* lcorchetesexp = 0;  
-    NewTemp* temp;
     GuavaSymTable* tabla = 0;
     int offset = -1;
     Symbol* bp = 0;
@@ -1336,16 +1356,28 @@ public:
     TypeS* tipo;
     int line;
     int column;
+    std::list<Exp*> lvarovalor;
 
     void set_line_column(int l, int c){
         line = l;
         column = c;
     }
 
-    std::list<Exp*> lvarovalor;
     LVaroValor(bool);
     void append(Exp* e);
     ~LVaroValor();        
+
+    int size(){
+        return lvarovalor.size();
+    }
+
+    std::list<Exp*>::iterator begin(){
+        return lvarovalor.begin();
+    }
+
+    std::list<Exp*>::iterator end(){
+        return lvarovalor.end();
+    }
     
     void show(std::string);
 };
@@ -1400,6 +1432,8 @@ public:
     
     void show(std::string);
 
+    std::list<GuavaQuads*>* generar_quads();
+
 };
 
 /**
@@ -1446,6 +1480,10 @@ public:
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
         result->push_back(go_to);
         return result;
+    }
+
+    void set_begin(GuavaQuads* begin_){
+        begin = begin_;
     }
 };
 

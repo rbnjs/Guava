@@ -273,7 +273,64 @@ public:
 
     std::string gen(){
         std::string code ("");
-        code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
+        if (arg2!= 0) code += "if " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
+        else code += "if " + arg1->sym_name+ " " + " goto " + result->sym_name;
         return code;
+    }
+};
+
+/** 
+ * Clase que represena un If dentro 
+ * de nuestro lenguaje intermedio.
+ */
+class GuavaQuadsIfNot:public GuavaQuadsExp{
+public:
+
+    /** 
+     * Constructores para la clase GuavaQuadsIf
+     *
+     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un SimpleSymbol
+     *
+     * @param op_ Operacion con la que se va a comparar (>, <, = ...)
+     * @param arg1_ Argumento 1. Este seria el addr de la expresion1
+     * @param arg2_ Argumento 2. Este seria el addr de la expresion2
+     * @param result_ Label a donde va a saltar.
+     */ 
+    GuavaQuadsIfNot(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
+    GuavaQuadsIfNot(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaQuads* result_): 
+                            GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
+    ~GuavaQuadsIfNot(){}
+
+    std::string gen(){
+        std::string code ("");
+        if (arg2!= 0) code += "ifnot " + arg1->sym_name+ " " + this->get_op() + " " + arg2->sym_name+ " goto " + result->sym_name;
+        else code += "ifnot " + arg1->sym_name+ " " + " goto " + result->sym_name;
+        return code;
+    }
+};
+
+class GuavaParam: public GuavaQuads{
+public:
+    SimpleSymbol* addr;
+    GuavaParam(SimpleSymbol* addr_): GuavaQuads(std::string("param")), addr(addr_){}
+    ~GuavaParam(){}
+
+    std::string gen(){
+        std::string result ("param ");
+        result += addr->sym_name;
+        return result;
+    }
+};
+
+class GuavaCall: public GuavaQuadsExp{
+public:
+    GuavaCall(std::string id, SimpleSymbol* arg, SimpleSymbol* addr): GuavaQuadsExp(id,arg,0,addr){}
+    ~GuavaCall(){}
+    
+    std::string gen(){
+        std::string result ("call ");
+        result += this->get_op();
+        result += ", " + this->get_arg1()->sym_name;
+        return result; 
     }
 };

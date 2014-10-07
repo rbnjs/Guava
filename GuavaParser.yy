@@ -1321,6 +1321,8 @@ expID: identificador   { TypeS* tipo;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                             if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                 result = new ExpIdentificador($1);
+                                result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);                                    
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 /* En caso de ser una estructura o union, se asigna la tabla de simbolos y address
@@ -1354,6 +1356,8 @@ expID: identificador   { TypeS* tipo;
                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {
                                            if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                                result = new ExpIDLCorchetes($1,$2);
+                                               result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);                                    
                                                result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                            }
                                            //Se verifica que la lista de expresiones sea de Integers y el simbolo un arreglo
@@ -1422,6 +1426,8 @@ expID: identificador   { TypeS* tipo;
                                 } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->tabla)) != 0){
                                     tipo = obtener_tipo_simbolo(id);
                                     result = new ExpIdentificador(exp_id,$3);
+                                    result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);                                    
                                     result->tipo = tipo;
                                     result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 } else {
@@ -1448,6 +1454,8 @@ expID: identificador   { TypeS* tipo;
                                        if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                             ExpID* exp_id = (ExpID*) $1;
                                             result = new ExpIDLCorchetes(exp_id,$3,$4);
+                                            result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
+                                                        yylloc.begin.column,&driver.tablaSimbolos);                                    
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             //Se verifica que el simbolo sea un arreglo
                                             if (tipo->is_array()) {

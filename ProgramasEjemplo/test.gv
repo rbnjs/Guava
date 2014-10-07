@@ -1,11 +1,11 @@
 declare {
-    integer array a[50], b[50];
+    record R {
+        integer a,b;
+    };
+    
+    R record a;
 }
 
 function void main() {
-    declare {
-        integer x,y;
-    }
-
-    a[1] := 1+b[2];
+    a.a := a.b+1;
 }

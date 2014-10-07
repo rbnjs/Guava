@@ -1265,7 +1265,12 @@ exp: expAritmetica  { /**
                       }
                       $$ = $1; 
                     }
-   | expBool        { $$ = $1; }
+   | expBool        { //PARA PRUEBAS
+                      if (!error_state) {
+                        $1->generar_quads();
+                        std::cout << $1->gen();
+                      }
+                      $$ = $1; }
    | valor          { $$ = $1; /*Aqui va:
                                 * $$->addr = newtemp(&driver,yylloc,$1->get_tipo());
                                 * y luego la generacion de la tripleta para cuando se asigna
@@ -1299,18 +1304,15 @@ expID: identificador   { TypeS* tipo;
                                 result = new ExpIdentificador($1);
                                 result->tipo = tipo;
                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
+                                /* En caso de ser una estructura o union, se asigna la tabla de simbolos y address
+                                 * correspondiente.
+                                 */
                                 if (tipo->is_structure() || tipo->is_union()) {
                                     TypeStructure* structure = (TypeStructure *) tipo;
                                     result->tabla = structure->get_tabla();
+                                    revision_scope_id(id,result,&driver,yylloc,result->tabla);
                                 }
-                                /**
-                                 * REVISAR ESTA PARTE, EL IF SIGUIENTE PUEDE HACERCE DENTRO DEL ANTERIOR
-                                 **/
-                                //Se asigna el address a la expresion
-                                if (result->tipo->is_structure()){
-                                    revision_scope_id(id,result,&driver,yylloc, result->tabla);
-                                }else{
+                                else {
                                     revision_scope_id(id,result,&driver,yylloc);
                                 }
                             }
@@ -1350,11 +1352,18 @@ expID: identificador   { TypeS* tipo;
                                                 *
                                                 **/
                                                result->tipo = tipo->get_tipo();
-                                               //En caso de ser una estructura o union, se asigna la tabla de simbolos correspondiente
+                                               /*En caso de ser una estructura o union, se asigna la tabla de simbolos
+                                                * y address correspondiente.
+                                                */
                                                if (result->tipo->is_structure() || result->tipo->is_union()) {
                                                    TypeStructure* structure = (TypeStructure *) tipo->get_tipo();
                                                    result->tabla = structure->get_tabla();
+                                                   revision_scope_id(id,result,&driver,yylloc,result->tabla);
                                                }
+                                               else {
+                                                   revision_scope_id(id,result,&driver,yylloc);
+                                               }
+
                                            }
                                            //Caso en el que el simbolo no es un arreglo
                                            else if (!tipo->is_array()) {
@@ -1368,9 +1377,9 @@ expID: identificador   { TypeS* tipo;
                                                result->tipo = TypeError::Instance();
                                                driver.error(yylloc,msg);
                                            }
-                                           //Se asigna el address a la expresion
-                                           // ESTO HAY QUE PROBARLO BIEN
-                                           result->addr = newtemp(&driver,yylloc,result->get_tipo());
+                                           /* Se asigna el address a la expresion, necesario para los
+                                            * calculos de acceso a elementos del arreglo.
+                                            */
                                            result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
                                                                           yylloc.begin.column,&driver.tablaSimbolos);
                                         } else {
@@ -1594,7 +1603,7 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                      }
              | exp '/' exp           { ExpBin* tmp = new ExpBin($1,$3,std::string("/"));
                                        tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                       std::string msg = tmp->revision_binaria($1,$3,tmp,TypeInt::Instance(),TypeReal::Instance(),mensaje_error_tipos,
+                                       std::string msg = tmp->revision_binaria($1,$3,tmp,TypeReal::Instance(),0,mensaje_error_tipos,
                                                                                mensaje_diff_operandos);                                      
                                        if (!msg.empty()) driver.error(yylloc,msg), error_state = 1;                                                 
                                        tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
@@ -1645,7 +1654,6 @@ valor: BOOL     {
                   Valor* v = new Bool($1,TypeBool::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->addr = newtemp(&driver,yylloc,TypeBool::Instance());
-                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | STRING   { 
@@ -1653,28 +1661,24 @@ valor: BOOL     {
                   insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->addr = newtemp(&driver,yylloc,TypeString::Instance());
-                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | CHAR     { 
                   Valor* v = new Char($1,TypeChar::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->addr = newtemp(&driver,yylloc,TypeChar::Instance());
-                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | INTEGER  { 
                   Valor* v  = new Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->addr = newtemp(&driver,yylloc,TypeInt::Instance());
-                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | REAL     { 
                   Valor* v = new Real($1,TypeReal::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->addr = newtemp(&driver,yylloc,TypeReal::Instance());
-                  //generacion de codigo intermedio
                   $$ = v;
                 }
      | arreglo  {

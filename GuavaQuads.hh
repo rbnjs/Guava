@@ -150,7 +150,13 @@ public:
         std::string code ("");
         //Caso Operaciones Binarias
         if (arg2 != 0){
-            code += result->sym_name + ":=" + arg1->sym_name + this->get_op() + arg2->sym_name;
+            //Acceso a elementos de arreglo, base pointer.
+            if (this->get_op().compare(std::string("[]")) == 0) {
+                code += result->sym_name + ":=" + arg1->sym_name + "[" + arg2->sym_name + "]";
+            }
+            else {
+                code += result->sym_name + ":=" + arg1->sym_name + this->get_op() + arg2->sym_name;
+            }
         //Caso Operaciones Unarias
         } else {
             if (this->get_op().compare(std::string(":=")) == 0) {

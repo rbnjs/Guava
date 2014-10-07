@@ -1144,6 +1144,8 @@ public:
         column = c;
     }
 
+    std::list<GuavaQuads*>* generar_quads();
+
     void show(std::string);
 
 };
@@ -1354,16 +1356,28 @@ public:
     TypeS* tipo;
     int line;
     int column;
+    std::list<Exp*> lvarovalor;
 
     void set_line_column(int l, int c){
         line = l;
         column = c;
     }
 
-    std::list<Exp*> lvarovalor;
     LVaroValor(bool);
     void append(Exp* e);
     ~LVaroValor();        
+
+    int size(){
+        return lvarovalor.size();
+    }
+
+    std::list<Exp*>::iterator begin(){
+        return lvarovalor.begin();
+    }
+
+    std::list<Exp*>::iterator end(){
+        return lvarovalor.end();
+    }
     
     void show(std::string);
 };
@@ -1417,6 +1431,8 @@ public:
     TypeS* get_tipo(){ return tipo; }
     
     void show(std::string);
+
+    std::list<GuavaQuads*>* generar_quads();
 
 };
 

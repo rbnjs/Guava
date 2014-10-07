@@ -1185,6 +1185,8 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                             TypeFunction * func = (TypeFunction*) tipo;
                                                             result = new LlamadaFuncion($1,$3);
                                                             TypeS* rango = tipo->get_tipo(); 
+                                                            result->temp = new NewTemp(&secuencia_temporales, rango, yylloc.begin.line,
+                                                                          yylloc.begin.column,&driver.tablaSimbolos);
                                                             std::list<TypeS*>::iterator parametros = func->parametros.begin();
                                                             int expected = func->parametros.size();
                                                             int given = $3->lvarovalor.size();
@@ -1218,6 +1220,7 @@ llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id;
                                                                     ++lvarovalor;
                                                                 }
                                                                 result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                                                
                                                                 $$= result;
                                                             }
                                                         } else {

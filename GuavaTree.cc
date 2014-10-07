@@ -976,6 +976,33 @@ void Asignacion::show(std::string s) {
     }
 } 
 
+std::list<GuavaQuads*>* Asignacion::generar_quads(){
+    std::list<GuavaQuads*>* result = id->generar_quads();
+    if (exp->exp_bool()){
+        //Caso en el que es una expresion booleana vamos a aprovechar 
+        //jumping code
+        BoolLabel* label = exp->bool_label();
+        label->true_label = new GuavaLabel();
+        label->false_label = new GuavaLabel();
+        std::list<GuavaQuads*>* code = exp->generar_quads();
+        if (code != 0) result->splice(result->end(),*code);
+        result->push_back(label->true_label);
+        GuavaQuads* exp_true = new GuavaQuadsExp(":=",new SimpleSymbol("true"),0,id->addr);
+        result->push_back(exp_true);
+        GuavaQuads* go_to = new GuavaGoTo(next);
+        result->push_back(go_to);
+        result->push_back(label->false_label);
+        GuavaQuads* exp_false = new GuavaQuadsExp(":=",new SimpleSymbol("false"),0,id->addr);
+        result->push_back(exp_false);
+    }else {
+        std::list<GuavaQuads*>* code = exp->generar_quads();
+        if (code != 0) result->splice(result->end(),*code);
+        GuavaQuads* exp_result = new GuavaQuadsExp(":=",exp->addr,0,id->addr);
+        result->push_back(exp_result);
+    }
+    return result;
+}
+
 
 /* Class LoopFor */
 
@@ -1192,6 +1219,28 @@ void LlamadaFuncion::show(std::string s){
     std::cout << s << "Argumentos: \n";
     lvarovalor->show(s+ "  ");
 } 
+
+std::list<GuavaQuads*>* LlamadaFuncion::generar_quads(){
+    addr = temp->newtemp();
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
+
+    for (std::list<Exp*>::iterator it = lvarovalor->begin(); it != lvarovalor->end(); ++it){
+        Exp* expresion = *it;
+        std::list<GuavaQuads*> * code = expresion->generar_quads();
+        if (code != 0 ) result->splice(result->end(),*code);
+    }
+
+    for (std::list<Exp*>::iterator it = lvarovalor->begin(); it != lvarovalor->end(); ++it){
+        Exp* expresion = *it;
+        GuavaParam* param = new GuavaParam(expresion->addr);
+        result->push_back(param);
+    }
+    std::ostringstream convert; 
+    convert << lvarovalor->size();
+    GuavaQuads* call = new GuavaCall(id->identificador,new SimpleSymbol(convert.str()),addr);
+    result->push_back(call);
+    return result;
+}
 
 
 /* Class LParam */

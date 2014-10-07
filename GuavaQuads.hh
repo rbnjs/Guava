@@ -303,3 +303,28 @@ public:
     }
 };
 
+class GuavaParam: public GuavaQuads{
+public:
+    SimpleSymbol* addr;
+    GuavaParam(SimpleSymbol* addr_): GuavaQuads(std::string("param")), addr(addr_){}
+    ~GuavaParam(){}
+
+    std::string gen(){
+        std::string result ("param ");
+        result += addr->sym_name;
+        return result;
+    }
+};
+
+class GuavaCall: public GuavaQuadsExp{
+public:
+    GuavaCall(std::string id, SimpleSymbol* arg, SimpleSymbol* addr): GuavaQuadsExp(id,arg,0,addr){}
+    ~GuavaCall(){}
+    
+    std::string gen(){
+        std::string result ("call ");
+        result += this->get_op();
+        result += ", " + this->get_arg1()->sym_name;
+        return result; 
+    }
+};

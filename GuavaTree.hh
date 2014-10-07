@@ -43,7 +43,7 @@ public:
 class ExpBool{
 public:
     BoolLabel* labels_bool;
-    ExpBool(){labels_bool = new BoolLabel();}
+    ExpBool(){ labels_bool = new BoolLabel(); }
     ~ExpBool(){};
 };
 
@@ -52,7 +52,7 @@ public:
  */
 class Exp{
 public:
-    Symbol* addr;
+    SimpleSymbol* addr;
     NewTemp* temp;
     std::list<GuavaQuads*>* listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
@@ -192,6 +192,9 @@ public:
 
     bool is_real() { return true; }
     Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
     }
     float get_valor() { return valor; };
     TypeS* get_tipo() { return tipo; }
@@ -218,7 +221,6 @@ public:
         return listaQuads;
     };
     /*void gen(void (*gen)(std::string)){
-        std::ostringstream convert;
         convert << valor;
         gen(addr +":="+ convert.str());         
     }*/
@@ -239,7 +241,11 @@ public:
     int column;
 
     bool is_int() { return true; }
-    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {}   
+    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }   
     int getValor() {return valor;}
     TypeS* get_tipo() { return tipo; }
     ~Integer(){}
@@ -283,7 +289,11 @@ public:
     int column;
 
     bool is_char() { return true; }
-    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }
     char get_valor() { return valor; } 
     ~Char(){}
     TypeS* get_tipo() { return tipo; }
@@ -328,7 +338,9 @@ public:
     int column;
 
     bool is_str() { return true; }
-    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {}
+    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {
+        addr = new SimpleSymbol(*valor);
+    }
     String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
     std::string* get_valor(){ return valor; } 
     TypeS* get_tipo() { return tipo; }
@@ -375,7 +387,11 @@ public:
 
     virtual BoolLabel* bool_label(){return labels_bool;}
 
-    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {}  
+    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }  
     bool  get_valor() { return valor; }
     TypeS* get_tipo() { return tipo; }
     ~Bool();
@@ -616,7 +632,7 @@ public:
     virtual TypeS* get_tipo() {return TypeVoid::Instance();} 
     virtual void show(std::string) = 0;
     virtual bool es_return(){ return false; }
-    virtual bool continue_break(){ return true; } 
+    virtual bool continue_break(){ return false; } 
     virtual bool tiene_lista_instrucciones() { return false; }
     virtual bool selector_if() { return false; } 
     virtual int get_line() { return 0; }
@@ -876,6 +892,7 @@ public:
             return false;
         }
     }
+    
 };
 
 /**
@@ -1575,6 +1592,13 @@ public:
     ~LFunciones();
     
     void show(std::string);
+
+    std::list<GuavaQuads*>* generar_quads(){
+        std::list<GuavaQuads*>* result = funcion->generar_quads();
+        std::list<GuavaQuads*>* code = lista->generar_quads();
+        if (code != 0) result->splice(result->end(),*code);
+        return result;
+    }
 };
 
 /**

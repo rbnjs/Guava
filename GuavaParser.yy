@@ -1285,10 +1285,10 @@ exp: expAritmetica  { /**
                       $$ = $1; 
                     }
    | expBool        { //PARA PRUEBAS
-                      if (!error_state) {
-                        $1->generar_quads();
-                        std::cout << $1->gen();
-                      }
+                      //if (!error_state) {
+                        //$1->generar_quads();
+                        //std::cout << $1->gen();
+                      //}
                       $$ = $1; }
    | valor          { $$ = $1; /*Aqui va:
                                 * $$->addr = newtemp(&driver,yylloc,$1->get_tipo());

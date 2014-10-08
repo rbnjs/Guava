@@ -321,6 +321,8 @@ std::list<GuavaQuads*>* ExpBinBoolComparison::generar_quads(){
         result->push_back(if_not);
     }
 
+    GuavaQuads* comentario = new GuavaComment("EXPRESION COMPARACIÓN.",line, column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -346,6 +348,8 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         if (labels_bool->false_label->fall()){
            result->push_back(label1->false_label); 
         }
+        GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
+        result->push_front(comentario);
         return result;
     } else {
         BoolLabel* label1 = exp1->bool_label();
@@ -360,6 +364,8 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         if (labels_bool->false_label->fall()){
            result->push_back(label1->false_label); 
         }
+        GuavaQuads* comentario = new GuavaComment("EXPRESION OR.",line, column);
+        result->push_front(comentario);
         return result;
 
     }
@@ -452,7 +458,10 @@ std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
 
     if (instruccion != 0){
         instruccion->next = next;
-        l_quads1 = instruccion->generar_quads(); 
+        l_quads1 = instruccion->generar_quads();  
+        if (l_quads1 == 0){
+            l_quads1 = new std::list<GuavaQuads*>();
+        }
         l_quads1->push_back(instruccion->next); //Coloco al final del codigo el label de instruccion.
     }
     else return 0;
@@ -751,6 +760,8 @@ std::list<GuavaQuads*>* Else::generar_quads(){
     }else {
         result = listainstrucciones->generar_quads();
     }
+    GuavaQuads* comentario = new GuavaComment("ELSE IF",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -785,6 +796,8 @@ std::list<GuavaQuads*>* ElseIf::generar_quads(){
         result->push_back(label->false_label);
         result->splice(result->end(),*code_leif);
     }    
+    GuavaQuads* comentario = new GuavaComment("ELSE IF",line,column);
+    result->push_front(comentario);
     return result;
 }
 
@@ -1533,12 +1546,12 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::ostringstream convert;
     Symbol* r;
     if (identificador == 0) return 0;
-    
+
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
     if (exp_id != 0){
         if (tabla != 0){
-            r = tabla->lookup(identificador->identificador);
+            r = tabla->lookup(exp_id->identificador->identificador);
             exp_id->offset_structure += r->offset;
         }
         result = exp_id->generar_quads(); 
@@ -1567,6 +1580,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             result->push_back(nuevo_q);
         } else {
             Symbol* f = tabla->lookup(identificador->identificador);
+            std::cout << f;
             convert << f->offset;
             SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",addr,offset_,addr);

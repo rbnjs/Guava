@@ -842,7 +842,7 @@ loopfor: FOR '(' expID ';' expBool ';' errorloopfor ')' '{' {
                                                                                     //de la expresion
                                                                                     if (exp_id->get_tipo() == exp->get_tipo()){
                                                                                         tmp = new 
-                                                                                            LoopFor(exp_id, $5,asign_exp->exp,$11,$12);
+                                                                                            LoopForExp(exp_id, $5,asign_exp->exp,$11,$12);
                                                                                         tmp->tipo = TypeVoid::Instance();
                                                                                     }else{
                                                                                         tmp = new LoopFor();
@@ -864,7 +864,7 @@ loopfor: FOR '(' expID ';' expBool ';' errorloopfor ')' '{' {
                                                                                     Identificador* identificador_tmp = exp_id_tmp->identificador;
                                                                                     if (identificador_tmp->identificador.compare(identificador->identificador) ){
                                                                                         tmp = new 
-                                                                                            LoopFor(exp_id, $5,asign_exp->asign,$11,$12);
+                                                                                            LoopForAsignacion(exp_id, $5,asign_exp->asign,$11,$12);
                                                                                         tmp->tipo = TypeVoid::Instance();
                                                                                     } else {
                                                                                         driver.error(yylloc,
@@ -1541,6 +1541,8 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBinBoolLogic($1,$3,std::stri
                                //tmp->addr = newtemp(&driver,yylloc,tmp->get_tipo());
                                tmp->temp = new NewTemp(&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);
+
+                               tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                $$ = tmp;
 
                              }
@@ -1841,8 +1843,8 @@ larreglo: larreglo ',' exp      {
                                   tmp->tipo_primitivo = TypeError::Instance();
                                 };
 
-identificador: ID { std::string str =  std::string($1);
-                    Identificador* id = new Identificador(str);
+identificador: ID { std::string *str = new std::string($1);
+                    Identificador* id = new Identificador(*str);
                     id->line = yylloc.begin.line;
                     id->column = yylloc.begin.column;
                     id->temp = new NewTemp(&secuencia_temporales, TypeVoid::Instance(), yylloc.begin.line, // Voy a dejar el tipo en void mientras tanto.

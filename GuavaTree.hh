@@ -52,7 +52,7 @@ public:
  */
 class Exp{
 public:
-    SimpleSymbol* addr = 0;
+    SimpleSymbol* addr;
     NewTemp* temp;
     std::list<GuavaQuads*>* listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
@@ -191,7 +191,11 @@ public:
     float valor;
 
     bool is_real() { return true; }
-    Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){};
+    Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }
     float get_valor() { return valor; };
     TypeS* get_tipo() { return tipo; }
     ~Real(){
@@ -237,7 +241,11 @@ public:
     int column;
 
     bool is_int() { return true; }
-    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {};   
+    Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }   
     int getValor() {return valor;}
     TypeS* get_tipo() { return tipo; }
     ~Integer(){}
@@ -281,7 +289,11 @@ public:
     int column;
 
     bool is_char() { return true; }
-    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
+    Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }
     char get_valor() { return valor; } 
     ~Char(){}
     TypeS* get_tipo() { return tipo; }
@@ -326,7 +338,9 @@ public:
     int column;
 
     bool is_str() { return true; }
-    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {}
+    String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {
+        addr = new SimpleSymbol(*valor);
+    }
     String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
     std::string* get_valor(){ return valor; } 
     TypeS* get_tipo() { return tipo; }
@@ -373,7 +387,11 @@ public:
 
     virtual BoolLabel* bool_label(){return labels_bool;}
 
-    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {}  
+    Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {
+        std::ostringstream convert;
+        convert << valor;
+        addr = new SimpleSymbol(convert.str());
+    }  
     bool  get_valor() { return valor; }
     TypeS* get_tipo() { return tipo; }
     ~Bool();
@@ -558,16 +576,16 @@ public:
         addr = temp->newtemp();
         GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
         //Se verifica que la expresion izquierda no sea un identificador
-        if (!quads1->empty()) {
+        if (quads1 != 0) {
             //Se verifica que la expresion derecha no sea un identificador
-            if (!quads2->empty()) {
+            if (quads2 != 0) {
                 quads1->splice(quads1->end(),*quads2);
             }
             quads1->push_back(nuevo);
             listaQuads = quads1;
         }
         //Se verifica que la expresion derecha no sea un identificador
-        else if (!quads2->empty()){
+        else if (quads2 != 0){
             quads2->push_back(nuevo);
             listaQuads = quads2;
         }
@@ -595,7 +613,7 @@ public:
     ~ExpBinBoolComparison(){}
     BoolLabel* bool_label(){return labels_bool;}
     bool exp_bool(){ return true; }
-    virtual std::list<GuavaQuads*>* generar_quads();
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 class ExpBinBoolLogic: public ExpBin, public ExpBool{
@@ -605,7 +623,7 @@ public:
     ~ExpBinBoolLogic(){}
     BoolLabel* bool_label(){return labels_bool;}
     bool exp_bool(){ return true; }
-    virtual std::list<GuavaQuads*>* generar_quads();
+    std::list<GuavaQuads*>* generar_quads();
 };
 
 

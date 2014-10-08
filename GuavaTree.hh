@@ -360,8 +360,7 @@ public:
     }
     std::list<GuavaQuads*>* generar_quads(){ 
         std::ostringstream convert;
-        convert << valor;
-        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
+        SimpleSymbol* nombre = new SimpleSymbol(*valor); 
         addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
@@ -1233,11 +1232,6 @@ public:
     //Unions y records
     int offset_structure = 0;
 
-    //Esto es para los acceso a arreglos
-    TypeS* type_array;
-    Symbol* array;
-
-
     /**
      * Constructores de la clase.
      */
@@ -1283,6 +1277,8 @@ public:
                                                       TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
 
     void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
+
+    int offset_acceso_estructuras(ExpID* );
     
     bool operator==(ExpID);
 };
@@ -1441,7 +1437,7 @@ public:
             salida_entrada = new GuavaEntradaSalida(operacion, argumento->addr);
         }
         result->push_back(salida_entrada);
-        GuavaQuads* comentario = new GuavaComment("ENTRADA Y SALIDA.");
+        GuavaQuads* comentario = new GuavaComment("ENTRADA Y SALIDA.", line, column);
         result->push_front(comentario);
         return result;
     }

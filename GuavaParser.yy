@@ -1283,10 +1283,10 @@ exp: expAritmetica  { /**
                        * Cada vez que se imprima codigo intermedio, borrar los quads. MOSCA.
                        *
                        **/
-                      if (!error_state) {
+                      /*if (!error_state) {
                         $1->generar_quads();
                         std::cout << $1->gen();
-                      }
+                      }*/
                       $$ = $1; 
                     }
    | expBool        { //PARA PRUEBAS
@@ -1326,6 +1326,7 @@ expID: identificador   { TypeS* tipo;
                          if ((id = variable_no_declarada($1->identificador,&driver,yylloc, tabla_actual.front()))  != 0) {
                             if ((tipo = obtener_tipo_simbolo(id)) != 0) {
                                 result = new ExpIdentificador($1);
+                                result->offset = id->offset;
                                 result->tipo = tipo;
                                 result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);                                    
@@ -1412,6 +1413,7 @@ expID: identificador   { TypeS* tipo;
                                            result = new ExpID();
                                            result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                        }
+                                       result->offset = id->offset;
                                        $$ = result;
                                      }
      | expID '.' identificador { 
@@ -1427,10 +1429,27 @@ expID: identificador   { TypeS* tipo;
                                     result = new ExpID();
                                     result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                 } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->tabla)) != 0){
-                                    tipo = obtener_tipo_simbolo(id);
-                                    result = new ExpIdentificador(exp_id,$3);
-                                    result->tipo = tipo;
-                                    result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    if ((tipo = obtener_tipo_simbolo(id)) != 0) {
+                                        result = new ExpIdentificador(exp_id,$3);
+                                        result->offset = id->offset;
+                                        result->tipo = tipo;
+                                        result->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                        /* En caso de ser una estructura o union, se asigna la tabla de simbolos
+                                         * y address correspondiente.
+                                         */
+                                        if (tipo->is_structure() || tipo->is_union()) {
+                                            TypeStructure* structure = (TypeStructure *) tipo;
+                                            result->tabla = structure->get_tabla();
+                                            revision_scope_id(id,result,&driver,yylloc,result->tabla);
+                                        }
+                                        else {
+                                            revision_scope_id(id,result,&driver,yyloc);
+                                        }
+                                    }
+                                    else {
+                                        std::string msg("Type has not been declared or doesn't exists in current context.");
+                                        driver.error(yylloc,msg);
+                                    }
                                 } else {
                                     //Error
                                     result = new ExpID();
@@ -1438,6 +1457,7 @@ expID: identificador   { TypeS* tipo;
                                 }
                                 result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);                                    
+
                                 $$ = result;
                               }
        | expID '.' identificador 
@@ -1455,7 +1475,6 @@ expID: identificador   { TypeS* tipo;
                                         result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                    } else if ((id = variable_no_declarada($3->identificador,&driver,yylloc, exp_id->get_tabla()))  != 0) {  
                                        if ((tipo = obtener_tipo_simbolo(id)) != 0) {
-                                            ExpID* exp_id = (ExpID*) $1;
                                             result = new ExpIDLCorchetes(exp_id,$3,$4);
                                             result->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                             //Se verifica que el simbolo sea un arreglo
@@ -1490,6 +1509,8 @@ expID: identificador   { TypeS* tipo;
                                    }
                                    result->temp = new NewTemp(&secuencia_temporales, result->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);                                    
+
+                                   result->offset = id->offset;
                                    $$ = result;
                                  };
 

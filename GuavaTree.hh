@@ -1215,11 +1215,6 @@ public:
     //Unions y records
     int offset_structure = 0;
 
-    //Esto es para los acceso a arreglos
-    TypeS* type_array;
-    Symbol* array;
-
-
     /**
      * Constructores de la clase.
      */
@@ -1265,6 +1260,8 @@ public:
                                                       TypeS* (*obtener_tipo_simbolo)(Symbol*),std::string (*mensaje_error_tipo)(std::string,std::string));
 
     void init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*));
+
+    int offset_acceso_estructuras(ExpID* );
     
     bool operator==(ExpID);
 };

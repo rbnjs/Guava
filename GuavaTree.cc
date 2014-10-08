@@ -1475,7 +1475,6 @@ std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identifica
     if (tipo != 0){
         result = new ExpID(identificador, lce);
         result->set_line_column(line,column);
-        result->array = id;
 
         if (lce->get_tipo() == TypeInt::Instance() &&
             tipo->is_array()) {
@@ -1504,16 +1503,6 @@ std::string ExpID::revision_exp_id_arreglo(Symbol* id ,Identificador* identifica
     return msg;
 }
 
-/**
- * Inicializa una ExpresionID de tipo Arreglo 
- */
-void ExpID::init_array(Symbol* id, TypeS* tipo, TypeS* (*contents)(TypeS*)){
-    array = id;
-    type_array = contents(tipo);
-    addr = temp->newtemp();
-    
-}
-
 bool ExpID::operator==(ExpID id){
     bool result_recursivo;
     if (exp_id != 0 && id.exp_id != 0) result_recursivo = (exp_id == id.exp_id);
@@ -1532,44 +1521,47 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
     std::ostringstream convert;
     Symbol* r;
+    int offset;
     if (identificador == 0) return 0;
     
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
     if (exp_id != 0){
-        if (tabla != 0){
-            r = tabla->lookup(identificador->identificador);
-            exp_id->offset_structure += r->offset;
-        }
-        result = exp_id->generar_quads(); 
+        r = exp_id->tabla->lookup(identificador->identificador);
+        exp_id->offset_structure += r->offset;
+        return exp_id->generar_quads();
     }
 
-    //Caso en el que esta solo
+    //Caso variables simples
     if (tabla == 0){
+        //Variables locales
         if (bp != 0){
-            //Caso en el que no es global
             convert << offset;
             SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
             result->push_back(nuevo_q);
+        //Variables globales
         }else{
-            //Caso en el que es global
             return new std::list<GuavaQuads*>();
         }
+    //Caso variables estructura
     } else {
-        //Caso en el que no esta solo
+        //Estructuras locales
         if (bp != 0){
-            // Caso en el que no es global        
             Symbol* f = tabla->lookup(identificador->identificador);
             convert << (offset_structure + f->offset);
             SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
             result->push_back(nuevo_q);
+        //Estructuras globales
         } else {
-            Symbol* f = tabla->lookup(identificador->identificador);
-            convert << f->offset;
+            //LAS SIGUENTES LINEAS NO SIRVEN PUES ESTARIA BUSCANDOSE EL MISMO EN LA TABLA DE EL
+            /*Symbol* f = tabla->lookup(identificador->identificador);
+            convert << f->offset;*/
+            Symbol* t = temp->newtemp();
+            convert << offset_structure;
             SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
-            GuavaQuads* nuevo_q = new GuavaQuadsExp(":=",addr,offset_,addr);
+            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",addr,offset_,t);
             result->push_back(nuevo_q);
         }
     }

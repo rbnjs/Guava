@@ -878,11 +878,9 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
     if (exp_id != 0){
-        if (tabla != 0){
-            r = tabla->lookup(identificador->identificador);
-            exp_id->offset_structure += r->offset;
-        }
-        result = exp_id->generar_quads(); 
+        r = exp_id->tabla->lookup(identificador->identificador);
+        exp_id->offset_structure += r->offset;
+        return exp_id->generar_quads();
     }
 
     std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();

@@ -316,7 +316,7 @@ std::list<GuavaQuads*>* ExpBinBoolComparison::generar_quads(){
     }else if (!labels_bool->true_label->fall()){
         GuavaQuads* if_quad = new GuavaQuadsIf(operacion,test_symbol,0,labels_bool->true_label); 
         result->push_back(if_quad);
-    }else if (!labels_bool->true_label->fall()) {
+    }else if (!labels_bool->false_label->fall()) {
         GuavaQuads* if_not = new GuavaQuadsIfNot(operacion,test_symbol,0,labels_bool->false_label);
         result->push_back(if_not);
     }

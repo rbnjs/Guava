@@ -942,7 +942,6 @@ public:
     BloqueDeclare* declaraciones = 0;
     ListaInstrucciones* listainstrucciones = 0;
     LElseIf* lelseif = 0;
-    GuavaQuads* next;
 
     LElseIf(bool);
     LElseIf(Exp*, BloqueDeclare*, ListaInstrucciones*, LElseIf*);
@@ -1103,7 +1102,6 @@ public:
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
     GuavaQuads* begin;
-    GuavaQuads* next;
 
 
     /* Constructores y destructores. */
@@ -1299,7 +1297,6 @@ public:
     Exp* exp_aritmetica;
     BloqueDeclare* declaraciones;
     ListaInstrucciones* listainstrucciones;
-    GuavaQuads* next;
     GuavaQuads* begin;
 
     void set_line_column(int l, int c){

@@ -1026,12 +1026,12 @@ std::list<GuavaQuads*>* Asignacion::generar_quads(){
         std::list<GuavaQuads*>* code = exp->generar_quads();
         if (code != 0) result->splice(result->end(),*code);
         result->push_back(label->true_label);
-        GuavaQuads* exp_true = new GuavaQuadsExp(":=",new SimpleSymbol("true"),0,id->addr);
+        GuavaQuads* exp_true = new GuavaQuadsExp(":=",new Symbol("true"),0,id->addr);
         result->push_back(exp_true);
         GuavaQuads* go_to = new GuavaGoTo(next);
         result->push_back(go_to);
         result->push_back(label->false_label);
-        GuavaQuads* exp_false = new GuavaQuadsExp(":=",new SimpleSymbol("false"),0,id->addr);
+        GuavaQuads* exp_false = new GuavaQuadsExp(":=",new Symbol("false"),0,id->addr);
         result->push_back(exp_false);
     }else {
         std::list<GuavaQuads*>* code = exp->generar_quads();
@@ -1177,21 +1177,83 @@ void PlusMinus::show(std::string s) {
 } 
 
 std::list<GuavaQuads*>* PlusMinus::generar_quads(){
+    /**
+     * Cuestiones a modificar:
+     * 
+     * El postincremento evalúa toda la expresión y luego es que incrementa
+     * su valor. Quiere decir que para el caso:
+     *
+     * ...
+     * (1) x := 1;
+     * (2) y := x++;
+     * ...
+     *
+     * El valor de 'y' luego de la instrucción (2) es 1 y el de 'x' es 2, lo
+     * que a nivel intermedio se traduce en:
+     *
+     * ...
+     * y := x;
+     * x := x + 1;
+     * ...
+     *
+     * Por otro lado, el caso:
+     *
+     * ...
+     * (1) x := 1;
+     * (2) y := ++x;
+     * ...
+     *
+     * El valor de 'y' luego de la instrucción (2) es 2 y el de 'x' es 2, lo
+     * que a nivel intermedio se traduce en:
+     *
+     * ...
+     * x := x + 1;
+     * y := x;
+     * ...
+     *
+     * Pensar caso de expresiones más complejas, casos más interesantes.
+     * Este cambio tambien debe de ser implementado en la clase ExpUn de
+     * GuavaTree.hh, donde se hace referencia a cuando el incremento/decremento
+     * se hace en una expresion (a asignar) y no como una instruccion.
+     *
+     * Para este caso no es mas que una simple instruccion, basta con solo
+     * traducir el incremento o decremento. Que sea anterior o posterior no
+     * influye en el contexto.
+     *
+     * Para el caso en el que exista un incremento o decremento dentro de una
+     * expresion es mas delicado: en caso de ser posterior debe de evaluarse
+     * la expresion primero y luego el incremento, caso contrario cuando es
+     * anterior. Mosca con casos como:
+     *
+     * ...
+     * while (i < N) {
+     *
+     *  x := a[i++]; //vs. x := a[++i];
+     *
+     * }
+     * ...
+     *
+     * Ver articulo de Wikipedia para explicacion del operador.
+     **/
+    //Se generan los quads asociados a la expresion operando.
+    std::list<GuavaQuads*>* quads_exp = identificador->generar_quads();
+    std::list<GuavaQuads*>* result = (quads_exp != 0 ? quads_exp : new std::list<GuavaQuads*>());
+    GuavaQuads* operacion;
+    GuavaQuads* comentario;
+
     if (tipo_inst < 2){
-        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
-        GuavaQuads* add = new GuavaQuadsExp("+",identificador->addr, new SimpleSymbol("1"), identificador->addr);
-        result->push_back(add);
-        GuavaQuads* comentario = new GuavaComment("PLUS PLUS",line,column);
+        operacion = new GuavaQuadsExp("-",identificador->addr, new Symbol("1"), identificador->addr);
+        result->push_back(operacion);
+        comentario = new GuavaComment("DECREMENTO",line,column);
         result->push_front(comentario);
-        return result;
     } else {
-        std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
-        GuavaQuads* add = new GuavaQuadsExp("-",identificador->addr, new SimpleSymbol("1"), identificador->addr);
-        result->push_back(add);
-        GuavaQuads* comentario = new GuavaComment("MINUS MINUS",line,column);
+        operacion = new GuavaQuadsExp("+",identificador->addr, new Symbol("1"), identificador->addr);
+        result->push_back(operacion);
+        comentario = new GuavaComment("INCREMENTO",line,column);
         result->push_front(comentario);
-        return result;
     }
+
+    return result;
 }
 
 /* Class LVaroValor */
@@ -1286,7 +1348,7 @@ std::list<GuavaQuads*>* LlamadaFuncion::generar_quads(){
     }
     std::ostringstream convert; 
     convert << lvarovalor->size();
-    GuavaQuads* call = new GuavaCall(id->identificador,new SimpleSymbol(convert.str()),addr);
+    GuavaQuads* call = new GuavaCall(id->identificador,new Symbol(convert.str()),addr);
     result->push_back(call);
     GuavaQuads* comentario = new GuavaComment("LLAMADA FUNCION",line,column);
     result->push_front(comentario);
@@ -1529,7 +1591,7 @@ ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id){}
 ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id){}
 
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
-    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>(); 
     std::ostringstream convert;
     Symbol* r;
     //int offset;
@@ -1548,7 +1610,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
         //Variables locales
         if (bp != 0){
             convert << offset;
-            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            Symbol* offset_ = new Symbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
             result->push_back(nuevo_q);
         //Variables globales
@@ -1561,7 +1623,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
         if (bp != 0){
             Symbol* f = tabla->lookup(identificador->identificador);
             convert << (offset_structure + f->offset);
-            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            Symbol* offset_ = new Symbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
             result->push_back(nuevo_q);
         //Estructuras globales
@@ -1571,7 +1633,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             convert << f->offset;*/
             Symbol* t = temp->newtemp();
             convert << offset_structure;
-            SimpleSymbol* offset_ = new SimpleSymbol(convert.str());
+            Symbol* offset_ = new Symbol(convert.str());
             GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",addr,offset_,t);
             result->push_back(nuevo_q);
         }

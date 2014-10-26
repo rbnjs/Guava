@@ -835,12 +835,15 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
  * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
-    //El scope de las variables temporales y globales es 1.
+    //Caso variables globales y temporales de codigo intermedio
     if (id->scope == 1) {
         result->addr = id;
-    } else {
-        result->bp = (Symbol*) basepointer;
-        result->addr = newtemp(driver,loc,result->get_tipo());
+    } 
+    //Caso variables locales
+    else {
+        /*Se hace una copia del simbolo pero indicando que lo define el
+         * basepointer*/
+        result->addr = new Symbol(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
     }
 }
 
@@ -894,11 +897,12 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     convert << tamano_tipo(tipo);
     //Se generan los quads asociados a la expresion dentro de los corchetes
     quads_expresion = exp_ini->generar_quads();
-    result->splice(result->end(),*quads_expresion);
+    //Se verifica que la expresion no sea un valor constante
+    if (quads_expresion != 0) result->splice(result->end(),*quads_expresion);
     /*Se calcula el resultado de la expresion dentro de los corchetes por el
      *tamano del tipo del arreglo.
      */
-    SimpleSymbol* width = new SimpleSymbol(convert.str());
+    Symbol* width = new Symbol(convert.str());
     GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, t0);
     result->push_back(nuevo_q);
     /**
@@ -910,7 +914,7 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
         Exp* exp_ = *it;
         t1 = temp->newtemp();
         quads_expresion = exp_->generar_quads();
-        result->splice(result->end(),*quads_expresion);
+        if (quads_expresion != 0) result->splice(result->end(),*quads_expresion);
         GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t1);
         t2 = temp->newtemp();
         GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",t0,t1,t2);

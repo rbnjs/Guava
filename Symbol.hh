@@ -62,6 +62,11 @@ public:
     Symbol(std::string name, std::string catg,int scop, TypeS* type,int linea = 0,int columna = 0, int offset = 0);
 
     /**
+     * Constructor basico para nombres y valores.
+     */
+    Symbol(std::string name);
+
+    /**
      * Constructor para simbolo vacio.
      */
     Symbol();

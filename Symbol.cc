@@ -39,6 +39,10 @@ Symbol::Symbol(std::string name, std::string catg,
                                                  scope(scop),true_type(type), type_pointer(0),
                                                  line(linea),column(columna), offset(offset_){} 
 
+/**
+ * Constructor basico para nombres y valores.
+ */
+Symbol::Symbol(std::string name): SimpleSymbol(name) {}
 
 /**  
  * Destructor de la clase Symbol.

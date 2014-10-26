@@ -117,9 +117,9 @@ public:
  */
 class GuavaQuadsExp:public GuavaQuads{
 protected:
-    SimpleSymbol* arg1 = 0;
-    SimpleSymbol* arg2 = 0;
-    SimpleSymbol* result = 0;
+    Symbol* arg1 = 0;
+    Symbol* arg2 = 0;
+    Symbol* result = 0;
 public: 
     /**
      * Constructor de la clase
@@ -128,7 +128,7 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado
      */
-    GuavaQuadsExp(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
     /**
      * Destructor de la clase
      */
@@ -137,9 +137,9 @@ public:
     /**
      * Getters de la clase
      */
-    SimpleSymbol* get_arg1()  { return arg1; }
-    SimpleSymbol* get_arg2()  { return arg2; }
-    SimpleSymbol* get_result(){ return result; }
+    Symbol* get_arg1()  { return arg1; }
+    Symbol* get_arg2()  { return arg2; }
+    Symbol* get_result(){ return result; }
 
     /**
      * Funcion que genera codigo a partir de un Quad
@@ -160,8 +160,16 @@ public:
             }
         //Caso Operaciones Unarias
         } else {
+            //Asignacion
             if (this->get_op().compare(std::string(":=")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name;
+                //Caso l-value local
+                if (result->sym_name.compare(std::string("bp")) == 0) {
+                    code += result->sym_name + "[" + std::to_string(result->offset) + "] := " + arg1->sym_name;
+                }
+                //Caso l-value global
+                else {
+                    code += result->sym_name + ":=" + arg1->sym_name;
+                }
             }
             // Menos unario
             if (this->get_op().compare(std::string("uminus")) == 0) {
@@ -232,17 +240,17 @@ public:
         std::ostringstream convert_l,convert_c;
         convert_l << line; 
         convert_c << column;
-        std::string comment = "#" + this->get_op() + ", line: " + convert_l.str() + "column: " + convert_c.str() +  "\n";
+        std::string comment = "#" + this->get_op() + ", line: " + convert_l.str() + " column: " + convert_c.str() +  "\n";
         return comment;
     }
 };
 
 class GuavaGoTo:public GuavaQuads{
 public:
-    SimpleSymbol* go_to;
+    Symbol* go_to;
     GuavaGoTo(Symbol* label): GuavaQuads("goto"), go_to(label){}
     GuavaGoTo(GuavaQuads* label): GuavaQuads("goto"){
-        go_to = new SimpleSymbol(label->get_op());
+        go_to = new Symbol(label->get_op());
     }
     ~GuavaGoTo(){}
 
@@ -260,16 +268,16 @@ public:
     /** 
      * Constructores para la clase GuavaQuadsIf
      *
-     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un SimpleSymbol
+     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un Symbol
      *
      * @param op_ Operacion con la que se va a comparar (>, <, = ...)
      * @param arg1_ Argumento 1. Este seria el addr de la expresion1
      * @param arg2_ Argumento 2. Este seria el addr de la expresion2
      * @param result_ Label a donde va a saltar.
      */ 
-    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
-    GuavaQuadsIf(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaQuads* result_): 
-                            GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
+    GuavaQuadsIf(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
+    GuavaQuadsIf(std::string op_, Symbol* arg1_, Symbol* arg2_, GuavaQuads* result_): 
+                            GuavaQuadsExp(op_,arg1_,arg2_,new Symbol(result_->get_op())){}
     ~GuavaQuadsIf(){}
 
     std::string gen(){
@@ -290,16 +298,16 @@ public:
     /** 
      * Constructores para la clase GuavaQuadsIf
      *
-     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un SimpleSymbol
+     * Se puede colocar el GuavaLabel para mayor comodidad y este se transforma en un Symbol
      *
      * @param op_ Operacion con la que se va a comparar (>, <, = ...)
      * @param arg1_ Argumento 1. Este seria el addr de la expresion1
      * @param arg2_ Argumento 2. Este seria el addr de la expresion2
      * @param result_ Label a donde va a saltar.
      */ 
-    GuavaQuadsIfNot(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
-    GuavaQuadsIfNot(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, GuavaQuads* result_): 
-                            GuavaQuadsExp(op_,arg1_,arg2_,new SimpleSymbol(result_->get_op())){}
+    GuavaQuadsIfNot(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuadsExp(op_,arg1_,arg2_,result_){}
+    GuavaQuadsIfNot(std::string op_, Symbol* arg1_, Symbol* arg2_, GuavaQuads* result_): 
+                            GuavaQuadsExp(op_,arg1_,arg2_,new Symbol(result_->get_op())){}
     ~GuavaQuadsIfNot(){}
 
     std::string gen(){
@@ -312,8 +320,8 @@ public:
 
 class GuavaParam: public GuavaQuads{
 public:
-    SimpleSymbol* addr;
-    GuavaParam(SimpleSymbol* addr_): GuavaQuads(std::string("param")), addr(addr_){}
+    Symbol* addr;
+    GuavaParam(Symbol* addr_): GuavaQuads(std::string("param")), addr(addr_){}
     ~GuavaParam(){}
 
     std::string gen(){
@@ -325,7 +333,7 @@ public:
 
 class GuavaCall: public GuavaQuadsExp{
 public:
-    GuavaCall(std::string id, SimpleSymbol* arg, SimpleSymbol* addr): GuavaQuadsExp(id,arg,0,addr){}
+    GuavaCall(std::string id, Symbol* arg, Symbol* addr): GuavaQuadsExp(id,arg,0,addr){}
     ~GuavaCall(){}
     
     std::string gen(){
@@ -338,7 +346,7 @@ public:
 
 class GuavaEntradaSalida:public GuavaQuadsExp{
 public:
-    GuavaEntradaSalida(std::string op, SimpleSymbol* arg, SimpleSymbol* addr = 0): GuavaQuadsExp(op,arg,0,addr){}
+    GuavaEntradaSalida(std::string op, Symbol* arg, Symbol* addr = 0): GuavaQuadsExp(op,arg,0,addr){}
     ~GuavaEntradaSalida(){}
     std::string gen(){
         std::string result =this->get_op();

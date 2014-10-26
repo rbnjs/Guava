@@ -595,7 +595,8 @@ instruccion: asignacion     {
                                          ExpID* exp_id = (ExpID*) $2;
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
-                                             if (tipo == TypeInt::Instance()){
+                                             if (tipo == TypeInt::Instance() ||
+                                                 (tipo->is_array() && tipo->get_tipo() == TypeInt::Instance())){
                                                  result = new PlusMinus(exp_id,0);
                                              } 
                                              else {
@@ -621,7 +622,8 @@ instruccion: asignacion     {
                                          ExpID* exp_id = (ExpID*) $1;
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
-                                             if (tipo == TypeInt::Instance()){
+                                             if (tipo == TypeInt::Instance() ||
+                                                 (tipo->is_array() && tipo->get_tipo() == TypeInt::Instance())){
                                                  result = new PlusMinus(exp_id,1);
                                              } 
                                              else {
@@ -647,7 +649,8 @@ instruccion: asignacion     {
                                          ExpID* exp_id = (ExpID*) $2;
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
-                                             if (tipo == TypeInt::Instance()){
+                                             if (tipo == TypeInt::Instance() ||
+                                                 (tipo->is_array() && tipo->get_tipo() == TypeInt::Instance())){
                                                  result = new PlusMinus(exp_id,2);
                                              } 
                                              else {
@@ -673,7 +676,8 @@ instruccion: asignacion     {
                                          ExpID* exp_id = (ExpID*) $1;
                                          if ( (id = variable_no_declarada(exp_id->identificador->identificador,&driver,yylloc, tabla_actual.front())) != 0){
                                              TypeS* tipo = obtener_tipo_simbolo(id);
-                                             if (tipo == TypeInt::Instance()){
+                                             if (tipo == TypeInt::Instance() ||
+                                                 (tipo->is_array() && tipo->get_tipo() == TypeInt::Instance())){
                                                  result = new PlusMinus(exp_id,3);
                                              } 
                                              else {

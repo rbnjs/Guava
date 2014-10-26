@@ -1,17 +1,27 @@
 declare {
-    integer array a[10], b[10];
-    integer c,d;
-    record R {
-        integer a,b;
+    integer array arr[10];
+    integer x;
+    real r;
+    record R1 {
+        integer a;
+        record R2 {
+            integer a;
+        };
+        R2 record c;
     };
-    
-    R record x;
+    R1 record y;
 }
 
 function void main() {
     declare {
-        integer e;
+        integer array brr[10];
+        integer w;
+        record R3 {
+            integer a;
+        };
+        R3 record z;
     }
 
-    x.a := 1+x.b;
+    w := x;
+    /*x := y.c.a;*/
 }

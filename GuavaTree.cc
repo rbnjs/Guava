@@ -1600,24 +1600,21 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     // Me voy moviendo por la expresion hasta llegar a la 
     // "base" de esta
     if (exp_id != 0){
-        r = exp_id->tabla->lookup(identificador->identificador);
-        exp_id->offset_structure += r->offset;
+        //Estas lineas pueden o bien ser borradas o bien modificarlas
+        //r = exp_id->tabla->lookup(identificador->identificador);
+        //exp_id->offset_structure += r->offset;
+        addr->offset += exp_id->offset;
         return exp_id->generar_quads();
     }
 
     //Caso variables simples
-    if (tabla == 0){
-        //Variables locales
-        if (bp != 0){
-            convert << offset;
-            Symbol* offset_ = new Symbol(convert.str());
-            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
-            result->push_back(nuevo_q);
-        //Variables globales
-        }else{
-            return new std::list<GuavaQuads*>();
-        }
+    if (tabla == 0) {
+        return new std::list<GuavaQuads*>();
     //Caso variables estructura
+
+    /* TODO LO QUE VIENE ABAJO PUEDE BORRARSE LUEGO DE REVISAR EL CASO DE
+     * ESTRUCTURAS LOCALES.
+     */
     } else {
         //Estructuras locales
         if (bp != 0){
@@ -1638,6 +1635,8 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             result->push_back(nuevo_q);
         }
     }
+    //HASTA AQUI PUEDE BORRARSE, LO SIGUIENTE NO.
+
     GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
     result->push_front(comentario);
     return result;

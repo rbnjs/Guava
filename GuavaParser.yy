@@ -1174,10 +1174,10 @@ errorif : exp      {  ErrorBoolExp* tmp;
                         tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                         $$ = tmp;
                       }
-                    }
-        | error     {
-                      $$ = new ErrorBoolExp();
-                    };
+                   }
+        | error    {
+                     $$ = new ErrorBoolExp();
+                   };
 
 llamadafuncion: identificador '(' lvarovalor ')' { Symbol *id; 
                                                    LlamadaFuncion* result;

@@ -15,7 +15,7 @@
  *
  * =====================================================================================
  */
-#include <string>
+#include <string>       // std::to_string
 #include <iostream>     // std::cout, std::ios
 #include <sstream>      // std::ostringstream
 #include "GuavaSymTable.hh"
@@ -85,6 +85,13 @@ public:
 
 };
 
+//Funciones para escritura de codigo intermedio
+
+std::string generacionIntermedia_unaria(std::string op, Symbol* arg1, Symbol* result);
+
+std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* arg2, Symbol* result);
+
+//Definicion de estructuras Quads
 
 class GuavaQuads{
 private:
@@ -151,30 +158,21 @@ public:
         std::string code ("");
         //Caso Operaciones Binarias
         if (arg2 != 0){
-            //Acceso a elementos de arreglo, base pointer.
-            if (this->get_op().compare(std::string("[]")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "[" + arg2->sym_name + "]";
-            }
-            else {
-                code += result->sym_name + ":=" + arg1->sym_name+ " " + this->get_op() +" "+ arg2->sym_name;
-            }
+            code = generacionIntermedia_binaria(this->get_op(),arg1,arg2,result);
+        }
         //Caso Operaciones Unarias
-        } else {
+        else {
             //Asignacion
             if (this->get_op().compare(std::string(":=")) == 0) {
-                //Caso l-value local
-                if (result->sym_name.compare(std::string("bp")) == 0) {
-                    code += result->sym_name + "[" + std::to_string(result->offset) + "] := " + arg1->sym_name;
-                }
-                //Caso l-value global
-                else {
-                    code += result->sym_name + ":=" + arg1->sym_name;
-                }
+                code = generacionIntermedia_unaria(std::string(":="),arg1,result);
             }
             // Menos unario
             if (this->get_op().compare(std::string("uminus")) == 0) {
-                code += result->sym_name + ":=-" + arg1->sym_name;
+                code = generacionIntermedia_unaria(std::string(":=-"),arg1,result);
             }
+
+            //ESTOS CAPAZ Y SE TENGAN QUE BORRAR
+
             // Post incremento
             if (this->get_op().compare(std::string("pincrease")) == 0) {
                 code += result->sym_name + ":=" + arg1->sym_name + "++";

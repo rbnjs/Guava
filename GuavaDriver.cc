@@ -26,6 +26,7 @@ std::string identacion ("");
 std::list<int> offset_actual;
 std::list<GuavaSymTable*> tabla_actual;
 int nombre_cadena  (1);
+int nombre_arreglo_valor (1);
 int secuencia_temporales (1);
 SimpleSymbol* basepointer = new SimpleSymbol(std::string("bp"));
 
@@ -325,6 +326,8 @@ int encajar_en_palabra(int tam){
  * se retorna -1.
  */
 int tamano_tipo(TypeS* t){
+    if (t == 0) return -1; //Error
+    if (t->is_error()) return 0;
     if (t->is_bool()) return encajar_en_palabra(SIZE_BOOL);
     if (t->is_real()) return encajar_en_palabra(SIZE_REAL);
     if (t->is_int()) return encajar_en_palabra(SIZE_INT);
@@ -373,7 +376,6 @@ int tamano_tipo(TypeS* t){
  */
 void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
-    std::list<Identificador>::iterator it = l.begin();
     int scope,line, column;
     Symbol *s;
 
@@ -385,7 +387,7 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
         return;
     }
 
-    for(it; it!=l.end(); ++it) {
+    for(std::list<Identificador>::iterator it = l.begin(); it!=l.end(); ++it) {
         s = tabla->simple_lookup(it->identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
@@ -447,7 +449,6 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
  */
 void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
-    std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
     std::list<int>::reverse_iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
@@ -456,7 +457,7 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
 
     GuavaSymTable *tabla = tabla_actual.front();
 
-    for(it; it != l.end(); ++it) {
+    for(std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin(); it != l.end(); ++it) {
         par = *it;
         s = tabla->simple_lookup(par.first.identificador);
         if(s != 0)
@@ -521,6 +522,40 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
     }
     nombre_cadena++;
 }
+
+/**
+ * Funcion que inserta a la tabla de simbolos un arreglo
+ * de expresiones o valores. Esta es similar a insertar_cadena_caracteres.
+ *
+ * @param arreglo Arreglo de valores a meter en la tabla de simbolos.
+ * @param d Manejador de Guava
+ * @param loc Variable que contiene la información de la ubicación actual del parser.
+ * @return direccion Retorna la variable en donde se encuentra el arreglo en memoria.
+ */
+SimpleSymbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc){
+    int scope, line, column;
+    GuavaSymTable *tabla = tabla_actual.front();
+    line = loc.begin.line;
+    std::ostringstream convert;
+    column = loc.begin.column;
+    scope = tabla->currentScope();
+
+    int offset = offset_actual.front();
+    SimpleSymbol* direccion;
+
+    convert << nombre_cadena; // Variable global
+    if (offset != -1){
+        offset_actual.pop_front();
+        direccion = tabla->insert("_a"+convert.str(),std::string("arreglo valor"),scope,TypeString::Instance(),line,column,offset);
+        offset += tamano_tipo(arreglo->get_tipoEstructura()); 
+        offset_actual.push_front(offset);
+    } else {
+        direccion = tabla->insert("_a"+convert.str(),std::string("arreglo valor"),scope,TypeString::Instance(),line,column,0);
+    }
+    nombre_cadena++;
+    return direccion;
+}
+
 
 /**
  * Funcion que coloca una variable temporal en la tabla de simbolos
@@ -611,7 +646,7 @@ TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& l
         d->error(loc,no_es_tipo(tipo));
         return 0;
     }
-    if (p1 != 0 && p1->true_type != 0) return p1->true_type;
+    if (p1 != 0 && p1->true_type != 0) return p1->true_type; 
 }
 
 /**
@@ -632,7 +667,6 @@ std::string reportar_tipo_recursivo(std::string t){
  */
 TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estilo,GuavaDriver *d, const yy::location& loc){
     std::list<Identificador> l = vars->get_list();
-    std::list<Identificador>::iterator it = l.begin();
     int scope,line, column;
     Symbol *s;
 
@@ -641,7 +675,7 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
     if (reference == 0) return 0;
     TypeS* parent = 0;
 
-    for(it; it!=l.end(); ++it) {
+    for(std::list<Identificador>::iterator it = l.begin(); it!=l.end(); ++it) {
         s = tabla->simple_lookup(it->identificador);
         if(s != 0)
             d->error(loc,reportar_existencia(s,it->identificador));
@@ -679,7 +713,6 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
  */
 TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, GuavaDriver *d, const yy::location& loc) {
     std::list< std::pair<Identificador, LCorchetes> > l = vars->get_list();
-    std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin();
     std::list<int>::reverse_iterator itInt;
     std::pair<Identificador, LCorchetes> par;
     int size, scope, line, column;
@@ -691,7 +724,7 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
     if (reference0 == 0) return 0;
     TypeS* parent;
 
-    for(it; it != l.end(); ++it) {
+    for(std::list< std::pair<Identificador, LCorchetes> >::iterator it = l.begin(); it != l.end(); ++it) {
         par = *it;
         s = tabla->simple_lookup(par.first.identificador);
         if(s != 0)
@@ -706,11 +739,10 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
         else {
         agregar:
             size = par.second.lista.size();
-            itInt = par.second.lista.rbegin();
             TypeArray* arr = 0;
             TypeArray* tmp = new TypeArray(reference0,0,size);
             
-            for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
+            for(itInt = par.second.lista.rbegin() ; itInt != par.second.lista.rend(); ++itInt) {
                 size = *itInt;
                 arr = new TypeArray(reference0,tmp,size);
                 tmp = arr;
@@ -744,8 +776,7 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
     std::list<std::pair<TypeS*,Identificador*> > lista = lp->get_list();
     std::list <TypeS*> parametros;
     std::pair<TypeS*, Identificador*> par;
-    std::list<std::pair<TypeS*,Identificador*> >::iterator it = lista.begin();
-    for ( it ; it != lista.end(); ++it){
+    for (std::list<std::pair<TypeS*,Identificador*> >::iterator it = lista.begin() ; it != lista.end(); ++it){
         par = *it;
         parametros.push_front(par.first); 
     }

@@ -59,17 +59,19 @@ void GuavaSymTable::insert(Symbol elem){
 }
 
 /* Inserta un simbolo */
-void GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
+Symbol* GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
    Symbol* nuevo = new Symbol(name, catg, sc, type,line,column, offset); 
    this->insert(nuevo);
+    return nuevo;
 }
 
 /**
  * Agrega una variable arreglo o estructura a la tabla.
  */
-void GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li = 0,int co = 0, int offset = 0 ){
+Symbol* GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li = 0,int co = 0, int offset = 0 ){
     Symbol* nuevo = new Symbol(name,catg,scop,t,li,co, offset);
     this->insert(nuevo);
+    return nuevo;
 }
 
 /**
@@ -96,9 +98,8 @@ Symbol* GuavaSymTable::lookup(const std::string elem){
          ++pilaIt){
             int alcance = *pilaIt;
             
-            std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
-            for ( it ; it != this->tabla[elem].end() ; ++it){
+            for (std::list<Symbol*>::iterator it = this->tabla[elem].begin() ; it != this->tabla[elem].end() ; ++it){
                 Symbol* tmp = *it;
                 if (tmp->compare(elem, alcance)) return *it;
             }
@@ -114,9 +115,8 @@ Symbol* GuavaSymTable::simple_lookup(const std::string elem){
     if (!this->tabla[elem].empty()){
         int alcance = pila.front();
             
-        std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
-        for ( it ; it != this->tabla[elem].end() ; ++it){
+        for ( std::list<Symbol*>::iterator it = this->tabla[elem].begin() ; it != this->tabla[elem].end() ; ++it){
             Symbol* tmp = *it;
             if (tmp->compare(elem, alcance)) return *it;
         }
@@ -130,9 +130,8 @@ Symbol* GuavaSymTable::lookup(const std::string elem, int sc){
     if (!this->tabla[elem].empty()){
         int alcance = sc;
 
-        std::list<Symbol*>::iterator it = this->tabla[elem].begin();
 
-        for ( it ; it != this->tabla[elem].end() ; ++it){
+        for (std::list<Symbol*>::iterator it = this->tabla[elem].begin() ; it != this->tabla[elem].end() ; ++it){
             Symbol* tmp = *it;
             if (tmp->compare(elem, alcance)) return *it;
         }
@@ -181,10 +180,10 @@ int GuavaSymTable::currentScope(){
  * Muestra el contenido de la tabla de simbolos.
  * */
 void GuavaSymTable::show(int scope, std::string identacion){
-    std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin();
-    for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
-        std::list<Symbol*>::iterator itList = itTabla->second.begin();
-        for (itList ; itList != itTabla->second.end() ; ++itList){
+
+    for (std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin() ; itTabla != this->tabla.end() ; ++itTabla){
+
+        for (std::list<Symbol*>::iterator itList = itTabla->second.begin() ; itList != itTabla->second.end() ; ++itList){
             Symbol* tmp = *itList;
             if (tmp->scope == scope) tmp->show(identacion);
         }
@@ -193,10 +192,10 @@ void GuavaSymTable::show(int scope, std::string identacion){
 
 std::list<TypeS*> GuavaSymTable::get_types(int sc){
     std::list<TypeS*> result;
-    std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin();
-    for (itTabla ; itTabla != this->tabla.end() ; ++itTabla){
-        std::list<Symbol*>::iterator itList = itTabla->second.begin();
-        for (itList ; itList != itTabla->second.end() ; ++itList){
+
+    for (std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin() ; itTabla != this->tabla.end() ; ++itTabla){
+
+        for (std::list<Symbol*>::iterator itList = itTabla->second.begin() ; itList != itTabla->second.end() ; ++itList){
             Symbol* tmp = *itList;
             if (tmp->scope == sc ){
                 if (tmp->sym_catg != "unionType" && tmp->sym_catg != "recordType"){

@@ -134,6 +134,7 @@ public:
     TypeS* get_tipoEstructura() { return tipo_estructura; }
     //TypeS* get_tipo_array() { return (new TypeArray(tipo,larr.size())); } 
     void show(std::string);
+
     void set_line_column(int l, int c){
         line = l;
         column = c;
@@ -502,11 +503,21 @@ public:
         column = c;
     }
     std::string revision_unaria(Exp* exp_1, TypeS* tipo_esperado1, TypeS* tipo_esperado2, ExpUn* tmp, std::string (*f)(std::string,std::string) );
-    
+   
+    /**  
+     * Genero los quads para las expresiones unarias.
+     */
     virtual std::list<GuavaQuads*>* generar_quads(){
         listaQuads = exp->generar_quads();
         addr = temp->newtemp();
-        GuavaQuads* nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
+        GuavaQuads* nuevo;
+        if (operacion->compare(std::string("pincrease")) == 0){
+            nuevo = new GuavaQuadsExp("+",exp->addr, new SimpleSymbol("1"),addr);
+        } else if (operacion->compare(std::string("pdecrease")) == 0) {
+            nuevo = new GuavaQuadsExp("-",exp->addr, new SimpleSymbol("1"),addr);
+        }else {
+            nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
+        }
         //Se verifica si la expresion es un identificador
         if (listaQuads == 0) {
             listaQuads = new std::list<GuavaQuads*>();
@@ -866,23 +877,32 @@ class Arreglo:public Valor{
 public:
     LArreglo* la;
     TypeS* tipo_primitivo;
+    int tam_tipo_primitivo;
     TypeS* tipo_estructura;
     int line;
     int column;
+    SimpleSymbol* direccion;
 
     bool is_array() { return true; }
     Arreglo();
     Arreglo(LArreglo*);    
     ~Arreglo();
+    /**  
+     * Retorna el tipo primitivo del arreglo
+     */
     TypeS* get_tipo(){ 
         return tipo_primitivo;
     }
+    /** 
+     * Nos retorna el tipo completo del arreglo.
+     */
     TypeS* get_tipoEstructura() {
         return tipo_estructura;
     }
 
 
     void show(std::string s);
+
     void set_line_column(int l, int c) {
         line = l;
         column = c;
@@ -895,6 +915,8 @@ public:
             return false;
         }
     }
+
+    std::list<GuavaQuads*>* generar_quads();
     
 };
 

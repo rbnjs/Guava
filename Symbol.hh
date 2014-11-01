@@ -3,7 +3,7 @@
  *
  *       Filename:  Symbol.hh
  *
- *    Description:  Symbol.
+ *    Description:  Contiene los headers para las clases referentes a simbolos.
  *
  *        Version:  1.0
  *        Created:  12/03/14 14:25:21
@@ -18,6 +18,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <sstream>
 #include "Types.hh"
 
 /**
@@ -27,8 +28,25 @@
 class SimpleSymbol{
 public: 
     std::string sym_name;   /* Nombre del simbolo */
+
     SimpleSymbol(){}
+
+    /** 
+     * Construye un Simbolo Simple 
+     * @param name Nombre del simbolo
+     */
     SimpleSymbol(std::string name): sym_name(name){}
+
+    /**
+     * Convierte un numero a string y construye el simbolo
+     * @param a Entero.
+     */
+    SimpleSymbol(int a){
+        std::ostringstream convert;         
+        convert << a;
+        sym_name = convert.str(); 
+    }
+
     ~SimpleSymbol(){}
 };
 

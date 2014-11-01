@@ -20,7 +20,9 @@
 #include <sstream>      // std::ostringstream
 #include "GuavaSymTable.hh"
 
-
+/** 
+ * Clase generadora de NewTemps.
+ */
 class NewTemp{
 private:
     int* secuencia_temporales;

@@ -1,8 +1,8 @@
 all: guava
 
-guava: Generator.o Types.o Symbol.o GuavaQuads.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava:  Generator.o Types.o Symbol.o GuavaQuads.o GrafoBloques.o GuavaSymTable.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-	clang++ -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	clang++ -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh
 
@@ -51,6 +51,10 @@ Generator.o: Generator.hh
 GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc
 
 	clang++ -g -c -std=c++11 GuavaQuads.cc GuavaQuads.hh
+
+GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc
+
+	clang++ -O3 -g -c -std=c++11 -I /usr/include/boost GrafoBloques.cc GrafoBloques.hh
 
 
 .PHONY: clean

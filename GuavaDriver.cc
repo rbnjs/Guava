@@ -69,7 +69,6 @@ GuavaDriver::~GuavaDriver ()
 int GuavaDriver::parse (const std::string &f)
 {
   file = f;
-  gen = new Generator(file);
   scan_begin ();
   yy::GuavaParser parser (*this);
   parser.set_debug_level (trace_parsing);

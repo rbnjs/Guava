@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 
-# include "GuavaQuads.hh"
+# include "GrafoBloques.hh"
 # include <list>
 # include <utility>
 # include <iostream>

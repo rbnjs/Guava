@@ -68,19 +68,17 @@ list<GuavaQuads*> obtener_lideres(list<GuavaQuads*>* codigo){
     result.push_back(temp); //Primer elemento es lider
     ++it;
 
-    for (it ; it != codigo->end(); ++it){
+    while( it != codigo->end()){
         temp = *it;
         if (temp->is_goto() && it != codigo->end() ){
-            list<GuavaQuads*>::iterator it_temp = it;
-            ++it_temp;
-            GuavaQuads* next_temp = *it_temp;
+            GuavaQuads* next_temp = *std::next(it);
             result.push_back(next_temp); // Instruccion que sigue a un salto es lider.
         }
 
         if (temp->is_label()){
             result.push_back(temp); // Destinos a salto son lider.
         }
-
+        ++it;
     }
     return result;
 }
@@ -97,15 +95,15 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     list<GuavaQuads*>::iterator it_codigo = codigo->begin();
     ++it_lideres; // Ya se sabe que el primer lider es la primera instruccion.
     while (it_lideres != lideres.end()){
-        ++it_lideres;
         list<GuavaQuads*> codigo_bloque;
-        while (it_codigo != it_lideres){ // No se si esto se pueda. Revisar
+        while (*it_codigo != *it_lideres){ // No se si esto se pueda. Revisar
             GuavaQuads* instruccion = *it_codigo;
             codigo_bloque.push_back(instruccion);
             ++it_codigo;
         }
         BloqueBasico* nuevo_bloque = new BloqueBasico(codigo_bloque);
         result.push_back(nuevo_bloque);
+        ++it_lideres;
     }
     return result;
 }
@@ -166,7 +164,8 @@ list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloque
 GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     using namespace boost;
     std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict; //Quiero guardar todos los bloques en un diccionario para agregar los lados.
-    list<BloqueBasico*> bloques = obtener_bloques(codigo, obtener_lideres(codigo));
+    list<GuavaQuads*> lideres = obtener_lideres(codigo);
+    list<BloqueBasico*> bloques = obtener_bloques(codigo, lideres);
 
     // Agregando los nodos del grafo.
     for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
@@ -184,5 +183,4 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
 
-    
 }

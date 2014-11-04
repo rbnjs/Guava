@@ -162,10 +162,15 @@ bloqueprincipal: {
                                                 std::cout << "Variables globales: \n";
                                                 driver.tablaSimbolos.show(1,identacion+ "  ");
                                             }
-                                            if (!error_state && driver.print_quads){
+
+
+                                            if (!error_state){
                                                 std::list<GuavaQuads*>* quads = $3->generar_quads();
-                                                std::cout << quads->size();
-                                                imprimir_quads(quads); 
+
+                                                if (driver.print_quads){
+                                                    imprimir_quads(quads); 
+                                                }
+                                               GrafoFlujo* g = new GrafoFlujo(quads);
                                             }
                                          };
 
@@ -1755,7 +1760,7 @@ valor: BOOL     {
                   $$ = v;
                 }
      | INTEGER  { 
-                  Valor* v  = new Integer($1,TypeInt::Instance());
+                  Valor* v  = new ::Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);

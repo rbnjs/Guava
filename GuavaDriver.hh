@@ -59,7 +59,6 @@ public:
 
     GuavaSymTable tablaSimbolos;
     int result;
-    Generator* gen;
 
     bool print_tree;
     bool print_table;

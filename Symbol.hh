@@ -74,6 +74,13 @@ public:
         proximo_uso = statement;
     }
 
+    /** 
+     * Operador de comparacion para SimpleSymbol.
+     */
+    bool operator==(SimpleSymbol s){
+        return (sym_name.compare(s.sym_name) == 0);
+    }
+
 };
 
 /** 

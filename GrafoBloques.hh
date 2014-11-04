@@ -45,9 +45,31 @@ public:
 
     list<GuavaQuads*> get_codigo(){ return codigo; }
 
+    int get_id(){ return id; }
+
     virtual bool is_entry(){ return false; } 
 
     virtual bool is_exit(){ return false; } 
+
+    void set_bloque(BloqueBasico* b){
+        codigo = b->get_codigo();
+        id = b->get_id();
+    }
+
+    /** 
+     * @return codigo.front() Retorna el primer elemento de la lista.
+     */
+    GuavaQuads* first(){
+        return codigo.front();
+    }
+
+
+    /** 
+     * @return codigo.last() Retorna el primer elemento de la lista.
+     */
+    GuavaQuads* last(){
+        return codigo.back();
+    }
 
 private:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
@@ -81,7 +103,6 @@ class BloqueExit: public BloqueBasico{
 
 //Defino como tipo el grafo de Bloques.
 typedef adjacency_list < listS, listS, undirectedS, BloqueBasico > Graph;
-
 
 /**  
  * Clase que representa un grafo de flujo.

@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "GrafoBloques.hh"
+#include <unordered_map>
+#include <utility>
 #include <boost/graph/adjacency_list.hpp>
 
 using namespace std;
@@ -36,9 +38,10 @@ void determinar_livenext(list<GuavaQuads*> codigo_bloque){
 
 /** 
  * Constructor vacio para bloquebasico
+ * Aqui no se hace nada, es decir, no se 
+ * asigna una id_unica.
  */
-BloqueBasico::BloqueBasico(): id(id_unica){
-    id_unica++;
+BloqueBasico::BloqueBasico(){
 }
 
 /** 
@@ -107,7 +110,53 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     return result;
 }
 
+/** 
+ * Obtiene todos los lados del grafo.
+ *
+ * Los lados obtenidos son los siguientes:
+ *
+ * a) C immediately follows B in the original order of the three-address instruc-
+ *    tions, and B does not end in an unconditional jump.
+ *
+ *  b) There is a conditional or unconditional jump from the end of B to the 
+ *     beginning of C.     
+ *
+ * @param bloques Todos los bloques del grafo.
+ * @return result Lista de lados.
+ */
+list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloques){
+    list<pair<BloqueBasico*, BloqueBasico*>> result;
+    list<BloqueBasico*>::iterator it = bloques.begin();
+    BloqueBasico* bloque_next, *bloque_prev; 
+    bloque_prev = *it;
+    ++it;
+    //Primero voy a poner los lados de los bloques secuenciales. (a)
+    while (it != bloques.end()){
+        bloque_next = *it;
+        //Si tiene un salto incondicional al final entonces no colocar el lado.
+        if (!bloque_prev->last()->is_jump()){
+            pair<BloqueBasico*,BloqueBasico*> par_tmp (bloque_prev,bloque_next);
+            result.push_back(par_tmp);
+        }
+        bloque_prev = bloque_next;
+        ++it;
+    }
+    // Agregando los lados resultados de saltos. (b)
+    for (it = bloques.begin(); it != bloques.end(); ++it){
+        for (list<BloqueBasico*>::iterator it_2 = bloques.begin(); it_2 != bloques.end() ; ++it_2){
+            BloqueBasico* b = *it;
+            BloqueBasico* c = *it_2;
+            if (b->last()->is_goto()){
+                if ( b->last()->same_label(c->first()) ){
+                    pair<BloqueBasico*,BloqueBasico*> par_tmp (b,c);
+                    result.push_back(par_tmp);
+                }
+            }
+        }
+    }
+    return result;
 
+}
 
 /**  
  * Constructor de GrafoFlujo.
@@ -116,11 +165,24 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
  */
 GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     using namespace boost;
+    std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict; //Quiero guardar todos los bloques en un diccionario para agregar los lados.
     list<BloqueBasico*> bloques = obtener_bloques(codigo, obtener_lideres(codigo));
+
     // Agregando los nodos del grafo.
     for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
         BloqueBasico* tmp = *it;
         Graph::vertex_descriptor v = add_vertex(grafo);
-        
+        pair<BloqueBasico*, Graph::vertex_descriptor> par_tmp (tmp,v);
+        dict.insert(par_tmp); 
+        grafo[v].set_bloque(tmp);
     }
+
+    list<pair<BloqueBasico*,BloqueBasico*> > lados = obtener_lados(bloques);
+    // Agregando los lados.
+    for (list<pair<BloqueBasico*, BloqueBasico*> >::iterator it = lados.begin(); it != lados.end(); ++it){
+        pair<BloqueBasico*, BloqueBasico*> tmp = *it;
+        add_edge(dict[tmp.first],dict[tmp.second],grafo);
+    }
+
+    
 }

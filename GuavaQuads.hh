@@ -161,6 +161,14 @@ public:
     }
 
     /** 
+     * Funcion que nos dice si un Quad es un salto
+     * incondicional
+     */
+    virtual bool is_jump(){
+        return false;
+    }
+
+    /** 
      * Obtiene la informacion con respecto a las variables
      * en el quad.
      */
@@ -174,6 +182,10 @@ public:
      */
     virtual void update_use(){
 
+    }
+
+    virtual bool same_label(GuavaQuads* a){
+        return false;
     }
 
 };
@@ -294,6 +306,20 @@ public:
 
     bool is_goto(){ return true; } 
 
+    /**
+     * GoTo es el unico salto incondicional
+     */
+    bool is_jump(){ return true; }
+
+
+    /** 
+     * Revisa que el label a donde se va es el mismo.
+     */
+    bool same_label(GuavaQuads* a){
+        if (!a->is_label()) return false;
+        // Comparo strings.
+        return (go_to->sym_name.compare(a->get_op()) == 0);
+    }
 };
 /** 
  * Clase que represena un If dentro 
@@ -327,6 +353,15 @@ public:
      * Usa goto por lo tanto retorna true.
      */
     bool is_goto(){ return true; } 
+
+    /** 
+     * Revisa que el label a donde se va es el mismo.
+     */
+    bool same_label(GuavaQuads* a){
+        if (!a->is_label()) return false;
+        // Comparo strings.
+        return (result->sym_name.compare(a->get_op()) == 0);
+    }
 };
 
 /** 
@@ -362,6 +397,15 @@ public:
      * Usa goto por lo tanto retorna true.
      */
     bool is_goto(){ return true; } 
+
+    /** 
+     * Revisa que el label a donde se va es el mismo.
+     */
+    bool same_label(GuavaQuads* a){
+        if (!a->is_label()) return false;
+        // Comparo strings.
+        return (result->sym_name.compare(a->get_op()) == 0);
+    }
 };
 
 class GuavaParam: public GuavaQuads{

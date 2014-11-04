@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <sstream>
 #include "Types.hh"
+#define UNDEF -1
 
 /**
  * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
@@ -27,7 +28,11 @@
  */
 class SimpleSymbol{
 public: 
-    std::string sym_name;   /* Nombre del simbolo */
+    std::string sym_name;                  /* Nombre del simbolo */
+    /* Informacion con respecto a proximo uso. */
+    int proximo_uso = UNDEF ;          
+    /* Informacion con respecto a la vida del simbolo. */
+    bool live = true;                    
 
     SimpleSymbol(){}
 
@@ -48,6 +53,27 @@ public:
     }
 
     ~SimpleSymbol(){}
+
+    virtual bool is_simple(){ return true; }
+
+    /** 
+     * Funcion que "mata" a un simbolo, es decir, 
+     * coloca los atributos tiene_uso y live en false
+     */
+    void kill(){
+        proximo_uso = UNDEF;
+        live = false;
+    }
+
+    /** 
+     * Actualiza la informacion de uso y liveness.
+     * @param Numero del statement. Este es el que es usado como id en cualquier GuavaQuad.
+     */
+    void update_use(unsigned int statement){
+        live = true;
+        proximo_uso = statement;
+    }
+
 };
 
 /** 
@@ -66,6 +92,7 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
 
     int offset;             /* Offset del simbolo. */
+    int width;              /* Anchura del simbolo. */
     
 
     /**
@@ -103,6 +130,8 @@ public:
      * Muestra lo que tiene el Symbol. 
      */
     virtual void show(std::string);
+
+    bool is_simple(){ return false; }
 };
 
 

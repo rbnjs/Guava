@@ -18,7 +18,12 @@
 #include <string>
 #include <iostream>     // std::cout, std::ios
 #include <sstream>      // std::ostringstream
+#include <set>
+#include <utility>      // std::pair, std::make_pair
+#include <unordered_map>
 #include "GuavaSymTable.hh"
+
+std::string to_string( int a);
 
 /** 
  * Clase generadora de NewTemps.
@@ -87,12 +92,22 @@ public:
 
 };
 
-
+/**
+ * Clase principal para la generacion de Quads.
+ */
 class GuavaQuads{
 private:
     std::string op;
+    int id_quad;
+    std::set<SimpleSymbol*> vivas;
+    std::unordered_map<SimpleSymbol*,int> usos;
 public:
-    GuavaQuads(std::string op_): op(op_){}
+
+    /** 
+     * Constructores para GuavaQuads.
+     * Aqui se genera un id unico para este.
+     */
+    GuavaQuads(std::string op_);
     ~GuavaQuads(){}
 
     /**
@@ -103,6 +118,24 @@ public:
         op = s;
     }
 
+     int get_id(){ return id_quad; }
+
+    std::set<SimpleSymbol*> get_vivas() { return vivas; }
+    std::unordered_map<SimpleSymbol*,int> get_usos() { return usos;  }
+
+   /** 
+    * Funciones para insertar cosas en el map y el set.
+    */ 
+
+    void insert_vivas(SimpleSymbol* s){
+        vivas.insert(s);
+    }
+
+    void insert_usos(SimpleSymbol* s){
+        std::pair<SimpleSymbol*, int> elem (s,s->proximo_uso);
+        usos.insert(elem);
+    }
+
     /** 
      * Generador
      */
@@ -110,7 +143,38 @@ public:
         return op + "\n";
     }
 
+    /**  
+     * Nos dice si un GuavaQuads es fall.
+     */
     virtual bool fall(){ return false; }
+
+    /**  
+     * Retorna true si es label
+     */
+    virtual bool is_label(){ return false; }
+
+    /** 
+     * Retorna true si es goto o if.
+     */
+    virtual bool is_goto(){
+        return false;
+    }
+
+    /** 
+     * Obtiene la informacion con respecto a las variables
+     * en el quad.
+     */
+    virtual void attach_info(){
+
+    }
+
+    /** 
+     * Funcion que actualiza de los simbolos que se encuentran en el
+     * quad (y que ademas se encuentran en la tabla de simbolos pues son apuntadores).
+     */
+    virtual void update_use(){
+
+    }
 
 };
 
@@ -128,7 +192,7 @@ public:
      * @param op_ Operando
      * @param arg1_ Argumento 1
      * @param arg2_ Argumento 2
-     * @param result_ Resultado
+     * @param result_ Resultado. Aqui es donde se guarda la info.
      */
     GuavaQuadsExp(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
     /**
@@ -139,9 +203,9 @@ public:
     /**
      * Getters de la clase
      */
-    SimpleSymbol* get_arg1()  { return arg1; }
-    SimpleSymbol* get_arg2()  { return arg2; }
-    SimpleSymbol* get_result(){ return result; }
+    SimpleSymbol* get_arg1()   { return arg1; }
+    SimpleSymbol* get_arg2()   { return arg2; }
+    SimpleSymbol* get_result() { return result; }
 
     /**
      * Funcion que genera codigo a partir de un Quad
@@ -149,38 +213,11 @@ public:
      * resultado := arg1 op arg2 (dos argumentos)
      * resultado := op arg1 (un argumentos)
      */
-    virtual std::string gen(){
-        std::string code ("");
-        //Caso Operaciones Binarias
-        if (arg2 != 0){
-            //Acceso a elementos de arreglo, base pointer.
-            if (this->get_op().compare(std::string("[]")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "[" + arg2->sym_name + "]";
-            }
-            else {
-                code += result->sym_name + ":=" + arg1->sym_name+ " " + this->get_op() +" "+ arg2->sym_name;
-            }
-        //Caso Operaciones Unarias
-        } else {
-            if (this->get_op().compare(std::string(":=")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name;
-            }
-            // Menos unario
-            if (this->get_op().compare(std::string("uminus")) == 0) {
-                code += result->sym_name + ":=-" + arg1->sym_name;
-            }
-            // Post incremento
-            if (this->get_op().compare(std::string("pincrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "++";
-            }
-            // Post decremento
-            if (this->get_op().compare(std::string("pdecrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "--";
-            }
-        }
-        code += "\n";
-        return code;
-    }
+    virtual std::string gen();
+
+    void update_use();
+
+    void attach_info();
 };
 
 /**  
@@ -201,6 +238,9 @@ public:
     virtual std::string gen(){
         return (this->get_op() + ":\n");
     }
+
+    bool is_label(){ return true; }
+
 };
 /**
  * Clase que representa Fall
@@ -251,6 +291,9 @@ public:
     virtual std::string gen(){
         return "goto  " + go_to->sym_name + "\n"; 
     }
+
+    bool is_goto(){ return true; } 
+
 };
 /** 
  * Clase que represena un If dentro 
@@ -280,6 +323,10 @@ public:
         else code += "if " + arg1->sym_name+ " " + " goto " + result->sym_name +"\n" ;
         return code;
     }
+    /** 
+     * Usa goto por lo tanto retorna true.
+     */
+    bool is_goto(){ return true; } 
 };
 
 /** 
@@ -310,11 +357,21 @@ public:
         else code += "ifnot " + arg1->sym_name+ " " + " goto " + result->sym_name + "\n";
         return code;
     }
+
+    /** 
+     * Usa goto por lo tanto retorna true.
+     */
+    bool is_goto(){ return true; } 
 };
 
 class GuavaParam: public GuavaQuads{
 public:
     SimpleSymbol* addr;
+
+    /** 
+     * Constructor de GuavaParam
+     * @param addr_ Direccion del parametro que se necesita para la función.
+     */
     GuavaParam(SimpleSymbol* addr_): GuavaQuads(std::string("param")), addr(addr_){}
     ~GuavaParam(){}
 
@@ -323,13 +380,26 @@ public:
         result += addr->sym_name + "\n";
         return result;
     }
+
+    void update_use();
+
+    void attach_info();
 };
 
 class GuavaCall: public GuavaQuadsExp{
 public:
+    /** 
+     * Constructor de la llamada a funcion
+     * @param id Nombre de la funcion
+     * @param arg Argumento de la funcion
+     * @param addr Simbolo a quien se va a guardar el resultado de la funcion.
+     */
     GuavaCall(std::string id, SimpleSymbol* arg, SimpleSymbol* addr): GuavaQuadsExp(id,arg,0,addr){}
     ~GuavaCall(){}
     
+    /**  
+     * Generador. PENDIENTE que no se esta imprimiendo el simbolo addr.
+     */
     std::string gen(){
         std::string result ("call ");
         result += this->get_op();
@@ -338,6 +408,10 @@ public:
     }
 };
 
+/** 
+ * GuavaEntradaSalida puede representarse con un GuavaCall.
+ * PENDIENTE: Revisar eso
+ */
 class GuavaEntradaSalida:public GuavaQuadsExp{
 public:
     GuavaEntradaSalida(std::string op, SimpleSymbol* arg, SimpleSymbol* addr = 0): GuavaQuadsExp(op,arg,0,addr){}

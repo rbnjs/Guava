@@ -18,7 +18,6 @@
 #include "Symbol.hh"
 #include <string>
 #include <list>
-#include <map>
 #include <unordered_map>
 
 /**

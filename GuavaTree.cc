@@ -1592,51 +1592,6 @@ ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id
 
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>(); 
-    std::ostringstream convert;
-    Symbol* r;
-    //int offset;
-    if (identificador == 0) return 0;
-
-    // Me voy moviendo por la expresion hasta llegar a la 
-    // "base" de esta
-    if (exp_id != 0){
-        //Estas lineas pueden o bien ser borradas o bien modificarlas
-        //r = exp_id->tabla->lookup(identificador->identificador);
-        //exp_id->offset_structure += r->offset;
-        addr->offset += exp_id->offset;
-        return exp_id->generar_quads();
-    }
-
-    //Caso variables simples
-    if (tabla == 0) {
-        return new std::list<GuavaQuads*>();
-    //Caso variables estructura
-
-    /* TODO LO QUE VIENE ABAJO PUEDE BORRARSE LUEGO DE REVISAR EL CASO DE
-     * ESTRUCTURAS LOCALES.
-     */
-    } else {
-        //Estructuras locales
-        if (bp != 0){
-            Symbol* f = tabla->lookup(identificador->identificador);
-            convert << (offset_structure + f->offset);
-            Symbol* offset_ = new Symbol(convert.str());
-            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",bp,offset_,addr);
-            result->push_back(nuevo_q);
-        //Estructuras globales
-        } else {
-            //LAS SIGUENTES LINEAS NO SIRVEN PUES ESTARIA BUSCANDOSE EL MISMO EN LA TABLA DE EL
-            /*Symbol* f = tabla->lookup(identificador->identificador);
-            convert << f->offset;*/
-            Symbol* t = temp->newtemp();
-            convert << offset_structure;
-            Symbol* offset_ = new Symbol(convert.str());
-            GuavaQuads* nuevo_q = new GuavaQuadsExp("[]",addr,offset_,t);
-            result->push_back(nuevo_q);
-        }
-    }
-    //HASTA AQUI PUEDE BORRARSE, LO SIGUIENTE NO.
-
     GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
     result->push_front(comentario);
     return result;

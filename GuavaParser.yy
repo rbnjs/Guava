@@ -9,7 +9,6 @@
 # include <sstream>
 # include <list>
 # include <utility>
-# include <string>
 # include <typeinfo>
 # include <algorithm>
 # include "GuavaTree.hh"

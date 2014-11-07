@@ -340,6 +340,13 @@ int tamano_tipo(TypeS* t){
         std::list<TypeS*> list = s->atributos->get_types(0);
         while (!list.empty()){
             tmp = list.front();
+
+
+
+            //std::cout << "Soy el tipo: " << tmp->get_name() << " y mi tamaño es: " /*<< tamano_tipo(tmp)*/ << "\n";
+
+
+
             result += encajar_en_palabra(tamano_tipo(tmp));
             list.pop_front();
         }
@@ -832,9 +839,13 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
             /* Se copia la estructura base y a partir de ella se define la
              * posicion del atributo utilizando su offset.
              */
-            std::string base = result->exp_id->identificador->identificador;
-            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,id->offset);
+            std::string base = result->exp_id->addr->sym_name;
+            int atr_offset = result->exp_id->addr->offset + id->offset;
+            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
             result->addr->type_pointer = id->type_pointer;
+
+            //EN LUGAR DE CREAR UN NEW CON EL NOMBRE DE LA EXP_ID, QUE SEA UN APUNTADOR AL NOMBRE, ASI CUANDO CAMBIA EL PADRE, CAMBIAN LOS HIJOS
+
         }
         else {
             result->addr = new Symbol(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
@@ -856,8 +867,9 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
     else {
         //Caso atributos de estructuras
         if (result->exp_id != 0) {
-            std::string base = result->exp_id->identificador->identificador;
-            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,id->offset);
+            std::string base = result->exp_id->addr->sym_name;
+            int atr_offset = result->exp_id->addr->offset + id->offset;
+            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
             result->addr->type_pointer = id->type_pointer;
         }
         else {

@@ -42,7 +42,7 @@ Symbol::Symbol(std::string name, std::string catg,
 /**
  * Constructor basico para nombres y valores.
  */
-Symbol::Symbol(std::string name): SimpleSymbol(name) {}
+Symbol::Symbol(std::string name): SimpleSymbol(name), true_type(0), type_pointer(0) {}
 
 /**  
  * Destructor de la clase Symbol.

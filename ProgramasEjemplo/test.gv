@@ -1,20 +1,34 @@
 declare {
-    integer array arr[10];
+    /*integer array arr[10];
     integer x1,x2;
     real r;
     record R1 {
         integer a,b;
         record R2 {
             integer a;
+            record R3 {
+                integer a,b;
+            };
+            R3 record d;
         };
-        R2 record c;
+        R2 record c1,c2;
     };
-    real r2;
-    R1 record y;
+    real r2;*/
+
+    record R1 {
+        integer a;
+        record R2 {
+            integer b;
+        };
+        R2 record x1;
+        integer b;
+    };
+
+    R1 record y1,y2;
 }
 
 function void main() {
-    declare {
+    /*declare {
         integer array brr[10];
         integer w1,w2;
         record R3 {
@@ -22,7 +36,10 @@ function void main() {
         };
         R3 record z;
         integer array crr[10];
-    }
+    }*/
 
-    y.a := y.b;
+    y1.a := y2.a;
+
+    /*y.c1 := y.c2;
+    y.c1.d.b := y.c2.d.a;*/
 }

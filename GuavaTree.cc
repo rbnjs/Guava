@@ -696,6 +696,33 @@ void Arreglo::show(std::string s) {
     la->show(s+ "  ");
 }
 
+/** 
+ * Genero quads para un arreglo de expresiones o de valores.
+ * Para esto voy a obtener cada uno de los quads de las expresiones y 
+ * asignarle su valor a la dirección del arreglo.
+ * @return result Lista de Quads.
+ */
+std::list<GuavaQuads*>* Arreglo::generar_quads(){
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+    int offset_actual = 0; // Voy a moverme por los distintos offsets del arreglo.
+
+    for (std::list<Exp*>::iterator it = la->larr.begin(); it != la->larr.end(); ++it){
+        Exp* exp_tmp = *it;
+        std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
+        SimpleSymbol* exp_addr = exp_tmp->addr;
+        result->splice(result->end(), *tmp);
+        Symbol* direccion_a = temp->newtemp();
+        // Me muevo en la direccion del arreglo.
+        GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new SimpleSymbol(offset_actual),direccion_a); 
+        // Guardo en la direccion el valor de la expresion.
+        GuavaQuads* guardar_direccion = new GuavaQuadsExp(":=", exp_addr, 0 , direccion_a);
+        result->push_front(obtener_direccion);
+        result->push_front(guardar_direccion);
+        offset_actual += tam_tipo_primitivo;
+    }
+    return result;
+}
+
 /* Class BloqueDeclare */
 
 BloqueDeclare::BloqueDeclare(): scope(0){}
@@ -1014,7 +1041,12 @@ void Asignacion::show(std::string s) {
         exp->show(s+"  ");
     }
 } 
-
+/** 
+ * Genera Quads para asignacion.
+ * Se consideran dos casos principalmente. Uno en el que 
+ * la expresion es booleana y con cortocircuito y otro en el
+ * que es una expresion normal.
+ */
 std::list<GuavaQuads*>* Asignacion::generar_quads(){
     std::list<GuavaQuads*>* result = id->generar_quads();
     if (exp->exp_bool()){
@@ -1175,7 +1207,9 @@ void PlusMinus::show(std::string s) {
     std::cout << ", linea: " << linea << ", columna: " << columna << "\n";
     identificador->show("  "+s);
 } 
-
+/** 
+ * Genera quads para la instruccion PlusMinus.
+ */
 std::list<GuavaQuads*>* PlusMinus::generar_quads(){
     if (tipo_inst < 2){
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;

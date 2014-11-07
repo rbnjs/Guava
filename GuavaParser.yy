@@ -162,10 +162,15 @@ bloqueprincipal: {
                                                 std::cout << "Variables globales: \n";
                                                 driver.tablaSimbolos.show(1,identacion+ "  ");
                                             }
-                                            if (!error_state && driver.print_quads){
+
+
+                                            if (!error_state){
                                                 std::list<GuavaQuads*>* quads = $3->generar_quads();
-                                                std::cout << quads->size();
-                                                imprimir_quads(quads); 
+
+                                                if (driver.print_quads){
+                                                    imprimir_quads(quads); 
+                                                }
+                                               GrafoFlujo* g = new GrafoFlujo(quads);
                                             }
                                          };
 
@@ -1617,11 +1622,11 @@ expAritmetica: '-' exp %prec UMINUS  { std::string * op = new std::string("uminu
                                        { tmp->tipo = TypeInt::Instance();
                                         // El tipo de esta expresion es integer, recordar que UFO devuelve -1,0,1.
                                        } 
-                                       else if ($1->get_tipo() != $3->get_tipo() &&
-                                                ($1->get_tipo() == TypeInt::Instance() &&
+                                       else if  ( $1->get_tipo() != $3->get_tipo() &&
+                                                 ($1->get_tipo() == TypeInt::Instance() &&
                                                  $3->get_tipo() == TypeReal::Instance()) ||
-                                                ($1->get_tipo() == TypeReal::Instance() &&
-                                                 $3->get_tipo() == TypeInt::Instance())) {
+                                                 ($1->get_tipo() == TypeReal::Instance() &&
+                                                  $3->get_tipo() == TypeInt::Instance())) {
                                          std::string expected = $1->get_tipo()->get_name()+"' or '"+$3->get_tipo()->get_name();
                                          std::string msg = mensaje_diff_operandos(std::string("<=>"),$1->get_tipo()->get_name(),
                                                                                     $3->get_tipo()->get_name(),expected);
@@ -1755,7 +1760,7 @@ valor: BOOL     {
                   $$ = v;
                 }
      | INTEGER  { 
-                  Valor* v  = new Integer($1,TypeInt::Instance());
+                  Valor* v  = new ::Integer($1,TypeInt::Instance());
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                                         yylloc.begin.column,&driver.tablaSimbolos);
@@ -1796,15 +1801,21 @@ tipo: TYPE_REAL     {
                       $$ = TypeString::Instance();
                     };
 
-
-/*NO Funciona*/
+/**
+ * Inserto cada arreglo en la tabla de simbolos.
+ */
 arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;
                             tmp = new Arreglo(lr);
                             tmp->tipo_primitivo = lr->get_tipo();
                             tmp->tipo_estructura = lr->get_tipoEstructura();
+                            tmp->tam_tipo_primitivo = tamano_tipo(lr->get_tipo());
                             tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                            // Esta función me esta dando la dirección en donde se encuentra el arreglo.
+                            tmp->direccion = insertar_arreglo_valor(lr, &driver, yylloc); 
+                            tmp->temp = new  NewTemp(&secuencia_temporales, lr->get_tipo(), yylloc.begin.line, 
+                                                        yylloc.begin.column,&driver.tablaSimbolos);
                             $$ = tmp;
                           };
 
@@ -1812,6 +1823,8 @@ arreglo: '[' larreglo ']' {
 larreglo: larreglo ',' exp      { 
                                   //Caso: Tipos no nulos
                                   std::string msg;
+                                  LArreglo* lar = $1;
+                                  Exp* e = $3;
                                   if ($1->get_tipo() != 0 && $3->get_tipo() != 0) {
                                     //Caso: Tipos primitivos diferentes
                                     if ($1->get_tipo() != $3->get_tipo()) {

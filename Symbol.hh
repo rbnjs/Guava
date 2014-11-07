@@ -3,7 +3,7 @@
  *
  *       Filename:  Symbol.hh
  *
- *    Description:  Symbol.
+ *    Description:  Contiene los headers para las clases referentes a simbolos.
  *
  *        Version:  1.0
  *        Created:  12/03/14 14:25:21
@@ -18,7 +18,9 @@
 
 #include <string>
 #include <unordered_map>
+#include <sstream>
 #include "Types.hh"
+#define UNDEF -1
 
 /**
  * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
@@ -26,10 +28,59 @@
  */
 class SimpleSymbol{
 public: 
-    std::string sym_name;   /* Nombre del simbolo */
+    std::string sym_name;                  /* Nombre del simbolo */
+    /* Informacion con respecto a proximo uso. */
+    int proximo_uso = UNDEF ;          
+    /* Informacion con respecto a la vida del simbolo. */
+    bool live = true;                    
+
     SimpleSymbol(){}
+
+    /** 
+     * Construye un Simbolo Simple 
+     * @param name Nombre del simbolo
+     */
     SimpleSymbol(std::string name): sym_name(name){}
+
+    /**
+     * Convierte un numero a string y construye el simbolo
+     * @param a Entero.
+     */
+    SimpleSymbol(int a){
+        std::ostringstream convert;         
+        convert << a;
+        sym_name = convert.str(); 
+    }
+
     ~SimpleSymbol(){}
+
+    virtual bool is_simple(){ return true; }
+
+    /** 
+     * Funcion que "mata" a un simbolo, es decir, 
+     * coloca los atributos tiene_uso y live en false
+     */
+    void kill(){
+        proximo_uso = UNDEF;
+        live = false;
+    }
+
+    /** 
+     * Actualiza la informacion de uso y liveness.
+     * @param Numero del statement. Este es el que es usado como id en cualquier GuavaQuad.
+     */
+    void update_use(unsigned int statement){
+        live = true;
+        proximo_uso = statement;
+    }
+
+    /** 
+     * Operador de comparacion para SimpleSymbol.
+     */
+    bool operator==(SimpleSymbol s){
+        return (sym_name.compare(s.sym_name) == 0);
+    }
+
 };
 
 /** 
@@ -48,6 +99,7 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
 
     int offset;             /* Offset del simbolo. */
+    int width;              /* Anchura del simbolo. */
     
 
     /**
@@ -85,6 +137,8 @@ public:
      * Muestra lo que tiene el Symbol. 
      */
     virtual void show(std::string);
+
+    bool is_simple(){ return false; }
 };
 
 

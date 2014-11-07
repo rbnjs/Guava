@@ -59,7 +59,6 @@ public:
 
     GuavaSymTable tablaSimbolos;
     int result;
-    Generator* gen;
 
     bool print_tree;
     bool print_table;
@@ -100,6 +99,8 @@ void continue_break_libres(std::list<Instruccion*>,GuavaDriver* driver);
 bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver);
 
 void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);
+
+SimpleSymbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc);
 
 std::string reportar_existencia(Symbol *s, std::string id);
 

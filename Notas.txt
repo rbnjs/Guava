@@ -19,3 +19,38 @@ record? De ser afirmativa la respuesta, debe de agregarse la regla.
 
 4- Verificar el jumping code y generación de quads para las expresiones booleanas
 con not.
+
+5- Cambiar la traducción de los incrementos y decrementos:
+
+t1 := t2++   <- NO
+
+t1 := t2 + 1 <- SI
+
+Que pasa con los casos como: ++x++? Que se aplica primero?
+
+6- Recordar la diferencia en la traducción de instrucciones de preincremento y
+postincremento.
+
+7- Poner etiquetas del número de las líneas a todas las líneas del código
+intermedio. Bueno para la optimización de código.
+
+LISTO
+8- Las constantes colocarlas directas, no siendo asignadas a temporales.
+
+9- El basepointer se maneja positivo para argumentos de funciones y negativo
+para variables locales de funciones.
+
+10- Los return deben de devolver valores, luego en el cuerpo del 'llamador' se
+le asigna lo que el return devuelve:
+
+t1 := return mi_funcion
+...
+(operaciones)
+tn := call mi_funcion
+
+11- Cuando se tiene el caso de a[i] := k; no se debe asignar a[i] a un temporal
+y luego a ese temporal se le asigna k. Se debe realizar el cálculo de la
+posición i y luego realizar la asignación a k desde el mismo a[i]. OJO: Análogo para
+el caso en que a[i] es r-value.
+
+12- Epifanía de Maik para estructuras con arreglos de estructuras anidadas.

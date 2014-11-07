@@ -52,7 +52,10 @@ public:
  */
 class Exp{
 public:
-    SimpleSymbol* addr;
+
+    Symbol* addr;
+    //ESTO SE TIENE QUE BORRAR
+    //SimpleSymbol* addr;
     NewTemp* temp;
     std::list<GuavaQuads*>* listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 
@@ -195,7 +198,7 @@ public:
     Real(float valor_, TypeS* tipo_): tipo(tipo_), valor(valor_){
         std::ostringstream convert;
         convert << valor;
-        addr = new SimpleSymbol(convert.str());
+        addr = new Symbol(convert.str());
     }
     float get_valor() { return valor; };
     TypeS* get_tipo() { return tipo; }
@@ -211,20 +214,15 @@ public:
         line = l;
         column = c;
     }
+    /* Por ser un valor constante, no hace falta asignarselo a un temporal,
+     * evitamos que sea dedicado un registro para guardar su valor. MIPS
+     * acepta constantes.
+     *
+     * Sera analogo a todas las constantes.
+     */
     std::list<GuavaQuads*>* generar_quads(){ 
-        std::ostringstream convert;
-        convert << valor;
-        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        addr = temp->newtemp();
-        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
-        listaQuads = new std::list<GuavaQuads*>();
-        listaQuads->push_back(nuevo);
-        return listaQuads;
+        return 0;
     };
-    /*void gen(void (*gen)(std::string)){
-        convert << valor;
-        gen(addr +":="+ convert.str());         
-    }*/
 
     bool operator==(Real r){
         return (valor == r.valor);
@@ -245,7 +243,7 @@ public:
     Integer(int valor_ , TypeS* tipo_ ): valor(valor_), tipo(tipo_) {
         std::ostringstream convert;
         convert << valor;
-        addr = new SimpleSymbol(convert.str());
+        addr = new Symbol(convert.str());
     }   
     int getValor() {return valor;}
     TypeS* get_tipo() { return tipo; }
@@ -259,21 +257,11 @@ public:
         line = l;
         column = c;
     }
-    std::list<GuavaQuads*>* generar_quads(){ 
-        std::ostringstream convert;
-        convert << valor;
-        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        addr = temp->newtemp();
-        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
-        listaQuads = new std::list<GuavaQuads*>();
-        listaQuads->push_back(nuevo);
-        return listaQuads;
+
+    std::list<GuavaQuads*>* generar_quads(){
+        return 0;
     };
-    /*void gen(void (*gen)(std::string)){
-        std::ostringstream convert;
-        convert << valor;
-        gen(addr +":="+ convert.str());         
-    }*/
+    
     bool operator==(Integer r){
         return (valor == r.valor);
     }
@@ -292,8 +280,8 @@ public:
     bool is_char() { return true; }
     Char(char valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {
         std::ostringstream convert;
-        convert << valor;
-        addr = new SimpleSymbol(convert.str());
+        convert << "'" << valor << "'";
+        addr = new Symbol(convert.str());
     }
     char get_valor() { return valor; } 
     ~Char(){}
@@ -308,21 +296,19 @@ public:
         line = l;
         column = c;
     }
+   
+    /* Para el caso de los caracteres constantes se manejara igual que con los
+     * numeros constantes (reales y enteros). Recordando que los caracteres
+     * son codigos hexadecimales.
+     *
+     * Habria que pensar en la conversion: Seria en el codigo intermedio o ya
+     * en el final?. Por los momentos, se deja como el
+     * caracter solo entre comillas.
+     */
     std::list<GuavaQuads*>* generar_quads(){ 
-        std::ostringstream convert;
-        convert << valor;
-        SimpleSymbol* nombre = new SimpleSymbol(convert.str()); 
-        addr = temp->newtemp();
-        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
-        listaQuads = new std::list<GuavaQuads*>();
-        listaQuads->push_back(nuevo);
-        return listaQuads;
+        return 0;
     };
-    /*void gen(void (*gen)(std::string)){
-        std::ostringstream convert;
-        convert << valor;
-        gen(addr +":="+ convert.str());         
-    }*/
+    
     bool operator==(Char r){
         return (valor == r.valor);
     }
@@ -340,7 +326,7 @@ public:
 
     bool is_str() { return true; }
     String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {
-        addr = new SimpleSymbol(*valor);
+        addr = new Symbol(*valor);
     }
     String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
     std::string* get_valor(){ return valor; } 
@@ -359,18 +345,20 @@ public:
     std::string* get_valor_str(){
         return valor;
     }
+    
+    /* Los Strings seran guardados en memoria en un "identificador unico".
+     * Por los momentos se mantiene entonces que su valor sea asignado a un
+     * temporal.
+     */
     std::list<GuavaQuads*>* generar_quads(){ 
         std::ostringstream convert;
-        SimpleSymbol* nombre = new SimpleSymbol(*valor); 
+        Symbol* nombre = new Symbol(*valor); 
         addr = temp->newtemp();
         GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
         listaQuads = new std::list<GuavaQuads*>();
         listaQuads->push_back(nuevo);
         return listaQuads;
     };
-    /*void gen(void (*gen)(std::string)){
-       gen(addr +":="+ *valor);         
-    }*/
 };
 
 /**
@@ -390,7 +378,7 @@ public:
     Bool(bool valor_, TypeS* tipo_ ): valor(valor_), tipo(tipo_), ExpBool() {
         std::ostringstream convert;
         convert << valor;
-        addr = new SimpleSymbol(convert.str());
+        addr = new Symbol(convert.str());
     }  
     bool  get_valor() { return valor; }
     TypeS* get_tipo() { return tipo; }
@@ -1247,6 +1235,8 @@ public:
     LCorchetesExp* lcorchetesexp = 0;  
     GuavaSymTable* tabla = 0;
     int offset = -1;
+    
+    //LUEGO DEL GRAN CAMBIO ESTO SE PUEDE BORRAR
     Symbol* bp = 0;
 
     //Unions y records

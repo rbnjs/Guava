@@ -197,7 +197,17 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
 
         for (std::list<Symbol*>::iterator itList = itTabla->second.begin() ; itList != itTabla->second.end() ; ++itList){
             Symbol* tmp = *itList;
-            if (tmp->scope == sc ){
+
+            if (tmp->scope ==sc) {
+                if(tmp->true_type != 0)
+                    result.push_front(tmp->true_type);
+                else if (tmp->type_pointer != 0 && tmp->type_pointer->true_type != 0)
+                    result.push_front(tmp->type_pointer->true_type);
+            }
+
+            //TODO LO DE ABAJO PUEDE BORRARSE OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+            /*if (tmp->scope == sc ){
+                //Caso en el que el tipo a explorar no es una estructura
                 if (tmp->sym_catg != "unionType" && tmp->sym_catg != "recordType"){
                     if (tmp->true_type != 0) result.push_front(tmp->true_type);
                     else {
@@ -206,7 +216,11 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
                         result.push_front(tmp2->true_type);
                     }
                 }
-            }
+                //Caso en el que el tipo a explorar es una estructura
+                else {
+                    if (tmp->true_type != 0) result.push_front(tmp->true_type);
+                }
+            }*/
         }
     }
     return result;

@@ -342,6 +342,13 @@ int tamano_tipo(TypeS* t){
         std::list<TypeS*> list = s->atributos->get_types(0);
         while (!list.empty()){
             tmp = list.front();
+
+
+
+            //std::cout << "Soy el tipo: " << tmp->get_name() << " y mi tamaño es: " /*<< tamano_tipo(tmp)*/ << "\n";
+
+
+
             result += encajar_en_palabra(tamano_tipo(tmp));
             list.pop_front();
         }
@@ -851,11 +858,28 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
  * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* tabla){
-    if (id->scope == 1) { //El scope de las variables temporales es uno
+    //Caso variables globales y temporales de codigo intermedio
+    if (id->scope == 1) {
         result->addr = id;
-    } else {
-        result->bp = (Symbol*) basepointer;
-        result->addr = newtemp(driver,loc,result->get_tipo(),tabla);
+    } 
+    //Caso variables locales y atributos de estructuras
+    else {
+        //Caso atributos de estructuras
+        if (result->exp_id != 0) {
+            /* Se copia la estructura base y a partir de ella se define la
+             * posicion del atributo utilizando su offset.
+             */
+            std::string base = result->exp_id->addr->sym_name;
+            int atr_offset = result->exp_id->addr->offset + id->offset;
+            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
+            result->addr->type_pointer = id->type_pointer;
+
+            //EN LUGAR DE CREAR UN NEW CON EL NOMBRE DE LA EXP_ID, QUE SEA UN APUNTADOR AL NOMBRE, ASI CUANDO CAMBIA EL PADRE, CAMBIAN LOS HIJOS
+
+        }
+        else {
+            result->addr = new Symbol(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
+        }
     }
 }
 
@@ -865,15 +889,26 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
  * address
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
-    //El scope de las variables temporales y globales es 1.
+    //Caso variables globales y temporales de codigo intermedio
     if (id->scope == 1) {
         result->addr = id;
-    } else {
-        result->bp = (Symbol*) basepointer;
-        result->addr = newtemp(driver,loc,result->get_tipo());
+    } 
+    //Caso variables locales y atributos de estructuras
+    else {
+        //Caso atributos de estructuras
+        if (result->exp_id != 0) {
+            std::string base = result->exp_id->addr->sym_name;
+            int atr_offset = result->exp_id->addr->offset + id->offset;
+            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
+            result->addr->type_pointer = id->type_pointer;
+        }
+        else {
+            /*Se hace una copia del simbolo pero indicando que lo define el
+            * basepointer*/
+            result->addr = new Symbol(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
+        }
     }
 }
-
 
 /**
  * Revisa si un identificador es una variable global y le da un
@@ -924,11 +959,12 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     convert << tamano_tipo(tipo);
     //Se generan los quads asociados a la expresion dentro de los corchetes
     quads_expresion = exp_ini->generar_quads();
-    result->splice(result->end(),*quads_expresion);
+    //Se verifica que la expresion no sea un valor constante
+    if (quads_expresion != 0) result->splice(result->end(),*quads_expresion);
     /*Se calcula el resultado de la expresion dentro de los corchetes por el
      *tamano del tipo del arreglo.
      */
-    SimpleSymbol* width = new SimpleSymbol(convert.str());
+    Symbol* width = new Symbol(convert.str());
     GuavaQuads* nuevo_q = new GuavaQuadsExp("*",exp_ini->addr,width, t0);
     result->push_back(nuevo_q);
     /**
@@ -940,7 +976,7 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
         Exp* exp_ = *it;
         t1 = temp->newtemp();
         quads_expresion = exp_->generar_quads();
-        result->splice(result->end(),*quads_expresion);
+        if (quads_expresion != 0) result->splice(result->end(),*quads_expresion);
         GuavaQuads* nuevo_q1 = new GuavaQuadsExp("*",exp_->addr,width,t1);
         t2 = temp->newtemp();
         GuavaQuads* nuevo_q2 = new GuavaQuadsExp("+",t0,t1,t2);
@@ -951,15 +987,34 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     //Quad final que define la posicion del arreglo que se esta accediendo.
     GuavaQuads* nuevo_q3;
     //Caso en el que el arreglo no es global
-    if (bp != 0){
-        //Se crea el quad correspondiente a la direccion final del elemento
+    if (addr->sym_name.compare(std::string("bp")) == 0) {
+        //Quad para calcular el offset final del elemento del arreglo
+        GuavaQuads* nuevo_q4;
+        /* Temporales que contendran el resultado del calculo de offset final
+         * y la direccion final del elemento, respectivamente.
+         */
         t1 = temp->newtemp();
-        //Se verifica si se trata de un arreglo unidimensional o multidimensional
+        Symbol* t3 = temp->newtemp();
+        //Offset de la variable
+        Symbol* offset = new Symbol(std::to_string(addr->offset));
+        /* Se crea el quad relativo a la posicion del basepointer,
+         * verificando si es un arreglo unidimensional o multidimensional.
+         */
         if (lcorchetesexp->lista.size() > 1)
-            nuevo_q3 = new GuavaQuadsExp("[]",bp,t2,t1);
+            nuevo_q4 = new GuavaQuadsExp("+",t2,offset,t1);
         else
-            nuevo_q3 = new GuavaQuadsExp("[]",bp,t0,t1);
-    } 
+            nuevo_q4 = new GuavaQuadsExp("+",t0,offset,t1);
+        
+        result->push_back(nuevo_q4);
+
+        nuevo_q3 = new GuavaQuadsExp("[]",addr,t1,t3);
+        /*Creado el quad, ahora el address del elemento del arreglo en cuestion es
+         *el temporal final.
+         */
+        addr = t3;
+    }
+    
+    //REVISAR
     //Caso en el que el arreglo es global
     else {
         t1 = temp->newtemp();
@@ -967,11 +1022,9 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
             nuevo_q3 = new GuavaQuadsExp("[]",addr,t2,t1);
         else
             nuevo_q3 = new GuavaQuadsExp("[]",addr,t0,t1);
+       addr = t1;            
     }
-    /*Creado el quad, ahora el address del elemento del arreglo en cuestion es
-     *el temporal final.
-     */
-    addr = t1;
+
     result->push_back(nuevo_q3);
     GuavaQuads* comentario = new GuavaComment("EXP ARREGLO",line,column);
     result->push_front(comentario);

@@ -538,7 +538,7 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
  * @param loc Variable que contiene la información de la ubicación actual del parser.
  * @return direccion Retorna la variable en donde se encuentra el arreglo en memoria.
  */
-SimpleSymbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc){
+Symbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc){
     int scope, line, column;
     GuavaSymTable *tabla = tabla_actual.front();
     line = loc.begin.line;
@@ -547,7 +547,7 @@ SimpleSymbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy
     scope = tabla->currentScope();
 
     int offset = offset_actual.front();
-    SimpleSymbol* direccion;
+    Symbol* direccion;
 
     convert << nombre_cadena; // Variable global
     if (offset != -1){

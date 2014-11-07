@@ -500,9 +500,9 @@ public:
         addr = temp->newtemp();
         GuavaQuads* nuevo;
         if (operacion->compare(std::string("pincrease")) == 0){
-            nuevo = new GuavaQuadsExp("+",exp->addr, new SimpleSymbol("1"),addr);
+            nuevo = new GuavaQuadsExp("+",exp->addr, new Symbol("1"),addr);
         } else if (operacion->compare(std::string("pdecrease")) == 0) {
-            nuevo = new GuavaQuadsExp("-",exp->addr, new SimpleSymbol("1"),addr);
+            nuevo = new GuavaQuadsExp("-",exp->addr, new Symbol("1"),addr);
         }else {
             nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
         }
@@ -869,7 +869,7 @@ public:
     TypeS* tipo_estructura;
     int line;
     int column;
-    SimpleSymbol* direccion;
+    Symbol* direccion;
 
     bool is_array() { return true; }
     Arreglo();

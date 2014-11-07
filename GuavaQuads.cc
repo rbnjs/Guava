@@ -100,12 +100,13 @@ void GuavaParam::attach_info(){
        this->insert_vivas(addr);     
        this->insert_usos(addr);     
     }
+}
 
 /**
  * Funcion que verifica si un elemento del Quad es una estructura y, de serlo,
  * convierte su direccion en la base de la misma.
  */
-std::string generar_base_estructura(Symbol* s) {
+std::string generar_base_estructura(Symbol* s){
     std::string base = s->sym_name;
     if (s->true_type != 0 && (s->true_type->is_structure() || s->true_type->is_union())) {
         base += "[" + std::to_string(s->offset) + "]";
@@ -240,5 +241,38 @@ std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* a
         }   
     }
 
+    return code;
+}
+
+
+std::string GuavaQuadsExp::gen(){
+    std::string code ("");
+    //Caso Operaciones Binarias
+    if (arg2 != 0){
+        code = generacionIntermedia_binaria(this->get_op(),arg1,arg2,result);
+    }
+    //Caso Operaciones Unarias
+    else {
+        //Asignacion
+        if (this->get_op().compare(std::string(":=")) == 0) {
+            code = generacionIntermedia_unaria(std::string(":="),arg1,result);
+        }
+        // Menos unario
+        if (this->get_op().compare(std::string("uminus")) == 0) {
+            code = generacionIntermedia_unaria(std::string(":=-"),arg1,result);
+        }
+
+        //ESTOS CAPAZ Y SE TENGAN QUE BORRAR
+
+        // Post incremento
+        if (this->get_op().compare(std::string("pincrease")) == 0) {
+            code += result->sym_name + ":=" + arg1->sym_name + "++";
+        }
+        // Post decremento
+        if (this->get_op().compare(std::string("pdecrease")) == 0) {
+            code += result->sym_name + ":=" + arg1->sym_name + "--";
+        }
+    }
+    code += "\n";
     return code;
 }

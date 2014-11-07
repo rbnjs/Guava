@@ -100,7 +100,7 @@ bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*>
 
 void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);
 
-SimpleSymbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc);
+Symbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc);
 
 std::string reportar_existencia(Symbol *s, std::string id);
 

@@ -709,11 +709,11 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
     for (std::list<Exp*>::iterator it = la->larr.begin(); it != la->larr.end(); ++it){
         Exp* exp_tmp = *it;
         std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
-        SimpleSymbol* exp_addr = exp_tmp->addr;
+        Symbol* exp_addr = exp_tmp->addr;
         result->splice(result->end(), *tmp);
         Symbol* direccion_a = temp->newtemp();
         // Me muevo en la direccion del arreglo.
-        GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new SimpleSymbol(offset_actual),direccion_a); 
+        GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new Symbol(offset_actual),direccion_a); 
         // Guardo en la direccion el valor de la expresion.
         GuavaQuads* guardar_direccion = new GuavaQuadsExp(":=", exp_addr, 0 , direccion_a);
         result->push_front(obtener_direccion);

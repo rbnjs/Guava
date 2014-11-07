@@ -237,37 +237,7 @@ public:
 
     void attach_info();
     
-    virtual std::string gen(){
-        std::string code ("");
-        //Caso Operaciones Binarias
-        if (arg2 != 0){
-            code = generacionIntermedia_binaria(this->get_op(),arg1,arg2,result);
-        }
-        //Caso Operaciones Unarias
-        else {
-            //Asignacion
-            if (this->get_op().compare(std::string(":=")) == 0) {
-                code = generacionIntermedia_unaria(std::string(":="),arg1,result);
-            }
-            // Menos unario
-            if (this->get_op().compare(std::string("uminus")) == 0) {
-                code = generacionIntermedia_unaria(std::string(":=-"),arg1,result);
-            }
-
-            //ESTOS CAPAZ Y SE TENGAN QUE BORRAR
-
-            // Post incremento
-            if (this->get_op().compare(std::string("pincrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "++";
-            }
-            // Post decremento
-            if (this->get_op().compare(std::string("pdecrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "--";
-            }
-        }
-        code += "\n";
-        return code;
-    }
+    virtual std::string gen();
 };
 
 /**  

@@ -118,6 +118,12 @@ public:
      */
     Symbol(std::string name);
 
+
+    /** 
+     * Constructor para offsets y valores enteros.
+     */
+    Symbol(int o): SimpleSymbol(o){}
+
     /**
      * Constructor para simbolo vacio.
      */

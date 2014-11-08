@@ -384,6 +384,18 @@ public:
     bool is_return(){
         return true;
     }
+
+    bool is_void(){
+        return (arg1 == 0 && arg2 == 0 && result == 0);
+    }
+
+    std::string gen(){
+        if (this->is_void()){
+            return "return \n";
+        } else{
+            return (result->sym_name + " := return " + arg1->sym_name + " \n");
+        }
+    }
 };
 
 /** 

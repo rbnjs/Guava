@@ -908,6 +908,9 @@ void SelectorIfComplejo::show(std::string s) {
     if (lelseif != 0) lelseif->show("  "+s);
 } 
 
+/** 
+ * Genera el codigo de tres direcciones para los if complejos.
+ */
 std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
     BoolLabel* label = exp->bool_label(); 
     label->true_label = new GuavaFall();

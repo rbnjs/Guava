@@ -396,11 +396,13 @@ public:
 
     std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
+        GuavaQuads* go_to;
         if (valor){
-            GuavaQuads* go_to = new GuavaGoTo(labels_bool->true_label);
+             go_to = new GuavaGoTo(labels_bool->true_label);
         }else {
-            GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
+            go_to = new GuavaGoTo(labels_bool->false_label);
         }
+        result->push_back(go_to);
         return result;
     };
 

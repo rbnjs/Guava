@@ -195,6 +195,7 @@ public:
         return false;
     }
 
+
 };
 
 /**
@@ -246,7 +247,9 @@ public:
 class GuavaLabel: public GuavaQuads{
 public:
     /**
-     * Constructor para GuavaLabel.
+     * Constructor para GuavaLabel. Solo se usa para los labels de las funciones.
+     * Cuando se construye un label de esta manera el atributo func_label lo colocamos
+     * como true.
      * @param label Label que sera guardado en op.
      */
     GuavaLabel(std::string label): GuavaQuads(label){}
@@ -260,6 +263,10 @@ public:
     }
 
     bool is_label(){ return true; }
+    
+
+private:
+    bool func_label = false;
 
 };
 /**

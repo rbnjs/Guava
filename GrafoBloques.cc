@@ -55,30 +55,30 @@ BloqueBasico::BloqueBasico(list<GuavaQuads*> lista): codigo(lista), id(id_unica)
 
 /**
  * Funcion que retorna una lista de los lideres del programa.
- * Lider es: El primer elemento
- *           Instruccion destino salto
- *           Instruccion que sigue a un salto
+ * Lider es: La primera instruccion de una funcion (a)
+ *           Instruccion destino salto (b)
+ *           Instruccion que sigue a un salto (c)
  * @param codigo Codigo de tres direcciones.
  * @param result Lideres de bloques.
  */
 list<GuavaQuads*> obtener_lideres(list<GuavaQuads*>* codigo){
     list<GuavaQuads*> result;
-    list<GuavaQuads*>::iterator it = codigo->begin(); 
-    GuavaQuads* temp = *it;
-    result.push_back(temp); //Primer elemento es lider
-    ++it;
+    GuavaQuads* temp;
 
-    while( it != codigo->end()){
+    for ( list<GuavaQuads*>::iterator it = codigo->begin();  it != codigo->end() ;){
         temp = *it;
+
         if (temp->is_goto() && it != codigo->end() ){
             GuavaQuads* next_temp = *std::next(it);
-            result.push_back(next_temp); // Instruccion que sigue a un salto es lider.
+            result.push_back(next_temp); // Instruccion que sigue a un salto es lider. (c)
         }
-
+        /* 
+         * Este if captura la regla a y b pues toda funcion comienza con un label (a)
+         * y todo label es destino de salto (b)
+         */
         if (temp->is_label()){
-            result.push_back(temp); // Destinos a salto son lider.
+            result.push_back(temp); 
         }
-        ++it;
     }
     return result;
 }
@@ -96,7 +96,7 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     ++it_lideres; // Ya se sabe que el primer lider es la primera instruccion.
     while (it_lideres != lideres.end()){
         list<GuavaQuads*> codigo_bloque;
-        while (*it_codigo != *it_lideres){ // No se si esto se pueda. Revisar
+        while (*it_codigo != *it_lideres){ 
             GuavaQuads* instruccion = *it_codigo;
             codigo_bloque.push_back(instruccion);
             ++it_codigo;
@@ -105,6 +105,9 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
         result.push_back(nuevo_bloque);
         ++it_lideres;
     }
+    //Una vez obtenido todos los bloques coloco el bloque entry y el exit
+    result.push_front(new BloqueEntry());
+    result.push_front(new BloqueExit());
     return result;
 }
 
@@ -119,25 +122,22 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
  *  b) There is a conditional or unconditional jump from the end of B to the 
  *     beginning of C.     
  *
+ *  FALTA CONSIDERAR QUE HACER CON EL ENTRY
+ *
  * @param bloques Todos los bloques del grafo.
  * @return result Lista de lados.
  */
 list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloques){
     list<pair<BloqueBasico*, BloqueBasico*>> result;
-    list<BloqueBasico*>::iterator it = bloques.begin();
-    BloqueBasico* bloque_next, *bloque_prev; 
-    bloque_prev = *it;
-    ++it;
+    BloqueBasico* bloque;
     //Primero voy a poner los lados de los bloques secuenciales. (a)
-    while (it != bloques.end()){
-        bloque_next = *it;
+    for (list<BloqueBasico*>::iterator it = bloques.begin() ; it != bloques.end(); ++it){
+        bloque = *it;
         //Si tiene un salto incondicional al final entonces no colocar el lado.
-        if (!bloque_prev->last()->is_jump()){
-            pair<BloqueBasico*,BloqueBasico*> par_tmp (bloque_prev,bloque_next);
+        if ( it != bloques.begin() && !std::prev(bloque)->last()->is_jump()){
+            pair<BloqueBasico*,BloqueBasico*> par_tmp (std::prev(bloque),bloque);
             result.push_back(par_tmp);
         }
-        bloque_prev = bloque_next;
-        ++it;
     }
     // Agregando los lados resultados de saltos. (b)
     for (it = bloques.begin(); it != bloques.end(); ++it){

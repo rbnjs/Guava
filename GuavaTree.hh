@@ -1582,6 +1582,10 @@ public:
 
     void show(std::string);
 
+    /**
+     * Genera los quads para una funcion.
+     * Este es el unico momento en que se usa GuavaLabel con un identificador.
+     **/
     std::list<GuavaQuads*>* generar_quads(){
         label = new GuavaLabel(identificador->identificador);
         std::list<GuavaQuads*>* quads =  listaI->generar_quads();

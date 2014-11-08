@@ -80,6 +80,7 @@ private:
  * Clase que representa un bloque de entrada
  */
 class BloqueEntry: public BloqueBasico{
+public:
 
     BloqueEntry(): BloqueBasico(){}
 
@@ -92,6 +93,7 @@ class BloqueEntry: public BloqueBasico{
  * Clase que representa un bloque de salida.
  */
 class BloqueExit: public BloqueBasico{
+public:
 
     BloqueExit(): BloqueBasico(){}
 

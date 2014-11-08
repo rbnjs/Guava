@@ -169,7 +169,7 @@ bloqueprincipal: {
                                                 if (driver.print_quads){
                                                     imprimir_quads(quads); 
                                                 }
-                                               GrafoFlujo* g = new GrafoFlujo(quads);
+                                               //GrafoFlujo* g = new GrafoFlujo(quads);
                                             }
                                          };
 
@@ -379,16 +379,16 @@ lfunciones: funcionmain                    { $$ = new LFunciones($1,0);
                                            }
           | lfunciones1 funcionmain        { 
                                              LFunciones* main_ = new LFunciones($2,0);
-                                             $1->lista = main_;
-                                             $$ = $1;
+                                             main_->lista = $1;
+                                             $$ =main_;
                                            };
 
 lfunciones1: funcion                       { $$ = new LFunciones($1,0);
                                            }
            | lfunciones1 funcion           { 
                                              LFunciones* func = new LFunciones($2,0);
-                                             $1->lista = func;
-                                             $$ = $1;
+                                             func->lista = $1;
+                                             $$ = func;
                                            };
 
 funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaSimbolos.enterScope(); 
@@ -809,10 +809,17 @@ entradasalida: READ '(' exp ')'   {
                                   };
 
 retorno: RETURN       { 
-			    $$ = new Retorno(0,yylloc.begin.line,yylloc.begin.column); 
+                            NewTemp t (&secuencia_temporales, TypeVoid::Instance(), yylloc.begin.line,
+                                              yylloc.begin.column,&driver.tablaSimbolos);
+		            Retorno* tmp = new Retorno(0,yylloc.begin.line,yylloc.begin.column); 
+                            tmp->tmp_return = t.newtemp();
+                            $$ = tmp;
                       }
        | RETURN exp   {
 			    Retorno* tmp =  new Retorno($2,yylloc.begin.line, yylloc.begin.column); 
+                            NewTemp t (&secuencia_temporales, tmp->get_tipo(), yylloc.begin.line,
+                                              yylloc.begin.column,&driver.tablaSimbolos);
+                            tmp->tmp_return = t.newtemp();
 			    if (tmp->get_tipo() == TypeError::Instance() || tmp->get_tipo() == 0){
                                 std::string msg = mensaje_error_tipos("type","error");
                                 driver.error(yylloc,msg);

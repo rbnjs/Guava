@@ -691,6 +691,8 @@ public:
     int column;
     Exp* exp;
     TypeS* tipo;
+    Symbol* tmp_return;
+    
 
     Retorno(Exp* e): exp(e){ if (e != 0) tipo = e->get_tipo(); }
     Retorno(Exp* e,int line_,int col_):exp(e), line(line_), column(col_){ if (e != 0) tipo = e->get_tipo(); }

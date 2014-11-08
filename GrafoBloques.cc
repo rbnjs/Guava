@@ -53,6 +53,15 @@ BloqueBasico::BloqueBasico(list<GuavaQuads*> lista): codigo(lista), id(id_unica)
     determinar_livenext(codigo);
 }
 
+/** 
+ * Constructor para BloqueEntry que guarda el 
+ * label de una funcion.
+ */
+BloqueEntry::BloqueEntry(GuavaQuads* label_): BloqueBasico(),label(label_->get_op()){
+   id = id_unica; 
+   id_unica++;
+}
+
 /**
  * Funcion que retorna una lista de los lideres del programa.
  * Lider es: La primera instruccion de una funcion (a)
@@ -93,21 +102,20 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     list<GuavaQuads*>::iterator it_lideres = lideres.begin();
     list<BloqueBasico*> result;
     list<GuavaQuads*>::iterator it_codigo = codigo->begin();
-    ++it_lideres; // Ya se sabe que el primer lider es la primera instruccion.
+    if (*it_lideres == *it_codigo) ++it_lideres; // Ya se sabe que el primer lider es la primera instruccion.
+
     while (it_lideres != lideres.end()){
         list<GuavaQuads*> codigo_bloque;
+
         while (*it_codigo != *it_lideres){ 
-            GuavaQuads* instruccion = *it_codigo;
-            codigo_bloque.push_back(instruccion);
+            codigo_bloque.push_back(*it_codigo);
             ++it_codigo;
         }
         BloqueBasico* nuevo_bloque = new BloqueBasico(codigo_bloque);
         result.push_back(nuevo_bloque);
         ++it_lideres;
     }
-    //Una vez obtenido todos los bloques coloco el bloque entry y el exit
-    result.push_front(new BloqueEntry());
-    result.push_front(new BloqueExit());
+
     return result;
 }
 
@@ -122,7 +130,6 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
  *  b) There is a conditional or unconditional jump from the end of B to the 
  *     beginning of C.     
  *
- *  FALTA CONSIDERAR QUE HACER CON EL ENTRY
  *
  * @param bloques Todos los bloques del grafo.
  * @return result Lista de lados.
@@ -140,7 +147,7 @@ list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloque
         }
     }
     // Agregando los lados resultados de saltos. (b)
-    for (it = bloques.begin(); it != bloques.end(); ++it){
+    for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
         for (list<BloqueBasico*>::iterator it_2 = bloques.begin(); it_2 != bloques.end() ; ++it_2){
             BloqueBasico* b = *it;
             BloqueBasico* c = *it_2;

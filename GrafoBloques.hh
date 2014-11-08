@@ -71,7 +71,7 @@ public:
         return codigo.back();
     }
 
-private:
+protected:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
     int id; /* Identificador para cada bloque. */
 };
@@ -82,11 +82,13 @@ private:
 class BloqueEntry: public BloqueBasico{
 public:
 
-    BloqueEntry(): BloqueBasico(){}
+    BloqueEntry(GuavaQuads* label_);
 
     ~BloqueEntry(){}
 
     bool is_entry(){ return true; } 
+private:
+    string label;
 };
 
 /** 

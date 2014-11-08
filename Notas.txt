@@ -32,7 +32,7 @@ Que pasa con los casos como: ++x++? Que se aplica primero?
 postincremento.
 
 7- Poner etiquetas del número de las líneas a todas las líneas del código
-intermedio. Bueno para la optimización de código.
+intermedio. Bueno para la optimización de código. CASI LISTO FALTA IMPRIMIRLO
 
 LISTO
 8- Las constantes colocarlas directas, no siendo asignadas a temporales.

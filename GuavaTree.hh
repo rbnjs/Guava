@@ -1594,6 +1594,12 @@ public:
         quads->push_front(label);
         GuavaQuads* comentario = new GuavaComment("FUNCION",line,column);
         quads->push_front(comentario);
+
+        if (tipo->get_tipo() == TypeVoid::Instance()){
+            //Agrego un return al final.
+            quads->push_back(new GuavaQuadsReturn());
+        }
+
         return quads;
     }
 };

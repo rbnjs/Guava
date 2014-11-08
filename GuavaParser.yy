@@ -169,7 +169,7 @@ bloqueprincipal: {
                                                 if (driver.print_quads){
                                                     imprimir_quads(quads); 
                                                 }
-                                               //GrafoFlujo* g = new GrafoFlujo(quads);
+                                               GrafoFlujo* g = new GrafoFlujo(quads);
                                             }
                                          };
 

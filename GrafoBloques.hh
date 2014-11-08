@@ -71,10 +71,24 @@ public:
         return codigo.back();
     }
 
+    /** 
+     * Imprime el codigo dentro del bloque.
+     */
+    void print(ostream &os);
+
+
 protected:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
     int id; /* Identificador para cada bloque. */
 };
+
+/** 
+ * Overhead del operador << para ser cools.
+ */
+inline std::ostream& operator<<(std::ostream &os, BloqueBasico &state) {
+    state.print(os);
+    return os;
+}
 
 /** 
  * Clase que representa un bloque de entrada
@@ -97,7 +111,7 @@ private:
 class BloqueExit: public BloqueBasico{
 public:
 
-    BloqueExit(): BloqueBasico(){}
+    BloqueExit();
 
     ~BloqueExit(){}
 
@@ -122,4 +136,9 @@ public:
      */
     GrafoFlujo(list<GuavaQuads*>* codigo);
     ~GrafoFlujo(){}
+
+    /** 
+     * Imprime los nodos del grafo.
+     */
+    void imprimir_nodos(ostream& os);
 };

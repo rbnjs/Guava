@@ -40,6 +40,7 @@ LISTO
 9- El basepointer se maneja positivo para argumentos de funciones y negativo
 para variables locales de funciones.
 
+LISTO
 10- Los return deben de devolver valores, luego en el cuerpo del 'llamador' se
 le asigna lo que el return devuelve:
 

@@ -53,11 +53,26 @@ BloqueBasico::BloqueBasico(list<GuavaQuads*> lista): codigo(lista), id(id_unica)
     determinar_livenext(codigo);
 }
 
+void BloqueBasico::print(ostream &os){
+    for (list<GuavaQuads*>::iterator it = codigo.begin(); it != codigo.end(); ++it){
+        os << (*it)->gen() << endl;
+    }
+}
+
+
 /** 
  * Constructor para BloqueEntry que guarda el 
  * label de una funcion.
  */
 BloqueEntry::BloqueEntry(GuavaQuads* label_): BloqueBasico(),label(label_->get_op()){
+   id = id_unica; 
+   id_unica++;
+}
+
+/** 
+ *
+ */
+BloqueExit::BloqueExit(): BloqueBasico(){
    id = id_unica; 
    id_unica++;
 }
@@ -74,7 +89,7 @@ list<GuavaQuads*> obtener_lideres(list<GuavaQuads*>* codigo){
     list<GuavaQuads*> result;
     GuavaQuads* temp;
 
-    for ( list<GuavaQuads*>::iterator it = codigo->begin();  it != codigo->end() ;){
+    for ( list<GuavaQuads*>::iterator it = codigo->begin();  it != codigo->end() ; ++it){
         temp = *it;
 
         if (temp->is_goto() && it != codigo->end() ){
@@ -141,9 +156,9 @@ list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloque
     for (list<BloqueBasico*>::iterator it = bloques.begin() ; it != bloques.end(); ++it){
         bloque = *it;
         //Si tiene un salto incondicional al final entonces no colocar el lado.
-        if ( it != bloques.begin() && !std::prev(bloque)->last()->is_jump()){
-            pair<BloqueBasico*,BloqueBasico*> par_tmp (std::prev(bloque),bloque);
-            result.push_back(par_tmp);
+        if ( it != bloques.begin() && !(*std::prev(it))->last()->is_jump()){
+                pair<BloqueBasico*,BloqueBasico*> par_tmp (*std::prev(it),bloque);
+                result.push_back(par_tmp);
         }
     }
     // Agregando los lados resultados de saltos. (b)
@@ -190,4 +205,10 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
 
+}
+
+/** 
+ * Imprime los nodos del grafo.
+ */
+void GrafoFlujo::imprimir_nodos(ostream& os){
 }

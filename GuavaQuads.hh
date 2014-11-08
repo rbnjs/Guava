@@ -202,9 +202,9 @@ public:
  */
 class GuavaQuadsExp:public GuavaQuads{
 protected:
-    Symbol* arg1 = 0;
-    Symbol* arg2 = 0;
-    Symbol* result = 0;
+    SimpleSymbol* arg1 = 0;
+    SimpleSymbol* arg2 = 0;
+    SimpleSymbol* result = 0;
 public: 
     /**
      * Constructor de la clase
@@ -213,7 +213,7 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado. Aqui es donde se guarda la info.
      */
-    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuadsExp(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
     /**
      * Destructor de la clase
      */
@@ -222,9 +222,9 @@ public:
     /**
      * Getters de la clase
      */
-    Symbol* get_arg1()  { return arg1; }
-    Symbol* get_arg2()  { return arg2; }
-    Symbol* get_result(){ return result; }
+    SimpleSymbol* get_arg1()  { return arg1; }
+    SimpleSymbol* get_arg2()  { return arg2; }
+    SimpleSymbol* get_result(){ return result; }
 
     /**
      * Funcion que genera codigo a partir de un Quad
@@ -237,37 +237,7 @@ public:
 
     void attach_info();
     
-    virtual std::string gen(){
-        std::string code ("");
-        //Caso Operaciones Binarias
-        if (arg2 != 0){
-            code = generacionIntermedia_binaria(this->get_op(),arg1,arg2,result);
-        }
-        //Caso Operaciones Unarias
-        else {
-            //Asignacion
-            if (this->get_op().compare(std::string(":=")) == 0) {
-                code = generacionIntermedia_unaria(std::string(":="),arg1,result);
-            }
-            // Menos unario
-            if (this->get_op().compare(std::string("uminus")) == 0) {
-                code = generacionIntermedia_unaria(std::string(":=-"),arg1,result);
-            }
-
-            //ESTOS CAPAZ Y SE TENGAN QUE BORRAR
-
-            // Post incremento
-            if (this->get_op().compare(std::string("pincrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "++";
-            }
-            // Post decremento
-            if (this->get_op().compare(std::string("pdecrease")) == 0) {
-                code += result->sym_name + ":=" + arg1->sym_name + "--";
-            }
-        }
-        code += "\n";
-        return code;
-    }
+    virtual std::string gen();
 };
 
 /**  

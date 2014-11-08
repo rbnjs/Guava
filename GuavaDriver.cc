@@ -340,21 +340,17 @@ int tamano_tipo(TypeS* t){
         TypeS* tmp;
         TypeRecord *s = (TypeRecord*) t;
         std::list<TypeS*> list = s->atributos->get_types(0);
+        
         while (!list.empty()){
             tmp = list.front();
-
-
-
-            //std::cout << "Soy el tipo: " << tmp->get_name() << " y mi tamaño es: " /*<< tamano_tipo(tmp)*/ << "\n";
-
-
-
             result += encajar_en_palabra(tamano_tipo(tmp));
             list.pop_front();
         }
+
         return result;
     }
 
+    /* FALTA TAMBIEN ARREGLAR ESTE CASO */
     if (t->is_union()){
         result = 0;
         TypeS* tmp;

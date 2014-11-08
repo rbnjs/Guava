@@ -1,7 +1,8 @@
 declare {
-    /*integer array arr[10];
+    integer array arr[10];
     integer x1,x2;
     real r;
+    boolean bool;
     record R1 {
         integer a,b;
         record R2 {
@@ -13,22 +14,13 @@ declare {
         };
         R2 record c1,c2;
     };
-    real r2;*/
-
-    record R1 {
-        integer a;
-        record R2 {
-            integer b;
-        };
-        R2 record x1;
-        integer b;
-    };
-
-    R1 record y1,y2;
+    
+    real r2;
+    R1 record y;
 }
 
 function void main() {
-    /*declare {
+    declare {
         integer array brr[10];
         integer w1,w2;
         record R3 {
@@ -36,10 +28,19 @@ function void main() {
         };
         R3 record z;
         integer array crr[10];
+    }
+
+    /*bool := true;
+
+    if (bool) then {
+        x1 := 1;
+    }
+    else {
+        x2 := 2;
     }*/
 
-    y1.a := y2.a;
+    if (false) then {
+        x1 := 1;
+    }
 
-    /*y.c1 := y.c2;
-    y.c1.d.b := y.c2.d.a;*/
 }

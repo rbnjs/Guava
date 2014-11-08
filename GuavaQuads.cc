@@ -164,7 +164,7 @@ std::string generacionIntermedia_unaria(std::string op, Symbol* arg1, Symbol* re
  * - arg1 y arg2 son los r-values.
  */
 std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* arg2, Symbol* result) {
-    std::string code ("");
+    std::string code = "";
     //Caso result local
     if (result->sym_name.compare(std::string("bp")) == 0) {
         std::string result_local = result->sym_name + "[" + std::to_string(result->offset) + "]";

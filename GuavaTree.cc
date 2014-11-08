@@ -933,7 +933,7 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
         std::list<GuavaQuads*>* code_2 = lelseif->generar_quads();
         result->splice(result->end(),*code_2);
     }     
-    GuavaQuads* comentario = new GuavaComment("SELECTOR IF SIMPLE",line,column);
+    GuavaQuads* comentario = new GuavaComment("SELECTOR IF COMPLEJO",line,column);
     result->push_front(comentario);
     return result;
 }

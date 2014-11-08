@@ -190,39 +190,35 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
+/**
+ * PUEDE QUE AQUI ESTE EL PEO DE CALCULO DE TAMANO DE ESTRUCTURAS
+ */
 std::list<TypeS*> GuavaSymTable::get_types(int sc){
     std::list<TypeS*> result;
 
     for (std::unordered_map<std::string, std::list<Symbol*> >::iterator itTabla = this->tabla.begin() ; itTabla != this->tabla.end() ; ++itTabla){
-
         for (std::list<Symbol*>::iterator itList = itTabla->second.begin() ; itList != itTabla->second.end() ; ++itList){
             Symbol* tmp = *itList;
+           
 
             if (tmp->scope ==sc) {
-                if(tmp->true_type != 0)
-                    result.push_front(tmp->true_type);
-                else if (tmp->type_pointer != 0 && tmp->type_pointer->true_type != 0)
-                    result.push_front(tmp->type_pointer->true_type);
+                if(tmp->true_type != 0) {
+                    /* Verificacion de si se trata de una definicion de tipo:
+                     * se checkea que el nombre del simbolo no sea el mismo de
+                     * la estructura que define el tipo nuevo.
+                     * (ALERTA: CABLE)
+                     */
+                    if(tmp->sym_name.compare(tmp->true_type->get_name()) != 0)
+                        result.push_front(tmp->true_type);
+                }
+                else if (tmp->type_pointer != 0 && tmp->type_pointer->true_type != 0) {
+                    if(tmp->sym_name.compare(tmp->type_pointer->true_type->get_name()) != 0)
+                        result.push_front(tmp->type_pointer->true_type);
+                }
             }
-
-            //TODO LO DE ABAJO PUEDE BORRARSE OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-            /*if (tmp->scope == sc ){
-                //Caso en el que el tipo a explorar no es una estructura
-                if (tmp->sym_catg != "unionType" && tmp->sym_catg != "recordType"){
-                    if (tmp->true_type != 0) result.push_front(tmp->true_type);
-                    else {
-                        Symbol *tmp2 = tmp->type_pointer;
-                        if (tmp2->true_type == 0) continue;
-                        result.push_front(tmp2->true_type);
-                    }
-                }
-                //Caso en el que el tipo a explorar es una estructura
-                else {
-                    if (tmp->true_type != 0) result.push_front(tmp->true_type);
-                }
-            }*/
         }
     }
+    
     return result;
 }
 

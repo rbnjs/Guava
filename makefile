@@ -6,11 +6,11 @@ guava:  Generator.o Types.o Symbol.o GuavaQuads.o GrafoBloques.o GuavaSymTable.o
 
 GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh Generator.hh
 
-	clang++ -g   -c  -std=c++11 GuavaDriver.cc
+	clang++ -g -c  -std=c++11 GuavaDriver.cc
 
 GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaTree.hh GuavaDriver.hh
 
-	clang++ -g   -c -std=c++11 GuavaParser.cc 
+	clang++ -g -c -std=c++11 GuavaParser.cc 
 
 GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 
@@ -18,7 +18,7 @@ GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 
 GuavaLexer.o: GuavaLexer.cc GuavaParser.hh GuavaDriver.hh
 
-	clang++ -g   -c -std=c++11 GuavaLexer.cc
+	clang++ -g -c -std=c++11 GuavaLexer.cc
 
 GuavaLexer.cc: GuavaLexer.l
 
@@ -26,36 +26,35 @@ GuavaLexer.cc: GuavaLexer.l
 
 GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh
 
-	clang++ -g   -c -std=c++11 GuavaSymTable.cc
+	clang++ -g -c -std=c++11 GuavaSymTable.cc
 
 Symbol.o: Symbol.cc Symbol.hh Types.hh
 
-	clang++ -g   -c -std=c++11 Symbol.cc
+	clang++ -g -c -std=c++11 Symbol.cc
 
 Types.o: Types.cc Types.hh
 
-	clang++ -g   -c -std=c++11 Types.cc
+	clang++ -g -c -std=c++11 Types.cc
 
 GuavaTree.o: GuavaTree.cc GuavaTree.hh GrafoBloques.hh
 
-	clang++ -g   -c -std=c++11 GuavaTree.cc
+	clang++ -g -c -std=c++11 GuavaTree.cc
 
 Guava.o: Guava.cc
 
-	clang++ -g   -c -std=c++11 Guava.cc
+	clang++ -g -c -std=c++11 Guava.cc
 
 Generator.o: Generator.hh
 
-	clang++ -g   -c -std=c++11 Generator.hh
+	clang++ -g -c -std=c++11 Generator.hh
 
 GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc GuavaSymTable.hh
 
-	clang++ -g   -c -std=c++11 GuavaQuads.cc GuavaQuads.hh
+	clang++ -g -c -std=c++11 GuavaQuads.cc GuavaQuads.hh
 
 GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc GuavaQuads.hh
 
-	clang++  -g  -c -std=c++11 -I /usr/include/boost GrafoBloques.cc GrafoBloques.hh
-
+	clang++  -g -c -std=c++11 -I /usr/include/boost GrafoBloques.cc GrafoBloques.hh
 
 .PHONY: clean
 

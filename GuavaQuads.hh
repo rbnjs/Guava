@@ -202,9 +202,9 @@ public:
  */
 class GuavaQuadsExp:public GuavaQuads{
 protected:
-    SimpleSymbol* arg1 = 0;
-    SimpleSymbol* arg2 = 0;
-    SimpleSymbol* result = 0;
+    Symbol* arg1 = 0;
+    Symbol* arg2 = 0;
+    Symbol* result = 0;
 public: 
     /**
      * Constructor de la clase
@@ -213,7 +213,7 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado. Aqui es donde se guarda la info.
      */
-    GuavaQuadsExp(std::string op_, SimpleSymbol* arg1_, SimpleSymbol* arg2_, SimpleSymbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
     /**
      * Destructor de la clase
      */
@@ -222,9 +222,9 @@ public:
     /**
      * Getters de la clase
      */
-    SimpleSymbol* get_arg1()  { return arg1; }
-    SimpleSymbol* get_arg2()  { return arg2; }
-    SimpleSymbol* get_result(){ return result; }
+    Symbol* get_arg1()  { return arg1; }
+    Symbol* get_arg2()  { return arg2; }
+    Symbol* get_result(){ return result; }
 
     /**
      * Funcion que genera codigo a partir de un Quad

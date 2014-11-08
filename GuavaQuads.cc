@@ -119,7 +119,7 @@ std::string generar_base_estructura(Symbol* s){
  * - arg1 es el r-value.
  * - result es e l-value.
  */
-std::string generacionIntermedia_unaria(std::string op, SimpleSymbol* arg1, SimpleSymbol* result) {
+std::string generacionIntermedia_unaria(std::string op, Symbol* arg1, Symbol* result) {
     std::string code = "";
     //Variables que describen la base de los addr en caso de ser estructuras
     std::string base_arg1 = "";
@@ -163,7 +163,7 @@ std::string generacionIntermedia_unaria(std::string op, SimpleSymbol* arg1, Simp
  * - result es el l-value
  * - arg1 y arg2 son los r-values.
  */
-std::string generacionIntermedia_binaria(std::string op, SimpleSymbol* arg1, SimpleSymbol* arg2, SimpleSymbol* result) {
+std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* arg2, Symbol* result) {
     std::string code ("");
     //Caso result local
     if (result->sym_name.compare(std::string("bp")) == 0) {

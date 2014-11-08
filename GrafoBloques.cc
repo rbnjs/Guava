@@ -140,7 +140,7 @@ list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloque
         }
     }
     // Agregando los lados resultados de saltos. (b)
-    for (it = bloques.begin(); it != bloques.end(); ++it){
+    for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
         for (list<BloqueBasico*>::iterator it_2 = bloques.begin(); it_2 != bloques.end() ; ++it_2){
             BloqueBasico* b = *it;
             BloqueBasico* c = *it_2;

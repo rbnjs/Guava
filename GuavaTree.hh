@@ -54,8 +54,6 @@ class Exp{
 public:
 
     Symbol* addr;
-    //ESTO SE TIENE QUE BORRAR
-    //SimpleSymbol* addr;
     NewTemp* temp;
     std::list<GuavaQuads*>* listaQuads;
     virtual TypeS* get_tipo() { return 0; }; 

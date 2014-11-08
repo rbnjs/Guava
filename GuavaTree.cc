@@ -456,8 +456,6 @@ std::list<GuavaQuads*>* ListaInstrucciones::generar_quads(){
     std::list<GuavaQuads*>* l_quads2 = 0;
     next = new GuavaLabel();
 
-
-
     if (instruccion != 0){
         instruccion->next = next;
         l_quads1 = instruccion->generar_quads();  
@@ -489,9 +487,14 @@ void ListaInstrucciones::set_next(Instruccion* instr){
  * Al final de realizar lo que hace la expresion me voy para next
  */
 std::list<GuavaQuads*>* Retorno::generar_quads(){
-    std::list<GuavaQuads*>* result = exp->generar_quads();
-    GuavaQuads* go_to = new GuavaGoTo(next);
-    result->push_back(go_to);
+    std::list<GuavaQuads*>* result;
+    if (exp != 0) result = exp->generar_quads();
+    else result = new std::list<GuavaQuads*>;
+
+    GuavaQuads* retorno;
+    if (exp!= 0) retorno = new GuavaQuadsReturn(exp->addr,tmp_return) ;
+    else retorno = new GuavaQuadsReturn();
+    result->push_back(retorno);
     return result;
 }
 

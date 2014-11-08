@@ -36,6 +36,7 @@ private:
     GuavaSymTable* tabla;
 public:
 
+
     NewTemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_):
         secuencia_temporales(secuencia),tipo(tipo_),line(line_),column(column_),tabla(table_){}
 
@@ -196,6 +197,17 @@ public:
     }
 
 
+    /** 
+     * Funcion que va a servir para GuavaLabel.
+     */
+    virtual bool is_func_label(){
+        return false;
+    }
+
+    virtual bool is_return(){
+        return false;
+    }
+
 };
 
 /**
@@ -252,7 +264,7 @@ public:
      * como true.
      * @param label Label que sera guardado en op.
      */
-    GuavaLabel(std::string label): GuavaQuads(label){}
+    GuavaLabel(std::string label): GuavaQuads(label), func_label(true){}
 
     GuavaLabel();
 
@@ -263,8 +275,19 @@ public:
     }
 
     bool is_label(){ return true; }
-    
 
+    /** 
+     * Retorna si un label es de una función.
+     * Esto nos va a servir para determinar la primera instrucción
+     * de una función o procedimiento.
+     * @return func_label True o false
+     */
+    virtual bool is_func_label(){
+        return func_label;
+    }
+
+
+    
 private:
     bool func_label = false;
 
@@ -336,6 +359,45 @@ public:
         return (go_to->sym_name.compare(a->get_op()) == 0);
     }
 };
+
+/** 
+ * Clase que nos indica un Return 
+ * en el codigo de tres direcciones.
+ */
+class GuavaQuadsReturn: public GuavaQuadsExp{
+public:
+
+    /** 
+     * Return de una funcion de tipo void.
+     */
+    GuavaQuadsReturn(): GuavaQuadsExp("return",0,0,0){}
+
+    /** 
+     * Return de una funcion que si retorna una expresion.
+     */
+    GuavaQuadsReturn(Symbol * exp_, Symbol *result): GuavaQuadsExp("return",exp_,0,result){}
+
+    
+    ~GuavaQuadsReturn(){}
+
+
+    bool is_return(){
+        return true;
+    }
+
+    bool is_void(){
+        return (arg1 == 0 && arg2 == 0 && result == 0);
+    }
+
+    std::string gen(){
+        if (this->is_void()){
+            return "return \n";
+        } else{
+            return (result->sym_name + " := return " + arg1->sym_name + " \n");
+        }
+    }
+};
+
 /** 
  * Clase que represena un If dentro 
  * de nuestro lenguaje intermedio.

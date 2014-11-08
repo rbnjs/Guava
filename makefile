@@ -56,7 +56,6 @@ GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc
 
 	clang++  -g -c -std=c++11 -I /usr/include/boost GrafoBloques.cc GrafoBloques.hh
 
-
 .PHONY: clean
 
 clean:

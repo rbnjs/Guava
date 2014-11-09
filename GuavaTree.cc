@@ -754,7 +754,7 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
         //OJO CON LA SIGUIENTE LINEA
         GuavaQuads* constante_arr = new GuavaQuadsExp("[]",direccion,exp_indice->addr,direccion);
         result->push_front(constante_arr);
-        offest_actual += tam_tipo_primitivo;
+        offset_actual += tam_tipo_primitivo;
         
         //SI TODO FUNCIONA, LAS SIGUIENTES LINEAS PUEDEN SER BORRADAS.
 

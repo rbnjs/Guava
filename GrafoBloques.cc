@@ -204,6 +204,7 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
         pair<BloqueBasico*, BloqueBasico*> tmp = *it;
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
+    //this->imprimir_nodos(cout);
 
 }
 
@@ -211,4 +212,12 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
  * Imprime los nodos del grafo.
  */
 void GrafoFlujo::imprimir_nodos(ostream& os){
+    graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+    boost::tie(vi, vi_end) = vertices(grafo);
+    for (next = vi; next != vi_end; ++next){
+        os << "Bloque :" << grafo[*next].get_id() << endl;
+        os << grafo[*next];
+        os << "---" << endl;
+    }
+
 }

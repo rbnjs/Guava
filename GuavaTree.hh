@@ -85,6 +85,10 @@ public:
     virtual bool operator==(Exp* e){
         return true;
     }
+
+    virtual bool is_array(){
+        return false;
+    }
 };
 
 /**
@@ -133,7 +137,9 @@ public:
     int size(){ return larr.size(); }
     TypeS* get_tipo() { return tipo_primitivo; }
     TypeS* get_tipoEstructura() { return tipo_estructura; }
+                                        
     //TypeS* get_tipo_array() { return (new TypeArray(tipo,larr.size())); } 
+                                        
     void show(std::string);
 
     void set_line_column(int l, int c){

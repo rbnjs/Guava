@@ -18,6 +18,58 @@
 
 #include "Types.hh"
 
+/* TypeS */
+/** 
+ * Compara dos tipos de manera "casi" estructural.
+ * @return bool
+ */
+bool TypeS::compare(TypeS* tipo){
+    if (this == 0 || tipo == 0) return false;
+    //Caso en el que son arreglos.
+    if (this->is_array()){
+        if (tipo->is_array()){
+           return (this->get_dimensiones() == tipo->get_dimensiones() &&
+                   this->get_tipo()->compare(tipo->get_tipo()) &&
+                   (this->get_tipoEstructura()->compare(tipo->get_tipoEstructura()) ||
+                    (this->get_tipoEstructura() == 0 && tipo->get_tipoEstructura() == 0 )) 
+                    );
+        }else{
+            return false;
+        }
+    //Caso en el que son estructuras.
+    } else if (this->is_structure()) {
+        if (tipo->is_structure()){
+            // Si las estructuras tienen el mismo nombre entonces son la misma.
+            return (this->get_name().compare(tipo->get_name()));
+        }else{
+            return false;
+        }
+    //Caso en el que son funciones.
+    } else if (this->is_func()){
+        if (tipo->is_func()){
+            if (this->get_tipo()->compare(tipo->get_tipo())){
+                if (this->get_parametros().size() == tipo->get_parametros().size()){
+                    std::list<TypeS*>::iterator it = this->get_parametros().begin();
+                    std::list<TypeS*>::iterator it_2 = tipo->get_parametros().begin();
+                    while (it != this->get_parametros().end() && it_2 != tipo->get_parametros().end()){
+                        if (!(*it)->compare(*it_2)) return false;
+                        ++it;
+                        ++it_2;
+                    }
+                    return true; 
+                }
+            }else{
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }else{
+        return (this == tipo);
+    }
+}
+
+
 /**
  * Apuntadores globales a las unicas instancias de las clases de cada tipo.
  */
@@ -252,6 +304,11 @@ std::string TypeVoid::get_name() { return std::string("void"); }
 
 /* class TypeArray */
 
+/**
+ * @param tp Tipo primitivo del arreglo
+ * @param te Tipo estructura del arreglo.
+ * @param size Tamaño del arreglo
+ */
 TypeArray::TypeArray(TypeS* tp, TypeS* te, int s): tipo_primitivo(tp), tipo_estructura(te), size(s){}
 
 bool TypeArray::is_array() { return true; } 
@@ -260,9 +317,8 @@ TypeS* TypeArray::get_tipo() { return tipo_primitivo; }
 
 TypeS* TypeArray::get_tipoEstructura() { return tipo_estructura; }
 
-/* MOSCA, RETORNAMOS EL TIPO PRIMITIVO O MEJOR EL TIPO DE LA ESTRUCTURA?
- * Si retornamos el tipo de la estructura se debe de hacer una funcion que
- * imprima: 'arreglo de arreglo de ... arreglo de' + tipo_primitivo.
+/** 
+ * 
  */
 std::string TypeArray::get_name() { 
     if (tipo_estructura !=0) {
@@ -275,6 +331,10 @@ std::string TypeArray::get_name() {
 
 int TypeArray::get_dimensiones(){
     return size;
+}
+
+void TypeArray::size_inc(){
+    size++;
 }
 
 /* class Reference */

@@ -275,6 +275,7 @@ std::string no_es_tipo(std::string id){
 std::string mensaje_error_tipos(std::string esperado, std::string encontrado) {
     std::string msg ("Type error: expected '");
     msg += esperado+"' found: '"+encontrado+"'";
+    error_state = 1;
     return msg;
 }
 /**

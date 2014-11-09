@@ -735,6 +735,8 @@ instruccion1: loopfor        {
 
 asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de tipo error.*/
                                  Asignacion* tmp;
+                                 ExpID* a = (ExpID*) $1;
+                                 Exp* b = $3;
                                  if ($1->get_tipo() == TypeError::Instance() ||
                                      $3->get_tipo() == TypeError::Instance()){
                                      if ($1->get_tipo() == 0){
@@ -754,10 +756,11 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                     tmp = new Asignacion($1,$3);
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
+                                //Caso variables de tipo array.
                                  } else if ($1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
                                     TypeArray* arr1 = (TypeArray*) $1->get_tipo();
                                     TypeArray* arr2 = (TypeArray*) $3->get_tipo();
-                                    if (arr1->get_tipoEstructura() == arr2->get_tipoEstructura()) {
+                                    if (arr1->compare(arr2)) {
                                         tmp = new Asignacion($1,$3);
                                     }
                                     else {
@@ -767,12 +770,20 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                     }
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
-                                 } /*else {
-                                     tmp = new Asignacion($1,$3);
-                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
-                                     $$ = tmp;
-                                 }*/
-                                 else {
+                                //Caso expresion arreglo de valores.
+                                 } else if($1->get_tipo() && $3->is_array()) {
+                                    TypeArray* arr1 = (TypeArray*) $1->get_tipo();
+                                    Arreglo* arr2 = (Arreglo*) $3;
+                                    if (arr1->compare(arr2->get_tipoEstructura())){
+                                        tmp = new Asignacion($1,$3);
+                                    }else {
+                                        std::string msg = mensaje_error_tipos(arr1->get_name(),arr2->get_tipoEstructura()->get_name());
+                                        driver.error(yylloc, msg);
+                                        tmp = new Asignacion();
+                                    }
+                                    tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
+                                    $$ = tmp;
+                                 }else {
                                     std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
                                     driver.error(yylloc,msg);
                                     tmp = new Asignacion();
@@ -1836,29 +1847,31 @@ larreglo: larreglo ',' exp      {
                                   LArreglo* lar = $1;
                                   Exp* e = $3;
                                   if ($1->get_tipo() != 0 && $3->get_tipo() != 0) {
-                                    //Caso: Tipos primitivos diferentes
+                                    //Caso Tipos primitivos diferentes
                                     if ($1->get_tipo() != $3->get_tipo()) {
-                                      msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
+                                        msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
+                                        driver.error(yylloc,msg);
+                                        $1->tipo_primitivo = TypeError::Instance();
                                     }
-                                    //Caso: Tipos estructurales diferentes
+                                    //Caso Tipos estructurales diferentes
                                     else if ($3->get_tipo()->is_array()) {
                                         Arreglo* expArr = (Arreglo *) $3;
                                         if ($1->get_tipoEstructura() != expArr->get_tipoEstructura()) {
-                                          msg = mensaje_error_tipos($1->get_tipoEstructura()->get_name(),expArr->get_tipoEstructura()->get_name());
+                                            msg = mensaje_error_tipos($1->get_tipoEstructura()->get_name(),expArr->get_tipoEstructura()->get_name());
+                                            driver.error(yylloc,msg);
+                                            $1->tipo_primitivo = TypeError::Instance();
                                         }
                                     }
-                                    driver.error(yylloc,msg);
-                                    $1->tipo_primitivo = TypeError::Instance();
+                                    //Caso sin errores
+                                    else{
+                                        $1->append($3);
+                                    }
                                   }
                                   //Caso: Tipos nulos
                                   else if ($1->get_tipo() == 0 && $3->get_tipo() == 0) {
                                     msg = mensaje_error_tipos("null","null");
                                     driver.error(yylloc,msg);
                                     $1->tipo_primitivo = TypeError::Instance();
-                                  }
-                                  //Caso: Sin Errores
-                                  else {
-                                    $1->append($3);
                                   }
                                   $$ = $1;
                                 }

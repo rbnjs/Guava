@@ -38,6 +38,9 @@ public :
     virtual std::string get_name() { return "defaulttype"; };
     virtual int get_dimensiones() { return -1; };
     virtual std::list<TypeS*> get_parametros()  { std::list<TypeS*> s; return s; } 
+    virtual void size_inc(){}
+    virtual TypeS* get_tipoEstructura(){ return 0; }
+    bool compare(TypeS*);
 };
 
 class TypeReal :public TypeS{
@@ -245,6 +248,7 @@ public :
     std::string get_name();
     bool is_array(); 
     int get_dimensiones();
+    void size_inc();
 private:
     //Tipo primivito del arreglo: El que define los elementos del arreglo
     //e.g. "Los elementos del arreglo son de tipo integer".

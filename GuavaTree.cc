@@ -656,8 +656,30 @@ Identificador Union::get_id(){ return id; }
 LArreglo::LArreglo(){
 }
 
+/** 
+ * Agrega un nuevo elemento a la lista de expresiones
+ * de LArreglo.
+ * Cada vez que se agrega un elemento se modifica su tipo.
+ */
 void LArreglo::append(Exp* e){
     larr.push_back(e);
+
+    if (tipo_estructura == 0){
+        //Caso en el que es nuevo.
+        if (!e->is_array()){
+            tipo_estructura = new TypeArray(tipo_primitivo,0,larr.size());  
+        } else {
+            tipo_estructura = new TypeArray(tipo_primitivo,e->get_tipo(), larr.size());
+        }
+    }else{
+        if (!e->is_array()){
+            tipo_estructura->size_inc();
+        }else{
+            Arreglo* arr = (Arreglo*) e; 
+            int tam = arr->get_tipoEstructura()->get_dimensiones();
+            tipo_estructura = new TypeArray(tipo_primitivo,new TypeArray(tipo_primitivo,arr->get_tipoEstructura(),tam),larr.size());
+        }
+    }
 }
 
 LArreglo::~LArreglo() {
@@ -713,7 +735,7 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
         Exp* exp_tmp = *it;
         std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
         Symbol* exp_addr = exp_tmp->addr;
-        result->splice(result->end(), *tmp);
+        if (tmp != 0) result->splice(result->end(), *tmp);
         Symbol* direccion_a = temp->newtemp();
         // Me muevo en la direccion del arreglo.
         GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new Symbol(offset_actual),direccion_a); 

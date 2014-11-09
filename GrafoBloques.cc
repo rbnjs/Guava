@@ -45,6 +45,20 @@ BloqueBasico::BloqueBasico(){
 }
 
 /** 
+ * Constructor para Entries y Exits.
+ * @param o Opcion a elegir 0 es Entry y todo lo demas es Exit
+ */
+BloqueBasico::BloqueBasico(int o): id(id_unica){
+    if (o == 0){
+        is_entry_ = true;
+    }else {
+        is_exit_ = true;
+    }
+    id_unica++; // Aumento el id_unico
+
+}
+
+/** 
  * Constructor para BloqueBasico
  * @param lista Lista de instrucciones de codigo de tres direcciones.
  */
@@ -54,28 +68,19 @@ BloqueBasico::BloqueBasico(list<GuavaQuads*> lista): codigo(lista), id(id_unica)
 }
 
 void BloqueBasico::print(ostream &os){
+    if (this->is_entry()){
+        os << "Bloque Entry : " << id << endl;
+    } else if (this->is_exit()){
+        os << "Bloque Exit : " << id << endl;
+    } else{
+        os << "Bloque :" << id << endl;
+    }
     for (list<GuavaQuads*>::iterator it = codigo.begin(); it != codigo.end(); ++it){
         os << (*it)->gen() << endl;
     }
+    os << "----" <<endl;
 }
 
-
-/** 
- * Constructor para BloqueEntry que guarda el 
- * label de una funcion.
- */
-BloqueEntry::BloqueEntry(GuavaQuads* label_): BloqueBasico(),label(label_->get_op()){
-   id = id_unica; 
-   id_unica++;
-}
-
-/** 
- *
- */
-BloqueExit::BloqueExit(): BloqueBasico(){
-   id = id_unica; 
-   id_unica++;
-}
 
 /**
  * Funcion que retorna una lista de los lideres del programa.
@@ -92,7 +97,7 @@ list<GuavaQuads*> obtener_lideres(list<GuavaQuads*>* codigo){
     for ( list<GuavaQuads*>::iterator it = codigo->begin();  it != codigo->end() ; ++it){
         temp = *it;
 
-        if (temp->is_goto() && it != codigo->end() ){
+        if ((temp->is_goto() || temp->is_return()) && it != codigo->end() ){
             GuavaQuads* next_temp = *std::next(it);
             result.push_back(next_temp); // Instruccion que sigue a un salto es lider. (c)
         }
@@ -100,7 +105,7 @@ list<GuavaQuads*> obtener_lideres(list<GuavaQuads*>* codigo){
          * Este if captura la regla a y b pues toda funcion comienza con un label (a)
          * y todo label es destino de salto (b)
          */
-        if (temp->is_label()){
+        else if (temp->is_label() || temp->is_return()){
             result.push_back(temp); 
         }
     }
@@ -118,34 +123,27 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     list<BloqueBasico*> result;
     list<GuavaQuads*>::iterator it_codigo = codigo->begin();
 
-    // Obtengo la ubicación del primer lider.
-    while (*it_codigo != *it_lideres){
-        ++it_codigo;
-    }
-
-    GuavaQuads* primer_lider = *it_codigo;
-    ++it_codigo;
-    ++it_lideres;
 
     while (it_lideres != lideres.end()){
         list<GuavaQuads*> codigo_bloque;
 
-        if (primer_lider != 0){
-            codigo_bloque.push_back(primer_lider);
-            primer_lider = 0;
-        }
-
-        while (*it_codigo != *it_lideres){ 
-            codigo_bloque.push_back(*it_codigo);
+        while (it_codigo != codigo->end() && *it_codigo != *std::next(it_lideres)){
+            if (!(*it_codigo)->is_guava_comment()) {
+                codigo_bloque.push_back(*it_codigo);
+            }
             ++it_codigo;
         }
+
         if (!codigo_bloque.empty()){
             BloqueBasico* nuevo_bloque = new BloqueBasico(codigo_bloque);
             result.push_back(nuevo_bloque);
+
+            if (nuevo_bloque->first()->is_func_label()){
+                result.push_front(new BloqueBasico(0)); // Genero un bloque entry para cada funcion.
+            }
         }
         ++it_lideres;
     }
-
     return result;
 }
 
@@ -167,21 +165,23 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
 list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*> bloques){
     list<pair<BloqueBasico*, BloqueBasico*>> result;
     BloqueBasico* bloque;
+
     //Primero voy a poner los lados de los bloques secuenciales. (a)
     for (list<BloqueBasico*>::iterator it = bloques.begin() ; it != bloques.end(); ++it){
         bloque = *it;
         //Si tiene un salto incondicional al final entonces no colocar el lado.
-        if ( it != bloques.begin() && !(*std::prev(it))->last()->is_jump()){
-                pair<BloqueBasico*,BloqueBasico*> par_tmp (*std::prev(it),bloque);
-                result.push_back(par_tmp);
+        if ( it != bloques.begin() && !(*std::prev(it))->is_entryexit() && !(*std::prev(it))->last()->is_jump()){
+            pair<BloqueBasico*,BloqueBasico*> par_tmp (*std::prev(it),bloque);
+            result.push_back(par_tmp);
         }
     }
+
     // Agregando los lados resultados de saltos. (b)
     for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
         for (list<BloqueBasico*>::iterator it_2 = bloques.begin(); it_2 != bloques.end() ; ++it_2){
             BloqueBasico* b = *it;
             BloqueBasico* c = *it_2;
-            if (b->last()->is_goto()){
+            if ( !b->is_entryexit() && !c->is_entryexit() && b->last()->is_goto()){
                 if ( b->last()->same_label(c->first()) ){
                     pair<BloqueBasico*,BloqueBasico*> par_tmp (b,c);
                     result.push_back(par_tmp);
@@ -210,17 +210,19 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
         Graph::vertex_descriptor v = add_vertex(grafo);
         pair<BloqueBasico*, Graph::vertex_descriptor> par_tmp (tmp,v);
         dict.insert(par_tmp); 
-        grafo[v].set_bloque(tmp);
+        grafo[v].clone(tmp);
     }
 
     list<pair<BloqueBasico*,BloqueBasico*> > lados = obtener_lados(bloques);
+
     //Agregando los lados.
     for (list<pair<BloqueBasico*, BloqueBasico*> >::iterator it = lados.begin(); it != lados.end(); ++it){
         pair<BloqueBasico*, BloqueBasico*> tmp = *it;
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
-    this->imprimir_nodos(cout);
 
+    this->imprimir_nodos(cout);
+    this->imprimir_lados(cout);
 }
 
 /** 
@@ -230,9 +232,24 @@ void GrafoFlujo::imprimir_nodos(ostream& os){
     graph_traits<Graph>::vertex_iterator vi, vi_end, next;
     boost::tie(vi, vi_end) = vertices(grafo);
     for (next = vi; next != vi_end; ++next){
-        os << "Bloque :" << grafo[*next].get_id() << endl;
         os << grafo[*next];
-        os << "---" << endl;
     }
 
+}
+
+void GrafoFlujo::imprimir_lados(ostream& os){
+    graph_traits<Graph>::vertex_iterator vi, vi_end, next;
+    typename graph_traits<Graph>::out_edge_iterator out_i, out_end;  
+    typename graph_traits<Graph>::edge_descriptor e;
+    typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
+    boost::tie(vi, vi_end) = vertices(grafo);
+    for (next = vi; next != vi_end; ++next){
+        os << "Lados del Bloque :" << grafo[*next].get_id() << endl;
+        for (boost::tie(out_i, out_end) = out_edges(*next, grafo);
+                    out_i != out_end; ++out_i){
+            e = *out_i;        
+            Vertex src = source(e, grafo), targ = target(e, grafo);
+            os << grafo[src].get_id() << " , " << grafo[targ].get_id() << endl;
+        }
+    }
 }

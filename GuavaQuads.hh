@@ -36,7 +36,6 @@ private:
     GuavaSymTable* tabla;
 public:
 
-
     NewTemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_):
         secuencia_temporales(secuencia),tipo(tipo_),line(line_),column(column_),tabla(table_){}
 
@@ -208,6 +207,13 @@ public:
         return false;
     }
 
+    /** 
+     * Nos dice si un GuavaQuads es comentario.
+     */
+    virtual bool is_guava_comment(){
+        return false;
+    }
+
 };
 
 /**
@@ -327,6 +333,8 @@ public:
         std::string comment = "#" + this->get_op() + ", line: " + convert_l.str() + " column: " + convert_c.str() +  "\n";
         return comment;
     }
+
+    bool is_guava_comment(){ return true; }
 };
 
 class GuavaGoTo:public GuavaQuads{

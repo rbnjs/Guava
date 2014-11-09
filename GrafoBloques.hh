@@ -35,6 +35,13 @@ public:
      */
     BloqueBasico();
 
+
+    /** 
+     * Constructor para Entries y Exits.
+     * @param o Opcion a elegir 0 es Entry y todo lo demas es Exit
+     */
+    BloqueBasico(int o);
+
     /** 
      * Constructor de bloque basico 
      * @param lista Lista de instrucciones
@@ -47,13 +54,15 @@ public:
 
     int get_id(){ return id; }
 
-    virtual bool is_entry(){ return false; } 
+    virtual bool is_entry(){ return is_entry_; } 
 
-    virtual bool is_exit(){ return false; } 
+    bool is_exit(){ return is_exit_; } 
 
-    void set_bloque(BloqueBasico* b){
+    void clone(BloqueBasico* b){
         codigo = b->get_codigo();
         id = b->get_id();
+        is_exit_ = b->is_exit();
+        is_entry_ = b->is_entry();
     }
 
     /** 
@@ -75,11 +84,15 @@ public:
      * Imprime el codigo dentro del bloque.
      */
     void print(ostream &os);
+    
 
+    bool is_entryexit(){ return (is_exit_ || is_entry_); }
 
 protected:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
     int id; /* Identificador para cada bloque. */
+    bool is_exit_ = false;
+    bool is_entry_ = false;
 };
 
 /** 
@@ -90,37 +103,11 @@ inline std::ostream& operator<<(std::ostream &os, BloqueBasico &state) {
     return os;
 }
 
-/** 
- * Clase que representa un bloque de entrada
- */
-class BloqueEntry: public BloqueBasico{
-public:
 
-    BloqueEntry(GuavaQuads* label_);
-
-    ~BloqueEntry(){}
-
-    bool is_entry(){ return true; } 
-private:
-    string label;
-};
-
-/** 
- * Clase que representa un bloque de salida.
- */
-class BloqueExit: public BloqueBasico{
-public:
-
-    BloqueExit();
-
-    ~BloqueExit(){}
-
-    bool is_exit(){ return true; } 
-};
 
 
 //Defino como tipo el grafo de Bloques.
-typedef adjacency_list < listS, listS, undirectedS, BloqueBasico > Graph;
+typedef adjacency_list < listS, listS, directedS, BloqueBasico > Graph;
 
 /**  
  * Clase que representa un grafo de flujo.
@@ -141,4 +128,9 @@ public:
      * Imprime los nodos del grafo.
      */
     void imprimir_nodos(ostream& os);
+
+    /** 
+     * Imprime los lados del grafo.
+     */
+    void imprimir_lados(ostream& os);
 };

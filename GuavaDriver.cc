@@ -467,15 +467,17 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             d->error(loc,reportar_existencia(s,par.first.identificador));
         else {
 
+            //Caso base: Arreglos simples
             itInt = par.second.lista.rbegin();
             size = *itInt;
-            TypeArray* arr = 0;
-            TypeArray* tmp = new TypeArray(t,0,size);
-
+            TypeArray* tmp = 0;
+            TypeArray* arr = new TypeArray(t,0,size);
+            ++itInt;
+            //Caso recursivo: Arreglo de arreglos
             for(itInt ; itInt != par.second.lista.rend(); ++itInt) {
                 size = *itInt;
-                arr = new TypeArray(t,tmp,size);
-                tmp = arr;
+                tmp = new TypeArray(t,tmp,size);
+                arr = tmp;
             }
             scope = tabla->currentScope();
             line = par.first.line;

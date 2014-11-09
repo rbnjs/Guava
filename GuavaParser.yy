@@ -756,7 +756,7 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                     tmp = new Asignacion($1,$3);
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
-                                //Caso variables de tipo array.
+                                 //Caso variables de tipo array.
                                  } else if ($1->get_tipo()->is_array() && $3->get_tipo()->is_array()) {
                                     TypeArray* arr1 = (TypeArray*) $1->get_tipo();
                                     TypeArray* arr2 = (TypeArray*) $3->get_tipo();
@@ -770,20 +770,20 @@ asignacion: expID ASSIGN exp   { /*Caso en el que alguno de los dos tipos sea de
                                     }
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
-                                //Caso expresion arreglo de valores.
-                                 } else if($1->get_tipo() && $3->is_array()) {
+                                 //Caso expresion arreglo de valores.
+                                 } else if($1->get_tipo()->is_array() && $3->is_array()) {
                                     TypeArray* arr1 = (TypeArray*) $1->get_tipo();
                                     Arreglo* arr2 = (Arreglo*) $3;
                                     if (arr1->compare(arr2->get_tipoEstructura())){
                                         tmp = new Asignacion($1,$3);
-                                    }else {
+                                    } else {
                                         std::string msg = mensaje_error_tipos(arr1->get_name(),arr2->get_tipoEstructura()->get_name());
                                         driver.error(yylloc, msg);
                                         tmp = new Asignacion();
                                     }
                                     tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                     $$ = tmp;
-                                 }else {
+                                 } else {
                                     std::string msg = mensaje_error_tipos($1->get_tipo()->get_name(),$3->get_tipo()->get_name());
                                     driver.error(yylloc,msg);
                                     tmp = new Asignacion();
@@ -1825,6 +1825,8 @@ tipo: TYPE_REAL     {
 /**
  * Inserto cada arreglo en la tabla de simbolos.
  */
+
+/*AQUI ESTA EL PROBLEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*/
 arreglo: '[' larreglo ']' {
                             Arreglo* tmp;
                             LArreglo *lr = $2;

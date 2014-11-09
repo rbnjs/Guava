@@ -728,11 +728,37 @@ void Arreglo::show(std::string s) {
  * @return result Lista de Quads.
  */
 std::list<GuavaQuads*>* Arreglo::generar_quads(){
+
+    /* NOTA:
+     * Para que las lineas a continuacion funcionen correctamente, se debe de
+     * arreglar el generador de quads para expresiones del tipo arreglo.
+     *
+     * Ver GuavaDriver.cc:936 
+     */
+
+
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
     int offset_actual = 0; // Voy a moverme por los distintos offsets del arreglo.
 
     for (std::list<Exp*>::iterator it = la->larr.begin(); it != la->larr.end(); ++it){
-        Exp* exp_tmp = *it;
+        Exp* exp_indice = *it;
+        //Se generan los quads de la expresion que define una celda del arreglo
+        std::list<GuavaQuads*>* exp_quads = exp_indice->generar_quads();
+        //Se agregan los quads relativos a la expresion de la celda del arreglo
+        if(exp_quads != 0)
+            result->splice(result->end(), *exp_quads);
+        /* Se genera el quad que guarda el valor de la expresion en la posicion
+         * del arreglo constante respectiva.
+         */
+        direccion->offset = offset_actual;
+        //OJO CON LA SIGUIENTE LINEA
+        GuavaQuads* constante_arr = new GuavaQuadsExp("[]",direccion,exp_indice->addr,direccion);
+        result->push_front(constante_arr);
+        offest_actual += tam_tipo_primitivo;
+        
+        //SI TODO FUNCIONA, LAS SIGUIENTES LINEAS PUEDEN SER BORRADAS.
+
+        /*Exp* exp_tmp = *it;
         std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
         Symbol* exp_addr = exp_tmp->addr;
         if (tmp != 0) result->splice(result->end(), *tmp);
@@ -743,7 +769,7 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
         GuavaQuads* guardar_direccion = new GuavaQuadsExp(":=", exp_addr, 0 , direccion_a);
         result->push_front(obtener_direccion);
         result->push_front(guardar_direccion);
-        offset_actual += tam_tipo_primitivo;
+        offset_actual += tam_tipo_primitivo;*/
     }
     return result;
 }

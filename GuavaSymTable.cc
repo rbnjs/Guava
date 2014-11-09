@@ -225,9 +225,9 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
 
 /* class TypeRecord */
 
-TypeRecord::TypeRecord(){ atributos = new GuavaSymTable();}
+TypeRecord::TypeRecord():atributos(new GuavaSymTable()){}
 
-TypeRecord::TypeRecord(std::string n ):nombre(n){ atributos = new GuavaSymTable();
+TypeRecord::TypeRecord(std::string n ):nombre(n), atributos(new GuavaSymTable()){
                                                 }
 
 bool TypeRecord::is_real()      { return false; }
@@ -248,10 +248,9 @@ std::string TypeRecord::get_name() { return nombre; }
 
 /* class TypeUnion */
 
-TypeUnion::TypeUnion(){atributos = new GuavaSymTable(); }
+TypeUnion::TypeUnion(): atributos(new GuavaSymTable()){}
 
-TypeUnion::TypeUnion(std::string n ):nombre(n){ atributos = new GuavaSymTable();
-                                              }
+TypeUnion::TypeUnion(std::string n ):nombre(n), atributos(atributos = new GuavaSymTable()){}
 
 bool TypeUnion::is_real()      { return false; }
 bool TypeUnion::is_int()       { return false; }

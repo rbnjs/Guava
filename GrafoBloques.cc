@@ -117,17 +117,32 @@ list<BloqueBasico*> obtener_bloques(list<GuavaQuads*>* codigo, list<GuavaQuads*>
     list<GuavaQuads*>::iterator it_lideres = lideres.begin();
     list<BloqueBasico*> result;
     list<GuavaQuads*>::iterator it_codigo = codigo->begin();
-    if (*it_lideres == *it_codigo) ++it_lideres; // Ya se sabe que el primer lider es la primera instruccion.
+
+    // Obtengo la ubicación del primer lider.
+    while (*it_codigo != *it_lideres){
+        ++it_codigo;
+    }
+
+    GuavaQuads* primer_lider = *it_codigo;
+    ++it_codigo;
+    ++it_lideres;
 
     while (it_lideres != lideres.end()){
         list<GuavaQuads*> codigo_bloque;
+
+        if (primer_lider != 0){
+            codigo_bloque.push_back(primer_lider);
+            primer_lider = 0;
+        }
 
         while (*it_codigo != *it_lideres){ 
             codigo_bloque.push_back(*it_codigo);
             ++it_codigo;
         }
-        BloqueBasico* nuevo_bloque = new BloqueBasico(codigo_bloque);
-        result.push_back(nuevo_bloque);
+        if (!codigo_bloque.empty()){
+            BloqueBasico* nuevo_bloque = new BloqueBasico(codigo_bloque);
+            result.push_back(nuevo_bloque);
+        }
         ++it_lideres;
     }
 
@@ -199,12 +214,12 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     }
 
     list<pair<BloqueBasico*,BloqueBasico*> > lados = obtener_lados(bloques);
-    // Agregando los lados.
+    //Agregando los lados.
     for (list<pair<BloqueBasico*, BloqueBasico*> >::iterator it = lados.begin(); it != lados.end(); ++it){
         pair<BloqueBasico*, BloqueBasico*> tmp = *it;
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
-    //this->imprimir_nodos(cout);
+    this->imprimir_nodos(cout);
 
 }
 

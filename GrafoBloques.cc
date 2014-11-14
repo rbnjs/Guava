@@ -25,7 +25,11 @@
 #include <boost/graph/graph_traits.hpp>
 
 using namespace std;
+
+/* Funciones auxiliares para BloqueBasico */
+
 int id_unica = 0 ; /* Id unica para BloqueBasico  */
+
 
 /** 
  * Funcion que determina la información de proximo uso y liveness
@@ -39,6 +43,8 @@ void determinar_livenext(list<GuavaQuads*> codigo_bloque){
         tmp->update_use(); // En esta misma funcion se mata a la variable que se debe matar.
     }
 }
+
+/* Clase BloqueBasico */
 
 /** 
  * Constructor vacio para bloquebasico
@@ -85,6 +91,7 @@ void BloqueBasico::print(ostream &os){
     os << "----" <<endl;
 }
 
+/* Funciones auxiliares GrafoFlujo */
 
 /**
  * Funcion que retorna una lista de los lideres del programa.
@@ -269,7 +276,7 @@ void identificar_bloques(list<Vertex> entries, Graph& grafo){
     }
 }
 
-
+/* Clase GrafoFlujo */
 
 /**  
  * Constructor de GrafoFlujo.
@@ -301,9 +308,7 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     entries = agregar_entry(bloques,dict,grafo);
     identificar_bloques(entries,grafo);
     agregar_exits(bloques,dict,grafo);
-
-    this->imprimir_nodos(cout);
-    this->imprimir_lados(cout);
+    bloques.erase(bloques.begin(), bloques.end());
 }
 
 /** 

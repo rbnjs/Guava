@@ -61,6 +61,9 @@ public:
 
     bool is_exit(){ return is_exit_; } 
 
+    /** 
+     * Realiza una copia profunda de un bloque con otro.
+     */
     void clone(BloqueBasico* b){
         codigo = b->get_codigo();
         id = b->get_id();
@@ -122,7 +125,6 @@ typedef adjacency_list < vecS, vecS, directedS, BloqueBasico > Graph;
 typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
 
 
-
 /**  
  * Clase que representa un grafo de flujo.
  * Usaremos las librerias de Boost para esto.
@@ -131,6 +133,7 @@ class GrafoFlujo{
 private:
     Graph grafo;
     list<Vertex> entries;
+    GuavaSymTable* tabla;
 public:
     /** 
      * Constructor de Grafo de Flujo.

@@ -67,6 +67,12 @@ void GuavaQuadsExp::attach_info(){
        this->insert_usos(arg2);     
     }
 }
+
+bool GuavaQuadsExp::is_general_exp(){
+    if (this->get_op().compare(std::string("[]")) || this->get_op().compare(std::string(":=")))
+        return false;
+    return true;
+}
  
 /** 
  * Actualiza la informacion de uso para los simbolos que se encuentran

@@ -2,7 +2,7 @@ CC=clang++
 
 all: guava
 
-guava:   Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaDescriptor.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava:   Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaDescriptor.o GrafoBloques.o GetReg.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 	$(CC) -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
@@ -57,6 +57,10 @@ GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc GuavaSymTable.hh
 GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc GuavaQuads.hh
 
 	$(CC)  -g -c -std=c++11 -I /usr/include/boost GrafoBloques.cc 
+
+GetReg.o: GetReg.hh GetReg.cc GuavaQuads.hh
+
+	$(CC) -g -c -std=c++11 GetReg.cc
 
 .PHONY: clean
 

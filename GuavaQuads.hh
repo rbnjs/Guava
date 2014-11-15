@@ -123,6 +123,7 @@ public:
      * Getters y setters.
      */
     std::string get_op(){ return op; }
+
     void set_op(std::string s){
         op = s;
     }
@@ -223,6 +224,26 @@ public:
         return false;
     }
 
+    virtual bool is_general_exp(){
+        return false;
+    }
+
+    /** 
+     * Funcion que nos indica si una expresion
+     * es GuavaQuadsExp. Unicamente eso.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    /**
+     * Funcion que nos indica si un
+     * Quad es if
+     */
+    virtual bool is_if(){
+        return false;
+    }
+
 };
 
 /**
@@ -268,6 +289,13 @@ public:
     virtual std::string gen();
 
     bool is_real();
+
+    bool is_general_exp();
+
+    virtual bool is_guava_exp(){
+        return true;
+    }
+
 
 };
 
@@ -405,6 +433,15 @@ public:
         return true;
     }
 
+    /**
+     * Pendiente aca, return no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
     bool is_void(){
         return (arg1 == 0 && arg2 == 0 && result == 0);
     }
@@ -459,6 +496,21 @@ public:
         // Comparo strings.
         return (result->sym_name.compare(a->get_op()) == 0);
     }
+
+    /**
+     * Pendiente aca, if no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    bool is_if(){
+        return true;
+    }
+
+
 };
 
 /** 
@@ -502,6 +554,19 @@ public:
         if (!a->is_label()) return false;
         // Comparo strings.
         return (result->sym_name.compare(a->get_op()) == 0);
+    }
+
+    /**
+     * Pendiente aca, if no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    bool is_if(){
+        return true;
     }
 };
 

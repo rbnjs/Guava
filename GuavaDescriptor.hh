@@ -53,7 +53,7 @@ public:
     }
 
     /**
-     * Escribe el codigo de tres direcciones en el archivo.
+     * Escribe el codigo en el archivo.
      * @param code: Codigo de tres direcciones.
      */
     void gen(std::string code){
@@ -63,6 +63,10 @@ public:
             file.open(file_name); 
             if (file.is_open()) file << code + "\n";
         }
+    }
+
+    void operator<<(string code){
+       this->gen(code); 
     }
 };
 /** 

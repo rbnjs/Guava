@@ -25,19 +25,40 @@
 /** 
  * Clase que contiene las funciones para obtener registros.
  */
-class RegisterAllocation{
+class RegisterAllocator{
 protected:
     GuavaDescTable* tabla_reg; /* Tabla de descriptores para registros. */
+    Generator* gen;
+    list<GuavaDescriptor*> getReg_general(GuavaQuads* i);
+    list<GuavaDescriptor*> getReg_array(GuavaQuads* i);
+    list<GuavaDescriptor*> getReg_copy(GuavaQuads* i);
+    list<GuavaDescriptor*> getReg_if(GuavaQuads* i);
 public:
 
     /** 
-     * Le asocio la tabla de descriptores.
+     * Constructor.
+     * @param tabla_ Tabla de descriptores.
+     * @param gen_ Escritor de archivos.
      */
-    RegisterAllocation(GuavaDescTable* tabla_): tabla_reg(tabla_){}
+    RegisterAllocator(GuavaDescTable* tabla_, Generator* gen_): tabla_reg(tabla_), gen(gen_){}
 
-    ~RegisterAllocation(){}
+    ~RegisterAllocator(){}
 
-    list<string> getReg(GuavaQuads* i);
+    /**
+     * Retorna una lista con registros para que la instruccion i la use.
+     * @param i Instruccion
+     */
+    list<GuavaDescriptor*> getReg(GuavaQuads* i);
+
+    /**
+     * Funcion estatica que retornauna lista con registros para que la instruccion i la use.
+     *
+     * @param i Instruccion
+     * @param tabla_ Tabla de descriptores.
+     * @param gen_ Escritor de archivos.
+     *
+     * */
+    static list<GuavaDescriptor*> getReg(GuavaQuads* i , GuavaDescTable* tabla, Generator* gen); 
 
 };
 

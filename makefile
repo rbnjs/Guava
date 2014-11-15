@@ -2,11 +2,11 @@ CC=clang++
 
 all: guava
 
-guava:  Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava:   Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaDescriptor.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 	$(CC) -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
-GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh Generator.hh
+GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh 
 
 	$(CC) -g -c  -std=c++11 GuavaDriver.cc
 
@@ -46,9 +46,9 @@ Guava.o: Guava.cc
 
 	$(CC) -g -c -std=c++11 Guava.cc
 
-Generator.o: Generator.hh
+GuavaDescriptor.o: GuavaDescriptor.hh GuavaQuads.hh
 
-	$(CC) -g -c -std=c++11 Generator.hh
+	$(CC) -g -c -std=c++11 GuavaDescriptor.cc
 
 GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc GuavaSymTable.hh
 

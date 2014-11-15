@@ -15,6 +15,8 @@
  *
  * =====================================================================================
  */
+# ifndef GUAVAQUADS_HH
+# define GUAVAQUADS_HH
 #include <string>       // std::to_string
 #include <iostream>     // std::cout, std::ios
 #include <sstream>      // std::ostringstream
@@ -214,6 +216,13 @@ public:
         return false;
     }
 
+    /** 
+     * Retorna true si la expresion usa reales.
+     */
+    virtual bool is_real(){
+        return false;
+    }
+
 };
 
 /**
@@ -232,7 +241,8 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado. Aqui es donde se guarda la info.
      */
-    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){
+    }
     /**
      * Destructor de la clase
      */
@@ -251,12 +261,14 @@ public:
      * resultado := arg1 op arg2 (dos argumentos)
      * resultado := op arg1 (un argumentos)
      */
-
     void update_use();
 
     void attach_info();
     
     virtual std::string gen();
+
+    bool is_real();
+
 };
 
 /**  
@@ -554,3 +566,4 @@ public:
         return result;
     }
 };
+#endif // GUAVAQUADS_HH

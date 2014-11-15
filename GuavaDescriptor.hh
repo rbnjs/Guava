@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Generator.hh
+ *       Filename:  GuavaDescriptor.hh
  *
  *    Description:  Clase generadora de codigo final.
  *
@@ -15,6 +15,9 @@
  *
  * =====================================================================================
  */
+
+# ifndef GUAVA_DESCRIPTOR_HH
+# define GUAVA_DESCRIPTOR_HH
 #include <string>
 #include <fstream>
 #include <set>
@@ -63,9 +66,9 @@ public:
     }
 };
 /** 
- * Clase que representa un registro.
+ * Clase que representa un descriptor de un registro o variable.
  */
-class GuavaRegister{
+class GuavaDescriptor{
     string nombre;                 /* Nombre del registro */
     set<SimpleSymbol*> assoc_var; /* Conjunto de variables asociadas al registro. */ 
 public:
@@ -73,10 +76,10 @@ public:
     /** 
      * Constructor
      */
-    GuavaRegister(string nombre_): nombre(nombre_){
+    GuavaDescriptor(string nombre_): nombre(nombre_){
     }
 
-    ~GuavaRegister(){}
+    ~GuavaDescriptor(){}
     
     /**
      * @return nombre
@@ -103,24 +106,93 @@ public:
         return assoc_var.begin();
     }
 
+    virtual bool is_var(){
+        return false;
+    }
+
+    virtual bool is_reg(){
+        return false;
+    }
+
+};
+
+/** 
+ * Clase que representa un registro.
+ */
+class GuavaRegister: public GuavaDescriptor{
+public:
+
+    GuavaRegister(string nombre_): GuavaDescriptor(nombre_){
+    }
+
+    ~GuavaRegister(){}
+
+    bool is_reg(){
+        return true;
+    }
+};
+
+/** 
+ * Clase que representa una Variable de Guava.
+ */
+class GuavaVar: public GuavaDescriptor{
+public:
+    GuavaVar(string nombre_): GuavaDescriptor(nombre_){}
+
+    ~GuavaVar(){}
+
+    bool is_var(){
+        return true;
+    }
 };
 
 /** 
  * Clase para la descripcion de registros.
  */
-class GuavaDescReg{
-    std::unordered_map<string, GuavaRegister > tabla;  /* Tabla que guarda las variables/registros disponibles junto con sus simbolos. */
+class GuavaDescTable{
+    std::unordered_map<string, GuavaDescriptor* > tabla;  /* Tabla que guarda las variables/registros disponibles junto con sus simbolos. */
+    bool reg;
 public:
 
    /** 
-    * Constructor de la clase.
+    * Constructores de la clase.
+    * @param vars Lista de variables o nombres de registros.
+    * @param reg Nos dice si la tabla esta guardando registros, en el caso contrario guarda variables.
     */
-   GuavaDescReg(list<string> vars);
-
-   GuavaDescReg(){}
+   GuavaDescTable(list<string> vars, bool reg);
+   GuavaDescTable(bool reg_): reg(reg_){}
 
    /** 
     * Destructor de la clase.
     */
-   ~GuavaDescReg(){};
+   ~GuavaDescTable();
+
+   /** 
+    * Nos dice si la tabla guarda o no registros.
+    */
+   bool stores_reg(){
+       return reg;
+   }
 };
+
+/** 
+ * Descriptor de Registros para MIPS.
+ */
+class DescTableMIPS: public GuavaDescTable{
+public:
+
+    DescTableMIPS();
+
+    ~DescTableMIPS(){}
+
+};
+
+class DescTableFloatMIPS: public GuavaDescTable{
+public:
+
+    DescTableFloatMIPS();
+
+    ~DescTableFloatMIPS(){}
+};
+
+#endif // GUAVAQUADS_HH

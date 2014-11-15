@@ -276,3 +276,20 @@ std::string GuavaQuadsExp::gen(){
     code += "\n";
     return code;
 }
+
+
+/** 
+ * Retorna true si la expresion es de tipo real
+ *
+ * Una expresion es de tipo real si tiene alguno de sus simbolos es real.
+ *
+ * @return bool
+ */
+bool GuavaQuadsExp::is_real(){
+    bool exp_true_type = (arg1->true_type == TypeReal::Instance() || arg2->true_type == TypeReal::Instance() || 
+                         result->true_type == TypeReal::Instance());
+    bool exp_symbol_type = ((arg1->type_pointer != 0 && arg1->type_pointer->true_type == TypeReal::Instance())
+                            || (arg2->type_pointer != 0 && arg2->type_pointer->true_type == TypeReal::Instance())
+                            || (result->type_pointer != 0 && result->type_pointer->true_type == TypeReal::Instance()));
+    return (exp_true_type || exp_symbol_type);
+}

@@ -67,6 +67,7 @@ bool TypeS::compare(TypeS* tipo){
     }else{
         return (this == tipo);
     }
+    return false;
 }
 
 

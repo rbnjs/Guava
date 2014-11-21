@@ -10,11 +10,15 @@
  *       Revision :  none
  *       Compiler :  gcc
  *
- *         Author :  YOUR NAME (), 
- *   Organization :  
+ *         Author :  Ruben Serradas, Michael Woo 
+ *   Organization :  USB
  *
  * =====================================================================================
  */
+
+# ifndef TYPE_S_HH
+# define TYPE_S_HH
+
 #include <list>
 #include <unordered_map>
 #include <string>
@@ -281,3 +285,5 @@ public :
 private:
     TypeS* referencia;   
 };
+
+# endif // TYPE_S_HH

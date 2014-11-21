@@ -194,45 +194,25 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_general(GuavaQuads* i){
     GuavaQuadsExp* instruccion = (GuavaQuadsExp*) i;
     GuavaDescriptor* tmp;
 
-    //Resultado
-    if ((tmp = tabla_reg->find_only_one(instruccion->get_result())) != 0){
-        //Caso Simple. Cuando esta en un registro.
-        result.push_back(tmp);
-    }else if ( (tmp = tabla_reg->find_empty()) != 0){
-        //Caso Simple. Hay registros disponibles.
-        result.push_back(tmp);
-    }else{
-        // Reciclaje. Caso Convencional.
-        tmp = this->recycle(instruccion,instruccion->get_result());
-        result.push_back(tmp);
-        
-    }
-    // Argumento 1
-    if ( instruccion->uso(instruccion->get_arg1()) != -1 && ((tmp = tabla_reg->find_only_one(instruccion->get_arg1())) != 0)){
-        //y no tiene usos posteriores y solo lo contiene a el.
-        result.push_back(tmp);
-    } else if ( (tmp = tabla_reg->find_empty()) != 0){
-        //Caso Simple. Hay registros disponibles.
-        result.push_back(tmp);
-    }else{
-        // Reciclaje. Caso Convencional.
-        tmp = this->recycle(instruccion,instruccion->get_arg1());
-        result.push_back(tmp);
+    list<SimpleSymbol*> args = instruccion->get_args();
+
+    for (list<SimpleSymbol*>::iterator it = args.begin(); it != args.end() ; ++it){
+        if ( instruccion->get_result() == *it && (tmp = tabla_reg->find_only_one(*it)) != 0){
+            //Caso Simple. Cuando esta en un registro y es el resultado.
+            result.push_back(tmp);
+        } else if ( instruccion->uso(*it) != -1 && (tmp = tabla_reg->find_only_one(*it)) != 0 ){
+            //Caso Simple. Cuando esta en un registro y no tiene proximos usos.
+            result.push_back(tmp); 
+        }else if ( (tmp = tabla_reg->find_empty()) != 0){
+            //Caso Simple. Hay registros disponibles.
+            result.push_back(tmp);
+        }else{
+            // Reciclaje. Caso Convencional.
+            tmp = this->recycle(instruccion,instruccion->get_result());
+            result.push_back(tmp);
+        }
     }
 
-    // Argumento 2
-    if ( instruccion->uso(instruccion->get_arg2()) != -1 && ((tmp = tabla_reg->find_only_one(instruccion->get_arg2())) != 0)){
-        //z no tiene usos posteriores y solo lo contiene a el.
-        result.push_back(tmp);
-    } else if ( (tmp = tabla_reg->find_empty()) != 0){
-        //Caso Simple. Hay registros disponibles.
-        result.push_back(tmp);
-    }else{
-        // Reciclaje. Caso Convencional.
-        tmp = this->recycle(instruccion,instruccion->get_arg2());
-        result.push_back(tmp);
-    }
-    
     return result;
 }
 

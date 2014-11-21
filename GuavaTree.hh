@@ -1720,5 +1720,7 @@ public:
     ExpIDLCorchetes(Identificador* id, LCorchetesExp* lce );
     ExpIDLCorchetes(ExpID*,Identificador*, LCorchetesExp* );
     ~ExpIDLCorchetes(){}
+    
     virtual std::list<GuavaQuads*>* generar_quads();
+    bool is_array() { return true; }
 };

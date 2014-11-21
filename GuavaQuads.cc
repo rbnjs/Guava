@@ -115,6 +115,36 @@ std::string generar_base_estructura(Symbol* s){
 }
 
 /**
+ * Funcion que verifica si el resultado de una expresion (el l-value) es un
+ * elemento de arreglo. En caso de serlo, se asigna el desplazamiento
+ * correspondiente al arreglo.
+ */
+std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
+    SymbolArray* s_array = 0;
+    std::string desplazamiento = "";
+
+    if(s->sym_catg.compare(std::string("array")) == 0) {
+        s_array = (SymbolArray *) s;
+    }
+    //Caso en el que el l-value es arreglo
+    if(s_array != 0) {
+        /* Para este caso no hay necesidad de verificar si el arreglo es una
+         * estructura, puesto que el generador de quads se encargara de eso.
+         */
+        desplazamiento += s_array->sym_name + "[" + s_array->desp->sym_name + "]";
+    }
+    //Caso en el que el l-value no es arreglo
+    else {
+        if(alcance.compare(std::string("local")) == 0)
+            desplazamiento += s->sym_name + "[" + std::to_string(s->offset) + "]";
+        else
+            desplazamiento = generar_base_estructura(s);
+    }
+
+    return desplazamiento;
+        
+}
+/**
  * Para efectos de esta funcion:
  * - arg1 es el r-value.
  * - result es e l-value.
@@ -129,21 +159,21 @@ std::string generacionIntermedia_unaria(std::string op, Symbol* arg1, Symbol* re
     if (result->sym_name.compare(std::string("bp")) == 0) {
         //Caso arg1 local
         if (arg1->sym_name.compare(std::string("bp")) == 0) {
-            code += result->sym_name + "[" + std::to_string(result->offset) + "]" + op
+            code += generar_desplazamiento_arreglo(result, "local") + op
                     + arg1->sym_name + "[" + std::to_string(arg1->offset) + "]";
         }
         //Caso arg1 global
         else {
             //Se verifica la base de arg1 (verificacion de tipo estructura)
             base_arg1 = generar_base_estructura(arg1);
-            code += result->sym_name + "[" + std::to_string(result->offset) + "]" + op
+            code += generar_desplazamiento_arreglo(result, "local") + op
                     + base_arg1;
         }
     }
     //Caso arg1 local
     else if (arg1->sym_name.compare(std::string("bp")) == 0) {
         //Se verifica la base de result (verificacion de tipo estructura)
-        base_res = generar_base_estructura(result);
+        base_res = generar_desplazamiento_arreglo(result, "global");
         code += base_res + op + arg1->sym_name + "["
                 + std::to_string(arg1->offset) + "]";
     }
@@ -151,7 +181,7 @@ std::string generacionIntermedia_unaria(std::string op, Symbol* arg1, Symbol* re
     else {
         //Se verifica la base de arg1 y result (verificacion de tipo estructura)
         base_arg1 = generar_base_estructura(arg1);
-        base_res = generar_base_estructura(result);
+        base_res = generar_desplazamiento_arreglo(result, "global");
         code += base_res + op + base_arg1;
     }
 

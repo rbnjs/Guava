@@ -99,6 +99,7 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
 
     int offset;             /* Offset del simbolo. */
+    //ESTO SE PUEDE BORRAR?
     int width;              /* Anchura del simbolo. */
     
 
@@ -152,4 +153,34 @@ public:
     bool is_simple(){ return false; }
 };
 
+/**
+ * Especializacion de la clase Symbol, describe un simbolo arreglo.
+ *
+ * Posee las direcciones necesarias para la generacion de codigo relativo al
+ * calculo de direcciones y obtencion de elementos de un arreglo.
+ */
+class SymbolArray: public Symbol {
+public:
+    /* Direccion relativa al desplazamiento para alcanzar un elemento del
+     * arreglo.
+     */   
+    Symbol* desp = 0;
+    /* Direccion del elemento del arreglo buscado, necesaria para el calculo
+     * de expresiones que involucren el elemento en cuestion.
+     */  
+    Symbol* elem = 0;
 
+    /**
+     * Constructores de la clase SymbolArray.
+     */
+    SymbolArray();
+
+    SymbolArray(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna, int offset); 
+
+    SymbolArray(std::string name, std::string catg,int scop, TypeS* type,int linea = 0,int columna = 0, int offset = 0);
+    
+    /**
+     * Destructor de la clase SymbolArray.
+     */
+    ~SymbolArray();
+};

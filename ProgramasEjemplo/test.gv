@@ -13,10 +13,13 @@ declare {
             R3 record d;
         };
         R2 record c1,c2;
+        R2 array R2arreglo[10];
     };
     
     real r2;
     R1 record y;
+
+    R1 array R1arreglo[10];
 }
 
 function void main() {
@@ -30,13 +33,15 @@ function void main() {
         integer array crr[10];
     }
 
-    bool := true;
+    R1arreglo[1].a := 1;
+
+    /*bool := true;
 
     if (1) then {
         x1 := 1;
     }
     else {
         x2 := 2;
-    }
+    }*/
 
 }

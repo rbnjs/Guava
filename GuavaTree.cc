@@ -1679,7 +1679,11 @@ ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id){}
 ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id){}
 
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
-    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>(); 
+    std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
+    //SE VERIFICA SI LA EXPRESION PADRE ES UN ARREGLO, EN TAL CASO SE CALCULAN SUS QUADS
+    if(exp_id != 0 && exp_id->is_array())
+        result = exp_id->generar_quads();
+
     GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
     result->push_front(comentario);
     return result;

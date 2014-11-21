@@ -1382,7 +1382,6 @@ expID: identificador   { TypeS* tipo;
                        }
      | identificador lcorchetesExp   { TypeS* tipo;
                                        ExpID* result;
-
                                        std::string msg;
                                        Symbol* id;
                                        if ((id = variable_no_declarada($1->identificador,&driver, yylloc, tabla_actual.front())) != 0) {

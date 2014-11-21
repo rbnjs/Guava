@@ -1,0 +1,456 @@
+#Lenguajes de Programación Guava - Version 1
+##Autores: Michael Woo 09-10912 , Rubén Serradas 09-10809 
+
+##Definición del Lenguaje
+
+Guava es un lenguaje imperativo fuertemente tipado, con sintáxis similar a la
+del lenguaje C o Java. Además de ofrecer tipos de datos primitivos:
+enteros, flotantes, booleanos, caracteres y cadenas de caracteres, Guava
+proporciona tipos compuestos de datos similares a los de C: estructuras 
+y uniones. El lenguaje también ofrece funciones implementadas y definidas 
+por el programador. 
+
+Como se explico anteriormente Guava tiene similitudes con
+lenguajes como C/C++, Java, Go o Rust por lo que si se viene con un trasfondo
+de estos lenguajes se estará cómodo, sin embargo existen diferencias
+importantes como el modo de asignación, los arreglos dentro del lenguaje 
+(no apuntadores), operadores especiales para facilidad de programacion y 
+palabras reservadas expresivas.
+
+##Gramática
+
+Para la especificacion de la gramatica del lenguaje se utilizarán letras 
+minúsculas para los elementos no-terminales de las reglas y mayúsculas para los
+elementos terminales. Considerando también los símbolos como tokens del
+lenguaje, terminales.
+
+    program -> bloqueprincipal
+
+    bloqueprincipal -> bloquedeclare lfunciones
+
+    bloquedeclare -> DECLARE { lvariables }
+                  | lambda 
+
+    lvariables -> lvariables tipo REFERENCE lvar ;
+               |  tipo REFERENCE lvar ;
+               |  lvariables tipo lvar ;
+               |  tipo lvar ;
+               |  tipo ARRAY lvararreglo ;
+               |  lvariables tipo ARRAY lvararreglo ;
+               |  identificador UNION lvar ;
+               |  lvariables identificador UNION lvar ;
+               |  identificador RECORD lvar ;
+               |  lvariables identificador RECORD lvar ;
+               |  lvariables union ;
+               |  lvariables record ;
+               |  union ;
+               |  record ;
+
+    union -> UNION identificador { lvariables }
+
+    record -> RECORD identificador { lvariables }
+
+    lvar -> identifcador
+         |  lvar , identificador
+
+    lvararreglo -> identificador lcorchetes
+                |  lvararreglo , identificador lcorchetes
+
+    lcorchetes -> [ INTEGER ]
+               |  lcorchetes [ INTEGER ]
+
+    lfunciones -> funcionmain
+               |  lfunciones1 funcionmain
+
+    lfunciones1 -> funcion
+                |  lfunciones1 funcionmain
+              
+    funcionmain -> FUNCTION TYPE_VOID MAIN () { bloquedeclare listainstrucciones }
+
+    funcion -> FUNCTION tipo identificador ( lparam ) { bloquedeclare 
+    listainstrucciones RETURN exp ; }
+            |  FUNCTION TYPE_VOID identificador ( lparam ) { bloquedeclare
+    listainstrucciones }
+
+    lparam -> lparam2
+           |  lambda
+
+    lparam2 -> tipo identificador
+            |  tipo REFERENCE identificador
+            |  lparam2 , tipo identificador
+            |  lparam2 , tipo REFERENCE identificador
+
+    listainstrucciones -> listainstrucciones instruccion ;
+                       |  listainstrucciones instruccion1
+
+    instruccion -> asignacion
+                |  llamadafuncion
+                |  MINUSMINUS identificador
+                |  identificador MINUSMINUS
+                |  PLUSPLUS identificador
+                |  identificador PLUSPLUS
+                |  entrasalida
+
+    instruccion1 -> loopfor
+                 |  loopwhile
+                 |  selectorif
+
+    asignacion -> identificador ASSIGN exp
+               |  identificador lcorchetes ASSIGN exp
+               |  identificador . identificador ASSIGN exp
+
+    entradasalida -> READ ( lvarovalor )
+                  |  PRINT ( lvarovalor )
+
+    loopfor -> FOR ( identificador ; exp ; asignacion ) { bloquedeclare 
+    listainstrucciones }
+            |  FOR ( identificador ; exp ; exp ) { bloquedeclare listainstrucciones
+    }
+
+    loopwhile -> WHILE ( exp ) DO { bloquedeclare listainstrucciones }
+              |  DO { bloquedeclare listainstrucciones } WHILE ( exp )
+
+    selectorif -> IF ( exp ) THEN { bloquedeclare listainstrucciones } lelseif
+               |  IF ( exp ) THEN instruccion ;
+               |  IF ( exp ) THEN instruccion ELSE instruccion ;
+
+    lelseif -> lelseif1 ELSE { bloquedeclare listainstrucciones }
+            |  lambda
+
+    lelseif1 -> lelseif1 ELSE IF ( exp ) THEN { bloquedeclare 
+    listainstrucciones }
+             |  lambda
+
+    llamadafuncion -> identificador ( lvarovalor )
+
+    lvarovalor -> lvarovalor2
+               |  lambda
+
+    lvarovalor2 -> lvarovalor2 , exp
+                |  exp
+
+    exp -> expbin
+        |  expun
+        |  valor
+        |  identificador
+        |  ( exp )
+
+    expbin -> exp AND exp
+           |  exp OR exp
+           |  exp COMPARISON exp
+           |  exp UFO exp
+           |  exp + exp
+           |  exp - exp
+           |  exp * exp
+           |  exp / exp
+           |  exp DIV exp
+           |  exp MOD exp
+           |  exp POW exp
+           |  identificador . identificador
+
+    expun -> NOT exp
+          |  - exp
+          |  exp PLUSPLUS
+          |  exp MINUSMINUS
+          |  idenficador lcorchetes
+
+    valor -> BOOL
+          |  STRING
+          |  CHAR
+          |  INTEGER
+          |  REAL
+          |  arreglo
+
+    tipo -> TYPE_REAL
+         |  TYPE_INTEGER
+         |  TYPE_BOOLEAN
+         |  TYPE_CHAR
+         |  TYPE_STRING
+    
+    arreglo -> [ larreglo ]
+
+    larreglo -> larreglo , exp
+             |  exp
+
+    identificador -> ID
+
+##Estructura de un programa
+
+Un programa en Guava se estructura en un conjunto de definiciones de
+funciones, procedimientos, estructuras, declaraciones de variables (en este 
+caso, consideradas globales) y un procedimiento principal *main*.
+
+Cada bloque de código dentro de un programa estará constituido a su vez por
+una serie de instrucciones separadas por el secuenciador **;**.
+
+##Elementos del lenguaje
+
+###Identificadores
+
+Los identificadores de variables son cadenas de caracteres que incluyen las
+letras que van desde la **a** a la **z** (mayúsculas y minúsculas incluidas)
+sin incluir la letra ñ, los números del **0** al **9** y el símbolo **_**. 
+Los identificadores no pueden iniciar con un número y son sensibles a 
+mayúsculas, teniendo entonces que **gua** es un identificador diferente a 
+**Gua** y éste a su vez a **gUA**.
+
+###Variables
+
+Una variable es un valor que puede ser alterado durante la ejecución de un
+programa en Guava. Las variables son nombradas a partir de un identificador
+y se clasifican en:
+
+* **Variables definidas por valor**: Son variables cuyo valor es guardado de
+forma estática en la memoria reservada para la ejecución del programa, una
+vez instanciada sólo podrá ser cambiado su valor a través de ella misma.
+Para declarar una variable definida por valor se especifica:
+
+`<tipo_dato> <identificador>`
+
+* **Variables definidas por referencia**: Son variables cuyo valor es
+guardado en una dirección de memoria que puede ser accedida por más de una
+instancia de variable, es decir, pueden existir varias instancias que
+apunten a una misma dirección de memoria y por ende, posean el mismo valor.
+Modificar el valor de una variable definida por referencia se traduce en
+modificar el valor de todas las instancias que apunten también a su dirección
+de memoria. Para declarar una variable de este tipo se especifica:
+
+`<tipo_dato> reference <identificador>`
+
+Siendo `reference` una palabra reservada del lenguaje.
+
+###Tipos de datos
+
+Guava dispone de los siguientes tipos de datos primitivos:
+
+* `integer`  : Números enteros con signo representables en 32 bits.
+* `real`     : Números en punto flotante con signo representables en 32 bits.
+* `boolean`  : Booleanos con los valores constantes `true` y `false`.
+* `character`: Representa un caracter único. Incluye las letras de la **a** a
+la **z**, los números del **0** al **9** y caracteres especiales.
+* `string`   : Representa una cadenas de caracteres. Incluye una combinación
+de las letras de la **a** a la **z**, los números del **0** al **9** y
+caracteres especiales.
+
+Además el lenguaje ofrece la creación de los tipos compuestos:
+
+* `record` : Define un conjunto de variables agrupadas por un nombre en un 
+bloque de memoria. Las variables que conforman la estructura pueden ser
+accedidas por un apuntador.
+* `union`  : Define un conjunto de variables agrupadas por un nombre en un
+bloque de memoria, pero a diferencia de `record` cada una de las variables
+del bloque comparten la misma dirección de memoria. Las variables de la
+unión pueden ser accedidas por un apuntador.
+
+Los nombres de cada tipo de datos son palabras reservadas del lenguaje, por
+ende, no pueden ser utilizadas como identificadores de variables.
+
+###Arreglos
+
+El lenguaje dispone de estructuras de datos de tipo arreglo. Los arreglos
+son homogéneos y ordenados linealmente por un número entero o índice. El
+lenguaje ofrece la posibilidad de crear arreglos multidimensionales.
+
+Los arreglos en Guava son manejados estáticamente, al declarar una
+estructura de datos de este tipo se debe especificar el tamaño de la
+siguiente manera:
+
+    <tipo_dato> array <identificador>[N]
+
+Siendo `N` el tamaño del arreglo.
+
+###Funciones
+
+Las funciones en Guava son declaradas y definidas en forma de bloques de
+código. Poseen una firma que indica el nombre de la función acompañado de
+un tipo de retorno (o **void** en caso de no retornar ningún valor) y una
+lista de parámetros formales acompañados de su tipo de dato respectivo de la
+siguiente manera:
+
+    <tipo_dato_retorno> function <identificador>(<tipo1> <paramétro1>,
+    <tipo2> <parámetro2>, ..., <tipoN> <parámetroN>)
+
+Consideraciones generales sobre las funciones:
+
+* Las funciones son definidas en el espacio global del programa. No es
+posible definir funciones dentro de un bloque de código de otra función.
+
+* La lista de parámetros formales puede tener de 0 a N elementos, siendo
+posible definir funciones que no reciban parámetros formales para su
+aplicación.
+
+* Los tipos de datos de los parámetros formales y de retorno de una función 
+pueden ser tipos primitivos, compuestos y arreglos definidos en el lenguaje.
+
+* Los identificadores empleados en la lista de parámetros formales deben de
+ser diferentes unos de otros, al igual que diferentes a los identificadores
+de las variables locales a la función.
+
+* Las funciones en Guava pueden ser recursivas.
+
+###Expresiones
+
+En Guava, una expresión es cualquier enunciado que pueda ser evaluado y
+devuelve un valor.
+
+####Operaciones con Enteros:
+
+Guava soporta las siguientes operaciones aritméticas sobre el conjunto de los
+números enteros, con el siguiente orden de precedencia (de menor a mayor y
+operandos en una misma línea poseen igual precedencia):
+
+* `--, ++ :: integer -> integer` (decremento e incremento prefijo)
+* `+, - :: integer -> integer -> integer`
+* `*, div, mod :: integer -> integer -> integer`
+* `** :: integer -> integer -> integer`
+* `- :: integer -> integer` (menos unario)
+* `--, ++ :: integer -> integer` (decremento e incremento sufijo)
+
+Los operadores de suma, resta, multiplicación, cociente, módulo, decremento,
+e incremento sufijo asocian hacia la izquierda, mientras que los operadores
+de potenciación, decremento e incremento prefijo asocian hacia la derecha.
+
+La comparación de enteros se realizará con los siguientes operadores:
+
+* `>=, <=, >, <, =, != :: integer -> integer -> boolean`
+
+####Operaciones con Reales:
+
+Las operaciones correspondientes a la aritmética de reales son las siguientes
+(con orden de precedencia de menor a mayor):
+
+* `+, - :: real -> real -> real`
+* `*, \ :: real -> real -> real`
+* `- :: real -> real` (menos unario)
+
+Los operadores de suma, resta, multiplicación y división asocian hacia la
+izquierda.
+
+La comparación de reales se realizará con los operadores:
+
+* `>=, <=, >, <, =, != :: real -> real -> boolean`
+
+####Operaciones con Booleanos:
+
+Las operaciones correspondientes al álgebra booleana son las siguientes
+(con orden de precedencia de menor a mayor):
+
+* `or :: boolean -> boolean -> boolean`
+* `and :: boolean -> boolean -> boolean`
+* `not :: boolean -> boolean`
+
+Los operadores `or` y `and` asocian hacia la izquierda. Además Guava ofrece 
+los siguientes operadores de comparación:
+
+###Instrucciones
+
+####Declaración de variables:
+
+En Guava las variables se declaran de la siguiente manera:
+
+    integer var  a , b ,c ;
+    boolean var  d , e;
+    real var  f ,g ;
+    character var  h;
+    string var  i;
+
+####Asignación de variables:
+
+Para poder asignar valores a las variables se utiliza `:=`
+
+    a := 1;
+    d := true;
+    f := 2.3;
+    h := 'b';
+    i := "hola";
+
+####Iteración Acotada:
+
+Las iteraciones acotadas en Guava se realizan colocando `for ( variable a 
+iterar; condición de parada; cambio de variable a iterar) { }`, por ejemplo:
+
+    for (i; i <= 100; i++){
+      print("hola!");
+    }
+
+####Iteración indeterminada:
+
+Una iteración indeterminada en el lenguaje se puede realizar de la sigueinte
+manera: `while (condición de parada) do`, esto es:
+
+    while ( a < 100) do {
+        a := a + 10;
+    }
+
+Para permitir que el bloque se ejecute al menos una vez usamos `do { } while 
+(condición de parada)`, ejemplo:
+
+    do {
+        a := a + 10;
+    } while ( a < 100)
+
+####Salida de una iteración:
+
+Para poder "romper" el ciclo de ejecución de una iteración se utiliza la 
+palabra reservada `break`, por ejemplo:
+
+    while (true) do {
+      if (a = 12){
+        break;
+      }
+      a++;
+    }
+
+Para "saltar" un ciclo de iteración se emplea la palabra reservada `continue`, 
+ejemplo:
+
+    for(i ; i<100 ; i++) {
+      if(i < 20) then continue else print "mayor a 20";
+    }
+
+####Selectores:
+
+El uso de condicionales en Guava se realiza utilizando la estructura siguiente:
+`if (condición) then {instrucciones}` o `if (condición) then {} else if (cond2 bool) {} else {}`. Por ejemplo:
+
+* `if (condición) then intruccion ;`
+* `if (condición) then instruccion else instruccion ;`
+* `if (condición then { instrucciones } else if { instrucciones } ... 
+else { instrucciones })`
+
+Por ejemplo:
+
+    if ( a < 100) then a := a + 10;
+
+    if ( a < 100) then a := a + 10 else a:= a - 10;
+
+    if ( a < 100) then {
+        a := a * 100;
+    } else if ( a >= 100) then {
+        a := 0;
+    } else {
+        a := a + 10;
+    }
+
+####Entrada y Salida:
+
+* Para obtener datos a partir de la entrada estándar del terminal el lenguaje
+ofrece la instrucción `read`.
+* Para imprimir por la salida estándar del terminal se emplea la instrucción
+`print`.
+
+###Comentarios
+
+Un comentario es un bloque de código ignorado por el compilador, dando la
+posibilidad al programador de agregar notas o documentación al código que
+realiza. Los comentarios en Guava se encuentran delimitados por `/*` iniciando
+y `*/` cerrando; todo el código escrito dentro de estos delimitadores será
+omitido al momento de compilar.
+
+Los espacios en blanco y tabulaciones son también ingnorados al momento de la
+compilación.
+
+##Consideraciones finales
+
+Por ser un proyecto aún en desarrollo, está es una primera versión del
+documento de diseño, no la versión final.

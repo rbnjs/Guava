@@ -10,19 +10,229 @@
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author:  Ruben Serradas, Michael Woo. 
+ *   Organization:  USB. 
  *
  * =====================================================================================
  */
 
 #include "GetReg.hh"
+#include <climits>
 
 using namespace std;
 
 
+/** 
+ * Revisa la lista de registros a considerar viendo si sus elementos tienen usos posteriores. 
+ * @param e Expresion 
+ * @param s Simbolo a considerar 
+ * @param reg Registros a considerar
+ * @return GuavaDescriptor* Apuntador a registro que se puede usar.
+ */
+GuavaDescriptor* RegisterAllocator::subsequent_uses(list<GuavaDescriptor*> reg,GuavaQuadsExp* e, Symbol* s){
+    for (list<GuavaDescriptor*>::iterator it_list = reg.begin(); it_list != reg.end(); ++it_list){
+        set<SimpleSymbol*>::iterator it_set;
+        for ( it_set = (*it_list)->begin() ; it_set != (*it_list)->end(); ++it_set){
+            if ( s != *it_set && e->uso(*it_set) != -1) break;
+        }
+        if (it_set == (*it_list)->end()) return *it_list;
+    }
+    return 0;
+}
+
+/** 
+ * Revisa la lista de registros a considerar para ver si v solo se encuentra en result. 
+ *
+ * @param e Expresion 
+ * @param s Simbolo a considerar 
+ * @param reg Registros a considerar
+ * @return GuavaDescriptor* Apuntador a registro que se puede usar.
+ */
+GuavaDescriptor* RegisterAllocator::only_in_result(list<GuavaDescriptor*> reg,GuavaQuadsExp* e, Symbol* s){
+    for (list<GuavaDescriptor*>::iterator it_list = reg.begin(); it_list != reg.end(); ++it_list){
+        set<SimpleSymbol*>::iterator it_set;
+        for (it_set = (*it_list)->begin() ; it_set != (*it_list)->end(); ++it_set){
+            if ( s == *it_set) continue;
+            if (*it_set != e->get_result()) break;
+        }
+        if (it_set == (*it_list)->end()) return *it_list;
+    }
+    return 0;
+}
+
+/** 
+ * Revisa la lista de registros a considerar para ver si los valores distintos de s se encuentran en otro lugar.. 
+ *
+ * @param e Expresion 
+ * @param s Simbolo a considerar 
+ * @param reg Registros a considerar
+ * @return GuavaDescriptor* Apuntador a registro que se puede usar.
+ */
+GuavaDescriptor* RegisterAllocator::available_in_another_location(list<GuavaDescriptor*> reg,GuavaQuadsExp* e, Symbol* s){
+    for (list<GuavaDescriptor*>::iterator it_list = reg.begin(); it_list != reg.end(); ++it_list){
+        for (set<SimpleSymbol*>::iterator it_set = (*it_list)->begin() ; it_set != (*it_list)->end(); ++it_set){
+            if (s == *it_set) continue;
+            if (tabla_reg->available_in_other_location(*it_set,*it_list) || tabla_var->available_in_other_location(*it_set,*it_list)) return *it_list;
+        }
+    }
+    return 0;
+}
+
+/** 
+ * Recicla posibles registros.
+ *
+ * El descriptor de registro tiene uno o mas valores v asignados, para ellos consideramos:
+ *   Si v está disponible en otra ubicación, R es seguro.
+ *   Si v = x y x no es uno de los operandos, R es seguro.
+ *   Si v no tiene usos posteriores, R es seguro.
+ *   Si después de los pasos 1 a 3 R aún no es seguro, se emite ST v, R – se cuenta como un spill.
+ *
+ * @param e Expresion a considerar el reciclaje.
+ * @param s Simbolo que se quiere meter en el registro.
+ * @return reg Registro que ya se puede usar. 
+ */
+GuavaDescriptor* RegisterAllocator::recycle(GuavaQuadsExp* e,Symbol* s){
+    list<GuavaDescriptor*> registros = tabla_reg->get_desc();
+    GuavaDescriptor* result;
+    if ((result = this->subsequent_uses(registros,e,s)) != 0) return result;
+    if ((result = this->only_in_result(registros,e,s)) != 0) return result;
+    if ((result = this->available_in_another_location(registros,e,s)) != 0) return result;
+    // Todo falla. Voy a hacer spill.
+    return this->spill();
+}
+
+
+/** 
+ * Realiza un spill en un descriptor de registro asociado a variables globales si es posible.
+ * @return GuavaDescriptor* Retorna un descriptor de registro si fue posible y 0 si no fue posible realizar el spill.
+ */
+GuavaDescriptor* RegisterAllocator::global_spill(){
+    list<GuavaDescriptor*> tmp;
+    int min = tabla_reg->min_assoc();
+    int min_global = INT_MAX;
+    for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
+        if (it->second->todas_globales() && it->second->size() == min) {
+            //Falta colocar el template de store.
+            return it->second;
+        } else if (it->second->todas_globales()){
+            if (it->second->size() < min_global) min_global = it->second->size();
+            tmp.push_back(it->second);
+        }
+    }
+    for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
+        if ((*it)->size() == min_global){
+            //TEMPLATE STORE
+            return *it;
+        }
+    }
+    return 0;
+}
+
+/** 
+ * Realiza un spill en un descriptor de registro que tiene asociado variables locales y globales si es posible.
+ * @return GuavaDescriptor* Retorna un descriptor de registro si fue posible y 0 si no fue posible realizar el spill.
+ */
+GuavaDescriptor* RegisterAllocator::local_spill(){
+    list<GuavaDescriptor*> tmp;
+    int min = tabla_reg->min_assoc();
+    int min_global = INT_MAX;
+    for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
+        if (it->second->locales_globales() && it->second->size() == min) {
+            //Falta colocar el template de store.
+            return it->second;
+        } else if (it->second->locales_globales()){
+            if (it->second->size() < min_global) min_global = it->second->size();
+            tmp.push_back(it->second);
+        }
+    }
+    for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
+        if ((*it)->size() == min_global){
+            //TEMPLATE STORE
+            return *it;
+        }
+    }
+    return 0;
+}
+
+/** 
+ * Realiza el spill en un descriptor de registro.
+ *
+ * Primero considero que el descriptor solo tenga asociada variables globales, si es asi este es el mejor.
+ * En el segundo caso, considero al que tenga combinaciones de variables globales y locales.
+ * Peor caso es el que tenga variables locales, globales y temporales.
+ * @return result Retorna un apuntador al Descriptor de arreglos.
+ */
+GuavaDescriptor* RegisterAllocator::spill(){
+    GuavaDescriptor* result;
+
+    if ((result = this->global_spill()) != 0){
+        return result;
+    }
+
+    if ((result = this->local_spill()) != 0){
+        return result;
+    }
+
+    return 0;
+
+    //¿Debo considerar el caso de que todos los registros esten llenos de variables temporales?
+}
+
+/** 
+ * Caso para expresiones generales.
+ *
+ * Para x := y + z
+ * Si algun registro solo contiene a x, es la mejor opcion.
+ * Si y no tiene usos posteriores, la mejor opcion es un registro que solo contenga a y. Lo mismo para z.
+ * En caso que no pase nada de eso. Hay que obtener registros de la manera convencional.
+ *
+ * @param i Instruccion en codigo de tres direcciones. Este debe ser de tipo GuavaQuadsExp.
+ * @return result Lista con registros disponibles para su uso.
+ */
 list<GuavaDescriptor*> RegisterAllocator::getReg_general(GuavaQuads* i){
     list<GuavaDescriptor*> result;
+    GuavaQuadsExp* instruccion = (GuavaQuadsExp*) i;
+    GuavaDescriptor* tmp;
+
+    //Resultado
+    if ((tmp = tabla_reg->find_only_one(instruccion->get_result())) != 0){
+        //Caso Simple. Cuando esta en un registro.
+        result.push_back(tmp);
+    }else if ( (tmp = tabla_reg->find_empty()) != 0){
+        //Caso Simple. Hay registros disponibles.
+        result.push_back(tmp);
+    }else{
+        // Reciclaje. Caso Convencional.
+        tmp = this->recycle(instruccion,instruccion->get_result());
+        result.push_back(tmp);
+        
+    }
+    // Argumento 1
+    if ( instruccion->uso(instruccion->get_arg1()) != -1 && ((tmp = tabla_reg->find_only_one(instruccion->get_arg1())) != 0)){
+        //y no tiene usos posteriores y solo lo contiene a el.
+        result.push_back(tmp);
+    } else if ( (tmp = tabla_reg->find_empty()) != 0){
+        //Caso Simple. Hay registros disponibles.
+        result.push_back(tmp);
+    }else{
+        // Reciclaje. Caso Convencional.
+        tmp = this->recycle(instruccion,instruccion->get_arg1());
+        result.push_back(tmp);
+    }
+
+    // Argumento 2
+    if ( instruccion->uso(instruccion->get_arg2()) != -1 && ((tmp = tabla_reg->find_only_one(instruccion->get_arg2())) != 0)){
+        //z no tiene usos posteriores y solo lo contiene a el.
+        result.push_back(tmp);
+    } else if ( (tmp = tabla_reg->find_empty()) != 0){
+        //Caso Simple. Hay registros disponibles.
+        result.push_back(tmp);
+    }else{
+        // Reciclaje. Caso Convencional.
+        tmp = this->recycle(instruccion,instruccion->get_arg2());
+        result.push_back(tmp);
+    }
+    
     return result;
 }
 
@@ -61,8 +271,8 @@ list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i){
     return result;
 }
 
-list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla, Generator* gen){
-    RegisterAllocator tmp (tabla,gen);
+list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla_registro,GuavaDescTable* tabla_var, Generator* gen){
+    RegisterAllocator tmp (tabla_registro,tabla_var,gen);
     return tmp.getReg(i);
 }
 

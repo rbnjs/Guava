@@ -100,14 +100,40 @@ public:
     }
 
     /** 
+     * Busca un simbolo s
+     * @return SimpleSymbol* Retorna un SimpleSymbol*
+     */
+    SimpleSymbol* find(SimpleSymbol* s){
+        if (assoc_var.count(s) == 0) return 0;
+        return *(assoc_var.find(s));
+    }
+
+    /** 
+     * Tamaño del conjunto.
+     */
+    int size(){
+        return assoc_var.size();
+    }
+
+    /** 
      * Borra
      */
     void erase(SimpleSymbol* var){
         assoc_var.erase(var);
     }
 
+    /** 
+     * Retorna un iterator al inicio
+     */
     set<SimpleSymbol*>::iterator begin() const{
         return assoc_var.begin();
+    }
+
+    /** 
+     * Retorna un iterator al fin
+     */
+    set<SimpleSymbol*>::iterator end() const{
+        return assoc_var.end();
     }
 
     virtual bool is_var(){
@@ -117,6 +143,18 @@ public:
     virtual bool is_reg(){
         return false;
     }
+
+    /**  
+     * Nos dice si las variables asociadas al descriptor
+     * son todas globales.
+     */
+    bool todas_globales();
+
+    /** 
+     * Nos dice si las variables asociadas al descriptor
+     * son todas globales y locales.
+     */
+    bool locales_globales();
 
 };
 
@@ -177,6 +215,53 @@ public:
    bool stores_reg(){
        return reg;
    }
+
+   /** 
+    * Operador [] para poder usar la tabla de descriptores.
+    */
+    GuavaDescriptor* operator[](string s);
+
+    /** 
+     * Retorna el primer registro que solo tenga asociado el simbolo s.
+     */
+    GuavaDescriptor* find_only_one(SimpleSymbol* s);
+
+    /** 
+     * Retorna el primer registro que este vacio.
+     */
+    GuavaDescriptor* find_empty();
+
+    /** 
+     * Retorna una lista con los registros que tienen el menor numero de registros asociados.
+     */
+    list<GuavaDescriptor*> obtain_min();
+
+    /** 
+     * Obtiene el numero minimo de variables asociadas.
+     */
+    int min_assoc();
+
+    /**
+     * Retorna una lista con los registros.
+     */
+    list<GuavaDescriptor*> get_desc();
+
+    /**  
+     * Revisa todos los descriptores/variables en la tabla
+     * a ver si el simbolo se encuentra disponible.
+     */
+    bool available_in_other_location(SimpleSymbol* s, GuavaDescriptor* d);
+
+    /** 
+     * Iterador del inicio de la tabla.
+     */
+    std::unordered_map<string, GuavaDescriptor* >::iterator begin();
+
+    /** 
+     * Iterador del fin de la tabla.
+     */
+    std::unordered_map<string, GuavaDescriptor* >::iterator end();
+
 };
 
 /** 

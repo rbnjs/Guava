@@ -19,9 +19,18 @@
 # ifndef GUAVA_TEMPLATES_HH
 # define GUAVA_TEMPLATES_HH
 # include <string>
+# include <set>
+# include "Symbol.hh"
 
+using namespace std;
+
+/** 
+ * Clase que contiene las plantillas para el lenguaje MIPS. 
+ */
 class MIPS{
-    static string load();
+    //static string load();
+    static string store(string var, string reg);
+    static string store(string reg,set<SimpleSymbol*>::iterator begin, set<SimpleSymbol*>::iterator end);
 };
 
 # endif

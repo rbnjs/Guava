@@ -103,7 +103,6 @@ std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* a
 /**
  * Clase principal para la generacion de Quads.
  */
-
 class GuavaQuads{
 private:
     std::string op;
@@ -124,6 +123,8 @@ public:
      */
     std::string get_op(){ return op; }
 
+    virtual std::list<SimpleSymbol*> get_args();
+
     void set_op(std::string s){
         op = s;
     }
@@ -133,6 +134,8 @@ public:
     std::set<SimpleSymbol*> get_vivas() { return vivas; }
     std::unordered_map<SimpleSymbol*,int> get_usos() { return usos;  }
 
+    int uso(SimpleSymbol* s);
+
    /** 
     * Funciones para insertar cosas en el map y el set.
     */ 
@@ -141,6 +144,9 @@ public:
         vivas.insert(s);
     }
 
+    /** 
+     * Inserta el proximo uso de un simbolo s.
+     */
     void insert_usos(SimpleSymbol* s){
         std::pair<SimpleSymbol*, int> elem (s,s->proximo_uso);
         usos.insert(elem);
@@ -296,6 +302,7 @@ public:
         return true;
     }
 
+    virtual std::list<SimpleSymbol*> get_args();
 
 };
 

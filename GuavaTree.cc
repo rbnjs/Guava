@@ -1681,8 +1681,25 @@ ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
     //SE VERIFICA SI LA EXPRESION PADRE ES UN ARREGLO, EN TAL CASO SE CALCULAN SUS QUADS
-    if(exp_id != 0 && exp_id->is_array())
+    if(exp_id != 0 && exp_id->is_array()) {
         result = exp_id->generar_quads();
+        SymbolArray* arreglo = (SymbolArray *) exp_id->addr;
+        /* ESTE OFFSET ESTA MALO, ES EL OFFSET DE LA ESTRUCTURA+ATRIBUTO_EN_ESTRUCTURA
+         *
+         * Posible solucion: Crear en Symbol un nuevo atributo que guarde el
+         * offset del atributo DENTRO de la estructura, dejando el atributo
+         * offset antiguo para el offset total.
+         *
+         * O
+         *
+         * Cambiar offset por el offset verdadero en la estructura y realizar
+         * los calculos del offset verdadero posteriormente.
+         */
+        Symbol* offset_final = new Symbol(addr->offset);
+        Symbol* result_final = temp->newtemp();
+        GuavaQuadsExp* pos_final = new GuavaQuadsExp("+",arreglo->desp,offset_final,result_final);
+        result->push_front(pos_final);
+    }
 
     GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
     result->push_front(comentario);
@@ -1694,6 +1711,3 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
 ExpIDLCorchetes::ExpIDLCorchetes(Identificador* id, LCorchetesExp* lce ): ExpID(id,lce){}
 
 ExpIDLCorchetes::ExpIDLCorchetes(ExpID* exp_,Identificador* id, LCorchetesExp* lce): ExpID(exp_,id,lce){}
-
-
-

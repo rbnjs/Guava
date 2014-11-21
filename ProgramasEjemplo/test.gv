@@ -33,7 +33,7 @@ function void main() {
         integer array crr[10];
     }
 
-    R1arreglo[1].a := 1;
+    R1arreglo[5].a := 1;
 
     /*bool := true;
 

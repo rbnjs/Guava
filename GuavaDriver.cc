@@ -854,7 +854,9 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
 
 /**
  * Revisa si un identificador es una variable global y le da un
- * address
+ * address.
+ *
+ * Caso estructuras.
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc, GuavaSymTable* tabla){
     //Caso variables globales y temporales de codigo intermedio
@@ -900,7 +902,9 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
 
 /**
  * Revisa si un identificador es una variable global y le da un
- * address
+ * address.
+ *
+ * Caso variables simples.
  */
 void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy::location& loc){
     //Caso variables globales y temporales de codigo intermedio
@@ -951,7 +955,6 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
 std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
     std::ostringstream convert;
-    Symbol* r;
     SymbolArray* addr_array = (SymbolArray *) addr;
     if (identificador == 0) return 0;
 

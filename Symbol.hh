@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 
+# ifndef SYMBOL_HH
+# define SYMBOL_HH
 #include <string>
 #include <unordered_map>
 #include <sstream>
@@ -184,3 +186,4 @@ public:
      */
     ~SymbolArray();
 };
+#endif

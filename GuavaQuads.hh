@@ -15,6 +15,8 @@
  *
  * =====================================================================================
  */
+# ifndef GUAVAQUADS_HH
+# define GUAVAQUADS_HH
 #include <string>       // std::to_string
 #include <iostream>     // std::cout, std::ios
 #include <sstream>      // std::ostringstream
@@ -101,7 +103,6 @@ std::string generacionIntermedia_binaria(std::string op, Symbol* arg1, Symbol* a
 /**
  * Clase principal para la generacion de Quads.
  */
-
 class GuavaQuads{
 private:
     std::string op;
@@ -121,6 +122,9 @@ public:
      * Getters y setters.
      */
     std::string get_op(){ return op; }
+
+    virtual std::list<SimpleSymbol*> get_args();
+
     void set_op(std::string s){
         op = s;
     }
@@ -130,6 +134,8 @@ public:
     std::set<SimpleSymbol*> get_vivas() { return vivas; }
     std::unordered_map<SimpleSymbol*,int> get_usos() { return usos;  }
 
+    int uso(SimpleSymbol* s);
+
    /** 
     * Funciones para insertar cosas en el map y el set.
     */ 
@@ -138,6 +144,9 @@ public:
         vivas.insert(s);
     }
 
+    /** 
+     * Inserta el proximo uso de un simbolo s.
+     */
     void insert_usos(SimpleSymbol* s){
         std::pair<SimpleSymbol*, int> elem (s,s->proximo_uso);
         usos.insert(elem);
@@ -214,6 +223,33 @@ public:
         return false;
     }
 
+    /** 
+     * Retorna true si la expresion usa reales.
+     */
+    virtual bool is_real(){
+        return false;
+    }
+
+    virtual bool is_general_exp(){
+        return false;
+    }
+
+    /** 
+     * Funcion que nos indica si una expresion
+     * es GuavaQuadsExp. Unicamente eso.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    /**
+     * Funcion que nos indica si un
+     * Quad es if
+     */
+    virtual bool is_if(){
+        return false;
+    }
+
 };
 
 /**
@@ -232,7 +268,8 @@ public:
      * @param arg2_ Argumento 2
      * @param result_ Resultado. Aqui es donde se guarda la info.
      */
-    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){}
+    GuavaQuadsExp(std::string op_, Symbol* arg1_, Symbol* arg2_, Symbol* result_): GuavaQuads(op_), arg1(arg1_), arg2(arg2_), result(result_){
+    }
     /**
      * Destructor de la clase
      */
@@ -251,12 +288,22 @@ public:
      * resultado := arg1 op arg2 (dos argumentos)
      * resultado := op arg1 (un argumentos)
      */
-
     void update_use();
 
     void attach_info();
     
     virtual std::string gen();
+
+    bool is_real();
+
+    bool is_general_exp();
+
+    virtual bool is_guava_exp(){
+        return true;
+    }
+
+    virtual std::list<SimpleSymbol*> get_args();
+
 };
 
 /**  
@@ -393,6 +440,15 @@ public:
         return true;
     }
 
+    /**
+     * Pendiente aca, return no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
     bool is_void(){
         return (arg1 == 0 && arg2 == 0 && result == 0);
     }
@@ -447,6 +503,21 @@ public:
         // Comparo strings.
         return (result->sym_name.compare(a->get_op()) == 0);
     }
+
+    /**
+     * Pendiente aca, if no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    bool is_if(){
+        return true;
+    }
+
+
 };
 
 /** 
@@ -490,6 +561,19 @@ public:
         if (!a->is_label()) return false;
         // Comparo strings.
         return (result->sym_name.compare(a->get_op()) == 0);
+    }
+
+    /**
+     * Pendiente aca, if no es una expresion
+     * original, es un hijo de GuavaQuadsExp
+     * por lo que retorna false.
+     */
+    virtual bool is_guava_exp(){
+        return false;
+    }
+
+    bool is_if(){
+        return true;
     }
 };
 
@@ -554,3 +638,4 @@ public:
         return result;
     }
 };
+#endif // GUAVAQUADS_HH

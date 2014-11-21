@@ -50,6 +50,25 @@ GuavaQuads::GuavaQuads(std::string op_): op(op_){
 }
 
 /** 
+ * Retorna -1 si no tiene usos.
+ */
+int GuavaQuads::uso(SimpleSymbol* s){
+    if (usos.count(s) == 0) return -1;
+    return usos[s];
+}
+
+/** 
+ * Retorna una lista con todos los argumentos del Quad
+ *
+ * Esto es bastante chevere para iterar.
+ * @return args Lista de argumentos. Al ser un Quad solitario esta no tiene argumento.
+ */
+std::list<SimpleSymbol*> GuavaQuads::get_args(){
+    std::list<SimpleSymbol*> args;
+    return args;
+}
+
+/** 
  * Agrega informacion con respecto a la vida y uso en la instruccion.
  */
 void GuavaQuadsExp::attach_info(){
@@ -66,6 +85,37 @@ void GuavaQuadsExp::attach_info(){
        this->insert_vivas(arg2);     
        this->insert_usos(arg2);     
     }
+}
+
+/**
+ * Nos indica si una expresion es de uso general. Es decir que no sea asignación o arreglo.
+ * @return bool true si es una expresion de uso general, false si no.
+ */
+bool GuavaQuadsExp::is_general_exp(){
+    if (this->get_op().compare(std::string("[]")) || this->get_op().compare(std::string(":=")))
+        return false;
+    return true;
+}
+
+/** 
+ * Retorna una lista con todos los argumentos del Quad
+ *
+ * Esto es bastante chevere para iterar.
+ * @return args Lista de argumentos. El orden es {result, arg1 , arg2}. 
+ */
+std::list<SimpleSymbol*> GuavaQuadsExp::get_args(){
+    std::list<SimpleSymbol*> args;
+    if (result != 0){
+        args.push_back(result);
+    }
+    if (arg1 != 0){
+        args.push_back(arg1);
+    }
+
+    if (arg2 != 0){
+        args.push_back(arg2);
+    }   
+    return args;
 }
  
 /** 
@@ -95,6 +145,9 @@ void GuavaParam::update_use(){
     if (addr != 0) addr->update_use(this->get_id());
 }
 
+/** 
+ * Inserta información en el quad.
+ */
 void GuavaParam::attach_info(){
     if (addr != 0){
        this->insert_vivas(addr);     
@@ -305,4 +358,21 @@ std::string GuavaQuadsExp::gen(){
     }
     code += "\n";
     return code;
+}
+
+
+/** 
+ * Retorna true si la expresion es de tipo real
+ *
+ * Una expresion es de tipo real si tiene alguno de sus simbolos es real.
+ *
+ * @return bool
+ */
+bool GuavaQuadsExp::is_real(){
+    bool exp_true_type = (arg1->true_type == TypeReal::Instance() || arg2->true_type == TypeReal::Instance() || 
+                         result->true_type == TypeReal::Instance());
+    bool exp_symbol_type = ((arg1->type_pointer != 0 && arg1->type_pointer->true_type == TypeReal::Instance())
+                            || (arg2->type_pointer != 0 && arg2->type_pointer->true_type == TypeReal::Instance())
+                            || (result->type_pointer != 0 && result->type_pointer->true_type == TypeReal::Instance()));
+    return (exp_true_type || exp_symbol_type);
 }

@@ -1,18 +1,25 @@
 CC=clang++
 
+OBJ=Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GuavaDescriptor.o GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+
+LFLAGS=-std=c++11 -g -o guava
+
+CFLAGS=-g -c -std=c++11
+
+
 all: guava
 
-guava:  Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+guava:  $(OBJ) 	
 
-	$(CC) -std=c++11 -g -o guava Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+	$(CC) $(LFLAGS) $(OBJ) 
 
-GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh Generator.hh
+GuavaDriver.o: GuavaDriver.cc GuavaDriver.hh GuavaTree.hh GuavaParser.hh 
 
-	$(CC) -g -c  -std=c++11 GuavaDriver.cc
+	$(CC) $(CFLAGS) GuavaDriver.cc
 
 GuavaParser.o: GuavaParser.cc GuavaParser.hh GuavaTree.hh GuavaDriver.hh
 
-	$(CC) -g -c -std=c++11 GuavaParser.cc 
+	$(CC) $(CFLAGS) GuavaParser.cc 
 
 GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 
@@ -20,7 +27,7 @@ GuavaParser.cc GuavaParser.hh: GuavaParser.yy
 
 GuavaLexer.o: GuavaLexer.cc GuavaParser.hh GuavaDriver.hh
 
-	$(CC) -g -c -std=c++11 GuavaLexer.cc
+	$(CC) $(CFLAGS) GuavaLexer.cc
 
 GuavaLexer.cc: GuavaLexer.l
 
@@ -28,40 +35,51 @@ GuavaLexer.cc: GuavaLexer.l
 
 GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh
 
-	$(CC) -g -c -std=c++11 GuavaSymTable.cc
+	$(CC) $(CFLAGS) GuavaSymTable.cc
 
 Symbol.o: Symbol.cc Symbol.hh Types.hh
 
-	$(CC) -g -c -std=c++11 Symbol.cc
+	$(CC) $(CFLAGS) Symbol.cc
 
 Types.o: Types.cc Types.hh
 
-	$(CC) -g -c -std=c++11 Types.cc
+	$(CC) $(CFLAGS) Types.cc
 
 GuavaTree.o: GuavaTree.cc GuavaTree.hh GrafoBloques.hh
 
-	$(CC) -g -c -std=c++11 GuavaTree.cc
+	$(CC) $(CFLAGS) GuavaTree.cc
 
 Guava.o: Guava.cc
 
-	$(CC) -g -c -std=c++11 Guava.cc
+	$(CC) $(CFLAGS) Guava.cc
 
-Generator.o: Generator.hh
+GuavaDescriptor.o: GuavaDescriptor.hh GuavaQuads.hh
 
-	$(CC) -g -c -std=c++11 Generator.hh
+	$(CC) $(CFLAGS) GuavaDescriptor.cc
 
 GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc GuavaSymTable.hh
 
-	$(CC) -g -c -std=c++11 GuavaQuads.cc 
+	$(CC) $(CFLAGS) GuavaQuads.cc 
 
 GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc GuavaQuads.hh
 
-	$(CC)  -g -c -std=c++11 -I /usr/include/boost GrafoBloques.cc 
+	$(CC)  $(CFLAGS) -I /usr/include/boost GrafoBloques.cc 
 
-.PHONY: clean
+GetReg.o: GetReg.hh GetReg.cc GuavaQuads.hh
+
+	$(CC) $(CFLAGS) GetReg.cc
+
+GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh
+
+	$(CC) $(CFLAGS) GuavaTemplates.cc
+
+.PHONY: clean doc
 
 clean:
 
-	-rm *.o GuavaParser.hh GuavaParser.cc *.output *.gch location.hh position.hh stack.hh guava GuavaLexer.cc
+	-rm *.o GuavaParser.hh GuavaParser.cc *.output location.hh position.hh stack.hh guava GuavaLexer.cc
 
+doc:
+
+	doxygen Documentacion/config
 

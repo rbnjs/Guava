@@ -18,7 +18,6 @@
 
 # ifndef GUAVA_TEMPLATES_HH
 # define GUAVA_TEMPLATES_HH
-# include <string>
 # include <set>
 # include "Symbol.hh"
 

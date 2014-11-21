@@ -22,7 +22,6 @@
 # include "GuavaTemplates.hh"
 # include <unordered_map>
 # include <list>
-# include <string>
 
 /** 
  * Clase que contiene las funciones para obtener registros.

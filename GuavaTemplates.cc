@@ -17,7 +17,6 @@
  */
 
 #include "GuavaTemplates.hh"
-#include "Symbol.hh"
 
 /** 
  * Guarda un valor.

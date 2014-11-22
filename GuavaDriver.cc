@@ -340,9 +340,26 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
             line = it->line;
             column = it->column;
             int offset = offset_actual.front();
-            if (offset != -1){
+            if (offset != -1) {
                 offset_actual.pop_front();
-                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+                Symbol* nuevo = 0;
+                /* Se verifica si se trata de variables globales o locales,
+                 * lo que incidira directamente en el calculo de offset de 
+                 * cada atributo.
+                 */
+                //Caso variables globales
+                if(tabla->alcance == 1) {
+                    //Caso atributos de estructuras globales
+                    if(scope == 0)
+                        nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+                    //Caso variables globales
+                    else
+                        nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,0);
+                }
+                //Caso variables locales
+                else {
+                    nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+                }
                 nuevo->width = tamano_tipo(t); 
                 offset += nuevo->width; 
                 offset_actual.push_front(offset);
@@ -704,6 +721,7 @@ TypeS* dereference(TypeS* referencia){
  */
 void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::location& loc, bool is_union){
     TypeStructure *structure;
+    
     if (is_union) {
         structure = new TypeUnion();
         offset_actual.push_front(-1);
@@ -733,7 +751,14 @@ void verificar_existencia_tipo(Identificador* id, GuavaDriver* d,const yy::locat
     } else {
         d->error(loc, reportar_existencia_tipo(tmp,id->identificador));
     }
-    tabla_actual.push_front(structure->get_tabla());
+
+    /* Se asigna que el alcance de toda la estructura sera el mismo que el
+     * alcance de su estructura padre, entendiendo alcance: El scope que rige
+     * a todos sus atributos.
+     */
+    GuavaSymTable* struc_tabla = structure->get_tabla();
+    struc_tabla->alcance = tabla->alcance;
+    tabla_actual.push_front(struc_tabla);
 }
 
 /**
@@ -783,6 +808,15 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
     }
 }
 
+/**
+ * Revisa si el atributo pertenece a una estructura global. 
+ */
+bool revision_scope_estructura(ExpID* result) {
+    if(result->exp_id != 0)
+        return revision_scope_estructura(result->exp_id);
+    else
+        return result->addr->is_global();
+}
 
 /**
  * Revisa si un identificador es una variable global y le da un
@@ -795,15 +829,25 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
     if (id->scope == 1) {
         result->addr = id;
     } 
-    //Caso variables locales y atributos de estructuras
     else {
         //Caso atributos de estructuras
         if (result->exp_id != 0) {
+            //Caso en que la estructura es global
+
+
+
+
+            //Caso en que la estructura es local
+
+
+
+
             std::string base = result->exp_id->addr->sym_name;
             int atr_offset = result->exp_id->addr->offset + id->offset;
             result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
             result->addr->type_pointer = id->type_pointer;
         }
+        //Caso variables locales
         else {
             /*Se hace una copia del simbolo pero indicando que lo define el
             * basepointer*/
@@ -842,8 +886,6 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     std::ostringstream convert;
     SymbolArray* addr_array = (SymbolArray *) addr;
     if (identificador == 0) return 0;
-
-    std::cout << "\n\n HOLA MIAMOR \n\n";
 
     std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
     std::list<GuavaQuads*>* quads_expresion;

@@ -22,22 +22,23 @@
 # include "Symbol.hh"
 # include "GuavaSymTable.hh"
 # include "GuavaDescriptor.hh"
-
+# include "Generator.hh"
 using namespace std;
 /** 
  * Clase de donde parten todos los templates.
  */
 class GuavaTemplates{
 protected:
-    Generator* gen;
+    GuavaGenerator* gen;
     GuavaSymTable* table;
     GuavaDescTable* vars;
     GuavaDescTable* regs;
+    int offset_actual = 0;
 public:
     /** 
      * Constructor de la clase.
      */
-    GuavaTemplates(Generator* g = 0, GuavaSymTable* tabla = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0);
+    GuavaTemplates(GuavaGenerator* g = 0, GuavaSymTable* tabla = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0);
     /** 
      * Destructor
      */
@@ -46,6 +47,10 @@ public:
     void set_regs(GuavaDescTable* r);
 
     void set_vars(GuavaDescTable* v);
+
+    void reset_offset();
+    
+    int get_offset();
 };
 
 /** 
@@ -57,7 +62,7 @@ public:
     /** 
      * Constructor de la clase.
      */
-    MIPS(Generator* g = 0, GuavaSymTable* t = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0): GuavaTemplates(g,t,vars,regs){}
+    MIPS(GuavaGenerator* g = 0, GuavaSymTable* t = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0): GuavaTemplates(g,t,vars,regs){}
 
     /** 
      * Destructor
@@ -68,9 +73,9 @@ public:
 
     void store(GuavaDescriptor* reg);
 
-    void push(GuavaDescriptor* reg);
+    void store_spill(GuavaDescriptor* reg);
 
-    void push(SimpleSymbol* s);
+    void push(GuavaDescriptor* reg);
 
 };
 

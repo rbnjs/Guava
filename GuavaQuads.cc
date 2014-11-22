@@ -57,16 +57,6 @@ int GuavaQuads::uso(SimpleSymbol* s){
     return usos[s];
 }
 
-/** 
- * Retorna una lista con todos los argumentos del Quad
- *
- * Esto es bastante chevere para iterar.
- * @return args Lista de argumentos. Al ser un Quad solitario esta no tiene argumento.
- */
-std::list<SimpleSymbol*> GuavaQuads::get_args(){
-    std::list<SimpleSymbol*> args;
-    return args;
-}
 
 /** 
  * Agrega informacion con respecto a la vida y uso en la instruccion.
@@ -115,6 +105,43 @@ std::list<SimpleSymbol*> GuavaQuadsExp::get_args(){
     if (arg2 != 0){
         args.push_back(arg2);
     }   
+    return args;
+}
+
+
+/** 
+ * Retorna una lista con todos los argumentos del QuadIf
+ *
+ * @return args Lista de argumentos. El orden es {arg1 , arg2} para hacer las comparaciones. 
+ */
+std::list<SimpleSymbol*> GuavaQuadsIf::get_args(){
+    std::list<SimpleSymbol*> args;
+
+    if (arg1 != 0){
+        args.push_back(arg1);
+    }
+
+    if (arg2 != 0){
+        args.push_back(arg2);
+    }
+    return args;
+}
+
+/** 
+ * Retorna una lista con todos los argumentos del QuadIf
+ *
+ * @return args Lista de argumentos. El orden es {arg1 , arg2} para hacer las comparaciones. 
+ */
+std::list<SimpleSymbol*> GuavaQuadsIfNot::get_args(){
+    std::list<SimpleSymbol*> args;
+
+    if (arg1 != 0){
+        args.push_back(arg1);
+    }
+
+    if (arg2 != 0){
+        args.push_back(arg2);
+    }
     return args;
 }
  

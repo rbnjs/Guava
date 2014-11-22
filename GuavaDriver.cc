@@ -15,6 +15,7 @@
  */
 #include "GuavaDriver.hh"
 #include "GuavaParser.hh"
+#include "Generator.hh"
 
 
 /* Variables Globales. */
@@ -68,13 +69,14 @@ GuavaDriver::~GuavaDriver ()
  */
 int GuavaDriver::parse (const std::string &f)
 {
-  file = f;
-  scan_begin ();
-  yy::GuavaParser parser (*this);
-  parser.set_debug_level (trace_parsing);
-  int res = parser.parse ();
-  scan_end ();
-  return res;
+    file = f;
+    gen = new GuavaGenerator(file);
+    scan_begin ();
+    yy::GuavaParser parser (*this);
+    parser.set_debug_level (trace_parsing);
+    int res = parser.parse ();
+    scan_end ();
+    return res;
 }
 /**
  * Funcion que imprime un mensaje de error.

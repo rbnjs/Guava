@@ -20,6 +20,7 @@
 # include "GuavaQuads.hh"
 # include "GuavaDescriptor.hh"
 # include "GuavaTemplates.hh"
+# include "Generator.hh"
 # include <unordered_map>
 # include <list>
 
@@ -30,7 +31,8 @@ class RegisterAllocator{
 protected:
     GuavaDescTable* tabla_reg; /* Tabla de descriptores para registros. */
     GuavaDescTable* tabla_var; /* Tambien necesito una tabla de descriptores para variables */
-    Generator* gen;            /* Clase que escribe en el archivo final */
+    GuavaGenerator* gen;            /* Clase que escribe en el archivo final */
+    MIPS* templates;           /* Clase que contiene el conjunto de templates para realizar el codigo. Por ahora solo es MIPS, arreglar eso. */
     list<GuavaDescriptor*> getReg_general(GuavaQuads* i);
     list<GuavaDescriptor*> getReg_array(GuavaQuads* i);
     list<GuavaDescriptor*> getReg_copy(GuavaQuads* i);
@@ -50,7 +52,7 @@ public:
      * @param tabla_ Tabla de descriptores.
      * @param gen_ Escritor de archivos.
      */
-    RegisterAllocator(GuavaDescTable* tabla_reg_,GuavaDescTable* tabla_var_, Generator* gen_): tabla_reg(tabla_reg_), gen(gen_), tabla_var(tabla_var_){}
+    RegisterAllocator(GuavaDescTable* tabla_reg_,GuavaDescTable* tabla_var_, GuavaGenerator* gen_): tabla_reg(tabla_reg_), gen(gen_), tabla_var(tabla_var_){}
 
     ~RegisterAllocator(){}
 
@@ -68,7 +70,7 @@ public:
      * @param gen_ Escritor de archivos.
      *
      * */
-    static list<GuavaDescriptor*> getReg(GuavaQuads* i , GuavaDescTable* tabla_reg,GuavaDescTable* tabla_var, Generator* gen); 
+    static list<GuavaDescriptor*> getReg(GuavaQuads* i , GuavaDescTable* tabla_reg,GuavaDescTable* tabla_var, GuavaGenerator* gen); 
 
 };
 

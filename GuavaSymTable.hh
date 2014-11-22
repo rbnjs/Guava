@@ -29,7 +29,7 @@ class GuavaSymTable{
 public:
     TypeS* parent;
     std::list<int> pila;                                                  /* Pila de alcances */
-    std::unordered_map<std::string, std::list<Symbol*> > tabla;            /* Tabla que representa la tabla de simbolos. */
+    std::unordered_map<std::string, std::list<Symbol*> > tabla;           /* Tabla que representa la tabla de simbolos. */
     int alcance;                                                          /* Alcance en numeros. */
 
     GuavaSymTable();                                                       /* Constructor de la clase */

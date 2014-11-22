@@ -25,50 +25,8 @@
 #include <list>
 #include "GuavaQuads.hh"
 
-
 using namespace std;
-/**
- * Clase escritora de archivos finales.
- */
-class Generator{
-private:
-    std::string file_name; /* Nombre del archivo intermedio. */
-    std::ofstream file;    /* Archivo intermedio. */
-public:
-    /**
-     * Constructor de la clase Generator
-     * @param name: Nombre del archivo intermedio a escribir.
-     */
-    Generator(std::string name): file_name(name+".asm"){
-    }
 
-
-    /**
-     * Destructor de la clase Generator.
-     */
-    ~Generator(){
-        if (file.is_open()){
-            file.close();
-        }
-    }
-
-    /**
-     * Escribe el codigo en el archivo.
-     * @param code: Codigo de tres direcciones.
-     */
-    void gen(std::string code){
-        if (file.is_open()){
-            file << code + "\n";
-        } else {
-            file.open(file_name); 
-            if (file.is_open()) file << code + "\n";
-        }
-    }
-
-    void operator<<(string code){
-       this->gen(code); 
-    }
-};
 /** 
  * Clase que representa un descriptor de un registro o variable.
  */
@@ -315,6 +273,10 @@ public:
     void manage_3_addr_inst(string R, SimpleSymbol* x);
 
     void manage_copy(string Ry, SimpleSymbol* x);
+
+    void manage_push(SimpleSymbol* var, SymbolReg* nuevo);
+
+    void manage_push(string reg, SymbolReg* nuevo);
 
 };
 

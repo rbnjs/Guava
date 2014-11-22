@@ -21,6 +21,7 @@
 # include <string>
 # include <map> 
 # include "GuavaParser.hh"
+#include "Generator.hh"
 
 extern int current_scope;
 extern int attribute_scope;  
@@ -51,6 +52,7 @@ public:
     GuavaSymTable tablaSimbolos;
     int result;
 
+    GuavaGenerator* gen;
     bool print_tree;
     bool print_table;
     bool print_quads;

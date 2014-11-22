@@ -1,6 +1,6 @@
 CC=clang++
 
-OBJ=Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GuavaDescriptor.o GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GuavaDescriptor.o GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 LFLAGS=-std=c++11 -g -o guava
 
@@ -72,6 +72,10 @@ GetReg.o: GetReg.hh GetReg.cc GuavaQuads.hh
 GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh GuavaDescriptor.hh
 
 	$(CC) $(CFLAGS) GuavaTemplates.cc
+
+Generator.o: Generator.cc Generator.hh
+
+	$(CC) $(CFLAGS) Generator.cc
 
 .PHONY: clean doc
 

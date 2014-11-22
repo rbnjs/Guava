@@ -75,6 +75,7 @@ public:
      * y retorna esta misma.
      *
      * No es necesario calcular el offset de las variables temporales
+     * @return nuevo Retorna apuntador a Symbol agregado en la tabla de simbolos.
      */
     Symbol* newtemp(){
         int scope;
@@ -105,6 +106,12 @@ public:
 
     /** 
      * Funcion estatica para newtemp.
+     * @param secuencia Valor numerico del nombre de la variable.
+     * @param tipo_ Tipo de la variable temporal
+     * @param line_ Linea en donde se encuentra
+     * @param column_ Columna en donde se encuentra
+     * @param table_ Dirección a la GuavaSymTable
+     * @return Symbol* Retorna apuntador a Symbol agregado en la tabla de simbolos.
      */
     static Symbol* newtemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_){
         NewTemp n(secuencia,tipo_,line_,column_,table_);
@@ -140,8 +147,6 @@ public:
      * Getters y setters.
      */
     std::string get_op(){ return op; }
-
-    virtual std::list<SimpleSymbol*> get_args();
 
     void set_op(std::string s){
         op = s;
@@ -268,6 +273,14 @@ public:
         return false;
     }
 
+    /** 
+     * @return Lista con argumentos.
+     */
+    virtual std::list<SimpleSymbol*> get_args(){
+        std::list<SimpleSymbol*> args;
+        return args;
+    }
+
 };
 
 /**
@@ -316,7 +329,7 @@ public:
 
     bool is_general_exp();
 
-    virtual bool is_guava_exp(){
+    bool is_guava_exp(){
         return true;
     }
 
@@ -458,15 +471,6 @@ public:
         return true;
     }
 
-    /**
-     * Pendiente aca, return no es una expresion
-     * original, es un hijo de GuavaQuadsExp
-     * por lo que retorna false.
-     */
-    virtual bool is_guava_exp(){
-        return false;
-    }
-
     bool is_void(){
         return (arg1 == 0 && arg2 == 0 && result == 0);
     }
@@ -478,6 +482,7 @@ public:
             return (result->sym_name + " := return " + arg1->sym_name + " \n");
         }
     }
+
 };
 
 /** 
@@ -522,19 +527,11 @@ public:
         return (result->sym_name.compare(a->get_op()) == 0);
     }
 
-    /**
-     * Pendiente aca, if no es una expresion
-     * original, es un hijo de GuavaQuadsExp
-     * por lo que retorna false.
-     */
-    virtual bool is_guava_exp(){
-        return false;
-    }
-
     bool is_if(){
         return true;
     }
 
+    std::list<SimpleSymbol*> get_args();
 
 };
 
@@ -581,18 +578,11 @@ public:
         return (result->sym_name.compare(a->get_op()) == 0);
     }
 
-    /**
-     * Pendiente aca, if no es una expresion
-     * original, es un hijo de GuavaQuadsExp
-     * por lo que retorna false.
-     */
-    virtual bool is_guava_exp(){
-        return false;
-    }
-
     bool is_if(){
         return true;
     }
+
+    std::list<SimpleSymbol*> get_args();
 };
 
 class GuavaParam: public GuavaQuads{
@@ -630,7 +620,7 @@ public:
     /**  
      * Generador. PENDIENTE que no se esta imprimiendo el simbolo addr.
      */
-    std::string gen(){
+    virtual std::string gen(){
         std::string result ("call ");
         result += this->get_op();
         result += ", " + this->get_arg1()->sym_name +"\n";
@@ -639,13 +629,13 @@ public:
 };
 
 /** 
- * GuavaEntradaSalida puede representarse con un GuavaCall.
- * PENDIENTE: Revisar eso
+ * Estas funciones las represento con GuavaCall.
  */
-class GuavaEntradaSalida:public GuavaQuadsExp{
+class GuavaEntradaSalida:public GuavaCall{
 public:
-    GuavaEntradaSalida(std::string op, Symbol* arg, Symbol* addr = 0): GuavaQuadsExp(op,arg,0,addr){}
+    GuavaEntradaSalida(std::string op, Symbol* arg, Symbol* addr = 0): GuavaCall(op,arg,addr){}
     ~GuavaEntradaSalida(){}
+
     std::string gen(){
         std::string result =this->get_op();
         if (this->get_result() == 0){

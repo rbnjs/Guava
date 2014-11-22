@@ -340,6 +340,32 @@ void GuavaDescTable::borrar_por_nombre(string nombre){
    }
 }
 
+
+/**  
+ * Maneja el push en la tabla de descriptores.
+ * @param reg Nombre del registro
+ * @param nuevo Ubicacion en la pila
+ */
+void GuavaDescTable::manage_push(string reg, SymbolReg* nuevo){
+    if (tabla.find(reg) != tabla.end()){
+        GuavaDescriptor* desc = tabla[reg];
+        desc->insert(nuevo);
+    }
+}
+
+/**  
+ * Maneja el push en la tabla de descriptores.
+ * @param var Apuntador a simbolo de la variable.
+ * @param nuevo Ubicacion en la pila
+ */
+void GuavaDescTable::manage_push(SimpleSymbol* var, SymbolReg* nuevo){
+    if (tabla.find(var->sym_name) != tabla.end()){
+        GuavaDescriptor* desc = tabla[var->sym_name];
+        desc->insert(nuevo);
+    }
+}
+
+
 /** 
  * Construye una lista con los registros de MIPS.
  *

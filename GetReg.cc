@@ -80,7 +80,7 @@ GuavaDescriptor* RegisterAllocator::available_in_another_location(list<GuavaDesc
 }
 
 /** 
- * Recicla posibles registros.
+ * Caso convencional de reciclaje de posibles registros.
  *
  * El descriptor de registro tiene uno o mas valores v asignados, para ellos consideramos:
  *   Si v está disponible en otra ubicación, R es seguro.
@@ -113,7 +113,7 @@ GuavaDescriptor* RegisterAllocator::global_spill(){
     int min_global = INT_MAX;
     for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
         if (it->second->todas_globales() && it->second->size() == min) {
-            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
+            templates->store(it->second); //Guardo todas las variables a guardar aqui
             return it->second;
         } else if (it->second->todas_globales()){
             if (it->second->size() < min_global) min_global = it->second->size();
@@ -122,7 +122,7 @@ GuavaDescriptor* RegisterAllocator::global_spill(){
     }
     for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
         if ((*it)->size() == min_global){
-            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
+            templates->store(*it); //Guardo las variables.
             return *it;
         }
     }
@@ -139,7 +139,7 @@ GuavaDescriptor* RegisterAllocator::local_spill(){
     int min_global = INT_MAX;
     for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
         if (it->second->locales_globales() && it->second->size() == min) {
-            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
+            templates->store(it->second);
             return it->second;
         } else if (it->second->locales_globales()){
             if (it->second->size() < min_global) min_global = it->second->size();
@@ -148,7 +148,7 @@ GuavaDescriptor* RegisterAllocator::local_spill(){
     }
     for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
         if ((*it)->size() == min_global){
-            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
+            templates->store(*it);
             return *it;
         }
     }
@@ -172,7 +172,7 @@ GuavaDescriptor* RegisterAllocator::temp_spill(){
 
     for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
         if (it->second->count_temp() == min_temp){
-            //TEMPLATE STORE TEMP. ACTUALIZAR TABLA DE VARS.
+            templates->store_spill(it->second);
             return it->second;
         }
     }
@@ -239,42 +239,54 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_general(GuavaQuads* i){
     return result;
 }
 
-list<GuavaDescriptor*> RegisterAllocator::getReg_array(GuavaQuads* i){
-    list<GuavaDescriptor*> result;
-    return result;
-}
-
+/** 
+ * Retorna una lista con registros para la copia x = y.
+ *
+ * Aqui se asume que getReg va a regresar un lista con el mismo registro para x y y.
+ *
+ * @param i Codigo de tres direcciones.
+ */
 list<GuavaDescriptor*> RegisterAllocator::getReg_copy(GuavaQuads* i){
     list<GuavaDescriptor*> result;
+    GuavaQuadsExp* instruccion = (GuavaQuadsExp*) i;
+    list<SimpleSymbol*> args = i->get_args(); 
+    GuavaDescriptor* tmp;
+    if (args.size() != 2) return result;
+
+    if ( instruccion->uso(args.back()) != -1 && (tmp = tabla_reg->find_only_one(args.back())) != 0 ){
+        //Caso Simple. Cuando esta en un registro y no tiene proximos usos.
+        result.push_back(tmp); 
+    }else if ( (tmp = tabla_reg->find_empty()) != 0){
+        //Caso Simple. Hay registros disponibles.
+        result.push_back(tmp);
+    }else{
+        // Reciclaje. Caso Convencional.
+        tmp = this->recycle(instruccion,instruccion->get_result());
+        result.push_back(tmp);
+    }
+    result.push_back(tmp);
     return result;
 }
 
-list<GuavaDescriptor*> RegisterAllocator::getReg_if(GuavaQuads* i){
-    list<GuavaDescriptor*> result;
-    return result;
-}
-
-
+/** 
+ * Algoritmo de GetReg.
+ */
 list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i){
     list<GuavaDescriptor*> result;
     if (i->is_guava_exp()){
         if (i->is_general_exp()){
             result = this->getReg_general(i);
-        }else{
-            if (i->get_op().compare(std::string("[]"))){
-                result = this->getReg_array(i);
-            } else{
+        }else if (i->get_op().compare(std::string(":="))){
                 result = this->getReg_copy(i);
-            }
         }
-    }else if(i->is_if()){
-       result = this->getReg_if(i); 
     }
-
     return result;
 }
 
-list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla_registro,GuavaDescTable* tabla_var, Generator* gen){
+/** 
+ * Algoritmo de GetReg estatico.
+ */
+list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla_registro,GuavaDescTable* tabla_var, GuavaGenerator* gen){
     RegisterAllocator tmp (tabla_registro,tabla_var,gen);
     return tmp.getReg(i);
 }

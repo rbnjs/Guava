@@ -118,8 +118,16 @@ public:
 
     /** 
      * Construye un Simbolo registro con su nombre.
+     * @param nombre del registro.
      */
     SymbolReg(std::string nombre): SimpleSymbol(nombre){}
+
+
+    /** 
+     * Construye un simbolo de registro con el lugar que ocupa en la pila
+     * @param lugar lugar que ocupa en la pila
+     */
+    SymbolReg(int lugar): SimpleSymbol(lugar){}
 
     /** 
      * Destructor de la clase

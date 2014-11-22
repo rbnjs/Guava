@@ -31,9 +31,11 @@ function void main() {
         };
         R3 record z;
         integer array crr[10];
+
+        R3 array R3arreglo[10];
     }
 
-    R1arreglo[5].a := 1;
+    R3arreglo[10].a := 1;
 
     /*bool := true;
 

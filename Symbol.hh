@@ -156,7 +156,7 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
 
     int offset;             /* Offset del simbolo. */
-    int width;              /* Anchura del simbolo. */
+    int width;              /* Anchura del simbolo: tamano del tipo del simbolo. */
     
 
     /**

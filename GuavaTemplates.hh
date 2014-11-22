@@ -31,21 +31,21 @@ class GuavaTemplates{
 protected:
     Generator* gen;
     GuavaSymTable* table;
-    GuavaDescriptor* vars;
-    GuavaDescriptor* regs;
+    GuavaDescTable* vars;
+    GuavaDescTable* regs;
 public:
     /** 
      * Constructor de la clase.
      */
-    GuavaTemplates(Generator* g = 0, GuavaSymTable* tabla = 0, GuavaDescriptor* vars = 0, GuavaDescriptor* regs = 0);
+    GuavaTemplates(Generator* g = 0, GuavaSymTable* tabla = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0);
     /** 
      * Destructor
      */
     ~GuavaTemplates(){}
 
-    void set_regs(GuavaDescriptor* r);
+    void set_regs(GuavaDescTable* r);
 
-    void set_vars(GuavaDescriptor* v);
+    void set_vars(GuavaDescTable* v);
 };
 
 /** 
@@ -57,7 +57,7 @@ public:
     /** 
      * Constructor de la clase.
      */
-    MIPS(Generator* g, GuavaSymTable* t): GuavaTemplates(g,t){}
+    MIPS(Generator* g = 0, GuavaSymTable* t = 0, GuavaDescTable* vars = 0, GuavaDescTable* regs = 0): GuavaTemplates(g,t,vars,regs){}
 
     /** 
      * Destructor

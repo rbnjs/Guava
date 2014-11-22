@@ -148,7 +148,6 @@ public:
     Symbol* type_pointer;   /* Apuntador a tipo */
 
     int offset;             /* Offset del simbolo. */
-    //ESTO SE PUEDE BORRAR?
     int width;              /* Anchura del simbolo. */
     
 
@@ -202,6 +201,9 @@ public:
     bool is_simple(){ return false; }
 
     bool is_global();
+
+
+    TypeS* get_tipo();
 
 
 };

@@ -102,9 +102,7 @@ void GuavaDriver::error (const std::string& m)
  */ 
 TypeS* obtener_tipo_simbolo(Symbol* id){
     if (id == 0) return 0;
-    if (id->true_type != 0) return id->true_type;
-    if (id->type_pointer != 0) return obtener_tipo_simbolo(id->type_pointer);
-    return 0;
+    return id->get_tipo();
 }
 
 /**
@@ -312,70 +310,13 @@ Symbol* obtener_tipo(std::string str, GuavaSymTable* t){
 
 
 /**
- * "Encaja" el tamaño dado de un TypeS
- * en la palabra.
- */
-int encajar_en_palabra(int tam){
-    if (tam % WORD == 0) return tam;
-    return (tam + (WORD - (tam % WORD)));  
-}
-
-/**
- * Dado un tipo basico, retorna el tamaño de este.
- * En caso de que TypeS* sea otra cosa aparte de un tipo basico
- * se retorna -1.
- */
-int tamano_tipo(TypeS* t){
-    if (t == 0) return -1; //Error
-    if (t->is_error()) return 0;
-    if (t->is_bool()) return encajar_en_palabra(SIZE_BOOL);
-    if (t->is_real()) return encajar_en_palabra(SIZE_REAL);
-    if (t->is_int()) return encajar_en_palabra(SIZE_INT);
-    if (t->is_char()) return encajar_en_palabra(SIZE_CHAR);
-    if (t->is_reference()) return encajar_en_palabra(SIZE_REFERENCE);
-    if (t->is_str()) return encajar_en_palabra(SIZE_REFERENCE);
-    int result;
-
-    if (t->is_structure()){
-        result = 0;
-        TypeS* tmp;
-        TypeRecord *s = (TypeRecord*) t;
-        std::list<TypeS*> list = s->atributos->get_types(0);
-        
-        while (!list.empty()){
-            tmp = list.front();
-            result += encajar_en_palabra(tamano_tipo(tmp));
-            list.pop_front();
-        }
-
-        return result;
-    }
-
-    /* FALTA TAMBIEN ARREGLAR ESTE CASO */
-    if (t->is_union()){
-        result = 0;
-        TypeS* tmp;
-        TypeUnion* u = (TypeUnion*) t;
-        std::list<TypeS*> list = u->atributos->get_types(0);
-        while (!list.empty()){
-            tmp = list.front();
-            result = std::max(result, encajar_en_palabra(tamano_tipo(tmp)));
-            list.pop_front();
-        }
-        return result;
-    }
-
-    if (t->is_array()){
-        int tam = t->get_dimensiones();
-        result = 1;
-        return (result * tam * encajar_en_palabra(tamano_tipo(t->get_tipo())) ); 
-    }
-    return -1; 
-}
-
-/**
  * Inserta un simbolo simple.
  * $4 -> vars ; $2 -> t
+ * @param vars Lista de Variables.
+ * @param t Tipo de las variables que se van a insertar
+ * @param estilo 
+ * @param d Manejador de Guava
+ * @param yy::location Lugar del simbolo.
  */
 void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) {
     std::list<Identificador> l = vars->get_list();
@@ -401,11 +342,13 @@ void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDrive
             int offset = offset_actual.front();
             if (offset != -1){
                 offset_actual.pop_front();
-                tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
-                offset += tamano_tipo(t); 
+                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,offset);
+                nuevo->width = tamano_tipo(t); 
+                offset += nuevo->width; 
                 offset_actual.push_front(offset);
             } else {
-                tabla->insert(it->identificador,estilo,scope,p,line,column,0);
+                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,p,line,column,0);
+                nuevo->width = tamano_tipo(t);
             }
         }
     }
@@ -435,11 +378,13 @@ void insertar_simboloSimple(Identificador* identificador, TypeS *t, std::string 
 
     if (offset != -1){
         offset_actual.pop_front();
-        tabla->insert(identificador->identificador,estilo,scope,p,line,column,offset);
-        offset += tamano_tipo(t); 
+        Symbol* nuevo = tabla->insert(identificador->identificador,estilo,scope,p,line,column,offset);
+        nuevo->width = tamano_tipo(t);
+        offset += nuevo->width; 
         offset_actual.push_front(offset);
     } else {
-        tabla->insert(identificador->identificador,estilo,scope,p,line,column,0);
+        Symbol* nuevo = tabla->insert(identificador->identificador,estilo,scope,p,line,column,0);
+        nuevo->width = tamano_tipo(t);
     }
 }
 
@@ -485,11 +430,13 @@ void insertar_simboloArreglo(LVarArreglo *vars, TypeS *t, GuavaDriver *d, const 
             int offset = offset_actual.front();
             if (offset != -1){
                 offset_actual.pop_front();
-                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
-                offset += tamano_tipo(arr); 
+                Symbol* nuevo = tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+                nuevo->width = tamano_tipo(arr);
+                offset += nuevo->width; 
                 offset_actual.push_front(offset);
             } else {
-                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+                Symbol* nuevo = tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column,offset);
+                nuevo->width = tamano_tipo(arr);
             }
 
         }
@@ -519,11 +466,13 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
     convert << nombre_cadena; // Variable global
     if (offset != -1){
         offset_actual.pop_front();
-        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
-        offset += tamano_cadena(cadena); 
+        Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
+        nuevo->width = tamano_cadena(cadena);
+        offset += nuevo->width; 
         offset_actual.push_front(offset);
     } else {
-        tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
+        Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
+        nuevo->width = tamano_cadena(cadena);
     }
     nombre_cadena++;
 }
@@ -552,85 +501,15 @@ Symbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::loca
     if (offset != -1){
         offset_actual.pop_front();
         direccion = tabla->insert("_a"+convert.str(),std::string("arreglo valor"),scope,TypeString::Instance(),line,column,offset);
-        offset += tamano_tipo(arreglo->get_tipoEstructura()); 
+        direccion->width = tamano_tipo(arreglo->get_tipoEstructura()); 
+        offset += direccion->width; 
         offset_actual.push_front(offset);
     } else {
         direccion = tabla->insert("_a"+convert.str(),std::string("arreglo valor"),scope,TypeString::Instance(),line,column,0);
+        direccion->width = tamano_tipo(arreglo->get_tipoEstructura()); 
     }
     nombre_cadena++;
     return direccion;
-}
-
-
-/**
- * Funcion que coloca una variable temporal en la tabla de simbolos
- * y retorna esta misma.
- * @param d: Clase manejadora GuavaDriver
- * @param loc: location del yyparse
- * @param tipo: tipo del temp
- * @param tabla Tabla en la que se quiere buscar el tipo de la variable
- */
-Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo, GuavaSymTable* tabla){
-    int scope, line, column;
-    line = loc.begin.line;
-    std::ostringstream convert;
-    column = loc.begin.column;
-    scope = tabla->currentScope();
-    if (tipo == 0) return 0;
-
-
-    convert << secuencia_temporales;
-    std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
-    secuencia_temporales++;
-
-    Symbol* nuevo;
-    
-    if (!tipo->is_array() && !tipo->is_structure()){
-        Symbol *p= obtener_tipo(tipo->get_name(),tabla);
-        if (p == 0) {
-            return 0;
-        }
-        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
-    } else{
-        nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
-    }
-    return nuevo;
-}
-
-
-/**
- * Funcion que coloca una variable temporal en la tabla de simbolos
- * y retorna esta misma.
- * @param d: Clase manejadora GuavaDriver
- * @param loc: location del yyparse
- * @param tipo: tipo del temp
- */
-Symbol* newtemp(GuavaDriver *d, const yy::location& loc, TypeS* tipo){
-    int scope, line, column;
-    GuavaSymTable *tabla = tabla_actual.front();
-    line = loc.begin.line;
-    std::ostringstream convert;
-    column = loc.begin.column;
-    scope = tabla->currentScope();
-    if (tipo == 0) return 0;
-
-
-    convert << secuencia_temporales;
-    std::string nombre_t =  "_t" + convert.str(); //El nombre de las variables sera _tn, siendo n un numero unico.
-    secuencia_temporales++;
-
-    Symbol* nuevo;
-    
-    if (!tipo->is_array() && !tipo->is_structure()){
-        Symbol *p= obtener_tipo(tipo->get_name(),tabla);
-        if (p == 0) {
-            return 0;
-        }
-        nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
-    } else{
-        nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
-    }
-    return nuevo;
 }
 
 
@@ -652,6 +531,7 @@ TypeS* obtener_tipo_real(std::string tipo ,GuavaDriver *d, const yy::location& l
         return 0;
     }
     if (p1 != 0 && p1->true_type != 0) return p1->true_type; 
+    return 0;
 }
 
 /**
@@ -699,11 +579,13 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
             int offset = offset_actual.front();
             if (offset != -1){
                 offset_actual.pop_front();
-                tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
-                offset += tamano_tipo(reference); 
+                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
+                nuevo->width = tamano_tipo(reference); 
+                offset += nuevo->width; 
                 offset_actual.push_front(offset);
             } else {
-                tabla->insert(it->identificador,estilo,scope,reference,line,column, 0);
+                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column, 0);
+                nuevo->width = tamano_tipo(reference); 
             }
         }
     }
@@ -759,11 +641,13 @@ TypeS* insertar_simboloArregloEstructura(LVarArreglo *vars, std::string t, Guava
             int offset = offset_actual.front();
             if (offset != -1){
                 offset_actual.pop_front();
-                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
-                offset += tamano_tipo(arr); 
+                Symbol* nuevo = tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, offset);
+                nuevo->width = tamano_tipo(arr);
+                offset += nuevo->width; 
                 offset_actual.push_front(offset);
             } else {
-                tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, 0);
+                Symbol* nuevo  = tabla->insert(par.first.identificador,std::string("array"),scope,arr,line,column, 0);
+                nuevo->width = tamano_tipo(arr);
             }
         }
     }
@@ -933,11 +817,12 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
  * address
  */
 void revision_scope_id(Symbol* id, Identificador* result, GuavaDriver* driver, const yy::location& loc){
-    if (id->scope == 1) { //El scope de las variables temporales es uno
+    if (id->is_global()) { 
         result->addr = id;
     } else {
         result->bp = (Symbol*) basepointer;
-        result->addr = newtemp(driver,loc,result->get_tipo());
+        result->addr = NewTemp::newtemp(&secuencia_temporales,
+                                id->get_tipo(),loc.begin.line,loc.begin.column,&driver->tablaSimbolos);
     }
 }
 

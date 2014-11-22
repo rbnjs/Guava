@@ -19,6 +19,15 @@
 # ifndef TYPE_S_HH
 # define TYPE_S_HH
 
+/* Aqui definimos el tamaño de todos los tipos basicos. */ 
+
+#define SIZE_REFERENCE 4
+#define SIZE_INT       4
+#define SIZE_CHAR      1
+#define SIZE_REAL      8
+#define SIZE_BOOL      1
+#define WORD           4
+
 #include <list>
 #include <unordered_map>
 #include <string>
@@ -285,5 +294,10 @@ public :
 private:
     TypeS* referencia;   
 };
+
+int encajar_en_palabra(int tam);
+
+int tamano_tipo(TypeS* t);
+
 
 # endif // TYPE_S_HH

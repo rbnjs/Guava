@@ -82,6 +82,16 @@ bool Symbol::is_global(){
     return (scope == 1);
 }
 
+/** 
+ * Obtiene recursivamente el tipo de un simbolo.
+ */
+TypeS* Symbol::get_tipo(){
+    if (true_type != 0) return true_type;
+    if (type_pointer != 0) return type_pointer->get_tipo();
+    return 0;
+}
+
+
 std::string to_string(TypeS* t){
     if (t->is_func()){
         std::string result ("(");

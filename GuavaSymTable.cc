@@ -197,8 +197,8 @@ void GuavaSymTable::show(int scope, std::string identacion){
     }
 }
 
-/**
- * PUEDE QUE AQUI ESTE EL PEO DE CALCULO DE TAMANO DE ESTRUCTURAS
+/** 
+ * Retorna un lista de tipos.
  */
 std::list<TypeS*> GuavaSymTable::get_types(int sc){
     std::list<TypeS*> result;
@@ -226,6 +226,21 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
         }
     }
     
+    return result;
+}
+
+/** 
+ * Obtiene una lista de simbolos en el scope determinado.
+ * @param sc Scope
+ * @param result Lista de simbolos.
+ */
+std::list<Symbol*> GuavaSymTable::obtain_symbols(int sc){
+    std::list<Symbol*> result;
+    for (std::unordered_map<std::string, std::list<Symbol*> >::iterator it = this->tabla.begin() ; it != this->tabla.end() ; ++it){
+        for (std::list<Symbol*>::iterator it_lista = it->second.end(); it_lista != it->second.end(); ++it_lista){
+           if ((*it_lista)->scope == sc) result.push_back(*it_lista); 
+        }
+    }
     return result;
 }
 

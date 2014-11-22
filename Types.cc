@@ -71,6 +71,9 @@ bool TypeS::compare(TypeS* tipo){
 }
 
 
+
+
+
 /**
  * Apuntadores globales a las unicas instancias de las clases de cada tipo.
  */
@@ -360,3 +363,6 @@ bool TypeReference::is_array()     { return false; }
 TypeS* TypeReference::get_tipo() { return referencia; }
 
 std::string TypeReference::get_name() { return std::string(""); }
+
+
+

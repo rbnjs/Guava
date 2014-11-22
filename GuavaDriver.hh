@@ -14,14 +14,6 @@
  * =====================================================================================
  */
 
-/* Aqui definimos el tamaño de todos los tipos basicos. */ 
-
-#define SIZE_REFERENCE 8
-#define SIZE_INT       4
-#define SIZE_CHAR      1
-#define SIZE_REAL      8
-#define SIZE_BOOL      1
-#define WORD           4
 
 
 # ifndef GUAVADRIVER_HH
@@ -114,10 +106,6 @@ std::string mensaje_error_tipos(std::string esperado, std::string encontrado);
 std::string mensaje_diff_operandos(std::string operador, std::string op1, std::string op2, std::string expected) ;
 
 Symbol* obtener_tipo(std::string str, GuavaDriver *d, GuavaSymTable* t);
-
-int encajar_en_palabra(int tam);
-
-int tamano_tipo(TypeS* t);
 
 void insertar_simboloSimple(LVar *vars, TypeS *t, std::string estilo, GuavaDriver *d, const yy::location& loc) ;
 

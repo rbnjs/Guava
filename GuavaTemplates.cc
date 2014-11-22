@@ -29,20 +29,20 @@ using namespace std;
  * @param vars_ Descriptores de variable.
  * @param regs_ Descriptores de registros.
  */
-GuavaTemplates::GuavaTemplates(Generator* g, GuavaSymTable* tabla, GuavaDescriptor* vars_, GuavaDescriptor* regs_):
+GuavaTemplates::GuavaTemplates(Generator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_):
     gen(g),table(tabla),vars(vars_),regs(regs_){}
 
 /** 
  * Set descriptor de registros.
  */
-void GuavaTemplates::set_regs(GuavaDescriptor* r){
+void GuavaTemplates::set_regs(GuavaDescTable* r){
     regs = r;
 }
 
 /** 
  * Set descriptor de variables.
  */
-void GuavaTemplates::set_vars(GuavaDescriptor* v){
+void GuavaTemplates::set_vars(GuavaDescTable* v){
     vars = v;
 }
 
@@ -60,9 +60,11 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
         Symbol* s = (Symbol*) var;
         if (s->is_global() && !s->is_array()){
             //Caso variable global.
-            *gen << ("sw "+ var->sym_name+ ", "+ reg->get_nombre() + "\n");
+            vars->manage_store(s->sym_name);
+            *gen << ("sw "+ s->sym_name+ ", "+ reg->get_nombre() + "\n");
         } else if (!s->is_array()) {
             convert << s->offset;
+            vars->manage_store(s->sym_name);
             *gen << ("sw "+ convert.str() + "($sp) , "+ reg->get_nombre() + "\n" );
         }else{
             //Caso arreglo.

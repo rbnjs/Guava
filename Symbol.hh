@@ -203,6 +203,9 @@ public:
     bool is_global();
 
 
+    TypeS* get_tipo();
+
+
 };
 
 /**

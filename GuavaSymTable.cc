@@ -275,3 +275,68 @@ TypeS* TypeUnion::get_tipo() { return 0; }
 
 std::string TypeUnion::get_name() { return nombre; }
 
+/**
+ * "Encaja" el tamaño dado de un TypeS
+ * en la palabra.
+ * @param tam Tamaño que se quiere "encajar" en palabra 
+ */
+int encajar_en_palabra(int tam){
+    if (tam % WORD == 0) return tam;
+    return (tam + (WORD - (tam % WORD)));  
+}
+
+/**
+ * Dado un tipo basico, retorna el tamaño de este.
+ * En caso de que TypeS* sea otra cosa aparte de un tipo basico
+ * se retorna -1.
+ * @param t Tipo al que se quiere calcular el tamano.
+ * @return int
+ */
+int tamano_tipo(TypeS* t){
+    if (t == 0) return -1; //Error
+    if (t->is_error()) return 0;
+    if (t->is_bool()) return encajar_en_palabra(SIZE_BOOL);
+    if (t->is_real()) return encajar_en_palabra(SIZE_REAL);
+    if (t->is_int()) return encajar_en_palabra(SIZE_INT);
+    if (t->is_char()) return encajar_en_palabra(SIZE_CHAR);
+    if (t->is_reference()) return encajar_en_palabra(SIZE_REFERENCE);
+    if (t->is_str()) return encajar_en_palabra(SIZE_REFERENCE);
+    int result;
+
+    if (t->is_structure()){
+        result = 0;
+        TypeS* tmp;
+        TypeRecord *s = (TypeRecord*) t;
+        std::list<TypeS*> list = s->atributos->get_types(0);
+        
+        while (!list.empty()){
+            tmp = list.front();
+            result += encajar_en_palabra(tamano_tipo(tmp));
+            list.pop_front();
+        }
+
+        return result;
+    }
+
+    /* FALTA TAMBIEN ARREGLAR ESTE CASO */
+    if (t->is_union()){
+        result = 0;
+        TypeS* tmp;
+        TypeUnion* u = (TypeUnion*) t;
+        std::list<TypeS*> list = u->atributos->get_types(0);
+        while (!list.empty()){
+            tmp = list.front();
+            result = std::max(result, encajar_en_palabra(tamano_tipo(tmp)));
+            list.pop_front();
+        }
+        return result;
+    }
+
+    if (t->is_array()){
+        int tam = t->get_dimensiones();
+        result = 1;
+        return (result * tam * encajar_en_palabra(tamano_tipo(t->get_tipo())) ); 
+    }
+    return -1; 
+}
+

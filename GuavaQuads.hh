@@ -38,12 +38,23 @@ private:
     GuavaSymTable* tabla;
 public:
 
+    /** 
+     * Constructor de NewTemp
+     * @param secuencia Valor numerico del nombre de la variable.
+     * @param tipo_ Tipo de la variable temporal
+     * @param line_ Linea en donde se encuentra
+     * @param column_ Columna en donde se encuentra
+     * @param table_ Dirección a la GuavaSymTable
+     */
     NewTemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_):
         secuencia_temporales(secuencia),tipo(tipo_),line(line_),column(column_),tabla(table_){}
 
     ~NewTemp(){}
 
 
+    /** 
+     *  Setter
+     */
     void set_tipo(TypeS* tipo_){
         tipo = tipo_;
     }
@@ -62,10 +73,8 @@ public:
     /**
      * Funcion que coloca una variable temporal en la tabla de simbolos
      * y retorna esta misma.
+     *
      * No es necesario calcular el offset de las variables temporales
-     * @param d: Clase manejadora GuavaDriver
-     * @param loc: location del yyparse
-     * @param tipo: tipo del temp
      */
     Symbol* newtemp(){
         int scope;
@@ -85,13 +94,22 @@ public:
                 return 0;
             }
             nuevo = new Symbol(nombre_t, std::string("temporal"),scope,p,line,column,0);
+            nuevo->width = tamano_tipo(tipo);
         } else{
             nuevo = new Symbol (nombre_t, std::string("temporal"),scope,tipo, line,column, 0);
+            nuevo->width = tamano_tipo(tipo);
         }
 
         return nuevo;
     }
 
+    /** 
+     * Funcion estatica para newtemp.
+     */
+    static Symbol* newtemp(int* secuencia, TypeS* tipo_, int line_,int column_, GuavaSymTable* table_){
+        NewTemp n(secuencia,tipo_,line_,column_,table_);
+        return n.newtemp();
+    }
 };
 
 //Funciones para escritura de codigo intermedio

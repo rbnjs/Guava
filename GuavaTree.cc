@@ -1682,6 +1682,22 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
     //SE VERIFICA SI LA EXPRESION PADRE ES UN ARREGLO, EN TAL CASO SE CALCULAN SUS QUADS
     if(exp_id != 0 && exp_id->is_array()) {
+        //Caso arreglo global
+        if(exp_id->addr->is_global()) {
+        
+        }
+        //Caso arreglo local
+        else {
+        
+        }
+
+
+
+
+
+
+
+
         result = exp_id->generar_quads();
         SymbolArray* arreglo = (SymbolArray *) exp_id->addr;
         /* ESTE OFFSET ESTA MALO, ES EL OFFSET DE LA ESTRUCTURA+ATRIBUTO_EN_ESTRUCTURA

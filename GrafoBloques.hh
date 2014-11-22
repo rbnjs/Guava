@@ -15,15 +15,17 @@
  *
  * =====================================================================================
  */
+#ifndef GRAFO_BLOQUES_HH
+#define GRAFO_BLOQUES_HH
 #include <list>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <unordered_map>
 #include "GuavaQuads.hh"
+#include "Generator.hh"
 
 using namespace std;
 using namespace boost;
-
 
 
 /** 
@@ -124,6 +126,38 @@ typedef adjacency_list < vecS, vecS, directedS, BloqueBasico > Graph;
 //Defino lo que seria un Vertex o nodo.
 typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
 
+using namespace boost;
+/** 
+ * Visitador del grafo que va a generar codigo final.
+ */
+class bfs_generator: public default_bfs_visitor{
+protected:
+    GuavaGenerator* generador;
+public:
+
+    /**
+     * Constructor del visitador.
+     */
+    bfs_generator(GuavaGenerator* gen_): generador(gen_){}
+
+    /** 
+     * Destructor de la clase.
+     */
+    ~bfs_generator(){}
+
+    /** 
+     * Cada vez que encuentra un nodo manda a este a 
+     * generar codigo final
+     * @param u Nodo que contiene un BloqueBasico.
+     * @param g Grafo.
+     */
+    void discover_vertex(Vertex u,const Graph& g){
+        //
+    }
+
+};
+
+
 
 /**  
  * Clase que representa un grafo de flujo.
@@ -134,12 +168,17 @@ private:
     Graph grafo;
     list<Vertex> entries;
     GuavaSymTable* tabla;
+    GuavaGenerator* guava_gen;
 public:
     /** 
      * Constructor de Grafo de Flujo.
      * @param codigo Lista de codigo de tres direcciones.
+     * @param gen_ Generator de Guava.
      */
-    GrafoFlujo(list<GuavaQuads*>* codigo);
+    GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_);
+    /** 
+     * Destructor de la clase.
+     */
     ~GrafoFlujo(){}
 
     /** 
@@ -151,4 +190,7 @@ public:
      * Imprime los lados del grafo.
      */
     void imprimir_lados(ostream& os);
+
+    void generate_mips();
 };
+#endif

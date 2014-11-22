@@ -283,7 +283,7 @@ void identificar_bloques(list<Vertex> entries, Graph& grafo){
  * En esta funcion realizo todos los bloquesbasicos y los coloco en el grafo junto con sus lados.
  * @param codigo Codigo de tres direcciones de todo el codigo fuente
  */
-GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
+GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_){
     using namespace boost;
     std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict; //Quiero guardar todos los bloques en un diccionario para agregar los lados.
     list<GuavaQuads*> lideres = obtener_lideres(codigo);
@@ -309,6 +309,7 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     identificar_bloques(entries,grafo);
     agregar_exits(bloques,dict,grafo);
     bloques.erase(bloques.begin(), bloques.end());
+    guava_gen = gen_; 
 }
 
 /** 
@@ -340,4 +341,11 @@ void GrafoFlujo::imprimir_lados(ostream& os){
             os << grafo[src].get_id() << " , " << grafo[targ].get_id() << endl;
         }
     }
+}
+
+/** 
+ * Genera codigo para mips
+ */
+void GrafoFlujo::generate_mips(){
+
 }

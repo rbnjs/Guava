@@ -74,13 +74,23 @@ public:
  */
 class GuavaDescriptor{
     string nombre;                 /* Nombre del registro */
-    set<SimpleSymbol*> assoc_var; /* Conjunto de variables asociadas al registro. */ 
+    SimpleSymbol* addr = 0;        /* Simbolo asociado a la variable si es una variable. */
+    set<SimpleSymbol*> assoc_var;  /* Conjunto de variables asociadas al registro. */ 
 public:
     
     /** 
      * Constructor
+     * @param nombre_ Nombre del descriptor
      */
     GuavaDescriptor(string nombre_): nombre(nombre_){
+    }
+
+    /** 
+     * Constructor
+     * @param nombre_ Nombre del descriptor
+     * @param s Simbolo asociado para la variable.
+     */
+    GuavaDescriptor(string nombre_, SimpleSymbol* s):nombre(nombre_),addr(s) {
     }
 
     ~GuavaDescriptor(){}
@@ -92,12 +102,25 @@ public:
         return nombre;
     }
 
+    SimpleSymbol* get_symbol(){
+        return addr;
+    }
+
+    /** 
+     * Cambia la dirección de simbolo.
+     */
+    void set_symbol(SimpleSymbol* s){
+        addr = s;
+    }
+
     /** 
      * Inserta variable.
      */
     void insert(SimpleSymbol* var){
         assoc_var.insert(var);
     }
+
+    void insert(GuavaDescriptor* reg);
 
     /** 
      * Busca un simbolo s
@@ -121,6 +144,11 @@ public:
     void erase(SimpleSymbol* var){
         assoc_var.erase(var);
     }
+
+    /** 
+     * Borra el set por nombre.
+     */
+    void borrar_por_nombre(string nombre);
 
     /** 
      * Retorna un iterator al inicio
@@ -156,6 +184,14 @@ public:
      */
     bool locales_globales();
 
+    /** 
+     * Funcion que retorna el numero de variables temporales asociadas
+     * a un descriptor.
+     * @return int Numero de temporales.
+     */
+    int count_temp();
+
+    void clear();
 };
 
 /** 
@@ -181,6 +217,8 @@ class GuavaVar: public GuavaDescriptor{
 public:
     GuavaVar(string nombre_): GuavaDescriptor(nombre_){}
 
+    GuavaVar(SimpleSymbol* s): GuavaDescriptor(s->sym_name,s){}
+
     ~GuavaVar(){}
 
     bool is_var(){
@@ -193,16 +231,24 @@ public:
  */
 class GuavaDescTable{
     std::unordered_map<string, GuavaDescriptor* > tabla;  /* Tabla que guarda las variables/registros disponibles junto con sus simbolos. */
-    bool reg;
+    bool reg; /* Variable booleana que nos dice si guarda registros o variables. */
+    void borrar_por_nombre(string reg);
 public:
 
    /** 
     * Constructores de la clase.
-    * @param vars Lista de variables o nombres de registros.
+    * @param vars Lista de nombres de registro.
+    */
+   GuavaDescTable(list<string> vars);
+
+   /** 
+    * Constructor vacio de la clase.
     * @param reg Nos dice si la tabla esta guardando registros, en el caso contrario guarda variables.
     */
-   GuavaDescTable(list<string> vars, bool reg);
    GuavaDescTable(bool reg_): reg(reg_){}
+
+
+   GuavaDescTable(list<SimpleSymbol*> simbols);
 
    /** 
     * Destructor de la clase.
@@ -261,6 +307,14 @@ public:
      * Iterador del fin de la tabla.
      */
     std::unordered_map<string, GuavaDescriptor* >::iterator end();
+
+    void manage_store(string var);
+
+    void manage_LD(string R, SimpleSymbol* x);
+
+    void manage_3_addr_inst(string R, SimpleSymbol* x);
+
+    void manage_copy(string Ry, SimpleSymbol* x);
 
 };
 

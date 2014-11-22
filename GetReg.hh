@@ -42,6 +42,7 @@ protected:
     GuavaDescriptor* spill();
     GuavaDescriptor* global_spill();
     GuavaDescriptor* local_spill();
+    GuavaDescriptor* temp_spill();
 public:
 
     /** 

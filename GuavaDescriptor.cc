@@ -48,12 +48,32 @@ bool GuavaDescriptor::todas_globales(){
  */
 bool GuavaDescriptor::locales_globales(){
     Symbol* tmp;
-    regex underscore ("_t.*"); //Cualquier cosa que comience con _t es temporal.
     for (set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
-        if (std::regex_match ((*it)->sym_name, underscore ))
+        if ((*it)->is_temp())
             return false;
     }
     return true;
+}
+
+/** 
+ * Funcion que retorna el numero de variables temporales asociadas
+ * a un descriptor.
+ * @return int Numero de temporales.
+ */
+int GuavaDescriptor::count_temp(){
+    int count = 0;
+    for (set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
+        if ((*it)->is_temp()) ++count;
+    }
+    return count;
+}
+
+/** 
+ * Borra todas las variables asociadas a la variable o 
+ * al registro.
+ */
+void GuavaDescriptor::clear(){
+    assoc_var.clear();
 }
 
 
@@ -61,7 +81,7 @@ bool GuavaDescriptor::locales_globales(){
  * Constructor de la clase.
  * @param vars Lista de variables a pasar.
  */
-GuavaDescTable::GuavaDescTable(list<string> vars, bool reg_): reg(reg_){
+GuavaDescTable::GuavaDescTable(list<string> vars): reg(false){
     for (list<string>::iterator it = vars.begin(); it != vars.end(); ++it){
         GuavaDescriptor *nuevo_reg; 
         if (reg){
@@ -70,6 +90,18 @@ GuavaDescTable::GuavaDescTable(list<string> vars, bool reg_): reg(reg_){
             nuevo_reg = new GuavaVar(*it);
         }
         tabla[*it] = nuevo_reg; 
+    }
+}
+
+/** 
+ * Constructor de la clase para variables.
+ * @param s Lista de simbolos
+ */    
+GuavaDescTable::GuavaDescTable(list<SimpleSymbol*> s): reg(true){
+    for (list<SimpleSymbol*>::iterator it = s.begin(); it != s.end(); ++it){
+        GuavaDescriptor *nueva_var;
+        nueva_var = new GuavaVar(*it);
+        tabla[(*it)->sym_name] = nueva_var;
     }
 }
 
@@ -191,14 +223,132 @@ std::unordered_map<string, GuavaDescriptor* >::iterator GuavaDescTable::end(){
 }
 
 /** 
- * Construye una lista con las variables de MIPS.
+ * Maneja la instruccion de tipo store en
+ * la tabla de descriptores de variables.
+ * @param var Nombre de la variable.
+ */
+void GuavaDescTable::manage_store(string var){
+    if (!reg){
+        if (tabla.find(var) != tabla.end()){
+            GuavaDescriptor* desc = tabla[var];
+            desc->insert(desc->get_symbol());
+        }
+    }
+}
+
+/** 
+ * Maneja la instrucción de tipo LD R, x
+ * @param x Nombre del simbolo a guardar.
+ * @param R Nombre del registro.
+ */
+void GuavaDescTable::manage_LD(string R, SimpleSymbol* x){
+    if (reg){
+        //Caso tabla de registros
+        if (tabla.find(R) != tabla.end()){
+            GuavaDescriptor* desc = tabla[R];
+            desc->clear();
+            desc->insert(x);
+        }
+    } else{
+        if (tabla.find(x->sym_name) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->sym_name];
+            SimpleSymbol* nuevo = new SymbolReg(R);
+            desc->insert(nuevo);
+        }
+    }
+}
+
+/** 
+ * Maneja el caso de instrucciones de 3 direcciones, del tipo x:= y + z.
  *
- * Vamos a usar las variables a, t y s como nos parezca
+ * Para esto se realizan varias cosas:
+ *  Cambia el descriptor del registro Rx para que solo tenga x
+ *  Cambia el descriptor de variable para que solo tenga a Rx
+ *  Quita Rx del descriptor de variable de cualquier otra variable que no sea x.
+ *
+ * @param x Nombre del simbolo. 
+ * @param Rx Nombre del registro.
+ *
+ */
+void GuavaDescTable::manage_3_addr_inst(string Rx, SimpleSymbol* x){
+    if (reg){
+        if (tabla.find(Rx) != tabla.end()){
+            GuavaDescriptor* desc = tabla[Rx];
+            desc->clear();
+            desc->insert(x);
+        }
+    }else{
+        this->borrar_por_nombre(Rx);
+        if (tabla.find(x->sym_name) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->sym_name];
+            SimpleSymbol* nuevo = new SymbolReg(Rx);
+            desc->clear();
+            desc->insert(nuevo);
+        }
+    }
+}
+
+/** 
+ * Maneja la copia x := y.
+ *
+ * Esto es:
+ *  (a) Add x to the register descriptor for Ry.
+ *  (b) Change the address descriptor for x so that its only location is Ry
+ *
+ *  @param Ry nombre del registro Ry
+ *  @param x Simbolo de la variable x
+ */
+void GuavaDescTable::manage_copy(string Ry, SimpleSymbol* x){
+    if (reg){
+        if (tabla.find(Ry) != tabla.end()){
+            GuavaDescriptor* desc = tabla[Ry];
+            desc->insert(x);
+        }
+    }else {
+        if (tabla.find(x->sym_name) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->sym_name];
+            SimpleSymbol* nuevo = new SymbolReg(Ry);
+            desc->clear();
+            desc->insert(nuevo);
+        }
+    }
+}
+
+/** 
+ * Borra un elemento por nombre.
+ * @param nombre Nombre del elemento a borrar. Tipicamente un registro.
+ */
+void GuavaDescriptor::borrar_por_nombre(string nombre){
+    set<SimpleSymbol*> nuevo;
+    for ( set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
+        if ((*it)->sym_name.compare(nombre) != 0){
+            nuevo.insert((*it));
+        }else{
+            //delete *it;
+        }
+    }
+    assoc_var = nuevo;
+}
+
+/** 
+ * Borra un elemento por nombre en toda la tabla.
+ * @param nombre Nombre del elemento a borrar. Tipicamente un registro.
+ */
+void GuavaDescTable::borrar_por_nombre(string nombre){
+   for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin(); it != tabla.end(); ++it){
+        it->second->borrar_por_nombre(nombre);
+   }
+}
+
+/** 
+ * Construye una lista con los registros de MIPS.
+ *
+ * Vamos a usar las registros a, t y s como nos parezca
  * ya que el compilador no se va a equivocar.
  *
- * @return result Lista con nombres de variables.
+ * @return result Lista con nombres de registros.
  */
-list<string> variables_mips(){
+list<string> registros_mips(){
     ostringstream convert;
     list<string> result;
     string a ("$a");
@@ -226,11 +376,11 @@ list<string> variables_mips(){
 }
 
 /** 
- * Construye una lista con variables flotantes de MIPS.
+ * Construye una lista con registros flotantes de MIPS.
  *
- * @return result Lista con nombres de variables.
+ * @return result Lista con nombres de registros.
  */
-list<string> variables_float_mips(){
+list<string> registros_float_mips(){
     ostringstream convert;
     list<string> result;
     string f ("$f");
@@ -243,8 +393,8 @@ list<string> variables_float_mips(){
     return result;
 }
 
-DescTableMIPS::DescTableMIPS(): GuavaDescTable(variables_mips(),true){
+DescTableMIPS::DescTableMIPS(): GuavaDescTable(registros_mips()){
 }
 
-DescTableFloatMIPS::DescTableFloatMIPS(): GuavaDescTable(variables_float_mips(),true){
+DescTableFloatMIPS::DescTableFloatMIPS(): GuavaDescTable(registros_float_mips()){
 }

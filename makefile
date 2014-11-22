@@ -1,4 +1,4 @@
-CC=g++
+CC=clang++
 
 OBJ=Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GuavaDescriptor.o GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
@@ -69,7 +69,7 @@ GetReg.o: GetReg.hh GetReg.cc GuavaQuads.hh
 
 	$(CC) $(CFLAGS) GetReg.cc
 
-GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh
+GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh GuavaDescriptor.hh
 
 	$(CC) $(CFLAGS) GuavaTemplates.cc
 

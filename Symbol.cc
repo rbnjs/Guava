@@ -19,6 +19,17 @@
 #include <iostream>
 #include "Symbol.hh"
 #include <sstream>
+#include <regex>
+
+
+/** 
+ * Indica que un Simbolo es temporal.
+ * @return true si el nombre del simbolo comienza por _t o false en el caso contrario.
+ */
+bool SimpleSymbol::is_temp(){
+    std::regex underscore ("_t.*"); //Cualquier cosa que comience con _t es temporal.
+    return std::regex_match (sym_name, underscore);
+}
 
 Symbol::Symbol(){}
 
@@ -62,6 +73,13 @@ bool Symbol::operator==(Symbol b) {
  */
 bool Symbol::compare(std::string s, int sc){
     return ((this->sym_name.compare(s) == 0) && this->scope == sc);
+}
+
+/** 
+ * Funcion que nos dice si el simbolo es global.
+ */
+bool Symbol::is_global(){
+    return (scope == 1);
 }
 
 std::string to_string(TypeS* t){

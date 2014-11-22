@@ -11,34 +11,80 @@
  *       Compiler:  gcc
  *
  *         Author:  Ruben Serradas, 
- *   Organization:  
+ *   Organization:  USB
  *
  * =====================================================================================
  */
 
 #include "GuavaTemplates.hh"
+#include "Symbol.hh"
+#include <ostream>
+
+using namespace std;
+
+/** 
+ * Constructor de GuavaTemplates.
+ * @param g Generator para poder escribir en el archivo.
+ * @param tabla Tabla de simbolos
+ * @param vars_ Descriptores de variable.
+ * @param regs_ Descriptores de registros.
+ */
+GuavaTemplates::GuavaTemplates(Generator* g, GuavaSymTable* tabla, GuavaDescriptor* vars_, GuavaDescriptor* regs_):
+    gen(g),table(tabla),vars(vars_),regs(regs_){}
+
+/** 
+ * Set descriptor de registros.
+ */
+void GuavaTemplates::set_regs(GuavaDescriptor* r){
+    regs = r;
+}
+
+/** 
+ * Set descriptor de variables.
+ */
+void GuavaTemplates::set_vars(GuavaDescriptor* v){
+    vars = v;
+}
+
 
 /** 
  * Guarda un valor.
- * @param nombre de la variable a guardar.
- * @param nombre del registro en donde se encuentra la variable.
- * return string Retorna un string con el codigo.
+ * @param var Variable a guardar.
+ * @param reg Descriptor del registro en donde se encuentra la variable.
  */
-string MIPS::store(string var, string reg){
-    return ("sw "+ var + ", "+ reg + "\n");
+void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
+    ostringstream convert;
+    if (var->is_simple()){
+        //
+    }else{
+        Symbol* s = (Symbol*) var;
+        if (s->is_global() && !s->is_array()){
+            //Caso variable global.
+            *gen << ("sw "+ var->sym_name+ ", "+ reg->get_nombre() + "\n");
+        } else if (!s->is_array()) {
+            convert << s->offset;
+            *gen << ("sw "+ convert.str() + "($sp) , "+ reg->get_nombre() + "\n" );
+        }else{
+            //Caso arreglo.
+        }
+    }
 }
 
 /** 
  * Guarda un conjunto de valores.
- * @param reg Nombre del registro en donde se encuentra el conjunto de variables.
- * @param begin Iterador al comienzo
- * @param end Iterador al final.
- * return result Codigo en mips.
+ * @param reg Descriptor del registro en donde se encuentra el conjunto de variables.
  */
-string MIPS::store(string reg,set<SimpleSymbol*>::iterator begin, set<SimpleSymbol*>::iterator end){
-    string result ("");
-    for (set<SimpleSymbol*>::iterator it = begin; it != end; ++it){
-        result += MIPS::store((*it)->sym_name,reg);
+void MIPS::store(GuavaDescriptor* reg){
+    for (set<SimpleSymbol*>::iterator it = reg->begin(); it != reg->end(); ++it){
+        MIPS::store(*it,reg);
     }
-    return result;
+}
+
+/** 
+ * Guarda un valor en la pila. 
+ * @param reg Descriptor del registro en donde se encuentra el conjunto de variables.
+ */
+void MIPS::push(GuavaDescriptor* reg){
+    *gen << ("sw "+ reg->get_nombre() + ", 0($sp)\n");  
+    *gen << "subu $sp, $sp, 4 \n";
 }

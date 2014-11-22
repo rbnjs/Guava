@@ -15,6 +15,8 @@
  *
  * =====================================================================================
  */
+#ifndef GUAVASYMTABLE_HH
+#define GUAVASYMTABLE_HH
 #include "Symbol.hh"
 #include <string>
 #include <list>
@@ -111,4 +113,4 @@ public :
     std::list<TypeS*> get_atributos();
     GuavaSymTable* get_tabla() { return atributos; }
 };
-
+#endif

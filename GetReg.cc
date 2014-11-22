@@ -17,6 +17,7 @@
  */
 
 #include "GetReg.hh"
+#include "GuavaTemplates.hh"
 #include <climits>
 
 using namespace std;
@@ -112,7 +113,7 @@ GuavaDescriptor* RegisterAllocator::global_spill(){
     int min_global = INT_MAX;
     for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
         if (it->second->todas_globales() && it->second->size() == min) {
-            //Falta colocar el template de store.
+            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
             return it->second;
         } else if (it->second->todas_globales()){
             if (it->second->size() < min_global) min_global = it->second->size();
@@ -121,7 +122,7 @@ GuavaDescriptor* RegisterAllocator::global_spill(){
     }
     for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
         if ((*it)->size() == min_global){
-            //TEMPLATE STORE
+            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
             return *it;
         }
     }
@@ -138,7 +139,7 @@ GuavaDescriptor* RegisterAllocator::local_spill(){
     int min_global = INT_MAX;
     for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
         if (it->second->locales_globales() && it->second->size() == min) {
-            //Falta colocar el template de store.
+            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
             return it->second;
         } else if (it->second->locales_globales()){
             if (it->second->size() < min_global) min_global = it->second->size();
@@ -147,8 +148,32 @@ GuavaDescriptor* RegisterAllocator::local_spill(){
     }
     for (list<GuavaDescriptor*>::iterator it = tmp.begin(); it != tmp.end() ; ++it){
         if ((*it)->size() == min_global){
-            //TEMPLATE STORE
+            //TEMPLATE STORE. ACTUALIZAR TABLA DE VARS.
             return *it;
+        }
+    }
+    return 0;
+}
+
+/** 
+ * Realiza un spill en un descriptor de registro que tenga asociado variables locales, globales y temporales.
+ *
+ * Para esto elige el descriptor con menor numero de temporales. Luego va aumentando la pila y metiendo variables alli. 
+ *
+ * @return GuavaDescriptor* Retorna un descriptor de registro.
+ */
+GuavaDescriptor* RegisterAllocator::temp_spill(){
+    list<GuavaDescriptor*> tmp;
+    int min_temp = INT_MAX;
+    //Busco aquel con el menor numero de temporales a hacer spill.
+    for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
+        if (it->second->count_temp() < min_temp) min_temp = it->second->count_temp();
+    }
+
+    for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla_reg->begin() ; it != tabla_reg->end(); ++it){
+        if (it->second->count_temp() == min_temp){
+            //TEMPLATE STORE TEMP. ACTUALIZAR TABLA DE VARS.
+            return it->second;
         }
     }
     return 0;
@@ -173,9 +198,7 @@ GuavaDescriptor* RegisterAllocator::spill(){
         return result;
     }
 
-    return 0;
-
-    //¿Debo considerar el caso de que todos los registros esten llenos de variables temporales?
+    return this->temp_spill();
 }
 
 /** 

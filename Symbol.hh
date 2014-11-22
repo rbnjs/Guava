@@ -83,6 +83,53 @@ public:
         return (sym_name.compare(s.sym_name) == 0);
     }
 
+    /** 
+     * Indica que un Simbolo es temporal.
+     * @return true si el nombre del simbolo comienza por _t o false en el caso contrario.
+     */
+    bool is_temp();
+
+    /** 
+     * Nos dice si el simbolo es global.
+     */
+    virtual bool is_global(){
+        return false;
+    }
+
+    /** 
+     * Nos dice si es arreglo
+     */
+    virtual bool is_array(){
+        return false;
+    }
+
+    virtual bool is_reg(){
+        return false;
+    }
+
+};
+
+/** 
+ * Clase que representa un Registro.
+ */
+class SymbolReg: public SimpleSymbol{
+public:
+
+
+    /** 
+     * Construye un Simbolo registro con su nombre.
+     */
+    SymbolReg(std::string nombre): SimpleSymbol(nombre){}
+
+    /** 
+     * Destructor de la clase
+     */
+    ~SymbolReg(){}
+
+
+    virtual bool is_reg(){
+        return true;
+    }
 };
 
 /** 
@@ -153,6 +200,10 @@ public:
     virtual void show(std::string);
 
     bool is_simple(){ return false; }
+
+    bool is_global();
+
+
 };
 
 /**
@@ -185,5 +236,9 @@ public:
      * Destructor de la clase SymbolArray.
      */
     ~SymbolArray();
+
+    bool is_array(){
+        return true;
+    }
 };
 #endif

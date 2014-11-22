@@ -106,7 +106,7 @@ public:
 protected:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
     int id;                   /* Identificador para cada bloque. */
-    bool is_exit_ = false;
+    bool is_exit_ = false;    
     bool is_entry_ = false;
     string* belongs_to = 0;   /* Nombre de la funcion a la que pertenece */
 };

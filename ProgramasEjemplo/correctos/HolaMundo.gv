@@ -1,8 +1,4 @@
-declare {
-  string h;
-}
 
 function void main() {
-  h := "Hola Mundo";
-  print(h);
+  print("Hola mundo!");
 }

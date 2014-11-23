@@ -41,6 +41,14 @@ GuavaLabel::GuavaLabel(): GuavaQuads("label"){
 }
 
 /** 
+ * Genera codigo mips para el un label de Guava.
+ * @param g Generator.
+ */
+void GuavaLabel::generar_mips(GuavaTemplates* g){
+    g->label(this->get_op());
+}
+
+/** 
  * Constructor de GuavaQuads.
  * Se asigna a cada quads un id unico de instruccion
  */
@@ -127,6 +135,10 @@ std::list<SimpleSymbol*> GuavaQuadsIf::get_args(){
     return args;
 }
 
+void GuavaQuadsIf::generar_mips(GuavaTemplates* ge){
+
+}
+
 /** 
  * Retorna una lista con todos los argumentos del QuadIf
  *
@@ -143,6 +155,10 @@ std::list<SimpleSymbol*> GuavaQuadsIfNot::get_args(){
         args.push_back(arg2);
     }
     return args;
+}
+
+void GuavaQuadsIfNot::generar_mips(GuavaTemplates* ge){
+
 }
  
 /** 
@@ -172,6 +188,10 @@ void GuavaParam::update_use(){
     if (addr != 0) addr->update_use(this->get_id());
 }
 
+void GuavaParam::generar_mips(GuavaTemplates* gen){
+
+}
+
 /** 
  * Inserta información en el quad.
  */
@@ -180,6 +200,34 @@ void GuavaParam::attach_info(){
        this->insert_vivas(addr);     
        this->insert_usos(addr);     
     }
+}
+
+void GuavaCall::generar_mips(GuavaTemplates* t){
+
+}
+
+
+/**
+ * Genera mips para el GoTo de Guava.
+ * @param g Generador de codigo en templates.
+ */
+void GuavaGoTo::generar_mips(GuavaTemplates* g){
+    g->go_to(go_to);
+}
+
+
+/** 
+ * Genera mips para entrada o salida.
+ */
+void GuavaEntradaSalida::generar_mips(GuavaTemplates* t){
+    if (this->get_op().compare("read")){
+    }else{
+        t->print(this->get_arg1());
+    }
+}
+
+void GuavaQuadsReturn::generar_mips(GuavaTemplates* t){
+
 }
 
 /**
@@ -385,6 +433,10 @@ std::string GuavaQuadsExp::gen(){
     }
     code += "\n";
     return code;
+}
+
+void GuavaQuadsExp::generar_mips(GuavaTemplates* gen){
+
 }
 
 

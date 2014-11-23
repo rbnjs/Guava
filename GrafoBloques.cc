@@ -95,31 +95,6 @@ void BloqueBasico::print(ostream &os){
     os << "----" <<endl;
 }
 
-/** 
- * @return generador
- */
-GuavaGenerator* BloqueBasico::get_gen(){
-    return generador;
-}
-/** 
- * @return tabla
- */
-GuavaSymTable* BloqueBasico::get_table(){
-    return tabla;
-}
-/** 
- * Setter GuavaSymTable
- */
-void BloqueBasico::set_table(GuavaSymTable* t){
-    tabla = t;
-}
-
-/** 
- * Setter GuavaGenerator
- */
-void BloqueBasico::set_gen(GuavaGenerator* g){
-    generador = g;
-}
 
 /**  
  * Funcion que recibe un nombre de función o etiqueta y nos dice
@@ -127,7 +102,7 @@ void BloqueBasico::set_gen(GuavaGenerator* g){
  * @param func Nombre de etiqueta.
  * @param bool Retorna un booleano
  */
-bool BloqueBasico::belongs_to_func(string func){
+bool BloqueBasico::belongs_to_func(string func) const{
     return (belongs_to->compare(func) == 0);
 }
 
@@ -135,34 +110,29 @@ bool BloqueBasico::belongs_to_func(string func){
  * Genera el codigo entry para el mips. Lo que llamamos prologo.
  * @param gen_ GuavaGenerator para el archivo final
  */
-void BloqueBasico::generar_entry_mips(){
-    list<Symbol*> globals = tabla->obtain_globals();
-    *generador << ".data\n";
-    for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
-        (*it)->generar_mips(generador); 
-    }
+void BloqueBasico::generar_entry_mips() const{
+
 }
 
 /** 
  * Genera el codigo entry para el mips. Lo que llamamos epilogo.
- * @param gen_ GuavaGenerator para el archivo final
  */
-void BloqueBasico::generar_exit_mips(){
+void BloqueBasico::generar_exit_mips() const{
 }
+
 /** 
  * Coloca el .data en el codigo de mips.
- * @param gen_ GuavaGenerator para el archivo final
  */
-void BloqueBasico::generar_entry_main_mips(){
+void BloqueBasico::generar_entry_main_mips() const{
+    template_gen->entry_main();
 }
 
 /** 
  * Genera codigo final para mips
  * Primero reviso que no sea entry o exit, si lo son entonces genero codigo y retorno porque esos bloques no tienen codigo asociado.
  * Si no son entry o exit entonces genero codigo normal
- * @param gen_ GuavaGenerator para el archivo final
  */
-void BloqueBasico::generar_mips(){
+void BloqueBasico::generar_mips() const{
     if (is_entry_){
         if (this->belongs_to_func("main")){
             this->generar_entry_main_mips();
@@ -176,9 +146,24 @@ void BloqueBasico::generar_mips(){
         this->generar_exit_mips();
         return;
     }
-    for(list<GuavaQuads*>::iterator it = codigo.begin(); it != codigo.end(); ++it){
+    for(list<GuavaQuads*>::const_iterator it = codigo.begin(); it != codigo.end(); ++it){
         // Algo
     }
+}
+
+/**
+ * Obtiene las variables de todo el codigo.
+ * @return result Conjunto de variables del bloque basico.
+ */
+list<SimpleSymbol*> BloqueBasico::obtener_vars() const{
+    list<SimpleSymbol*> result;
+    for (list<GuavaQuads*>::const_iterator it = codigo.cbegin(); it != codigo.cend(); ++it){
+        list<SimpleSymbol*> vars = (*it)->obtener_vars();
+        for (list<SimpleSymbol*>::iterator it_vars = vars.begin() ; it_vars != vars.end() ; ++it_vars){
+            result.push_back(*it_vars);
+        }
+    }
+    return result;
 }
 
 /* Funciones auxiliares GrafoFlujo */
@@ -295,7 +280,7 @@ list<pair<BloqueBasico*,BloqueBasico*>> obtener_lados(list<BloqueBasico*>* bloqu
  * @param g Grafo
  * @param dict Diccionario que contiene los bloques basicos junto con su descriptor de nodo.
  */
-void agregar_exits(list<BloqueBasico*> bloques, std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict, Graph& grafo){
+void GrafoFlujo::agregar_exits(list<BloqueBasico*> bloques, std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict){
     std::unordered_map<string, Graph::vertex_descriptor> bloques_exit; /* De esta manera guardamos todos los bloques exit para que no se repitan. */
 
     for (list<BloqueBasico*>::iterator it = bloques.begin();  it != bloques.end(); ++it){
@@ -308,6 +293,7 @@ void agregar_exits(list<BloqueBasico*> bloques, std::unordered_map<BloqueBasico*
                     v = bloques_exit[*grafo[dict[*it]].get_belongs_to()];
                     BloqueBasico tmp(1,grafo[dict[*it]].get_belongs_to());
                     grafo[v].clone(&tmp);
+                    grafo[v].set_template(mips);
                 }else{
                    v = bloques_exit[*grafo[dict[*it]].get_belongs_to()]; 
                 }
@@ -325,7 +311,7 @@ void agregar_exits(list<BloqueBasico*> bloques, std::unordered_map<BloqueBasico*
  * @param dict Diccionario que contiene los bloques basicos junto con su descriptor de nodo.
  * @returns Lista de nodos entry.
  */
-list<Graph::vertex_descriptor> agregar_entry(list<BloqueBasico*> bloques,std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict, Graph& grafo){
+list<Graph::vertex_descriptor> GrafoFlujo::agregar_entry(list<BloqueBasico*> bloques,std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict){
     list<Graph::vertex_descriptor> result;
     for (list<BloqueBasico*>::iterator it = bloques.begin();  it != bloques.end(); ++it){
        if ((*it)->first()->is_func_label()){
@@ -333,6 +319,7 @@ list<Graph::vertex_descriptor> agregar_entry(list<BloqueBasico*> bloques,std::un
             Graph::vertex_descriptor v = add_vertex(grafo);
             result.push_back(v);
             grafo[v].clone(&entry);
+            grafo[v].set_template(mips);
             add_edge(v, dict[*it],grafo);
        }
     }
@@ -372,12 +359,14 @@ void identificar_bloques(list<Vertex> entries, Graph& grafo){
  * Constructor de GrafoFlujo.
  * En esta funcion realizo todos los bloquesbasicos y los coloco en el grafo junto con sus lados.
  * @param codigo Codigo de tres direcciones de todo el codigo fuente
+ * @param gen_ 
  */
-GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_){
+GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_, GuavaSymTable* tabla_): guava_gen(gen_), tabla(tabla_){
     using namespace boost;
     std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict; //Quiero guardar todos los bloques en un diccionario para agregar los lados.
     list<GuavaQuads*> lideres = obtener_lideres(codigo);
     list<BloqueBasico*> bloques = obtener_bloques(codigo, lideres);
+    mips = new MIPS(guava_gen,tabla);
 
     // Agregando los nodos del grafo.
     for (list<BloqueBasico*>::iterator it = bloques.begin(); it != bloques.end(); ++it){
@@ -386,9 +375,9 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_){
         pair<BloqueBasico*, Graph::vertex_descriptor> par_tmp (tmp,v);
         dict.insert(par_tmp); 
         grafo[v].clone(tmp);
-        // Agrego a cada nodo del grafo el GuavaGenerator y la tabla de simbolos.
-        grafo[v].set_gen(guava_gen);
-        grafo[v].set_table(tabla);
+        // Agrego a cada nodo del grafo el GuavaTemplates correspondiente.
+        grafo[v].set_template(mips);
+        grafo[v].get_template();
     }
 
     list<pair<BloqueBasico*,BloqueBasico*> > lados = obtener_lados(&bloques);
@@ -398,11 +387,10 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_){
         pair<BloqueBasico*, BloqueBasico*> tmp = *it;
         add_edge(dict[tmp.first],dict[tmp.second],grafo);
     }
-    entries = agregar_entry(bloques,dict,grafo);
+    entries = this->agregar_entry(bloques,dict);
     identificar_bloques(entries,grafo);
-    agregar_exits(bloques,dict,grafo);
+    this->agregar_exits(bloques,dict);
     bloques.erase(bloques.begin(), bloques.end());
-    guava_gen = gen_; 
 }
 
 /** 
@@ -447,6 +435,27 @@ void GrafoFlujo::imprimir(){
 /** 
  * Genera codigo para mips
  */
-void GrafoFlujo::generate_mips(){
+void GrafoFlujo::generar_mips(){
+    bfs_generator vis(mips);
+    Vertex entry;
+    //Busco la función main primero.
+    for (list<Vertex>::iterator it = entries.begin(); it != entries.end(); ++it){
+        if (grafo[*it].belongs_to_func("main")){
+            entry = *it;
+        }
+    }
+    breadth_first_search(grafo,entry,visitor(vis));
+    delete guava_gen;
+}
 
+/** 
+ * Cada vez que encuentra un nodo manda a este a 
+ * generar codigo final
+ * @param u Nodo que contiene un BloqueBasico.
+ * @param g Grafo.
+ */
+void bfs_generator::discover_vertex(Vertex u, const Graph & g){
+    list<SimpleSymbol*> lista = g[u].obtener_vars();
+    templates->set_vars(lista);
+    g[u].generar_mips();
 }

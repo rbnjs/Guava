@@ -1,6 +1,6 @@
 CC=g++
 
-OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GuavaDescriptor.o GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o  GuavaTemplates.o GuavaQuads.o GuavaDescriptor.o  GetReg.o GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 LFLAGS=-std=c++11 -g -o guava
 
@@ -53,7 +53,7 @@ Guava.o: Guava.cc
 
 	$(CC) $(CFLAGS) Guava.cc
 
-GuavaDescriptor.o: GuavaDescriptor.hh GuavaQuads.hh
+GuavaDescriptor.o: GuavaDescriptor.hh GuavaDescriptor.cc Symbol.hh
 
 	$(CC) $(CFLAGS) GuavaDescriptor.cc
 
@@ -61,7 +61,7 @@ GuavaQuads.o: GuavaQuads.hh GuavaQuads.cc GuavaSymTable.hh
 
 	$(CC) $(CFLAGS) GuavaQuads.cc 
 
-GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc GuavaQuads.hh
+GrafoBloques.o: GrafoBloques.hh GrafoBloques.cc GuavaQuads.hh GuavaTemplates.hh
 
 	$(CC)  $(CFLAGS) -I /usr/include/boost GrafoBloques.cc 
 
@@ -69,7 +69,7 @@ GetReg.o: GetReg.hh GetReg.cc GuavaQuads.hh
 
 	$(CC) $(CFLAGS) GetReg.cc
 
-GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh GuavaDescriptor.hh
+GuavaTemplates.o: GuavaTemplates.cc GuavaTemplates.hh Symbol.hh GuavaDescriptor.hh Types.hh
 
 	$(CC) $(CFLAGS) GuavaTemplates.cc
 

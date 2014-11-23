@@ -237,7 +237,7 @@ std::list<TypeS*> GuavaSymTable::get_types(int sc){
 std::list<Symbol*> GuavaSymTable::obtain_symbols(int sc){
     std::list<Symbol*> result;
     for (std::unordered_map<std::string, std::list<Symbol*> >::iterator it = this->tabla.begin() ; it != this->tabla.end() ; ++it){
-        for (std::list<Symbol*>::iterator it_lista = it->second.end(); it_lista != it->second.end(); ++it_lista){
+        for (std::list<Symbol*>::iterator it_lista = it->second.begin(); it_lista != it->second.end(); ++it_lista){
            if ((*it_lista)->scope == sc) result.push_back(*it_lista); 
         }
     }

@@ -23,7 +23,7 @@
 #include <set>
 #include <unordered_map>
 #include <list>
-#include "GuavaQuads.hh"
+#include "Symbol.hh"
 
 using namespace std;
 
@@ -79,6 +79,8 @@ public:
     }
 
     void insert(GuavaDescriptor* reg);
+
+    void copy(GuavaDescriptor* reg);
 
     /** 
      * Busca un simbolo s
@@ -150,6 +152,17 @@ public:
     int count_temp();
 
     void clear();
+
+    TypeS* get_tipo();
+
+    /** 
+     * Retorna el conjunto de variables asociadas al 
+     * registro.
+     * @return assoc_var
+     */
+    set<SimpleSymbol*> get_assoc_var(){
+        return assoc_var;
+    }
 };
 
 /** 
@@ -274,9 +287,15 @@ public:
 
     void manage_copy(string Ry, SimpleSymbol* x);
 
+    void manage_move(string Rx, string Ry);
+
+    void manage_move(string Rx, SimpleSymbol* var);
+
     void manage_push(SimpleSymbol* var, SymbolReg* nuevo);
 
     void manage_push(string reg, SymbolReg* nuevo);
+
+    void copy(GuavaDescriptor* desc);
 
 };
 

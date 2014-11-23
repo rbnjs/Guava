@@ -471,6 +471,7 @@ int tamano_cadena(std::string cadena){
 /**
  * Funcion que inserta una cadena de caracteres en la tabla de
  * simbolos.
+ * Voy a meter en la tabla de simbolos las variables _a
  */
 void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc){
     int scope, line, column;
@@ -485,13 +486,13 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
     convert << nombre_cadena; // Variable global
     if (offset != -1){
         offset_actual.pop_front();
-        Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
+        Symbol* nuevo = tabla->insert("_a"+convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
         nuevo->width = tamano_cadena(cadena);
         nuevo->contenido = cadena;
         offset += nuevo->width; 
         offset_actual.push_front(offset);
     } else {
-        Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
+        Symbol* nuevo = tabla->insert("_a"+convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
         nuevo->width = tamano_cadena(cadena);
         nuevo->contenido = cadena;
     }

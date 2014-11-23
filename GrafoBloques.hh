@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include "GuavaQuads.hh"
 #include "Generator.hh"
+#include "GuavaTemplates.hh"
 
 using namespace std;
 using namespace boost;
@@ -63,13 +64,11 @@ public:
 
     bool is_exit(){ return is_exit_; } 
 
-    GuavaSymTable* get_table();
+    GuavaTemplates* get_template(){ return template_gen; } 
 
-    void set_table(GuavaSymTable* tabla);
-
-    GuavaGenerator* get_gen();
-
-    void set_gen(GuavaGenerator* gen);
+    void set_template(GuavaTemplates* template_){
+        template_gen = template_;
+    }
 
     /** 
      * Realiza una copia profunda de un bloque con otro.
@@ -80,8 +79,7 @@ public:
         is_exit_ = b->is_exit();
         is_entry_ = b->is_entry();
         belongs_to = b->get_belongs_to();
-        tabla = b->get_table();
-        generador = b->get_gen();
+        template_gen = b->get_template();
     }
 
     /** 
@@ -115,24 +113,25 @@ public:
         return belongs_to;
     }
 
-    bool belongs_to_func(string func);
+    bool belongs_to_func(string func) const;
 
-    void generar_mips();
+    void generar_mips() const;
 
-    void generar_entry_main_mips();
+    void generar_entry_main_mips() const ;
 
-    void generar_entry_mips();
+    void generar_entry_mips() const;
 
-    void generar_exit_mips();
+    void generar_exit_mips() const;
+
+    list<SimpleSymbol*> obtener_vars() const;
 
 protected:
     list<GuavaQuads*> codigo; /* Codigo de tres direcciones */
     int id;                   /* Identificador para cada bloque. */
     bool is_exit_ = false;    
     bool is_entry_ = false;
-    string* belongs_to = 0;   /* Nombre de la funcion a la que pertenece */
-    GuavaSymTable* tabla;     /* Tabla de simbolo. */
-    GuavaGenerator* generador;
+    string* belongs_to = 0;             /* Nombre de la funcion a la que pertenece */
+    GuavaTemplates* template_gen;       /* Generador mediante Templates */
 };
 
 /** 
@@ -153,28 +152,21 @@ typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
  */
 class bfs_generator: public default_bfs_visitor{
 protected:
-    GuavaGenerator* generador;
+    GuavaTemplates* templates;
 public:
 
     /**
      * Constructor del visitador.
      */
-    bfs_generator(GuavaGenerator* gen_): generador(gen_){}
+    bfs_generator(GuavaTemplates* gen_): templates(gen_){}
 
     /** 
      * Destructor de la clase.
      */
     ~bfs_generator(){}
 
-    /** 
-     * Cada vez que encuentra un nodo manda a este a 
-     * generar codigo final
-     * @param u Nodo que contiene un BloqueBasico.
-     * @param g Grafo.
-     */
-    void discover_vertex(Vertex u,const Graph& g){
-        //
-    }
+
+    void discover_vertex(Vertex u,const Graph& g);
 
 };
 
@@ -188,13 +180,18 @@ private:
     list<Vertex> entries;
     GuavaSymTable* tabla;
     GuavaGenerator* guava_gen;
+    MIPS* mips; /* GuavaTemplates para el GrafoFlujo. */
+
+    list<Graph::vertex_descriptor> agregar_entry(list<BloqueBasico*> bloques,std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict);
+
+    void agregar_exits(list<BloqueBasico*> bloques, std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict);
 public:
     /** 
      * Constructor de Grafo de Flujo.
      * @param codigo Lista de codigo de tres direcciones.
      * @param gen_ Generator de Guava.
      */
-    GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_);
+    GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_, GuavaSymTable *tabla_);
     /** 
      * Destructor de la clase.
      */
@@ -212,6 +209,6 @@ public:
 
     void imprimir();
 
-    void generate_mips();
+    void generar_mips();
 };
 #endif

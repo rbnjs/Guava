@@ -168,10 +168,11 @@ bloqueprincipal: {
                                                 if (driver.print_quads){
                                                     imprimir_quads(quads); 
                                                 }
-                                                GrafoFlujo* g = new GrafoFlujo(quads,driver.guava_gen);
+                                                GrafoFlujo* g = new GrafoFlujo(quads,driver.guava_gen,&driver.tablaSimbolos);
                                                 if (driver.print_graph){
                                                     g->imprimir();
                                                 }
+                                                g->generar_mips();
                                             }
                                          };
 

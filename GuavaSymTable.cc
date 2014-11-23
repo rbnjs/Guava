@@ -244,6 +244,14 @@ std::list<Symbol*> GuavaSymTable::obtain_symbols(int sc){
     return result;
 }
 
+/** 
+ * Obtiene la lista de los simbolos globales.
+ * @param result Lista de simbolos.
+ */
+std::list<Symbol*> GuavaSymTable::obtain_globals(){
+    return this->obtain_symbols(1);
+}
+
 
 /* class TypeRecord */
 

@@ -136,7 +136,11 @@ bool BloqueBasico::belongs_to_func(string func){
  * @param gen_ GuavaGenerator para el archivo final
  */
 void BloqueBasico::generar_entry_mips(){
-
+    list<Symbol*> globals = tabla->obtain_globals();
+    *generador << ".data\n";
+    for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
+        (*it)->generar_mips(generador); 
+    }
 }
 
 /** 

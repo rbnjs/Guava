@@ -54,6 +54,8 @@ public:
     void set_parent(TypeS* p) { parent = p; } 
     TypeS* get_parent() { return parent; } 
     std::list<Symbol*> obtain_symbols(int sc);
+
+    std::list<Symbol*> obtain_globals();
 };
 
 class TypeStructure: public TypeS{

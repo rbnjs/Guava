@@ -165,11 +165,13 @@ bloqueprincipal: {
 
                                             if (!error_state){
                                                 std::list<GuavaQuads*>* quads = $3->generar_quads();
-
                                                 if (driver.print_quads){
                                                     imprimir_quads(quads); 
                                                 }
-                                               GrafoFlujo* g = new GrafoFlujo(quads);
+                                                GrafoFlujo* g = new GrafoFlujo(quads,driver.guava_gen);
+                                                if (driver.print_graph){
+                                                    g->imprimir();
+                                                }
                                             }
                                          };
 

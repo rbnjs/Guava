@@ -76,6 +76,10 @@ BloqueBasico::BloqueBasico(list<GuavaQuads*> lista): codigo(lista), id(id_unica)
     determinar_livenext(codigo);
 }
 
+/** 
+ * Imprime un bloque basico
+ * @param os Donde se quiere imprimir (cout)
+ */
 void BloqueBasico::print(ostream &os){
     if (this->is_entry()){
         os << "Bloque Entry : " << id << endl;
@@ -89,6 +93,92 @@ void BloqueBasico::print(ostream &os){
     }
     if (this->get_belongs_to() != 0) os << "Pertenece: " << *this->get_belongs_to() << endl; 
     os << "----" <<endl;
+}
+
+/** 
+ * @return generador
+ */
+GuavaGenerator* BloqueBasico::get_gen(){
+    return generador;
+}
+/** 
+ * @return tabla
+ */
+GuavaSymTable* BloqueBasico::get_table(){
+    return tabla;
+}
+/** 
+ * Setter GuavaSymTable
+ */
+void BloqueBasico::set_table(GuavaSymTable* t){
+    tabla = t;
+}
+
+/** 
+ * Setter GuavaGenerator
+ */
+void BloqueBasico::set_gen(GuavaGenerator* g){
+    generador = g;
+}
+
+/**  
+ * Funcion que recibe un nombre de función o etiqueta y nos dice
+ * si el bloque pertenece a ella.
+ * @param func Nombre de etiqueta.
+ * @param bool Retorna un booleano
+ */
+bool BloqueBasico::belongs_to_func(string func){
+    return (belongs_to->compare(func) == 0);
+}
+
+/** 
+ * Genera el codigo entry para el mips. Lo que llamamos prologo.
+ * @param gen_ GuavaGenerator para el archivo final
+ */
+void BloqueBasico::generar_entry_mips(){
+    list<Symbol*> globals = tabla->obtain_globals();
+    *generador << ".data\n";
+    for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
+        (*it)->generar_mips(generador); 
+    }
+}
+
+/** 
+ * Genera el codigo entry para el mips. Lo que llamamos epilogo.
+ * @param gen_ GuavaGenerator para el archivo final
+ */
+void BloqueBasico::generar_exit_mips(){
+}
+/** 
+ * Coloca el .data en el codigo de mips.
+ * @param gen_ GuavaGenerator para el archivo final
+ */
+void BloqueBasico::generar_entry_main_mips(){
+}
+
+/** 
+ * Genera codigo final para mips
+ * Primero reviso que no sea entry o exit, si lo son entonces genero codigo y retorno porque esos bloques no tienen codigo asociado.
+ * Si no son entry o exit entonces genero codigo normal
+ * @param gen_ GuavaGenerator para el archivo final
+ */
+void BloqueBasico::generar_mips(){
+    if (is_entry_){
+        if (this->belongs_to_func("main")){
+            this->generar_entry_main_mips();
+            return;
+        }else{
+            this->generar_entry_mips();
+            return;
+        }
+    }
+    if (is_exit_){
+        this->generar_exit_mips();
+        return;
+    }
+    for(list<GuavaQuads*>::iterator it = codigo.begin(); it != codigo.end(); ++it){
+        // Algo
+    }
 }
 
 /* Funciones auxiliares GrafoFlujo */
@@ -283,7 +373,7 @@ void identificar_bloques(list<Vertex> entries, Graph& grafo){
  * En esta funcion realizo todos los bloquesbasicos y los coloco en el grafo junto con sus lados.
  * @param codigo Codigo de tres direcciones de todo el codigo fuente
  */
-GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
+GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo, GuavaGenerator* gen_){
     using namespace boost;
     std::unordered_map<BloqueBasico*, Graph::vertex_descriptor> dict; //Quiero guardar todos los bloques en un diccionario para agregar los lados.
     list<GuavaQuads*> lideres = obtener_lideres(codigo);
@@ -296,6 +386,9 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
         pair<BloqueBasico*, Graph::vertex_descriptor> par_tmp (tmp,v);
         dict.insert(par_tmp); 
         grafo[v].clone(tmp);
+        // Agrego a cada nodo del grafo el GuavaGenerator y la tabla de simbolos.
+        grafo[v].set_gen(guava_gen);
+        grafo[v].set_table(tabla);
     }
 
     list<pair<BloqueBasico*,BloqueBasico*> > lados = obtener_lados(&bloques);
@@ -309,6 +402,7 @@ GrafoFlujo::GrafoFlujo(list<GuavaQuads*>* codigo){
     identificar_bloques(entries,grafo);
     agregar_exits(bloques,dict,grafo);
     bloques.erase(bloques.begin(), bloques.end());
+    guava_gen = gen_; 
 }
 
 /** 
@@ -340,4 +434,19 @@ void GrafoFlujo::imprimir_lados(ostream& os){
             os << grafo[src].get_id() << " , " << grafo[targ].get_id() << endl;
         }
     }
+}
+
+/** 
+ * Imprime el grafo.
+ */
+void GrafoFlujo::imprimir(){
+    this->imprimir_nodos(cout);
+    this->imprimir_lados(cout);
+}
+
+/** 
+ * Genera codigo para mips
+ */
+void GrafoFlujo::generate_mips(){
+
 }

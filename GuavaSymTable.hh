@@ -53,6 +53,9 @@ public:
     std::list<TypeS*> get_types(int sc);                                   /* Obtiene todos los tipos de un alcance determinado. */
     void set_parent(TypeS* p) { parent = p; } 
     TypeS* get_parent() { return parent; } 
+    std::list<Symbol*> obtain_symbols(int sc);
+
+    std::list<Symbol*> obtain_globals();
 };
 
 class TypeStructure: public TypeS{

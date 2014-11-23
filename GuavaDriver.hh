@@ -52,10 +52,11 @@ public:
     GuavaSymTable tablaSimbolos;
     int result;
 
-    GuavaGenerator* gen;
-    bool print_tree;
-    bool print_table;
-    bool print_quads;
+    GuavaGenerator* guava_gen;
+    bool print_tree = false;
+    bool print_table = false;
+    bool print_quads = false;
+    bool print_graph = false;
 
     // Scanner.
     void scan_begin ();

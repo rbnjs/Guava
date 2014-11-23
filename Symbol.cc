@@ -21,6 +21,7 @@
 #include <sstream>
 #include <regex>
 
+using namespace std;
 
 /** 
  * Indica que un Simbolo es temporal.
@@ -91,7 +92,25 @@ TypeS* Symbol::get_tipo(){
     return 0;
 }
 
+/** 
+ * Genera codigo para mips.
+ * @param g Generador
+ */
+void Symbol::generar_mips(GuavaGenerator* g){
+    ostringstream convert;
+    if (contenido.empty()){
+        convert << width;
+        *g << sym_name + ": .space " + convert.str() + "\n";
+    }else{
+        *g << sym_name+ ": .asciiz " +contenido + "\n";
+    }
+}
 
+/** 
+ * Convierte un TypeS* en string.
+ * @param t TypeS*
+ * @return string Retorna un string
+ */
 std::string to_string(TypeS* t){
     if (t->is_func()){
         std::string result ("(");
@@ -121,7 +140,6 @@ std::string to_string(TypeS* t){
 
 /**
  * Impresion del simbolo.
- * Falta imprimir todo bien.
  */
 void Symbol::show(std::string identacion){
         std::cout << identacion << "Name: " + sym_name;

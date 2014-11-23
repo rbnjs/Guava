@@ -224,11 +224,11 @@ std::string ExpBin::revision_binaria(Exp* exp_1, Exp* exp_2, ExpBin* tmp,
         {
             tmp->tipo = exp_1->get_tipo();
         }
-        else if (exp_1->get_tipo() != exp_2->get_tipo() &&
+        else if ((exp_1->get_tipo() != exp_2->get_tipo() &&
                  (exp_1->get_tipo() == tipo_esperado1 &&
-                  exp_2->get_tipo() == tipo_esperado2) ||
-                 (exp_1->get_tipo() == tipo_esperado2 &&
-                  exp_2->get_tipo() == tipo_esperado1)) {
+                  exp_2->get_tipo() == tipo_esperado2)) ||
+                 ((exp_1->get_tipo() == tipo_esperado2 &&
+                  exp_2->get_tipo() == tipo_esperado1))) {
             std::string expected = exp_1->get_tipo()->get_name()+"' or '"+exp_2->get_tipo()->get_name();
             msg = mensaje_diff_operandos(tmp->operacion,exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
             tmp->tipo = TypeError::Instance();
@@ -261,11 +261,11 @@ std::string ExpBin::revision_comparison(Exp* exp_1, Exp* exp_2, ExpBin* tmp,int 
         exp_1->get_tipo() == TypeReal::Instance())) {
         tmp->tipo = TypeBool::Instance();
     } 
-    else if (exp_1->get_tipo() != exp_2->get_tipo() &&
+    else if ((exp_1->get_tipo() != exp_2->get_tipo() &&
             (exp_1->get_tipo() == TypeInt::Instance() &&
-            exp_2->get_tipo() == TypeReal::Instance()) ||
-            (exp_1->get_tipo() == TypeReal::Instance() &&
-            exp_2->get_tipo() == TypeInt::Instance())) {
+            exp_2->get_tipo() == TypeReal::Instance())) ||
+            ((exp_1->get_tipo() == TypeReal::Instance() &&
+            exp_2->get_tipo() == TypeInt::Instance()))) {
         std::string expected = exp_1->get_tipo()->get_name()+"' or '"+exp_2->get_tipo()->get_name();
         std::string msg = mensaje_diff_operandos(std::string("<, <=, >, >=, =, !="),exp_1->get_tipo()->get_name(),exp_2->get_tipo()->get_name(),expected);
         tmp->tipo = TypeError::Instance();

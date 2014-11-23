@@ -22,8 +22,10 @@
 #include <unordered_map>
 #include <sstream>
 #include "Types.hh"
+#include "Generator.hh"
 #define UNDEF -1
 
+using namespace std;
 /**
  * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
  * intermedio.
@@ -158,6 +160,7 @@ public:
     int offset;             /* Offset del simbolo. */
     int width;              /* Anchura del simbolo: tamano del tipo del simbolo. */
     
+    string contenido = "";  /* Contenido del string si es necesario */
 
     /**
      * Constructor para variable.
@@ -210,8 +213,9 @@ public:
 
     bool is_global();
 
-
     TypeS* get_tipo();
+
+    void generar_mips(GuavaGenerator* gen);
 
 
 };

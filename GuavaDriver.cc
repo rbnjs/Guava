@@ -70,7 +70,7 @@ GuavaDriver::~GuavaDriver ()
 int GuavaDriver::parse (const std::string &f)
 {
     file = f;
-    gen = new GuavaGenerator(file);
+    guava_gen = new GuavaGenerator(file);
     scan_begin ();
     yy::GuavaParser parser (*this);
     parser.set_debug_level (trace_parsing);
@@ -478,7 +478,7 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
     line = loc.begin.line;
     std::ostringstream convert;
     column = loc.begin.column;
-    scope = tabla->currentScope();
+    scope = 1; //Todo string es global
 
     int offset = offset_actual.front();
 
@@ -487,11 +487,13 @@ void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::lo
         offset_actual.pop_front();
         Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,offset);
         nuevo->width = tamano_cadena(cadena);
+        nuevo->contenido = cadena;
         offset += nuevo->width; 
         offset_actual.push_front(offset);
     } else {
         Symbol* nuevo = tabla->insert(convert.str(),std::string("cadena"),scope,TypeString::Instance(),line,column,0);
         nuevo->width = tamano_cadena(cadena);
+        nuevo->contenido = cadena;
     }
     nombre_cadena++;
 }

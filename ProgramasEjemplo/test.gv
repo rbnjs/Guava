@@ -14,6 +14,7 @@ declare {
         };
         R2 record c1,c2;
         R2 array R2arreglo[10];
+        integer array INTEGERarreglo[10];
     };
     
     real r2;
@@ -27,7 +28,8 @@ function void main() {
         integer array brr[10];
         integer w1,w2;
         record R3 {
-            integer a;
+            integer a,b;
+            integer array c[10];
         };
         R3 record z;
         integer array crr[10];
@@ -35,7 +37,9 @@ function void main() {
         R3 array R3arreglo[10];
     }
 
-    R3arreglo[10].a := 1;
+    /*y.INTEGERarreglo[5] := 1;*/
+
+    R1arreglo[5].R2arreglo[1].a := 1;
 
     /*bool := true;
 

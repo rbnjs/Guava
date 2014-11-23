@@ -834,19 +834,15 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
     else {
         //Caso atributos de estructuras
         if (result->exp_id != 0) {
-            //Caso en que la estructura es global
-
-
-
-
-            //Caso en que la estructura es local
-
-
-
-
             std::string base = result->exp_id->addr->sym_name;
-            int atr_offset = result->exp_id->addr->offset + id->offset;
-            result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
+            //Caso en que la estructura es global
+            if(revision_scope_estructura(result))
+                result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,id->offset);
+            //Caso en que la estructura es local
+            else {
+                int atr_offset = result->exp_id->addr->offset + id->offset;
+                result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
+            }
             result->addr->type_pointer = id->type_pointer;
         }
         //Caso variables locales
@@ -889,6 +885,9 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     SymbolArray* addr_array = (SymbolArray *) addr;
     if (identificador == 0) return 0;
 
+    if(exp_id != 0)
+        result = exp_id->generar_quads();
+
     std::list<Exp*>::iterator it = lcorchetesexp->lista.begin();
     std::list<GuavaQuads*>* quads_expresion;
     Exp *exp_ini = *it;
@@ -913,7 +912,7 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
      * tamano del arreglo. Multiplicaciones para numero de elementos por fila,
      * suma para arreglos multidimensionales (columnas).
      **/
-    for (it; it != lcorchetesexp->lista.end(); ++it  ){
+    for (it; it != lcorchetesexp->lista.end(); ++it){
         Exp* exp_ = *it;
         t1 = temp->newtemp();
         quads_expresion = exp_->generar_quads();
@@ -963,19 +962,50 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     else {
         t1 = temp->newtemp();
         
+        //Caso arreglos multidimensionales
         if (lcorchetesexp->lista.size() > 1) {
-            nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t2,t1);
-            addr_array->desp = t2;
+            //Se verifica si se trata de atributos de arreglo de estructuras
+            if(exp_id != 0 && exp_id->is_array()) {
+                SymbolArray* est_padre = (SymbolArray *) exp_id->addr;
+                Symbol* t4 = temp->newtemp();
+                //Calculo de posicion final de base de la estructura.
+                nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t2,t1);
+                result->push_back(nuevo_q3);
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t1,t4);
+                result->push_back(nuevo_q3);
+                //Asignacion de nuevos indicadores de desplazamiento y elemento
+                addr_array->desp = t1;
+                addr_array->elem = t4;
+            }
+            else {
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t2,t1);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t2;
+                addr_array->elem = t1;
+            }
         }
+        //Casp arreglos unidimensionales
         else {
-            nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t0,t1);
-            addr_array->desp = t0;
+            //Se verifica si se trata de atributos de arreglo de estructuras
+            if(exp_id != 0 && exp_id->is_array()) {
+                SymbolArray* est_padre = (SymbolArray *) exp_id->addr;
+                Symbol* t4 = temp->newtemp();
+                nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t0,t1);
+                result->push_back(nuevo_q3);
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t1,t4);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t1;
+                addr_array->elem = t4;
+            }
+            else {
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t0,t1);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t0;
+                addr_array->elem = t1;
+            }
         }
-
-        addr_array->elem = t1;
     }
-
-    result->push_back(nuevo_q3);
+    
     GuavaQuads* comentario = new GuavaComment("EXP ARREGLO",line,column);
     result->push_front(comentario);
     return result;

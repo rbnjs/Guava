@@ -1681,25 +1681,14 @@ ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();
     //SE VERIFICA SI LA EXPRESION PADRE ES UN ARREGLO, EN TAL CASO SE CALCULAN SUS QUADS
-    if(exp_id != 0 && exp_id->is_array()) {
-        SymbolArray* arreglo = (SymbolArray *) exp_id->addr;
-        Symbol* result_final = temp->newtemp();
-        Symbol* desp_final = 0;
-        GuavaQuadsExp* pos_final = 0;
+    if(exp_id != 0)
         result = exp_id->generar_quads();
-        //Caso arreglo global
-        if(exp_id->addr->is_global())
-            desp_final = new Symbol(addr->width);
-        //Caso arreglo local
-        else
-            desp_final = new Symbol(addr->offset);
-        
-        pos_final = new GuavaQuadsExp("+",arreglo->desp,desp_final,result_final);
-        result->push_back(pos_final);
+    //if(exp_id != 0 && exp_id->is_array())
+    //    result = exp_id->generar_quads();
+    else {
+        GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
+        result->push_front(comentario);
     }
-
-    GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
-    result->push_front(comentario);
     return result;
 }
 

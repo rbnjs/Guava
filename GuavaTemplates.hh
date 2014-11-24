@@ -23,7 +23,12 @@
 # include "GuavaSymTable.hh"
 # include "GuavaDescriptor.hh"
 # include "Generator.hh"
+# include "GetReg.hh"
+
 using namespace std;
+
+class RegisterAllocator;
+
 /** 
  * Clase de donde parten todos los templates.
  */
@@ -35,6 +40,7 @@ protected:
     GuavaDescTable* regs;
     GuavaDescTable* regs_float;
     int offset_actual = 0;
+    RegisterAllocator* get_reg;
 public:
     /** 
      * Constructor de la clase.
@@ -70,6 +76,8 @@ public:
     virtual void push(GuavaDescriptor* reg){}
 
     virtual void entry_main(){}
+
+    virtual void exit_main(){}
 
     virtual void go_to(Symbol* to){}
 
@@ -111,6 +119,8 @@ public:
     void push(GuavaDescriptor* reg);
 
     void entry_main();
+
+    void exit_main();
 
     void label(string label);
 

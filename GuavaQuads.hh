@@ -28,7 +28,7 @@
 
 std::string to_string( int a);
 
-extern MIPS mips;
+class GuavaTemplates;
 
 /** 
  * Clase generadora de NewTemps.

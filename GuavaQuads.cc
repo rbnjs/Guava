@@ -220,7 +220,8 @@ void GuavaGoTo::generar_mips(GuavaTemplates* g){
  * Genera mips para entrada o salida.
  */
 void GuavaEntradaSalida::generar_mips(GuavaTemplates* t){
-    if (this->get_op().compare("read")){
+    if (this->get_op().compare("read") == 0){
+
     }else{
         t->print(this->get_arg1());
     }

@@ -24,6 +24,13 @@
 # include <unordered_map>
 # include <list>
 
+/* Forward declarations */
+class GuavaTemplates;
+
+class GuavaQuads;
+
+class GuavaQuadsExp;
+
 /** 
  * Clase que contiene las funciones para obtener registros.
  */
@@ -32,7 +39,7 @@ protected:
     GuavaDescTable* tabla_reg; /* Tabla de descriptores para registros. */
     GuavaDescTable* tabla_var; /* Tambien necesito una tabla de descriptores para variables */
     GuavaGenerator* gen;            /* Clase que escribe en el archivo final */
-    MIPS* templates;           /* Clase que contiene el conjunto de templates para realizar el codigo. Por ahora solo es MIPS, arreglar eso. */
+    GuavaTemplates* templates;           /* Clase que contiene el conjunto de templates para realizar el codigo. Por ahora solo es MIPS, arreglar eso. */
     list<GuavaDescriptor*> getReg_general(GuavaQuads* i);
     list<GuavaDescriptor*> getReg_array(GuavaQuads* i);
     list<GuavaDescriptor*> getReg_copy(GuavaQuads* i);

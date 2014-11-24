@@ -355,13 +355,7 @@ public:
      * temporal.
      */
     std::list<GuavaQuads*>* generar_quads(){ 
-        std::ostringstream convert;
-        Symbol* nombre = new Symbol(*valor); 
-        addr = temp->newtemp();
-        GuavaQuads* nuevo = new GuavaQuadsExp(std::string(":="),nombre, 0, addr);
-        listaQuads = new std::list<GuavaQuads*>();
-        listaQuads->push_back(nuevo);
-        return listaQuads;
+        return 0;
     };
 };
 
@@ -1448,6 +1442,7 @@ public:
         GuavaQuads* salida_entrada;
         std::string operacion (tipo_entrada_salida ? "read" : "print");
         std::list<GuavaQuads*>* result = argumento->generar_quads();
+        if (result == 0) result = new std::list<GuavaQuads*>();
         if (tipo_entrada_salida){
             salida_entrada = new GuavaEntradaSalida(operacion,argumento->addr, argumento->addr);
         } else {

@@ -92,7 +92,7 @@ void continue_break_libres(std::list<Instruccion*>,GuavaDriver* driver);
 
 bool verificar_return(Identificador *fname, TypeS* tipo, std::list<Instruccion*> lista ,GuavaDriver* driver);
 
-void insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);
+Symbol* insertar_cadena_caracteres(std::string cadena, GuavaDriver *d, const yy::location& loc);
 
 Symbol* insertar_arreglo_valor(LArreglo* arreglo, GuavaDriver *d, const yy::location& loc);
 

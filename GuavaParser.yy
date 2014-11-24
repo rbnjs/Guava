@@ -1769,7 +1769,7 @@ valor: BOOL     {
                 }
      | STRING   { 
                   Valor* v = new String($1,TypeString::Instance());
-                  insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
+                  v->addr = insertar_cadena_caracteres(*v->get_valor_str(),&driver, yylloc);
                   v->set_line_column(yylloc.begin.line,yylloc.begin.column);
                   v->temp = new NewTemp(&secuencia_temporales, v->get_tipo(), yylloc.begin.line,
                                             yylloc.begin.column,&driver.tablaSimbolos);

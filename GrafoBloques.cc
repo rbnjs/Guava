@@ -120,6 +120,10 @@ void BloqueBasico::generar_entry_mips() const{
 void BloqueBasico::generar_exit_mips() const{
 }
 
+void BloqueBasico::generar_exit_main_mips() const{
+    template_gen->exit_main();
+}
+
 /** 
  * Coloca el .data en el codigo de mips.
  */
@@ -143,11 +147,17 @@ void BloqueBasico::generar_mips() const{
         }
     }
     if (is_exit_){
-        this->generar_exit_mips();
+        if (this->belongs_to_func("main")){
+            this->generar_exit_main_mips();
+            return;
+        }else{
+            this->generar_exit_mips();
+            return;
+        }
         return;
     }
     for(list<GuavaQuads*>::const_iterator it = codigo.begin(); it != codigo.end(); ++it){
-        // Algo
+        (*it)->generar_mips(template_gen);
     }
 }
 

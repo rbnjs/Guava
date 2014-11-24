@@ -89,7 +89,6 @@ public:
         return codigo.front();
     }
 
-
     /** 
      * @return codigo.last() Retorna el primer elemento de la lista.
      */
@@ -122,6 +121,8 @@ public:
     void generar_entry_mips() const;
 
     void generar_exit_mips() const;
+
+    void generar_exit_main_mips() const;
 
     list<SimpleSymbol*> obtener_vars() const;
 

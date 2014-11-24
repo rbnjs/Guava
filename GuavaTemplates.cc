@@ -146,10 +146,19 @@ void MIPS::push(GuavaDescriptor* reg){
 void MIPS::entry_main(){
     list<Symbol*> globals = table->obtain_globals();
     *generador << ".data\n";
-    *generador << "_character: .space 4";
+    *generador << "_character: .space 4\n";
     for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
         (*it)->generar_mips(generador); 
     }
+    *generador << ".text\n";
+}
+
+/** 
+ * Para el mips hace la llamada al sistema numero 10 (exit).
+ */
+void MIPS::exit_main(){
+    *generador << "li $v0, 10\n";
+    *generador << "syscall\n";
 }
 
 /** 

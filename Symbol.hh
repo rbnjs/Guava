@@ -221,12 +221,12 @@ public:
 };
 
 /**
- * Especializacion de la clase Symbol, describe un simbolo arreglo.
+ * Especializacion de la clase Symbol, describe una estructura o arreglo.
  *
  * Posee las direcciones necesarias para la generacion de codigo relativo al
- * calculo de direcciones y obtencion de elementos de un arreglo.
+ * calculo de direcciones y obtencion de elementos de una estructura o arreglo.
  */
-class SymbolArray: public Symbol {
+class SymbolStructure: public Symbol {
 public:
     /* Direccion relativa al desplazamiento para alcanzar un elemento del
      * arreglo.
@@ -238,18 +238,18 @@ public:
     Symbol* elem = 0;
 
     /**
-     * Constructores de la clase SymbolArray.
+     * Constructores de la clase SymbolStructure.
      */
-    SymbolArray();
+    SymbolStructure();
 
-    SymbolArray(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna, int offset); 
+    SymbolStructure(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna, int offset); 
 
-    SymbolArray(std::string name, std::string catg,int scop, TypeS* type,int linea = 0,int columna = 0, int offset = 0);
+    SymbolStructure(std::string name, std::string catg,int scop, TypeS* type,int linea = 0,int columna = 0, int offset = 0);
     
     /**
-     * Destructor de la clase SymbolArray.
+     * Destructor de la clase SymbolStructure.
      */
-    ~SymbolArray();
+    ~SymbolStructure();
 
     bool is_array(){
         return true;

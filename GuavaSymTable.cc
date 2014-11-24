@@ -75,7 +75,7 @@ Symbol* GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* 
         return nuevo;
     }
     else {
-        SymbolArray * nuevo = new SymbolArray(name,catg,scop,t,li,co,offset);
+        SymbolStructure * nuevo = new SymbolStructure(name,catg,scop,t,li,co,offset);
         this->insert(nuevo);
         return nuevo;
     }

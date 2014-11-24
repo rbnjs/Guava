@@ -237,9 +237,19 @@ void GuavaQuadsReturn::generar_mips(GuavaTemplates* t){
  */
 std::string generar_base_estructura(Symbol* s){
     std::string base = s->sym_name;
+    std::string desplazamiento = "";
+
     if (s->true_type != 0 && (s->true_type->is_structure() || s->true_type->is_union())) {
-        base += "[" + std::to_string(s->offset) + "]";
+        //Se verifica si se posee algun arreglo dentro del simbolo
+        SymbolStructure* s_structure = (SymbolStructure *) s;
+        if(s_structure->desp != 0)
+            desplazamiento = s_structure->desp->sym_name;
+        else
+            desplazamiento = std::to_string(s->offset);
+
+        base += "[" + desplazamiento + "]";
     }
+
     return base;
 }
 
@@ -249,11 +259,11 @@ std::string generar_base_estructura(Symbol* s){
  * correspondiente al arreglo.
  */
 std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
-    SymbolArray* s_array = 0;
+    SymbolStructure* s_array = 0;
     std::string desplazamiento = "";
 
     if(s->sym_catg.compare(std::string("array")) == 0) {
-        s_array = (SymbolArray *) s;
+        s_array = (SymbolStructure *) s;
     }
     //Caso en el que el l-value es arreglo
     if(s_array != 0) {

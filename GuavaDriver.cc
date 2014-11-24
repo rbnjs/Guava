@@ -958,33 +958,85 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     GuavaQuads* nuevo_q3;
     //Caso en el que el arreglo no es global
     if (addr_array->sym_name.compare(std::string("bp")) == 0) {
-        //Quad para calcular el offset final del elemento del arreglo
-        GuavaQuads* nuevo_q4;
-        /* Temporales que contendran el resultado del calculo de offset final
-         * y la direccion final del elemento, respectivamente.
-         */
-        t1 = temp->newtemp();
-        Symbol* t3 = temp->newtemp();
-        //Offset de la variable
-        Symbol* offset = new Symbol(std::to_string(addr_array->offset));
-        /* Se crea el quad relativo a la posicion del basepointer,
-         * verificando si es un arreglo unidimensional o multidimensional.
-         */
-        if (lcorchetesexp->lista.size() > 1)
-            nuevo_q4 = new GuavaQuadsExp("+",t2,offset,t1);
-        else
-            nuevo_q4 = new GuavaQuadsExp("+",t0,offset,t1);
+         t1 = temp->newtemp();
         
-        result->push_back(nuevo_q4);
-
-        nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t1,t3);
-
-        /* Creado el quad de acceso al elemento a utilizar del arreglo, se
-         * asignan las nuevas direcciones del arreglo: Desplazamiento y
-         * elemento.
-         */
-        addr_array->desp = t1;
-        addr_array->elem = t3;
+        //Caso arreglos multidimensionales
+        if (lcorchetesexp->lista.size() > 1) {
+            //Se verifica si se trata de atributos de arreglo de estructuras
+            if(exp_id != 0) {
+                SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* desp_padre = 0;
+                Symbol* base_arr = new Symbol(offset);
+                //Temporal que contendra la posicion del arreglo (sin la base)
+                Symbol* t4 = temp->newtemp();
+                //Temporal que contendra la posicion del arreglo (con la base)
+                Symbol* t5 = temp->newtemp();
+                //Calculo de desplazamiento relativo a la estructura padre
+                if(est_padre->desp != 0)
+                    desp_padre = est_padre->desp;
+                else
+                    desp_padre = new Symbol(0);
+                //Calculo de posicion final del elemento (sin la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",desp_padre,t2,t1);
+                result->push_back(nuevo_q3);
+                //Calculo de posicion final del elemento (con la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);
+                result->push_back(nuevo_q3);
+                //Posicion final del elemento accedido en el arreglo
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t5);
+                result->push_back(nuevo_q3);
+                //Asignacion de nuevos indicadores de desplazamiento y elemento
+                addr_array->desp = t4;
+                addr_array->elem = t5;
+            }
+            else {
+                Symbol* base_arr = new Symbol(offset);
+                Symbol* t4 = temp->newtemp();
+                nuevo_q3 = new GuavaQuadsExp("+",t2,base_arr,t4);
+                result->push_back(nuevo_q3);
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t1);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t4;
+                addr_array->elem = t1;
+            }
+        }
+        //Casp arreglos unidimensionales
+        else {
+            //Se verifica si se trata de atributos de arreglo de estructuras
+            if(exp_id != 0) {
+                SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* desp_padre = 0;
+                Symbol* base_arr = new Symbol(offset);
+                Symbol* t4 = temp->newtemp();
+                Symbol* t5 = temp->newtemp();
+                //Calculo de desplazamiento relativo a la estructura padre
+                if(est_padre->desp != 0)
+                    desp_padre = est_padre->desp;
+                else
+                    desp_padre = new Symbol(0);
+                //Calculo de posicion final del elemento (sin la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",desp_padre,t0,t1);
+                result->push_back(nuevo_q3);
+                //Calculo de posicion final del elemento (con la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);
+                result->push_back(nuevo_q3);
+                //Posicion final del elemento accedido en el arreglo
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t5);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t4;
+                addr_array->elem = t5;
+            }
+            else {
+                Symbol* base_arr = new Symbol(offset);
+                Symbol* t4 = temp->newtemp();
+                nuevo_q3 = new GuavaQuadsExp("+",t0,base_arr,t4);
+                result->push_back(nuevo_q3);
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t1);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t4;
+                addr_array->elem = t1;
+            }
+        }  
     }
     
     //REVISAR

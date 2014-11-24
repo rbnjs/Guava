@@ -1696,7 +1696,12 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     }
     //Caso en que el padre es una estructura.
     else if(exp_id != 0 && !exp_id->is_array()) {
-        addr->offset += exp_id->addr->offset;
+        /*El calculo de offset para estructuras solo se realizara si se trata
+         *de una variable global. El calculo de offset esta predeterminado en
+         *las variables locales.
+         */
+        if(addr->sym_name.compare(std::string("bp")) != 0)
+            addr->offset += exp_id->addr->offset;
         SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
         nuevo_addr->desp = 0;
     }

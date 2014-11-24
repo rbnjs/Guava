@@ -203,6 +203,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         addr = new Symbol(convert.str());
+        addr->sym_catg = std::string("valor");
     }
     float get_valor() { return valor; };
     TypeS* get_tipo() { return tipo; }
@@ -248,6 +249,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         addr = new Symbol(convert.str());
+        addr->sym_catg = std::string("valor");
     }   
     int getValor() {return valor;}
     TypeS* get_tipo() { return tipo; }
@@ -286,6 +288,7 @@ public:
         std::ostringstream convert;
         convert << "'" << valor << "'";
         addr = new Symbol(convert.str());
+        addr->sym_catg = std::string("valor");
     }
     char get_valor() { return valor; } 
     ~Char(){}
@@ -331,6 +334,7 @@ public:
     bool is_str() { return true; }
     String(char* valor_ , TypeS* tipo_): valor( new std::string(valor_)), tipo(tipo_) {
         addr = new Symbol(*valor);
+        addr->sym_catg = std::string("valor"); 
     }
     String(std::string* valor_ , TypeS* tipo_): valor(valor_), tipo(tipo_) {}
     std::string* get_valor(){ return valor; } 
@@ -377,6 +381,7 @@ public:
         std::ostringstream convert;
         convert << valor;
         addr = new Symbol(convert.str());
+        addr->sym_catg = std::string("valor");
     }  
     bool  get_valor() { return valor; }
     TypeS* get_tipo() { return tipo; }
@@ -571,8 +576,42 @@ public:
     virtual std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
         std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
+        SymbolStructure* addr_exp1 = (SymbolStructure *) exp1->addr;
+        SymbolStructure* addr_exp2 = (SymbolStructure *) exp2->addr;
+        GuavaQuads* nuevo = 0;
         addr = temp->newtemp();
-        GuavaQuads * nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
+
+        /*Se verifica si los operandos son estructuras, arreglos o variables
+         *y dependiendo del caso se asigna la localidad del valor
+         *correspondiente.
+         */
+        //Verificacion de valores constantes
+        if(addr_exp1->sym_catg.compare(std::string("valor")) == 0
+           && addr_exp2->sym_catg.compare(std::string("valor")) == 0) {
+            addr_exp1->elem = exp1->addr;
+            addr_exp2->elem = exp2->addr;
+        }
+        else if(addr_exp1->sym_catg.compare(std::string("valor")) != 0
+           && addr_exp2->sym_catg.compare(std::string("valor")) == 0) {
+            addr_exp2->elem = exp2->addr;
+        }
+        else if(addr_exp1->sym_catg.compare(std::string("valor")) == 0
+           && addr_exp2->sym_catg.compare(std::string("valor")) != 0) {
+            addr_exp1->elem = exp1->addr;
+        }
+        //Caso ambos operandos son estructuras o arreglos
+        if (addr_exp1->elem != 0 && addr_exp2->elem != 0)
+            nuevo = new GuavaQuadsExp(operacion,addr_exp1->elem,addr_exp2->elem,addr);
+        //Caso primer operando es estructura o arreglo
+        else if (addr_exp1->elem != 0 && addr_exp2->elem == 0)
+            nuevo = new GuavaQuadsExp(operacion,addr_exp1->elem,exp2->addr,addr);
+        //Caso segundo operando es estructura o arreglo
+        else if (addr_exp1->elem == 0 && addr_exp2->elem != 0)
+            nuevo = new GuavaQuadsExp(operacion,exp1->addr,addr_exp2->elem,addr);
+        //Caso ambos operandos no son estructuras o arreglos
+        else
+            nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
+        
         //Se verifica que la expresion izquierda no sea un identificador
         if (quads1 != 0) {
             //Se verifica que la expresion derecha no sea un identificador

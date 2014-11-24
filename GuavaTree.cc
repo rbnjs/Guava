@@ -1693,6 +1693,7 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
         result->push_back(nuevo_q);
         SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
         nuevo_addr->desp = t;
+        nuevo_addr->elem = est_padre->elem;
     }
     //Caso en que el padre es una estructura.
     else if(exp_id != 0 && !exp_id->is_array()) {
@@ -1704,10 +1705,12 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
             addr->offset += exp_id->addr->offset;
         SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
         nuevo_addr->desp = 0;
+        nuevo_addr->elem = 0;
     }
     else {
         SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
-        nuevo_addr->desp = 0;   
+        nuevo_addr->desp = 0;
+        nuevo_addr->elem = 0;
         GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
         result->push_front(comentario);
     }

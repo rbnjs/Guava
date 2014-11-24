@@ -172,7 +172,7 @@ bloqueprincipal: {
                                                 if (driver.print_graph){
                                                     g->imprimir();
                                                 }
-                                                g->generar_mips();
+                                                //g->generar_mips();
                                             }
                                          };
 

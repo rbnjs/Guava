@@ -399,7 +399,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    int line = yylloc.begin.line;
                                                    int column = yylloc.begin.column;
                                                    driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
-                                                                                0,tipo,line,column, current_scope);
+                                                                                current_scope,tipo,line,column, 0);
                                                    identacion += "  ";
                                                    offset_actual.push_front(0);
                                                  } 

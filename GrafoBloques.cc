@@ -347,8 +347,10 @@ void identificador_recursivo(Vertex root, Graph& grafo){
                 out_i != out_end; ++out_i){
         e = *out_i;        
         Vertex targ = target(e, grafo);
-        if (grafo[targ].get_belongs_to() == 0) grafo[targ].set_belonging(grafo[root].get_belongs_to());
-        identificador_recursivo(targ,grafo);
+        if (grafo[targ].get_belongs_to() == 0){
+            grafo[targ].set_belonging(grafo[root].get_belongs_to());
+            identificador_recursivo(targ,grafo);
+        }
     }
 }
 

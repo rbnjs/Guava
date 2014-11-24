@@ -90,7 +90,7 @@ void GuavaQuadsExp::attach_info(){
  * @return bool true si es una expresion de uso general, false si no.
  */
 bool GuavaQuadsExp::is_general_exp(){
-    if (this->get_op().compare(std::string("[]")) || this->get_op().compare(std::string(":=")))
+    if (this->get_op().compare(std::string("[]")) == 0 || this->get_op().compare(std::string(":=")) == 0)
         return false;
     return true;
 }
@@ -136,7 +136,6 @@ std::list<SimpleSymbol*> GuavaQuadsIf::get_args(){
 }
 
 void GuavaQuadsIf::generar_mips(GuavaTemplates* ge){
-
 }
 
 /** 
@@ -454,7 +453,7 @@ std::string GuavaQuadsExp::gen(){
 
 void GuavaQuadsExp::generar_mips(GuavaTemplates* gen){
     RegisterAllocator* get_reg;
-    if (this->get_result()->get_tipo() == TypeReal::Instance()){
+    if (this->get_result()->get_tipo() != TypeReal::Instance()){
        get_reg = gen->get_reg_alloc(); 
     }else{
        get_reg = gen->get_reg_float_alloc(); 

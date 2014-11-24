@@ -35,10 +35,10 @@ GuavaGenerator::~GuavaGenerator(){
  */
 void  GuavaGenerator::gen(std::string code){
     if (file.is_open()){
-        file << code + "\n";
+        file << code;
     } else {
         file.open(file_name); 
-        if (file.is_open()) file << code + "\n";
+        if (file.is_open()) file << code;
     }
 }
 

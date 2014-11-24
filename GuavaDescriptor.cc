@@ -81,7 +81,7 @@ void GuavaDescriptor::clear(){
  * Constructor de la clase.
  * @param vars Lista de variables a pasar.
  */
-GuavaDescTable::GuavaDescTable(list<string> vars): reg(false){
+GuavaDescTable::GuavaDescTable(list<string> vars): reg(true){
     for (list<string>::iterator it = vars.begin(); it != vars.end(); ++it){
         GuavaDescriptor *nuevo_reg; 
         if (reg){
@@ -97,7 +97,7 @@ GuavaDescTable::GuavaDescTable(list<string> vars): reg(false){
  * Constructor de la clase para variables.
  * @param s Lista de simbolos
  */    
-GuavaDescTable::GuavaDescTable(list<SimpleSymbol*> s): reg(true){
+GuavaDescTable::GuavaDescTable(list<SimpleSymbol*> s): reg(false){
     for (list<SimpleSymbol*>::iterator it = s.begin(); it != s.end(); ++it){
         GuavaDescriptor *nueva_var;
         nueva_var = new GuavaVar(*it);
@@ -148,7 +148,7 @@ bool GuavaDescTable::available_in_other_location(SimpleSymbol* s, GuavaDescripto
  */
 GuavaDescriptor* GuavaDescTable::find_only_one(SimpleSymbol* s){
     for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin() ; it != tabla.end(); ++it){
-        if (it->second->size() == 1 && it->second->find(s) != 0 ) return it->second;
+        if (it->second->size() == 1 && it->second->find_by_name(s->sym_name) != 0 ) return it->second;
     }
     return 0;
 }
@@ -159,7 +159,10 @@ GuavaDescriptor* GuavaDescTable::find_only_one(SimpleSymbol* s){
  */
 GuavaDescriptor* GuavaDescTable::find_empty(){
     for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin() ; it != tabla.end(); ++it){
-        if (it->second->size() == 0 ) return it->second;
+        if (it->second->size() == 0 ) 
+        {
+            return it->second;
+        }
     }
     return 0;
 }
@@ -244,16 +247,18 @@ void GuavaDescTable::manage_store(string var){
 void GuavaDescTable::manage_LD(string R, SimpleSymbol* x){
     if (reg){
         //Caso tabla de registros
-        if (tabla.find(R) != tabla.end()){
+        if (tabla.count(R) != 0){
             GuavaDescriptor* desc = tabla[R];
             desc->clear();
             desc->insert(x);
+            tabla[R] = desc;
         }
     } else{
         if (tabla.find(x->sym_name) != tabla.end()){
             GuavaDescriptor* desc = tabla[x->sym_name];
             SimpleSymbol* nuevo = new SymbolReg(R);
             desc->insert(nuevo);
+            tabla[R] = desc;
         }
     }
 }
@@ -270,7 +275,7 @@ void GuavaDescTable::manage_LD(string R, SimpleSymbol* x){
  * @param Rx Nombre del registro.
  *
  */
-void GuavaDescTable::manage_3_addr_inst(string Rx, SimpleSymbol* x){
+void GuavaDescTable::manage_OP(string Rx, SimpleSymbol* x){
     if (reg){
         if (tabla.find(Rx) != tabla.end()){
             GuavaDescriptor* desc = tabla[Rx];
@@ -385,6 +390,13 @@ TypeS* GuavaDescriptor::get_tipo(){
     return 0;
 }
 
+SimpleSymbol* GuavaDescriptor::find_by_name(string n){
+    for (set<SimpleSymbol*>::iterator it = assoc_var.begin() ; it != assoc_var.end(); ++it){
+        if ((*it)->sym_name.compare(n) == 0) return *it;
+    }
+    return 0;
+}
+
 /** 
  * Borra un elemento por nombre en toda la tabla.
  * @param nombre Nombre del elemento a borrar. Tipicamente un registro.
@@ -430,25 +442,27 @@ void GuavaDescTable::manage_push(SimpleSymbol* var, SymbolReg* nuevo){
  * @return result Lista con nombres de registros.
  */
 list<string> registros_mips(){
-    ostringstream convert;
     list<string> result;
     string a ("$a");
     string t ("$t");
     string s ("$s");
     /* a2-a3 */
     for (int i = 2; i != 4 ; ++i){
+        ostringstream convert;
         convert << i;
         result.push_back(a+convert.str());
         convert.flush();
     }
     /* t0-t9 */
     for (int i = 0 ; i != 10 ; ++i ){
+        ostringstream convert;
         convert << i;
         result.push_back(t+convert.str());
         convert.flush();
     }
     /* s0-s7 */
      for (int i = 0 ; i != 8 ; ++i ){
+        ostringstream convert;
         convert << i;
         result.push_back(s+convert.str());
         convert.flush();
@@ -464,22 +478,24 @@ list<string> registros_mips(){
  * @return result Lista con nombres de registros.
  */
 list<string> registros_float_mips(){
-    ostringstream convert;
     list<string> result;
     string f ("$f");
     /* f1-f31 */
     for (int i = 1 ; i != 32 ; ++i ){
+        ostringstream convert;
+        convert << i; 
         if (i != 12){
-            convert << i;    
             result.push_back(f+convert.str());
-            convert.flush();
         }
+        convert.flush();
     }
     return result;
 }
 
 DescTableMIPS::DescTableMIPS(): GuavaDescTable(registros_mips()){
+    reg = true;
 }
 
 DescTableFloatMIPS::DescTableFloatMIPS(): GuavaDescTable(registros_float_mips()){
+    reg = true;
 }

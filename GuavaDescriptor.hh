@@ -27,6 +27,7 @@
 
 using namespace std;
 
+
 /** 
  * Clase que representa un descriptor de un registro o variable.
  */
@@ -90,6 +91,8 @@ public:
         if (assoc_var.count(s) == 0) return 0;
         return *(assoc_var.find(s));
     }
+
+    SimpleSymbol* find_by_name(string n);
 
     /** 
      * Tamaño del conjunto.
@@ -201,6 +204,7 @@ public:
  * Clase para la descripcion de registros.
  */
 class GuavaDescTable{
+protected:
     std::unordered_map<string, GuavaDescriptor* > tabla;  /* Tabla que guarda las variables/registros disponibles junto con sus simbolos. */
     bool reg; /* Variable booleana que nos dice si guarda registros o variables. */
     void borrar_por_nombre(string reg);
@@ -217,6 +221,11 @@ public:
     * @param reg Nos dice si la tabla esta guardando registros, en el caso contrario guarda variables.
     */
    GuavaDescTable(bool reg_): reg(reg_){}
+
+
+   void set_reg(bool t){
+       reg = t;
+   }
 
 
    GuavaDescTable(list<SimpleSymbol*> simbols);
@@ -283,7 +292,7 @@ public:
 
     void manage_LD(string R, SimpleSymbol* x);
 
-    void manage_3_addr_inst(string R, SimpleSymbol* x);
+    void manage_OP(string R, SimpleSymbol* x);
 
     void manage_copy(string Ry, SimpleSymbol* x);
 
@@ -296,6 +305,8 @@ public:
     void manage_push(string reg, SymbolReg* nuevo);
 
     void copy(GuavaDescriptor* desc);
+
+
 
 };
 

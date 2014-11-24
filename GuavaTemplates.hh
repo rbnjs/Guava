@@ -96,11 +96,11 @@ public:
 
     virtual void operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp* instruccion){}
 
-    virtual void load(GuavaDescriptor* reg,Symbol* var){}
+    virtual void load(GuavaDescriptor* reg,SimpleSymbol* var){}
 
-    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
+    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins){}
 
-    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
+    virtual void operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst){}
 };
 
 /** 
@@ -152,11 +152,11 @@ public:
 
     void operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp* instruccion);
 
-    void load(GuavaDescriptor* reg, Symbol* var);
+    void load(GuavaDescriptor* reg, SimpleSymbol* var);
 
     void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
 
-    void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
+    void operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
 };
 
 # endif

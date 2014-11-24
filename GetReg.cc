@@ -226,8 +226,11 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_general(GuavaQuads* i){
         } else if ( instruccion->uso(*it) != -1 && (tmp = tabla_reg->find_only_one(*it)) != 0 ){
             //Caso Simple. Cuando esta en un registro y no tiene proximos usos.
             result.push_back(tmp); 
-        }else if ( (tmp = tabla_reg->find_empty()) != 0){
+        }else if ((tmp = tabla_reg->find_empty()) != 0){
             //Caso Simple. Hay registros disponibles.
+            if (instruccion->get_result() != *it){
+                templates->load(tmp,*it);
+            }
             result.push_back(tmp);
         }else{
             // Reciclaje. Caso Convencional.
@@ -258,6 +261,7 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_copy(GuavaQuads* i){
         result.push_back(tmp); 
     }else if ( (tmp = tabla_reg->find_empty()) != 0){
         //Caso Simple. Hay registros disponibles.
+        templates->load(tmp,args.back());
         result.push_back(tmp);
     }else{
         // Reciclaje. Caso Convencional.
@@ -276,7 +280,7 @@ list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i){
     if (i->is_guava_exp()){
         if (i->is_general_exp()){
             result = this->getReg_general(i);
-        }else if (i->get_op().compare(std::string(":="))){
+        }else if (i->get_op().compare(std::string(":=")) == 0){
                 result = this->getReg_copy(i);
         }
     }

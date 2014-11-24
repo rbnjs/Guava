@@ -220,7 +220,8 @@ void GuavaGoTo::generar_mips(GuavaTemplates* g){
  * Genera mips para entrada o salida.
  */
 void GuavaEntradaSalida::generar_mips(GuavaTemplates* t){
-    if (this->get_op().compare("read")){
+    if (this->get_op().compare("read") == 0){
+
     }else{
         t->print(this->get_arg1());
     }
@@ -287,6 +288,7 @@ std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
     return base;
         
 }
+
 /**
  * Para efectos de esta funcion:
  * - arg1 es el r-value.
@@ -451,7 +453,14 @@ std::string GuavaQuadsExp::gen(){
 }
 
 void GuavaQuadsExp::generar_mips(GuavaTemplates* gen){
-
+    RegisterAllocator* get_reg;
+    if (this->get_result()->get_tipo() == TypeReal::Instance()){
+       get_reg = gen->get_reg_alloc(); 
+    }else{
+       get_reg = gen->get_reg_float_alloc(); 
+    }
+    list<GuavaDescriptor*> registros = get_reg->getReg(this);
+    gen->operacion(registros, this);
 }
 
 

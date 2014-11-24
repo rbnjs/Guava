@@ -23,24 +23,67 @@
 
 using namespace std;
 
+/** 
+ * Constructor de la clase.
+ * @param g GuavaGenerator para poder escribir en el archivo.
+ * @param tabla Tabla de simbolos
+ * @param vars_ Descriptores de variable.
+ * @param regs_ Descriptores de registros.
+ * @param floats Descriptores de registros para floats.
+ *
+ * En este constructor tambien se generan los get_reg.
+ */
+GuavaTemplates::GuavaTemplates(GuavaGenerator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_, GuavaDescTable* floats):
+                                generador(g),table(tabla),vars(vars_),regs(regs_), regs_float(floats){
+    
+    RegisterAllocator* nuevo_get_reg =  new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator* nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float;
+}
 
 /** 
  * Set descriptor de registros.
+ * Cada vez que cambia el GuavaTemplates, tambien cambia el RegisterAllocator.
  */
 void GuavaTemplates::set_regs(GuavaDescTable* r){
     regs = r;
+    RegisterAllocator *nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    get_reg = nuevo_get_reg;
 }
 
 /** 
  * Set descriptor de variables.
+ * Cada vez que cambia el GuavaTemplates, tambien cambia el RegisterAllocator.
  */
 void GuavaTemplates::set_vars(GuavaDescTable* v){
     vars = v;
+    RegisterAllocator *nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator *nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float; 
 }
 
 void GuavaTemplates::set_vars(list<SimpleSymbol*> simbolos){
     if (vars != 0) delete vars;
     vars = new GuavaDescTable(simbolos);
+    RegisterAllocator* nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator *nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float;
+}
+
+/** 
+ * Retorna el asignador de registros para registros
+ * normales
+ * @return get_reg
+ */
+RegisterAllocator* GuavaTemplates::get_reg_alloc(){
+    return get_reg;
+}
+
+RegisterAllocator* GuavaTemplates::get_reg_float_alloc(){
+    return get_reg_float;
 }
 
 /** 
@@ -146,10 +189,19 @@ void MIPS::push(GuavaDescriptor* reg){
 void MIPS::entry_main(){
     list<Symbol*> globals = table->obtain_globals();
     *generador << ".data\n";
-    *generador << "_character: .space 4";
+    *generador << "_character: .space 4\n";
     for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
         (*it)->generar_mips(generador); 
     }
+    *generador << ".text\n";
+}
+
+/** 
+ * Para el mips hace la llamada al sistema numero 10 (exit).
+ */
+void MIPS::exit_main(){
+    *generador << "li $v0, 10\n";
+    *generador << "syscall\n";
 }
 
 /** 
@@ -288,4 +340,120 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
     }
     tabla_modificar->manage_move(reg->get_nombre(), result);
     *generador << "move " + reg->get_nombre() + ", " + reg_2 + " #COPY\n";
+}
+
+/** 
+ * Hace li, lw o la
+ */
+void MIPS::load(GuavaDescriptor* reg, Symbol* var){
+    if (reg->find(var) == 0) return; //La variable ya se encuentra en el descriptor
+
+    if (table->lookup(var->sym_name) == 0){
+        //Caso constante.
+        if (var->get_tipo() != TypeReal::Instance()){
+            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
+            regs->manage_LD(reg->get_nombre(),var);
+            vars->manage_LD(reg->get_nombre(),var);
+        }else {
+            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
+            regs_float->manage_LD(reg->get_nombre(),var);
+            vars->manage_LD(reg->get_nombre(),var);
+        }
+    }else{
+        //Caso variable
+        *generador << "lw " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD WORD \n";
+        regs_float->manage_LD(reg->get_nombre(),var);
+        vars->manage_LD(reg->get_nombre(),var);
+    }
+}
+
+/** 
+ * Hace la revisión de que no puede existir division por cero.
+ */
+void MIPS::revision_div(GuavaDescriptor* Rz){
+    ostringstream convert;
+    convert << div_;
+    div_++;
+    *generador << "bneqz " + Rz->get_nombre() + " _label_div" + convert.str() + "\n ";
+    *generador << "j _div_exception \n";
+    *generador << "_label_div" + convert.str() + ": "; 
+}
+
+/**
+ * Genera codigo para UFO, dependiendo del resultado de Rx.
+ *  Esto es:
+ *      Ry > Rz => Rx > 0 => Rx := 1
+ *      Ry < Rz => Rx < 0 => Rx := -1
+ *      Ry = Rz => Rx = 0 => Rx := 0
+ */
+void MIPS::generar_ufo(GuavaDescriptor* Rx){
+    ostringstream convert;
+    convert << ufo;
+    ufo++;
+    *generador << "bgtz " + Rx->get_nombre() + " , _ufo_gtz"+convert.str() +"#>0 \n";
+    *generador << "bltz " + Rx->get_nombre() + " , _ufo_ltz"+convert.str() +"#<0 \n";
+    *generador << "beqz " + Rx->get_nombre() + ", _ufo_eqz" + convert.str() + "#=0\n";
+    *generador << "_ufo_gtz" + convert.str() + ": ";
+    *generador << "li " + Rx->get_nombre() + ", 1 \n";
+    *generador << "j _ufo_final" + convert.str();
+    *generador << "_ufo_ltz" + convert.str() + ": ";
+    *generador << "li " + Rx->get_nombre() + ", -1 \n";
+    *generador << "j _ufo_final" + convert.str();
+    *generador << "_ufo_eqz" + convert.str() + ": \n";
+    *generador << "j _ufo_final" + convert.str() + ": ";
+}
+
+
+/** 
+ * Realiza una operacion ternaria.
+ */
+void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* inst){
+    if (inst->get_op().compare(string("+")) == 0){
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #ADD\n";
+    }else if (inst->get_op().compare(string("-")) == 0){
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #SUB\n";
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+    }else if (inst->get_op().compare(string("*"))){
+        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "\n #MUL\n";
+    } else if (inst->get_op().compare(string("/")) == 0){
+        this->revision_div(Rz); 
+        *generador << "div " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", "+ Rz->get_nombre() + "\n # /";
+    }else if (inst->get_op().compare(string("DIV")) == 0){
+        this->revision_div(Rz); 
+        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
+        *generador << "move "+ Rx->get_nombre() + ",  $lo \n";
+    } else if (inst->get_op().compare(string("MOD")) == 0){
+        this->revision_div(Rz);
+        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
+        *generador << "move "+ Rx->get_nombre() + ",  $hi \n";
+    }else if (inst->get_op().compare(string("**"))){
+        *generador << "#POW TODAVIA NO\n";
+    }else if (inst->get_op().compare(string("<=>"))){
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #UFO\n";
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+        this->generar_ufo(Rx);
+    }
+}
+
+/** 
+ * Genera codigo para una operacion de tipo x := y + z
+ * siendo '+' cualquier operador.
+ */
+void MIPS::operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp * instruccion){
+    if (regs.size() == 3){
+        GuavaDescriptor* Ry = regs.back();
+        GuavaDescriptor* Rx = regs.front();
+        regs.pop_front();
+        GuavaDescriptor* Rz = regs.front();
+        this->load(Ry,instruccion->get_arg1());
+        this->load(Rz,instruccion->get_arg2());
+        this->operacion_ternaria(Rx, Ry, Rz, instruccion);
+    }else if (regs.size() == 2){
+        GuavaDescriptor* Ry = regs.back();
+        GuavaDescriptor* Rx = regs.front();
+        this->load(Ry,instruccion->get_arg1());
+        this->operacion_unaria(Rx,Ry, instruccion);
+    }
 }

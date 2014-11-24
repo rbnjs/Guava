@@ -23,7 +23,15 @@
 # include "GuavaSymTable.hh"
 # include "GuavaDescriptor.hh"
 # include "Generator.hh"
+# include "GetReg.hh"
+
 using namespace std;
+
+class RegisterAllocator;
+
+class GuavaQuads;
+class GuavaQuadsExp;
+
 /** 
  * Clase de donde parten todos los templates.
  */
@@ -35,17 +43,16 @@ protected:
     GuavaDescTable* regs;
     GuavaDescTable* regs_float;
     int offset_actual = 0;
+    RegisterAllocator* get_reg; /* Asignador de registros para registros normales */
+    RegisterAllocator* get_reg_float; /* Asignador de registros para registros float */
 public:
-    /** 
-     * Constructor de la clase.
-     * @param g GuavaGenerator para poder escribir en el archivo.
-     * @param tabla Tabla de simbolos
-     * @param vars_ Descriptores de variable.
-     * @param regs_ Descriptores de registros.
-     * @param floats Descriptores de registros para floats.
-     */
-    GuavaTemplates(GuavaGenerator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_, GuavaDescTable* floats):
-                        generador(g),table(tabla),vars(vars_),regs(regs_), regs_float(floats){}
+
+    GuavaTemplates(GuavaGenerator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_, GuavaDescTable* floats);
+
+    RegisterAllocator* get_reg_alloc();
+
+    RegisterAllocator* get_reg_float_alloc();
+
     /** 
      * Destructor
      */
@@ -71,6 +78,8 @@ public:
 
     virtual void entry_main(){}
 
+    virtual void exit_main(){}
+
     virtual void go_to(Symbol* to){}
 
     virtual void label(string label){}
@@ -84,12 +93,25 @@ public:
     virtual void print(Symbol* arg){}
 
     virtual void print(GuavaDescriptor* reg){}
+
+    virtual void operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp* instruccion){}
+
+    virtual void load(GuavaDescriptor* reg,Symbol* var){}
+
+    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
+
+    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
 };
 
 /** 
  * Clase que contiene las plantillas para el lenguaje MIPS. 
  */
 class MIPS: public GuavaTemplates{
+protected:
+    int div_ = 0;
+    int ufo = 0;
+    void revision_div(GuavaDescriptor* Rz);
+    void generar_ufo(GuavaDescriptor* Rx);
 public:
 
     /** 
@@ -112,6 +134,8 @@ public:
 
     void entry_main();
 
+    void exit_main();
+
     void label(string label);
 
     void go_to(Symbol* to);
@@ -126,6 +150,13 @@ public:
 
     void print(GuavaDescriptor* reg);
 
+    void operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp* instruccion);
+
+    void load(GuavaDescriptor* reg, Symbol* var);
+
+    void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
+
+    void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
 };
 
 # endif

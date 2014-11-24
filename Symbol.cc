@@ -83,6 +83,21 @@ bool Symbol::is_global(){
     return (scope == 1);
 }
 
+/**  
+ * Traduce un nombre de simbolo a mips.
+ */
+string Symbol::nombre_mips(){
+    regex underscore ("bp.*");
+    ostringstream convert; 
+    convert << offset;
+    if (regex_match (sym_name, underscore)){
+        return convert.str()+"($fp)";
+    }else{
+        return sym_name;
+    }
+
+}
+
 /** 
  * Obtiene recursivamente el tipo de un simbolo.
  */

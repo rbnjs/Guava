@@ -109,6 +109,7 @@ public:
         return false;
     }
 
+
 };
 
 /** 
@@ -217,6 +218,7 @@ public:
 
     void generar_mips(GuavaGenerator* gen);
 
+    string nombre_mips();
 
 };
 

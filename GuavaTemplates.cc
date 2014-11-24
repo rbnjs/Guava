@@ -342,8 +342,99 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
     *generador << "move " + reg->get_nombre() + ", " + reg_2 + " #COPY\n";
 }
 
+/** 
+ * Hace li, lw o la
+ */
 void MIPS::load(GuavaDescriptor* reg, Symbol* var){
+    if (reg->find(var) == 0) return; //La variable ya se encuentra en el descriptor
 
+    if (table->lookup(var->sym_name) == 0){
+        //Caso constante.
+        if (var->get_tipo() != TypeReal::Instance()){
+            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
+            regs->manage_LD(reg->get_nombre(),var);
+            vars->manage_LD(reg->get_nombre(),var);
+        }else {
+            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
+            regs_float->manage_LD(reg->get_nombre(),var);
+            vars->manage_LD(reg->get_nombre(),var);
+        }
+    }else{
+        //Caso variable
+        *generador << "lw " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD WORD \n";
+        regs_float->manage_LD(reg->get_nombre(),var);
+        vars->manage_LD(reg->get_nombre(),var);
+    }
+}
+
+/** 
+ * Hace la revisión de que no puede existir division por cero.
+ */
+void MIPS::revision_div(GuavaDescriptor* Rz){
+    ostringstream convert;
+    convert << div_;
+    div_++;
+    *generador << "bneqz " + Rz->get_nombre() + " _label_div" + convert.str() + "\n ";
+    *generador << "j _div_exception \n";
+    *generador << "_label_div" + convert.str() + ": "; 
+}
+
+/**
+ * Genera codigo para UFO, dependiendo del resultado de Rx.
+ *  Esto es:
+ *      Ry > Rz => Rx > 0 => Rx := 1
+ *      Ry < Rz => Rx < 0 => Rx := -1
+ *      Ry = Rz => Rx = 0 => Rx := 0
+ */
+void MIPS::generar_ufo(GuavaDescriptor* Rx){
+    ostringstream convert;
+    convert << ufo;
+    ufo++;
+    *generador << "bgtz " + Rx->get_nombre() + " , _ufo_gtz"+convert.str() +"#>0 \n";
+    *generador << "bltz " + Rx->get_nombre() + " , _ufo_ltz"+convert.str() +"#<0 \n";
+    *generador << "beqz " + Rx->get_nombre() + ", _ufo_eqz" + convert.str() + "#=0\n";
+    *generador << "_ufo_gtz" + convert.str() + ": ";
+    *generador << "li " + Rx->get_nombre() + ", 1 \n";
+    *generador << "j _ufo_final" + convert.str();
+    *generador << "_ufo_ltz" + convert.str() + ": ";
+    *generador << "li " + Rx->get_nombre() + ", -1 \n";
+    *generador << "j _ufo_final" + convert.str();
+    *generador << "_ufo_eqz" + convert.str() + ": \n";
+    *generador << "j _ufo_final" + convert.str() + ": ";
+}
+
+
+/** 
+ * Realiza una operacion ternaria.
+ */
+void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* inst){
+    if (inst->get_op().compare(string("+")) == 0){
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #ADD\n";
+    }else if (inst->get_op().compare(string("-")) == 0){
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #SUB\n";
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+    }else if (inst->get_op().compare(string("*"))){
+        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "\n #MUL\n";
+    } else if (inst->get_op().compare(string("/")) == 0){
+        this->revision_div(Rz); 
+        *generador << "div " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", "+ Rz->get_nombre() + "\n # /";
+    }else if (inst->get_op().compare(string("DIV")) == 0){
+        this->revision_div(Rz); 
+        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
+        *generador << "move "+ Rx->get_nombre() + ",  $lo \n";
+    } else if (inst->get_op().compare(string("MOD")) == 0){
+        this->revision_div(Rz);
+        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
+        *generador << "move "+ Rx->get_nombre() + ",  $hi \n";
+    }else if (inst->get_op().compare(string("**"))){
+        *generador << "#POW TODAVIA NO\n";
+    }else if (inst->get_op().compare(string("<=>"))){
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #UFO\n";
+        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
+        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+        this->generar_ufo(Rx);
+    }
 }
 
 /** 
@@ -358,7 +449,11 @@ void MIPS::operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp * instruccion){
         GuavaDescriptor* Rz = regs.front();
         this->load(Ry,instruccion->get_arg1());
         this->load(Rz,instruccion->get_arg2());
+        this->operacion_ternaria(Rx, Ry, Rz, instruccion);
     }else if (regs.size() == 2){
-
+        GuavaDescriptor* Ry = regs.back();
+        GuavaDescriptor* Rx = regs.front();
+        this->load(Ry,instruccion->get_arg1());
+        this->operacion_unaria(Rx,Ry, instruccion);
     }
 }

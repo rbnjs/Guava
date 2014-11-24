@@ -97,12 +97,21 @@ public:
     virtual void operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp* instruccion){}
 
     virtual void load(GuavaDescriptor* reg,Symbol* var){}
+
+    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
+
+    virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
 };
 
 /** 
  * Clase que contiene las plantillas para el lenguaje MIPS. 
  */
 class MIPS: public GuavaTemplates{
+protected:
+    int div_ = 0;
+    int ufo = 0;
+    void revision_div(GuavaDescriptor* Rz);
+    void generar_ufo(GuavaDescriptor* Rx);
 public:
 
     /** 
@@ -145,6 +154,9 @@ public:
 
     void load(GuavaDescriptor* reg, Symbol* var);
 
+    void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
+
+    void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
 };
 
 # endif

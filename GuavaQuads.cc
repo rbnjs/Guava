@@ -288,6 +288,7 @@ std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
     return base;
         
 }
+
 /**
  * Para efectos de esta funcion:
  * - arg1 es el r-value.

@@ -1683,8 +1683,23 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     //SE VERIFICA SI LA EXPRESION PADRE ES UN ARREGLO, EN TAL CASO SE CALCULAN SUS QUADS
     if(exp_id != 0)
         result = exp_id->generar_quads();
-    //if(exp_id != 0 && exp_id->is_array())
-    //    result = exp_id->generar_quads();
+    //Caso en que el padre es una arreglo de estructuras.
+    if(exp_id != 0 && exp_id->is_array()) {
+        SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+        //Se suma el desplazamiento del arreglo la base del atributo
+        Symbol* base_atr = new Symbol(offset);
+        Symbol* t = temp->newtemp();
+        GuavaQuadsExp* nuevo_q = new GuavaQuadsExp("+",est_padre->desp,base_atr,t);
+        result->push_back(nuevo_q);
+        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
+        nuevo_addr->desp = t;
+    }
+    //Caso en que el padre es una estructura.
+    else if(exp_id != 0 && !exp_id->is_array()) {
+        addr->offset += exp_id->addr->offset;
+        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
+        nuevo_addr->desp = 0;
+    }
     else {
         GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
         result->push_front(comentario);

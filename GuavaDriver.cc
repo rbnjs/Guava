@@ -600,7 +600,24 @@ TypeS* insertar_simboloEstructura(LVar *vars, std::string tipo,std::string estil
             int offset = offset_actual.front();
             if (offset != -1){
                 offset_actual.pop_front();
-                Symbol* nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
+                Symbol* nuevo = 0;
+                /* Se verifica si se trata de variables gloables o locales,
+                 * lo que incidira directamente en el calculo de offset de
+                 * cada atributo.
+                 */
+                //Caso variables globales
+                if(tabla->alcance == 1) {
+                    //Caso atributos de estructuras globales
+                    if(scope == 0)
+                        nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column,offset);
+                    //Caso variables globales
+                    else
+                        nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column,0);
+                }
+                //Caso variables locales
+                else {
+                    nuevo = tabla->insert(it->identificador,estilo,scope,reference,line,column, offset);
+                }
                 nuevo->width = tamano_tipo(reference); 
                 offset += nuevo->width; 
                 offset_actual.push_front(offset);
@@ -776,11 +793,21 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
     if (id->scope == 1) {
         //Caso Arreglos
         if(id->sym_catg.compare(std::string("array")) == 0)
-            result->addr = new SymbolArray(id->sym_name,id->sym_catg,id->scope,id->true_type,id->line,id->column,id->offset);
+            result->addr = new SymbolStructure(id->sym_name,id->sym_catg,id->scope,id->true_type,id->line,id->column,id->offset);
         else
             result->addr = id;
     } 
     //Caso variables locales y atributos de estructuras
+    
+    
+    
+    
+    //CAPAZ TODO ESTO SE PUEDA BORRAAAAAAAAAAAAAAAAAAAAAAAAAAARRRRR
+    
+    
+    
+    
+    
     else {
         //Caso atributos de estructuras
         if (result->exp_id != 0) {
@@ -792,7 +819,7 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
             
             //Caso Arreglos
             if(id->sym_catg.compare(std::string("array")) == 0)
-                result->addr = new SymbolArray(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
+                result->addr = new SymbolStructure(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
             else
                 result->addr = new Symbol(base,id->sym_catg,id->scope,result->exp_id->addr->true_type,id->line,id->column,atr_offset);
                 
@@ -804,7 +831,7 @@ void revision_scope_id(Symbol* id, ExpID* result, GuavaDriver* driver, const yy:
         else {
             //Caso Arreglos
             if(id->sym_catg.compare(std::string("array")) == 0)
-                result->addr = new SymbolArray(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
+                result->addr = new SymbolStructure(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
             else
                 result->addr = new Symbol(std::string("bp"),id->sym_catg,id->scope,id->type_pointer,id->line,id->column,id->offset);
         
@@ -884,7 +911,7 @@ std::list<GuavaQuads*>* ExpID::generar_quads(){
 std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>; 
     std::ostringstream convert;
-    SymbolArray* addr_array = (SymbolArray *) addr;
+    SymbolStructure* addr_array = (SymbolStructure *) addr;
     if (identificador == 0) return 0;
 
     if(exp_id != 0)
@@ -967,17 +994,25 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
         //Caso arreglos multidimensionales
         if (lcorchetesexp->lista.size() > 1) {
             //Se verifica si se trata de atributos de arreglo de estructuras
-            if(exp_id != 0 && exp_id->is_array()) {
-                SymbolArray* est_padre = (SymbolArray *) exp_id->addr;
+            if(exp_id != 0) {
+                SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* base_arr = new Symbol(offset);
+                //Temporal que contendra la posicion del arreglo (sin la base)
                 Symbol* t4 = temp->newtemp();
-                //Calculo de posicion final de base de la estructura.
+                //Temporal que contendra la posicion del arreglo (con la base)
+                Symbol* t5 = temp->newtemp();
+                //Calculo de posicion final del elemento (sin la base del arreglo)
                 nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t2,t1);
                 result->push_back(nuevo_q3);
-                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t1,t4);
+                //Calculo de posicion final del elemento (con la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);
+                result->push_back(nuevo_q3);
+                //Posicion final del elemento accedido en el arreglo
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t5);
                 result->push_back(nuevo_q3);
                 //Asignacion de nuevos indicadores de desplazamiento y elemento
-                addr_array->desp = t1;
-                addr_array->elem = t4;
+                addr_array->desp = t4;
+                addr_array->elem = t5;
             }
             else {
                 nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t2,t1);
@@ -989,15 +1024,22 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
         //Casp arreglos unidimensionales
         else {
             //Se verifica si se trata de atributos de arreglo de estructuras
-            if(exp_id != 0 && exp_id->is_array()) {
-                SymbolArray* est_padre = (SymbolArray *) exp_id->addr;
+            if(exp_id != 0) {
+                SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* base_arr = new Symbol(offset);
                 Symbol* t4 = temp->newtemp();
+                Symbol* t5 = temp->newtemp();
+                //Calculo de posicion final del elemento (sin la base del arreglo)
                 nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t0,t1);
                 result->push_back(nuevo_q3);
-                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t1,t4);
+                //Calculo de posicion final del elemento (con la base del arreglo)
+                nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);
                 result->push_back(nuevo_q3);
-                addr_array->desp = t1;
-                addr_array->elem = t4;
+                //Posicion final del elemento accedido en el arreglo
+                nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t4,t5);
+                result->push_back(nuevo_q3);
+                addr_array->desp = t4;
+                addr_array->elem = t5;
             }
             else {
                 nuevo_q3 = new GuavaQuadsExp("[]",addr_array,t0,t1);

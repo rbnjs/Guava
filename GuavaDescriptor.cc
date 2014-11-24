@@ -289,6 +289,14 @@ void GuavaDescTable::manage_3_addr_inst(string Rx, SimpleSymbol* x){
 }
 
 /** 
+ * Copia el contenido del set de desc en el descriptor
+ * @param desc Otro descriptor.
+ */
+void GuavaDescriptor::copy(GuavaDescriptor* desc){
+    assoc_var = desc->get_assoc_var();
+}
+
+/** 
  * Maneja la copia x := y.
  *
  * Esto es:
@@ -315,6 +323,41 @@ void GuavaDescTable::manage_copy(string Ry, SimpleSymbol* x){
 }
 
 /** 
+ * Maneja la copia de dos registros, esto es move $Rx, $Ry
+ */
+void GuavaDescTable::manage_move(string Rx, string Ry){
+    if (tabla.find(Rx) != tabla.end() && tabla.find(Ry) != tabla.end()){
+        GuavaDescriptor* desc = tabla[Rx];
+        GuavaDescriptor* desc2 = tabla[Ry];
+        desc->clear();
+        desc->copy(desc2);
+    }
+}
+
+/** 
+ * Maneja el move que se hace entre dos registros cuando
+ * uno de esos registros tiene asociado un variable var.
+ *
+ * @param Rx Nombre del registro que se le hace move
+ * @param var Variable que se le va a asociar al registro Rx.
+ */
+void GuavaDescTable::manage_move(string Rx, SimpleSymbol * var){
+    if (reg){
+         if (tabla.find(Rx) != tabla.end()){
+            GuavaDescriptor* desc = tabla[Rx];
+            desc->insert(var);
+        }       
+    }else{
+         if (tabla.find(var->sym_name) != tabla.end()){
+            GuavaDescriptor* desc = tabla[var->sym_name];
+            SimpleSymbol* nuevo = new SymbolReg(Rx);
+            desc->insert(nuevo);
+        }       
+
+    }
+}
+
+/** 
  * Borra un elemento por nombre.
  * @param nombre Nombre del elemento a borrar. Tipicamente un registro.
  */
@@ -328,6 +371,18 @@ void GuavaDescriptor::borrar_por_nombre(string nombre){
         }
     }
     assoc_var = nuevo;
+}
+
+TypeS* GuavaDescriptor::get_tipo(){
+    regex flotante ("$f.*");
+    if (regex_match (nombre, flotante)) return TypeReal::Instance();
+    for (set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
+        if (!(*it)->is_simple()){
+            Symbol* tmp = (Symbol*) (*it);
+            return tmp->get_tipo();
+        }
+    }
+    return 0;
 }
 
 /** 
@@ -365,12 +420,12 @@ void GuavaDescTable::manage_push(SimpleSymbol* var, SymbolReg* nuevo){
     }
 }
 
-
 /** 
  * Construye una lista con los registros de MIPS.
  *
  * Vamos a usar las registros a, t y s como nos parezca
  * ya que el compilador no se va a equivocar.
+ * No voy a usar $a0 ni $a1 porque son usados en cuestiones del sistema.
  *
  * @return result Lista con nombres de registros.
  */
@@ -380,8 +435,8 @@ list<string> registros_mips(){
     string a ("$a");
     string t ("$t");
     string s ("$s");
-    /* a0-a3 */
-    for (int i = 0; i != 4 ; ++i){
+    /* a2-a3 */
+    for (int i = 2; i != 4 ; ++i){
         convert << i;
         result.push_back(a+convert.str());
         convert.flush();
@@ -403,6 +458,8 @@ list<string> registros_mips(){
 
 /** 
  * Construye una lista con registros flotantes de MIPS.
+ * No voy a poner $f0 ni $f12 porque son usados para cuestiones de
+ * llamadas.
  *
  * @return result Lista con nombres de registros.
  */
@@ -410,11 +467,13 @@ list<string> registros_float_mips(){
     ostringstream convert;
     list<string> result;
     string f ("$f");
-    /* f0-f31 */
-    for (int i = 0 ; i != 32 ; ++i ){
-        convert << i;    
-        result.push_back(f+convert.str());
-        convert.flush();
+    /* f1-f31 */
+    for (int i = 1 ; i != 32 ; ++i ){
+        if (i != 12){
+            convert << i;    
+            result.push_back(f+convert.str());
+            convert.flush();
+        }
     }
     return result;
 }

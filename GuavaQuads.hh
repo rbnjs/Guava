@@ -24,8 +24,11 @@
 #include <utility>      // std::pair, std::make_pair
 #include <unordered_map>
 #include "GuavaSymTable.hh"
+#include "GuavaTemplates.hh"
 
 std::string to_string( int a);
+
+extern MIPS mips;
 
 /** 
  * Clase generadora de NewTemps.
@@ -281,6 +284,12 @@ public:
         return args;
     }
 
+    virtual void generar_mips(GuavaTemplates* gen){}
+
+    virtual list<SimpleSymbol*> obtener_vars(){
+        list<SimpleSymbol*> result;
+        return result;
+    }
 };
 
 /**
@@ -335,6 +344,12 @@ public:
 
     virtual std::list<SimpleSymbol*> get_args();
 
+    virtual void generar_mips(GuavaTemplates* g);
+
+    list<SimpleSymbol*> obtener_vars(){
+        return this->get_args();
+    }
+
 };
 
 /**  
@@ -370,6 +385,7 @@ public:
         return func_label;
     }
 
+    void generar_mips(GuavaTemplates* g);
 
     
 private:
@@ -444,6 +460,7 @@ public:
         // Comparo strings.
         return (go_to->sym_name.compare(a->get_op()) == 0);
     }
+    void generar_mips(GuavaTemplates* g);
 };
 
 /** 
@@ -482,6 +499,9 @@ public:
             return (result->sym_name + " := return " + arg1->sym_name + " \n");
         }
     }
+
+    void generar_mips(GuavaTemplates* g);
+
 
 };
 
@@ -533,6 +553,8 @@ public:
 
     std::list<SimpleSymbol*> get_args();
 
+    virtual void generar_mips(GuavaTemplates* g);
+
 };
 
 /** 
@@ -583,6 +605,8 @@ public:
     }
 
     std::list<SimpleSymbol*> get_args();
+
+    virtual void generar_mips(GuavaTemplates* g);
 };
 
 class GuavaParam: public GuavaQuads{
@@ -604,6 +628,14 @@ public:
     void update_use();
 
     void attach_info();
+
+    virtual void generar_mips(GuavaTemplates* g);
+
+    list<SimpleSymbol*> obtener_vars(){
+        list<SimpleSymbol*> result;
+        result.push_back(addr);
+        return result;
+    }
 };
 
 class GuavaCall: public GuavaQuadsExp{
@@ -626,6 +658,9 @@ public:
         result += ", " + this->get_arg1()->sym_name +"\n";
         return result; 
     }
+
+    virtual void generar_mips(GuavaTemplates* g);
+
 };
 
 /** 
@@ -645,5 +680,7 @@ public:
         }
         return result;
     }
+
+    virtual void generar_mips(GuavaTemplates* g);
 };
 #endif // GUAVAQUADS_HH

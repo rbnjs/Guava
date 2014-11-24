@@ -998,13 +998,19 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
             //Se verifica si se trata de atributos de arreglo de estructuras
             if(exp_id != 0) {
                 SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* desp_padre = 0;
                 Symbol* base_arr = new Symbol(offset);
                 //Temporal que contendra la posicion del arreglo (sin la base)
                 Symbol* t4 = temp->newtemp();
                 //Temporal que contendra la posicion del arreglo (con la base)
                 Symbol* t5 = temp->newtemp();
+                //Calculo de desplazamiento relativo a la estructura padre
+                if(est_padre->desp != 0)
+                    desp_padre = est_padre->desp;
+                else
+                    desp_padre = new Symbol(0);
                 //Calculo de posicion final del elemento (sin la base del arreglo)
-                nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t2,t1);
+                nuevo_q3 = new GuavaQuadsExp("+",desp_padre,t2,t1);
                 result->push_back(nuevo_q3);
                 //Calculo de posicion final del elemento (con la base del arreglo)
                 nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);
@@ -1028,11 +1034,17 @@ std::list<GuavaQuads*>* ExpIDLCorchetes::generar_quads(){
             //Se verifica si se trata de atributos de arreglo de estructuras
             if(exp_id != 0) {
                 SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+                Symbol* desp_padre = 0;
                 Symbol* base_arr = new Symbol(offset);
                 Symbol* t4 = temp->newtemp();
                 Symbol* t5 = temp->newtemp();
+                //Calculo de desplazamiento relativo a la estructura padre
+                if(est_padre->desp != 0)
+                    desp_padre = est_padre->desp;
+                else
+                    desp_padre = new Symbol(0);
                 //Calculo de posicion final del elemento (sin la base del arreglo)
-                nuevo_q3 = new GuavaQuadsExp("+",est_padre->desp,t0,t1);
+                nuevo_q3 = new GuavaQuadsExp("+",desp_padre,t0,t1);
                 result->push_back(nuevo_q3);
                 //Calculo de posicion final del elemento (con la base del arreglo)
                 nuevo_q3 = new GuavaQuadsExp("+",t1,base_arr,t4);

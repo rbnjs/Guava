@@ -1,8 +1,8 @@
 declare {
-    /*integer array arr[10];
+    integer array arr[10];
     integer x1,x2;
     real r;
-    boolean bool;*/
+    boolean bool;
     record R1 {
         integer a,b;
         record R2 {
@@ -23,6 +23,30 @@ declare {
 }
 
 function void main() {
+/*declare {
+    integer array arr[10];
+    integer x1,x2;
+    real r;
+    boolean bool;
+    record R1 {
+        integer a,b;
+        record R2 {
+            integer a,b;
+            record R3 {
+                integer a,b;
+            };
+            R3 record d;
+            integer array INTEGERarreglo[10];
+        };
+        R2 record c1,c2;
+        R2 array R2arreglo[10];
+    };
+    
+    real r2;
+    R1 record y;
+    R1 array R1arreglo[10];
+}*/
+
     declare {
         integer array brr[10];
         integer w1,w2;
@@ -37,18 +61,16 @@ function void main() {
     }
 
     /*Caso 1 = a.b[i].c*/
-    /*y.R2arreglo[5].a := 1;*/
+    y.R2arreglo[5].a := 1;
 
     /*Caso 2 = a[i].b.c[j]*/
-    /*R1arreglo[5].c1.INTEGERarreglo[6] := 1;*/
+    R1arreglo[5].c1.INTEGERarreglo[6] := 1;
 
-    /*Caso 3 = a[i].b[j].c[k]
-        ESTE CASO DA PROBLEMAS
-     */
+    /*Caso 3 = a[i].b[j].c[k]*/
     R1arreglo[5].R2arreglo[6].INTEGERarreglo[7] := 1;
 
     /*Caso 4 = a.b.c*/
-    /*y.c1.b := 1;*/
+    y.c1.b := 1;
 
 
 

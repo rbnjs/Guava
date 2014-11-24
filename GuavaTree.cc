@@ -1701,6 +1701,8 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
         nuevo_addr->desp = 0;
     }
     else {
+        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
+        nuevo_addr->desp = 0;   
         GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
         result->push_front(comentario);
     }

@@ -286,8 +286,9 @@ list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i){
 /** 
  * Algoritmo de GetReg estatico.
  */
-list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla_registro,GuavaDescTable* tabla_var, GuavaGenerator* gen){
-    RegisterAllocator tmp (tabla_registro,tabla_var,gen);
+list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i , GuavaDescTable* tabla_registro,
+                                                 GuavaDescTable* tabla_var, GuavaGenerator* gen, GuavaTemplates* template_){
+    RegisterAllocator tmp (tabla_registro,tabla_var,gen,template_);
     return tmp.getReg(i);
 }
 

@@ -23,24 +23,67 @@
 
 using namespace std;
 
+/** 
+ * Constructor de la clase.
+ * @param g GuavaGenerator para poder escribir en el archivo.
+ * @param tabla Tabla de simbolos
+ * @param vars_ Descriptores de variable.
+ * @param regs_ Descriptores de registros.
+ * @param floats Descriptores de registros para floats.
+ *
+ * En este constructor tambien se generan los get_reg.
+ */
+GuavaTemplates::GuavaTemplates(GuavaGenerator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_, GuavaDescTable* floats):
+                                generador(g),table(tabla),vars(vars_),regs(regs_), regs_float(floats){
+    
+    RegisterAllocator* nuevo_get_reg =  new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator* nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float;
+}
 
 /** 
  * Set descriptor de registros.
+ * Cada vez que cambia el GuavaTemplates, tambien cambia el RegisterAllocator.
  */
 void GuavaTemplates::set_regs(GuavaDescTable* r){
     regs = r;
+    RegisterAllocator *nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    get_reg = nuevo_get_reg;
 }
 
 /** 
  * Set descriptor de variables.
+ * Cada vez que cambia el GuavaTemplates, tambien cambia el RegisterAllocator.
  */
 void GuavaTemplates::set_vars(GuavaDescTable* v){
     vars = v;
+    RegisterAllocator *nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator *nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float; 
 }
 
 void GuavaTemplates::set_vars(list<SimpleSymbol*> simbolos){
     if (vars != 0) delete vars;
     vars = new GuavaDescTable(simbolos);
+    RegisterAllocator* nuevo_get_reg = new RegisterAllocator(vars,regs,generador,this);
+    RegisterAllocator *nuevo_get_reg_float = new RegisterAllocator(vars,regs_float,generador,this);
+    get_reg = nuevo_get_reg;
+    get_reg_float = nuevo_get_reg_float;
+}
+
+/** 
+ * Retorna el asignador de registros para registros
+ * normales
+ * @return get_reg
+ */
+RegisterAllocator* GuavaTemplates::get_reg_alloc(){
+    return get_reg;
+}
+
+RegisterAllocator* GuavaTemplates::get_reg_float_alloc(){
+    return get_reg_float;
 }
 
 /** 
@@ -297,4 +340,25 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
     }
     tabla_modificar->manage_move(reg->get_nombre(), result);
     *generador << "move " + reg->get_nombre() + ", " + reg_2 + " #COPY\n";
+}
+
+void MIPS::load(GuavaDescriptor* reg, Symbol* var){
+
+}
+
+/** 
+ * Genera codigo para una operacion de tipo x := y + z
+ * siendo '+' cualquier operador.
+ */
+void MIPS::operacion(list<GuavaDescriptor*> regs, GuavaQuadsExp * instruccion){
+    if (regs.size() == 3){
+        GuavaDescriptor* Ry = regs.back();
+        GuavaDescriptor* Rx = regs.front();
+        regs.pop_front();
+        GuavaDescriptor* Rz = regs.front();
+        this->load(Ry,instruccion->get_arg1());
+        this->load(Rz,instruccion->get_arg2());
+    }else if (regs.size() == 2){
+
+    }
 }

@@ -1,6 +1,6 @@
 CC=g++
 
-OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GuavaTemplates.o GetReg.o GuavaDescriptor.o  GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
+OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GetReg.o GuavaTemplates.o  GuavaDescriptor.o  GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 
 LFLAGS=-std=c++11 -g -o guava
 

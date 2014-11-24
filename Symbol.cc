@@ -170,19 +170,3 @@ void Symbol::show(std::string identacion){
         std::cout << scope;
         std::cout << "\n";
 }
-
-/**
- * Constructor de la clase Symbol Array.
- */
-SymbolStructure::SymbolStructure(){}
-
-SymbolStructure::SymbolStructure(std::string name, std::string catg, 
-               int scop, Symbol* p,int linea, int columna, 
-               int offset_): Symbol(name, catg, scop, p, linea, columna, offset_){}
-
-SymbolStructure::SymbolStructure(std::string name, std::string catg,
-               int scop, TypeS* type,int linea,
-               int columna, int offset_): Symbol(name, catg, scop, type, linea, columna, offset_){}
-
-SymbolStructure::~SymbolStructure() {
-}

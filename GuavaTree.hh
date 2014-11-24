@@ -576,8 +576,6 @@ public:
     virtual std::list<GuavaQuads*>* generar_quads(){ 
         std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
         std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
-        SymbolStructure* addr_exp1 = (SymbolStructure *) exp1->addr;
-        SymbolStructure* addr_exp2 = (SymbolStructure *) exp2->addr;
         GuavaQuads* nuevo = 0;
         addr = temp->newtemp();
 
@@ -586,28 +584,28 @@ public:
          *correspondiente.
          */
         //Verificacion de valores constantes
-        if(addr_exp1->sym_catg.compare(std::string("valor")) == 0
-           && addr_exp2->sym_catg.compare(std::string("valor")) == 0) {
-            addr_exp1->elem = exp1->addr;
-            addr_exp2->elem = exp2->addr;
+        if(exp1->addr->sym_catg.compare(std::string("valor")) == 0
+           && exp2->addr->sym_catg.compare(std::string("valor")) == 0) {
+            exp1->addr->elem = exp1->addr;
+            exp2->addr->elem = exp2->addr;
         }
-        else if(addr_exp1->sym_catg.compare(std::string("valor")) != 0
-           && addr_exp2->sym_catg.compare(std::string("valor")) == 0) {
-            addr_exp2->elem = exp2->addr;
+        else if(exp1->addr->sym_catg.compare(std::string("valor")) != 0
+           && exp2->addr->sym_catg.compare(std::string("valor")) == 0) {
+            exp2->addr->elem = exp2->addr;
         }
-        else if(addr_exp1->sym_catg.compare(std::string("valor")) == 0
-           && addr_exp2->sym_catg.compare(std::string("valor")) != 0) {
-            addr_exp1->elem = exp1->addr;
+        else if(exp1->addr->sym_catg.compare(std::string("valor")) == 0
+           && exp2->addr->sym_catg.compare(std::string("valor")) != 0) {
+            exp1->addr->elem = exp1->addr;
         }
         //Caso ambos operandos son estructuras o arreglos
-        if (addr_exp1->elem != 0 && addr_exp2->elem != 0)
-            nuevo = new GuavaQuadsExp(operacion,addr_exp1->elem,addr_exp2->elem,addr);
+        if (exp1->addr->elem != 0 && exp2->addr->elem != 0)
+            nuevo = new GuavaQuadsExp(operacion,exp1->addr->elem,exp2->addr->elem,addr);
         //Caso primer operando es estructura o arreglo
-        else if (addr_exp1->elem != 0 && addr_exp2->elem == 0)
-            nuevo = new GuavaQuadsExp(operacion,addr_exp1->elem,exp2->addr,addr);
+        else if (exp1->addr->elem != 0 && exp2->addr->elem == 0)
+            nuevo = new GuavaQuadsExp(operacion,exp1->addr->elem,exp2->addr,addr);
         //Caso segundo operando es estructura o arreglo
-        else if (addr_exp1->elem == 0 && addr_exp2->elem != 0)
-            nuevo = new GuavaQuadsExp(operacion,exp1->addr,addr_exp2->elem,addr);
+        else if (exp1->addr->elem == 0 && exp2->addr->elem != 0)
+            nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr->elem,addr);
         //Caso ambos operandos no son estructuras o arreglos
         else
             nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);

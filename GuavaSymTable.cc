@@ -69,16 +69,9 @@ Symbol* GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol
  * Agrega una variable arreglo o estructura a la tabla.
  */
 Symbol* GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* t,int li = 0,int co = 0, int offset = 0 ){
-    if(catg.compare(std::string("array")) != 0) {
-        Symbol* nuevo = new Symbol(name,catg,scop,t,li,co,offset);
-        this->insert(nuevo);
-        return nuevo;
-    }
-    else {
-        SymbolStructure * nuevo = new SymbolStructure(name,catg,scop,t,li,co,offset);
-        this->insert(nuevo);
-        return nuevo;
-    }
+    Symbol* nuevo = new Symbol(name,catg,scop,t,li,co,offset);
+    this->insert(nuevo);
+    return nuevo;
 }
 
 /**

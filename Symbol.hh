@@ -164,6 +164,18 @@ public:
     
     string contenido = "";  /* Contenido del string si es necesario */
 
+    /* Direccion relativa al desplazamiento para alcanzar un elemento dentro
+     * de una estructura o arreglo.
+     */   
+    Symbol* desp = 0;
+    /* Direccion del elemento de la estructura o arreglo buscado, necesaria 
+     * para el calculo de expresiones que involucren el elemento en cuestion.
+     */  
+    Symbol* elem = 0;
+
+
+
+
     /**
      * Constructor para variable.
      */
@@ -221,41 +233,5 @@ public:
 
     string nombre_mips();
 
-};
-
-/**
- * Especializacion de la clase Symbol, describe una estructura o arreglo.
- *
- * Posee las direcciones necesarias para la generacion de codigo relativo al
- * calculo de direcciones y obtencion de elementos de una estructura o arreglo.
- */
-class SymbolStructure: public Symbol {
-public:
-    /* Direccion relativa al desplazamiento para alcanzar un elemento del
-     * arreglo.
-     */   
-    Symbol* desp = 0;
-    /* Direccion del elemento del arreglo buscado, necesaria para el calculo
-     * de expresiones que involucren el elemento en cuestion.
-     */  
-    Symbol* elem = 0;
-
-    /**
-     * Constructores de la clase SymbolStructure.
-     */
-    SymbolStructure();
-
-    SymbolStructure(std::string name, std::string catg, int scop, Symbol* type, int linea, int columna, int offset); 
-
-    SymbolStructure(std::string name, std::string catg,int scop, TypeS* type,int linea = 0,int columna = 0, int offset = 0);
-    
-    /**
-     * Destructor de la clase SymbolStructure.
-     */
-    ~SymbolStructure();
-
-    bool is_array(){
-        return true;
-    }
 };
 #endif

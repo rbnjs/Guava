@@ -37,7 +37,7 @@ function void main() {
     }
 
     /*x1 := y.a + 5;*/
-    x1 := y.R2arreglo[5].a + 1024;
+    x1 := y.R2arreglo[5].d.b + 1024;
     /*y.R2arreglo[5].a := x1 + 1024;*/
     
     /*bool := true;

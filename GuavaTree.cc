@@ -1685,15 +1685,17 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
         result = exp_id->generar_quads();
     //Caso en que el padre es una arreglo de estructuras.
     if(exp_id != 0 && exp_id->is_array()) {
-        SymbolStructure* est_padre = (SymbolStructure *) exp_id->addr;
+        Symbol* est_padre = exp_id->addr;
         //Se suma el desplazamiento del arreglo la base del atributo
         Symbol* base_atr = new Symbol(offset);
-        Symbol* t = temp->newtemp();
-        GuavaQuadsExp* nuevo_q = new GuavaQuadsExp("+",est_padre->desp,base_atr,t);
+        Symbol* t1 = temp->newtemp();
+        Symbol* t2 = temp->newtemp();
+        GuavaQuadsExp* nuevo_q = new GuavaQuadsExp("+",est_padre->desp,base_atr,t1);
         result->push_back(nuevo_q);
-        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
-        nuevo_addr->desp = t;
-        nuevo_addr->elem = est_padre->elem;
+        nuevo_q = new GuavaQuadsExp("[]",addr,t1,t2);
+        result->push_back(nuevo_q);
+        addr->desp = t1;
+        addr->elem = t2;
     }
     //Caso en que el padre es una estructura.
     else if(exp_id != 0 && !exp_id->is_array()) {
@@ -1703,14 +1705,13 @@ std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
          */
         if(addr->sym_name.compare(std::string("bp")) != 0)
             addr->offset += exp_id->addr->offset;
-        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
-        nuevo_addr->desp = 0;
-        nuevo_addr->elem = 0;
+        Symbol* est_padre = exp_id->addr;
+        addr->desp = est_padre->desp;
+        addr->elem = est_padre->elem;
     }
     else {
-        SymbolStructure* nuevo_addr = (SymbolStructure *) addr;
-        nuevo_addr->desp = 0;
-        nuevo_addr->elem = 0;
+        addr->desp = 0;
+        addr->elem = 0;
         GuavaQuads* comentario = new GuavaComment("EXP IDENTIFICADOR",line,column);
         result->push_front(comentario);
     }

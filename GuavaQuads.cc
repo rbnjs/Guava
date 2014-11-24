@@ -240,9 +240,8 @@ std::string generar_base_estructura(Symbol* s){
 
     if (s->true_type != 0 && (s->true_type->is_structure() || s->true_type->is_union())) {
         //Se verifica si se posee algun arreglo dentro del simbolo
-        SymbolStructure* s_structure = (SymbolStructure *) s;
-        if(s_structure->desp != 0)
-            desplazamiento = s_structure->desp->sym_name;
+        if(s->desp != 0)
+            desplazamiento = s->desp->sym_name;
         else
             desplazamiento = std::to_string(s->offset);
 
@@ -258,7 +257,6 @@ std::string generar_base_estructura(Symbol* s){
  * correspondiente al arreglo.
  */
 std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
-    SymbolStructure* s_array = (SymbolStructure *) s;
     std::string base = "";
     std::string desplazamiento = "";
 
@@ -267,14 +265,14 @@ std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
         /* Para este caso no hay necesidad de verificar si el arreglo es una
          * estructura, puesto que el generador de quads se encargara de eso.
          */
-        base += s_array->sym_name + "[" + s_array->desp->sym_name + "]";
+        base += s->sym_name + "[" + s->desp->sym_name + "]";
     }
     //Caso en el que el l-value no es arreglo
     else {
         if(alcance.compare(std::string("local")) == 0) {
             //Se verifica si se posee algun arreglo dentro del simbolo
-            if(s_array->desp != 0)
-                desplazamiento = s_array->desp->sym_name;
+            if(s->desp != 0)
+                desplazamiento = s->desp->sym_name;
             else
                 desplazamiento = std::to_string(s->offset);
 

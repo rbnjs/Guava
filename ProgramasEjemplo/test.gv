@@ -1,28 +1,3 @@
-declare {
-    integer array arr[10];
-    integer x1,x2;
-    real r;
-    boolean bool;
-    record R1 {
-        integer a,b;
-        record R2 {
-            integer a,b;
-            record R3 {
-                integer a,b;
-            };
-            R3 record d;
-            integer array INTEGERarreglo[10];
-        };
-        R2 record c1,c2;
-        R2 array R2arreglo[10];
-    };
-    
-    real r2;
-    R1 record y;
-    R1 array R1arreglo[10];
-}
-
-function void main() {
 /*declare {
     integer array arr[10];
     integer x1,x2;
@@ -47,7 +22,32 @@ function void main() {
     R1 array R1arreglo[10];
 }*/
 
-    declare {
+function void main() {
+declare {
+    /*integer array arr[10];
+    integer x1,x2;
+    real r;
+    boolean bool;*/
+    record R1 {
+        integer a,b;
+        record R2 {
+            integer a,b;
+            record R3 {
+                integer a,b;
+            };
+            R3 record d;
+            integer array INTEGERarreglo[10];
+        };
+        R2 record c1,c2;
+        R2 array R2arreglo[10];
+    };
+    
+    real r2;
+    R1 record y;
+    R1 array R1arreglo[10];
+}
+
+/*    declare {
         integer array brr[10];
         integer w1,w2;
         record R3 {
@@ -58,7 +58,7 @@ function void main() {
         integer array crr[10];
 
         R3 array R3arreglo[10];
-    }
+    }*/
 
     /*Caso 1 = a.b[i].c*/
     y.R2arreglo[5].a := 1;

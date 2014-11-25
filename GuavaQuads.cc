@@ -332,6 +332,26 @@ std::string generar_desplazamiento_arreglo(Symbol* s, std::string alcance) {
 }
 
 /**
+ * Verifica si una variable es local o se trata de un parametro de una funcion.
+ */
+std::string verificacion_categoria(Symbol* s, std::string alcance) {
+    std::string base = "";
+    //Caso en el que se supone como variable global
+    if(alcance.compare(std::string("global")) == 0) {
+        //Caso en el que sea un parametro de funcion
+        if(s->sym_catg.compare(std::string("param")) == 0)
+            base += "bp[-" + std::to_string(s->offset) + "]";
+        //Caso en el que es efectivamente una variable global
+        else
+            base = generar_base_estructura(s);
+    }
+    //Caso en el que se supone como variable local
+    else {
+        
+    }
+}
+
+/**
  * Para efectos de esta funcion:
  * - arg1 es el r-value.
  * - result es e l-value.

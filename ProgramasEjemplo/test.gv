@@ -23,9 +23,9 @@ declare {
     R1 array R1arreglo[10];
 }
 
-/*function integer suma(integer a) {
-    return a;
-}*/
+function integer suma(integer a,integer b) {
+    return a+b;
+}
 
 function void main() {
     declare {
@@ -40,16 +40,5 @@ function void main() {
 
         R3 array R3arreglo[10];
     }
-
-    bool1 :=  not true;
-    bool2 := false;
-
-    
-    if (not bool2) then {
-        x1 := 1;
-    }
-    else {
-        x2 := 2;
-    }
-
+    x1 := suma(x1,x2);
 }

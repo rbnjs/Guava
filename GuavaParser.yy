@@ -1544,7 +1544,7 @@ expID: identificador   { TypeS* tipo;
                                  };
 
 /*Faltan pruebas*/
-expBool: exp AND exp         { ExpBin* tmp = new ExpBinBoolComparison($1,$3,std::string("AND"));
+expBool: exp AND exp         { ExpBin* tmp = new ExpBinBoolLogic($1,$3,std::string("AND"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);
@@ -1553,7 +1553,7 @@ expBool: exp AND exp         { ExpBin* tmp = new ExpBinBoolComparison($1,$3,std:
                                                         yylloc.begin.column,&driver.tablaSimbolos);
                                $$ = tmp;
                              }
-       | exp OR exp          { ExpBin* tmp = new ExpBinBoolComparison($1,$3,std::string("OR"));
+       | exp OR exp          { ExpBin* tmp = new ExpBinBoolLogic($1,$3,std::string("OR"));
                                tmp->set_line_column(yylloc.begin.line,yylloc.begin.column);
                                std::string msg = tmp->revision_binaria($1,$3,tmp,TypeBool::Instance(),0,mensaje_error_tipos,
                                                                        mensaje_diff_operandos);

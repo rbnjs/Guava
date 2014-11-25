@@ -44,17 +44,6 @@ function void main() {
     bool1 :=  not true;
     bool2 := false;
 
-<<<<<<< HEAD
-    if (1 < 2) then {
-=======
     if(bool1 and bool2) then x1:=1;
     
-    /*if (bool1 and bool2) then {
->>>>>>> 308dc8858ade9ca7bd8979c9700af3290f4bcde4
-        x1 := 1;
-    }
-    else if  (2 > 3) then {
-        x2 := 2;
-    }*/
-
 }

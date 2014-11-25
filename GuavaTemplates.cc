@@ -114,7 +114,7 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
         if (s->is_global() && !s->is_array()){
             //Caso variable global.
             vars->manage_store(s->sym_name);
-            *generador << ("sw "+ s->sym_name+ ", "+ reg->get_nombre() + "\n");
+            *generador << ("sw "+ reg->get_nombre()+ ", "+ s->sym_name + "\n");
         } else if (!s->is_array()) {
             convert << (-s->offset-8); //A partir de -8 es que estan las variables locales.
             vars->manage_store(s->sym_name);
@@ -505,6 +505,8 @@ void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuads
     if (inst->get_op().compare(string(":=")) == 0){
         if (inst->get_result()->is_bp()){
             //Caso []:=
+            this->store(inst->get_result(),Rx);
+        }else if (inst->get_result()->is_global()){
             this->store(inst->get_result(),Rx);
         }else{
             this->load(Rx,inst->get_result());

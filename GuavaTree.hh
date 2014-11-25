@@ -403,8 +403,9 @@ public:
         std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>;
         GuavaQuads* go_to;
         if (valor){
-             go_to = new GuavaGoTo(labels_bool->true_label);
-        }else {
+            go_to = new GuavaGoTo(labels_bool->true_label);
+        }
+        else {
             go_to = new GuavaGoTo(labels_bool->false_label);
         }
         result->push_back(go_to);

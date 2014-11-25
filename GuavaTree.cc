@@ -298,7 +298,7 @@ ExpBinBoolComparison::ExpBinBoolComparison(Exp* exp_1,Exp* exp_2,std::string op)
 }
 
 /** 
- * Retorna una lista de GuavaQuads.
+ * Evaluacion de expresiones booleanas binarias (no incluye jumping code).
  */
 std::list<GuavaQuads*>* ExpBinBoolComparison::generar_quads(){
     std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
@@ -387,7 +387,11 @@ ExpBinBoolLogic::ExpBinBoolLogic(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(e
     }
 }
 
+/**
+ * Evaluacion de expresiones booleanas binarias (incluye jumping code).
+ */
 std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
+    //Caso conjuncion
     if (AND){
         //Busca el label de cada expresion
         BoolLabel* label1 = exp1->bool_label();
@@ -399,19 +403,19 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         label2->false_label = labels_bool->false_label;
         
         std::list<GuavaQuads*>* result = exp1->generar_quads();
-
-        if (labels_bool->true_label->fall()){
-           result->push_back(label1->true_label); 
-        }
-
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
+
         
-        GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
+        if (labels_bool->false_label->fall())
+           result->push_back(label1->false_label); 
+
+        GuavaQuads* comentario = new GuavaComment("EXPRESION AND",line, column);
         result->push_front(comentario);
         
         return result;
-    } 
+    }
+    //Caso disyuncion
     else {
         BoolLabel* label1 = exp1->bool_label();
         BoolLabel* label2 = exp2->bool_label();
@@ -425,16 +429,14 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
         
-        if (labels_bool->false_label->fall()){
-           result->push_back(label1->false_label); 
-        }
+        if (labels_bool->true_label->fall())
+            result->push_back(label1->true_label); 
         
-        GuavaQuads* comentario = new GuavaComment("EXPRESION OR.",line, column);
+        GuavaQuads* comentario = new GuavaComment("EXPRESION OR",line, column);
         result->push_front(comentario);
         
         return result;
     }
-    return 0;
 }
 
 /* Lista Instrucciones */

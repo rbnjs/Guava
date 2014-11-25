@@ -441,7 +441,7 @@ public:
     ~GuavaGoTo(){}
 
     virtual std::string gen(){
-        return "goto  " + go_to->sym_name + "\n"; 
+        return "goto " + go_to->sym_name + "\n"; 
     }
 
     bool is_goto(){ return true; } 

@@ -406,8 +406,6 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
 
-        std::cout << "\n\nEl tamaño de la lista es: " << result->size() << "\n\n";
-        
         if (labels_bool->false_label->fall())
            result->push_back(label1->false_label); 
 

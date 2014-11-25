@@ -44,13 +44,12 @@ function void main() {
     bool1 := true;
     bool2 := false;
 
-    if(bool1 and bool2) then x1:=1;
     
-    /*if (bool1 and bool2) then {
+    if (not bool2) then {
         x1 := 1;
     }
     else {
         x2 := 2;
-    }*/
+    }
 
 }

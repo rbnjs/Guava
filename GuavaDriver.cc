@@ -721,7 +721,8 @@ void insertar_funcion(TypeS* tipo, Identificador* id, LParam* lp ,GuavaDriver* d
         d->error(loc,msg);
     }
     else {
-        tabla->insert_type(id->identificador,std::string("function"),current_scope,function);
+        Symbol * nuevo = tabla->insert_type(id->identificador,std::string("function"),0,function);
+        nuevo->scope_func = current_scope;
     }
 }
 

@@ -76,10 +76,12 @@ Symbol* GuavaSymTable::insert(std::string name,std::string catg,int scop,TypeS* 
 
 /**
  * Inserta un tipo simple.
+ * @return nuevo Retorna un tipo simple.
  */
-void GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
+Symbol* GuavaSymTable::insert_type(std::string name, std::string catg, int sc, TypeS* type){
     Symbol* nuevo = new Symbol(name,catg,sc,type);
     this->insert(nuevo);
+    return  nuevo;
 }
 
 /**

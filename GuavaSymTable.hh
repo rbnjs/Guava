@@ -40,7 +40,7 @@ public:
 
     Symbol* insert(std::string,std::string,int,Symbol*,int,int,int);          /* Inserta simbolo */
     Symbol* insert(std::string,std::string,int,TypeS*,int,int,int);           /* Agrega un arreglo a la tabla. */
-    void insert_type(std::string,std::string,int,TypeS*);                  /* Agrega un tipo basico a la tabla */
+    Symbol* insert_type(std::string,std::string,int,TypeS*);                  /* Agrega un tipo basico a la tabla */
 
     int newScope();                                                        /* Aumenta en uno el alcance. */
     int enterScope();                                                      /* Entra un nuevo alcance  */

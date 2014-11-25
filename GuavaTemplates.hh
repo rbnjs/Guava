@@ -105,6 +105,12 @@ public:
     virtual void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins){}
 
     virtual void operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst){}
+
+    virtual void push(int resta_){}
+
+    virtual void prologo(){}
+
+    virtual void epilogo(){}
 };
 
 /** 
@@ -116,6 +122,8 @@ protected:
     int ufo = 0;
     void revision_div(GuavaDescriptor* Rz);
     void generar_ufo(GuavaDescriptor* Rx);
+    void pop_simple(string v);
+    void push_simple(string v);
 public:
 
     /** 
@@ -137,6 +145,8 @@ public:
     void push(GuavaDescriptor* reg);
 
     void push(Symbol* var);
+
+    void push(int resta_);
 
     void entry_main();
 
@@ -163,6 +173,10 @@ public:
     void operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* ins);
 
     void operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst);
+
+    void prologo();
+
+    void epilogo();
 };
 
 # endif

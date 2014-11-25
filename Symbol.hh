@@ -164,6 +164,8 @@ public:
     
     string contenido = "";  /* Contenido del string si es necesario */
 
+    int scope_func;             /* Scope de las funciones. */
+
     /* Direccion relativa al desplazamiento para alcanzar un elemento dentro
      * de una estructura o arreglo.
      */   

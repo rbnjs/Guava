@@ -111,7 +111,7 @@ GuavaDescTable::GuavaDescTable(list<SimpleSymbol*> s): reg(false){
  */
 GuavaDescTable::~GuavaDescTable(){
     for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin() ; it != tabla.end(); ++it){
-        //delete (*it).second;
+        delete (*it).second;
     }
 }
 

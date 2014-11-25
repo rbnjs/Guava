@@ -1061,7 +1061,6 @@ selectorif: IF '(' errorif ')' THEN '{' {
                                                                     driver.tablaSimbolos.exitScope();
                                                                     identacion.erase(0,2);
                                                                }
-
                                                              }
           | IF '(' errorif ')' THEN instruccion ';'          { 
                                                                ErrorBoolExp* err_exp = $3;
@@ -1339,7 +1338,8 @@ exp: expAritmetica  { /**
                                 */}
    | expID          { $$ = $1; } 
    | '(' exp ')'    { $$ = $2; }
-   | llamadafuncion {  /** 
+   | llamadafuncion { $$ = $1;
+                       /** 
                         * Supondremos que una llamada a una funcion es una expresion.
                         * Para la generacion de codigo intermedio en el addr
                         * guardariamos la direccion de lo que retorne la funcion?

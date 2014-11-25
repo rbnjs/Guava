@@ -22,6 +22,10 @@ declare {
     R1 array R1arreglo[10];
 }
 
+function integer suma(integer a) {
+    return a;
+}
+
 function void main() {
     declare {
         integer array brr[10];
@@ -36,13 +40,11 @@ function void main() {
         R3 array R3arreglo[10];
     }
 
-    /*x1 := y.a + 5;*/
-    x1 := y.R2arreglo[5].d.b + 1024;
-    /*y.R2arreglo[5].a := x1 + 1024;*/
+    x1 := 1 + suma(2);
     
     /*bool := true;
 
-    if (true) then {
+    if (bool) then {
         x1 := 1;
     }
     else {

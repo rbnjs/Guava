@@ -388,6 +388,7 @@ ExpBinBoolLogic::ExpBinBoolLogic(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(e
 }
 
 std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
+    //Caso conjuncion
     if (AND){
         //Busca el label de cada expresion
         BoolLabel* label1 = exp1->bool_label();
@@ -402,15 +403,15 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
         
-        if (labels_bool->false_label->fall()){
+        if (labels_bool->false_label->fall())
            result->push_back(label1->false_label); 
-        }
         
-        GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
+        GuavaQuads* comentario = new GuavaComment("EXPRESION AND",line, column);
         result->push_front(comentario);
         
         return result;
-    } 
+    }
+    //Caso disyuncion
     else {
         BoolLabel* label1 = exp1->bool_label();
         BoolLabel* label2 = exp2->bool_label();
@@ -424,16 +425,14 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
         
-        if (labels_bool->false_label->fall()){
-           result->push_back(label1->false_label); 
-        }
+        if (labels_bool->true_label->fall())
+            result->push_back(label1->true_label); 
         
-        GuavaQuads* comentario = new GuavaComment("EXPRESION OR.",line, column);
+        GuavaQuads* comentario = new GuavaComment("EXPRESION OR",line, column);
         result->push_front(comentario);
         
         return result;
     }
-    return 0;
 }
 
 /* Lista Instrucciones */

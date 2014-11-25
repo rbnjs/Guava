@@ -755,21 +755,7 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
         GuavaQuads* constante_arr = new GuavaQuadsExp("[]",direccion,exp_indice->addr,direccion);
         result->push_front(constante_arr);
         offset_actual += tam_tipo_primitivo;
-        
-        //SI TODO FUNCIONA, LAS SIGUIENTES LINEAS PUEDEN SER BORRADAS.
 
-        /*Exp* exp_tmp = *it;
-        std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
-        Symbol* exp_addr = exp_tmp->addr;
-        if (tmp != 0) result->splice(result->end(), *tmp);
-        Symbol* direccion_a = temp->newtemp();
-        // Me muevo en la direccion del arreglo.
-        GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new Symbol(offset_actual),direccion_a); 
-        // Guardo en la direccion el valor de la expresion.
-        GuavaQuads* guardar_direccion = new GuavaQuadsExp(":=", exp_addr, 0 , direccion_a);
-        result->push_front(obtener_direccion);
-        result->push_front(guardar_direccion);
-        offset_actual += tam_tipo_primitivo;*/
     }
     return result;
 }

@@ -136,6 +136,7 @@ std::list<SimpleSymbol*> GuavaQuadsIf::get_args(){
 }
 
 void GuavaQuadsIf::generar_mips(GuavaTemplates* ge){
+    //ge->condicional(this);
 }
 
 /** 

@@ -193,8 +193,7 @@ void MIPS::push(Symbol* var){
     *generador << "subu $sp, $sp, " + convert.str() + "\n"; 
     if ((*vars)[var->sym_name] != 0){
         GuavaDescriptor* desc_var = (*vars)[var->sym_name];
-        convert_2 << offset_actual;
-        SimpleSymbol* lugar = new SimpleSymbol(convert_2.str()+"($sp)");
+        SimpleSymbol* lugar = lugar_pila(offset_actual);
         desc_var->set_symbol(lugar);
     }
 }
@@ -422,25 +421,33 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
  */
 void MIPS::load(GuavaDescriptor* reg, SimpleSymbol* tmp){
     if (reg->find_by_name(tmp->sym_name) != 0) return; //La variable ya se encuentra en el descriptor
-    Symbol* var = (Symbol*) tmp;
-
-    if (table->lookup(var->sym_name) == 0){
-        //Caso constante.
-        if (var->get_tipo() != TypeReal::Instance()){
-            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
-            regs->manage_LD(reg->get_nombre(),var);
-            vars->manage_LD(reg->get_nombre(),var);
-        }else {
-            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
-            regs_float->manage_LD(reg->get_nombre(),var);
-            vars->manage_LD(reg->get_nombre(),var);
+    
+    if (table->lookup(tmp->sym_name) == 0){
+        //Caso variable que no esta en la tabla de simbolos.
+        if (tmp->is_simple()){
+            if (tmp->is_reg()){
+                *generador << "lw " + reg->get_nombre() + ", " + tmp->sym_name + "\n";                 
+            }else{
+                *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+            }
+        } else if (tmp->is_bool()){
+            if (tmp->is_true()) *generador << "li " + reg->get_nombre() + ", 1 \n";
+            else                *generador << "li " + reg->get_nombre() + ", 0 \n";
+        }else if (tmp->is_number()){
+            *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+        }else if (tmp->is_bp()){
+            *generador << "lw " + reg->get_nombre() + ", " + tmp->bp_mips()+ "\n";
         }
     }else{
-        //Caso variable
-        *generador << "lw " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD WORD \n";
-        regs->manage_LD(reg->get_nombre(),var);
-        regs_float->manage_LD(reg->get_nombre(),var);
-        vars->manage_LD(reg->get_nombre(),var);
+        //Caso variable se encuentra en la tabla de simbolos.
+        Symbol * var = (Symbol*) tmp;
+        if (var->is_global()){
+            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->sym_name + "\n";
+            else  *generador << "la " + reg->get_nombre() + ", " + var->sym_name + "\n";
+        }else{
+            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->bp_mips() + "\n";
+            else  *generador << "la " + reg->get_nombre() + ", " + var->bp_mips() + "\n";
+        }
     }
 }
 

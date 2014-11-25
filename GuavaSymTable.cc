@@ -54,9 +54,9 @@ void GuavaSymTable::insert(Symbol* elem) {
     }
 }
 
-void GuavaSymTable::insert(Symbol elem){
+/*void GuavaSymTable::insert(Symbol elem){
     this->insert(&elem);
-}
+}*/
 
 /* Inserta un simbolo */
 Symbol* GuavaSymTable::insert(std::string name, std::string catg, int sc, Symbol* type,int line, int column, int offset){
@@ -195,6 +195,16 @@ void GuavaSymTable::show(int scope, std::string identacion){
             if (tmp->scope == scope) tmp->show(identacion);
         }
     }
+}
+
+/**  
+ * Asigna un nuevo scope para la tabla.
+ *
+ * @param sc Scope deseado.
+ */
+void GuavaSymTable::set_scope(int sc){
+    alcance = sc;
+    pila.push_front(sc);
 }
 
 /** 

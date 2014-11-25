@@ -457,7 +457,7 @@ void GrafoFlujo::generar_mips(){
         }
     }
     breadth_first_search(grafo,entry,visitor(vis));
-    delete guava_gen;
+    guava_gen->close();
 }
 
 /** 

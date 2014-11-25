@@ -39,6 +39,8 @@ public:
 
     ~GuavaGenerator();
 
+    void close();
+
     void gen(std::string code);
 
     void operator<<(string code);

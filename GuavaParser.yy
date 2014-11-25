@@ -398,10 +398,11 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());
                                                    int line = yylloc.begin.line;
                                                    int column = yylloc.begin.column;
-                                                   driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
+                                                   Symbol * nuevo = driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
                                                                                 0,tipo,line,column, 0);
-                                                   identacion += "  ";
-                                                   offset_actual.push_front(0);
+                                                    nuevo->scope_func = current_scope;
+                                                    identacion += "  ";
+                                                    offset_actual.push_front(0);
                                                  } 
            bloquedeclare listainstrucciones  '}' { LParam* lp = new LParam();
                                                    TypeS* tipo = new TypeFunction(TypeVoid::Instance(),std::list<TypeS*>());

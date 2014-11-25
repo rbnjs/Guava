@@ -42,7 +42,7 @@ public:
  */
 class ExpBool{
 public:
-    BoolLabel* labels_bool;
+    BoolLabel* labels_bool; /* Label booleano */
     ExpBool(){ labels_bool = new BoolLabel(); }
     ~ExpBool(){};
 };

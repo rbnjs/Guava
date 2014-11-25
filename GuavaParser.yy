@@ -172,7 +172,7 @@ bloqueprincipal: {
                                                 if (driver.print_graph){
                                                     g->imprimir();
                                                 }
-                                                //g->generar_mips();
+                                                g->generar_mips();
                                             }
                                          };
 
@@ -399,7 +399,7 @@ funcionmain: FUNCTION TYPE_VOID MAIN '(' ')' '{' { current_scope = driver.tablaS
                                                    int line = yylloc.begin.line;
                                                    int column = yylloc.begin.column;
                                                    driver.tablaSimbolos.insert(std::string("main"),std::string("function"),
-                                                                                current_scope,tipo,line,column, 0);
+                                                                                0,tipo,line,column, 0);
                                                    identacion += "  ";
                                                    offset_actual.push_front(0);
                                                  } 

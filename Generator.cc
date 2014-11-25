@@ -29,6 +29,15 @@ GuavaGenerator::~GuavaGenerator(){
     }
 }
 
+/** 
+ * Cierra el archivo.
+ */
+void GuavaGenerator::close(){
+    if (file.is_open()){
+        file.close();
+    }
+}
+
 /**
  * Escribe el codigo en el archivo.
  * @param code: Codigo final

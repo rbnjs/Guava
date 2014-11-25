@@ -181,6 +181,46 @@ void MIPS::push(GuavaDescriptor* reg){
 }
 
 /** 
+ * Agrega una variable en la pila.
+ * Lo que voy a hacer es agregar espacio en la pila del tamaño de la variable
+ * @param var Simbolo variable.
+ */
+void MIPS::push(Symbol* var){
+    ostringstream convert;
+    ostringstream convert_2;
+    convert << var->width;
+    offset_actual += var->width;
+    *generador << "subu $sp, $sp, " + convert.str() + "\n"; 
+    if ((*vars)[var->sym_name] != 0){
+        GuavaDescriptor* desc_var = (*vars)[var->sym_name];
+        convert_2 << offset_actual;
+        SimpleSymbol* lugar = new SimpleSymbol(convert_2.str()+"($sp)");
+        desc_var->set_symbol(lugar);
+    }
+}
+
+/** 
+ * Resta un offset_ determinado a la pila.
+ */
+void MIPS::push(int offset_){
+    offset_actual += offset_;
+    ostringstream convert;
+    convert << offset_;
+    *generador << "sub $sp, $sp, " + convert.str()+ "\n";
+}
+
+/** 
+ * Este codigo siempre se ejecuta antes
+ * de una función.
+ */
+void MIPS::prologo(){
+    *generador << "subu $sp, $sp, 8 \n";
+    *generador << "sw $ra, 0($sp) \n";
+    *generador << "sw $fp , 4($sp) \n";
+    *generador << "add $fp, $sp, 8\n";
+}
+
+/** 
  * Genera codigo para el entry de un main.
  * Hay ciertas cosas que hay que considerar:
  *   1) Estoy usando _character para imprimir los caracteres en MIPS.
@@ -190,21 +230,54 @@ void MIPS::entry_main(){
     list<Symbol*> globals = table->obtain_globals();
     *generador << ".data\n";
     *generador << "_character: .space 4\n";
-    *generador << "_aviso_div: .asciiz \"Div by 0 exception\n\"";
+    *generador << "_aviso_div: .asciiz \"Div by 0 exception\"\n";
     for (list<Symbol*>::iterator it = globals.begin(); it != globals.end(); ++it){
         (*it)->generar_mips(generador); 
-    }
+    }  
     *generador << ".text\n";
-    Symbol* main_ = table->lookup(string("main"));
-    cout << "";
+    list<Symbol*> lista_push = table->obtain_symbols(table->currentScope());
+
+    this->prologo();
+    int resta_ = 0;
+    for (list<Symbol*>::iterator it = lista_push.begin(); it != lista_push.end(); ++it){
+       if (!(*it)->sym_catg.compare(string("function")) == 0)
+           resta_ += (*it)->width;
+    }
+    this->push(resta_);
+
+}
+
+/** 
+ * Hace un pop simple en la pila.
+ * @param r Registro que se quiere popear.
+ */
+void MIPS::pop_simple(string r){
+    *generador << "addi $sp, $sp, 4 \n"; 
+    *generador << "lw " + r + ", 0($sp)\n";    
+}
+/**
+ * Hace un push simple en la pila.
+ * @param r Registro que se quiere pushear.
+ */
+void MIPS::push_simple(string r){
+    *generador << "sw "+ r +" , 0($sp)\n";
+    *generador << "addi $sp, $sp, 4\n";
+}
+
+void MIPS::epilogo(){
+    ostringstream convert;
+    convert << offset_actual;
+    *generador << "addi $sp ,  $sp , " +convert.str() + " #EPILOGUE\n";
 }
 
 /** 
  * Para el mips hace la llamada al sistema numero 10 (exit).
  */
 void MIPS::exit_main(){
+    
     *generador << "li $v0, 10\n";
     *generador << "syscall\n";
+    table->exitScope();
 }
 
 /** 

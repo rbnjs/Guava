@@ -37,7 +37,7 @@ GuavaSymTable.o: GuavaSymTable.cc GuavaSymTable.hh Symbol.hh
 
 	$(CC) $(CFLAGS) GuavaSymTable.cc
 
-Symbol.o: Symbol.cc Symbol.hh Types.hh
+Symbol.o: Symbol.cc Symbol.hh Types.hh Generator.hh
 
 	$(CC) $(CFLAGS) Symbol.cc
 

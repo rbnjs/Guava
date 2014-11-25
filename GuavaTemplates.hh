@@ -113,6 +113,8 @@ public:
     virtual void epilogo(){}
 
     virtual void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst){}
+
+    virtual void condicional_not(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst){}
 };
 
 /** 
@@ -122,6 +124,7 @@ class MIPS: public GuavaTemplates{
 protected:
     int div_ = 0;
     int ufo = 0;
+    int sec_if = 0;
     void revision_div(GuavaDescriptor* Rz);
     void generar_ufo(GuavaDescriptor* Rx);
     void pop_simple(string v);
@@ -181,6 +184,8 @@ public:
     void epilogo();
 
     void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
+
+    virtual void condicional_not(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
 
 };
 

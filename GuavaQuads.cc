@@ -167,8 +167,15 @@ std::list<SimpleSymbol*> GuavaQuadsIfNot::get_args(){
     return args;
 }
 
-void GuavaQuadsIfNot::generar_mips(GuavaTemplates* ge){
-
+void GuavaQuadsIfNot::generar_mips(GuavaTemplates* gen){
+    RegisterAllocator* get_reg;
+    if (this->get_result()->get_tipo() != TypeReal::Instance()){
+       get_reg = gen->get_reg_alloc(); 
+    }else{
+       get_reg = gen->get_reg_float_alloc(); 
+    }
+    list<GuavaDescriptor*> registros = get_reg->getReg(this);
+    gen->condicional_not(registros, this);
 }
  
 /** 

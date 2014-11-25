@@ -407,8 +407,6 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
         
-
-        
         GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
         result->push_front(comentario);
         

@@ -122,8 +122,10 @@ TypeS* Symbol::get_tipo(){
 void Symbol::generar_mips(GuavaGenerator* g){
     ostringstream convert;
     if (contenido.empty()){
-        convert << width;
-        *g << sym_name + ": .space " + convert.str() + "\n";
+        if (width > 0){
+            convert << width;
+            *g << sym_name + ": .space " + convert.str() + "\n";
+        }
     }else{
         *g << sym_name+ ": .asciiz " +contenido + "\n";
     }

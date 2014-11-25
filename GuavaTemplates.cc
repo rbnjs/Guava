@@ -118,7 +118,7 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
         } else if (!s->is_array()) {
             convert << s->offset;
             vars->manage_store(s->sym_name);
-            *generador << ("sw "+ convert.str() + "($sp) , "+ reg->get_nombre() + "\n" );
+            *generador << ("sw "+ reg->get_nombre() +", " + convert.str() + "($fp) \n" );
         }else{
             //Caso arreglo.
         }
@@ -449,6 +449,9 @@ void MIPS::load(GuavaDescriptor* reg, SimpleSymbol* tmp){
             else  *generador << "la " + reg->get_nombre() + ", " + var->bp_mips() + "\n";
         }
     }
+    vars->manage_LD(reg->get_nombre(),tmp);
+    regs->manage_LD(reg->get_nombre(),tmp);
+    regs_float->manage_LD(reg->get_nombre(),tmp);
 }
 
 /** 
@@ -498,7 +501,12 @@ void MIPS::generar_ufo(GuavaDescriptor* Rx){
  */
 void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst){
     if (inst->get_op().compare(string(":=")) == 0){
-        this->load(Rx,inst->get_result());
+        if (inst->get_result()->is_bp()){
+            //Caso []:=
+            this->store(inst->get_result(),Rx);
+        }else{
+            this->load(Rx,inst->get_result());
+        }
     } else if (inst->get_op().compare(string("-")) == 0){
         *generador << "neg " + Rx->get_nombre() +", "+ Ry->get_nombre() + "#UMINUS \n";
     } else if (inst->get_op().compare("pincrease") == 0){

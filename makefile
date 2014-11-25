@@ -1,4 +1,4 @@
-CC=clang++
+CC=g++
 
 OBJ=Generator.o Types.o Symbol.o GuavaSymTable.o GuavaQuads.o GetReg.o GuavaTemplates.o  GuavaDescriptor.o  GrafoBloques.o GuavaTree.o GuavaDriver.o GuavaParser.o GuavaLexer.o Guava.o
 

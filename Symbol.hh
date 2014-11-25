@@ -27,6 +27,12 @@
 #define UNDEF -1
 
 using namespace std;
+
+bool is_number_func(const std::string& s);
+
+
+
+
 /**
  * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
  * intermedio.
@@ -132,11 +138,7 @@ public:
     }
 
     bool is_number(){
-        regex entero("(\\d+)");
-        regex real("(d)+\\.(d)+");
-        bool is_real = regex_match(sym_name,real);
-        bool is_int = regex_match(sym_name,entero);
-        return (is_int || is_real);
+        return is_number_func(sym_name);
     }
 
     bool is_bp(){

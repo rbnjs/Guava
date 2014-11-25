@@ -176,8 +176,6 @@ public:
     Symbol* elem = 0;
 
 
-
-
     /**
      * Constructor para variable.
      */

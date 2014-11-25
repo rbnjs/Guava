@@ -240,7 +240,6 @@ void MIPS::entry_main(){
     this->prologo();
     int resta_ = 0;
     for (list<Symbol*>::iterator it = lista_push.begin(); it != lista_push.end(); ++it){
-       if (!(*it)->sym_catg.compare(string("function")) == 0)
            resta_ += (*it)->width;
     }
     this->push(resta_);

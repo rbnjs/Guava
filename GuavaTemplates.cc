@@ -274,7 +274,6 @@ void MIPS::epilogo(){
  * Para el mips hace la llamada al sistema numero 10 (exit).
  */
 void MIPS::exit_main(){
-    this->epilogo();
     *generador << "li $v0, 10\n";
     *generador << "syscall\n";
     table->exitScope();
@@ -651,3 +650,20 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
         *generador << "_if_lab"+convert.str()+": \n";
     }
 }
+
+/** 
+ * Genera codigo para return
+ */
+void MIPS::return_t(GuavaDescriptor* desc, GuavaQuadsExp* i){
+    if (desc != 0) *generador << "sw " + desc->get_nombre()+ " 4($fp) #RETURN\n";
+    this->epilogo();
+    *generador << "jr\n";
+}
+
+/** 
+ * Llama a una funcion.
+ */
+void MIPS::gen_call(GuavaQuadsExp* i){
+    *generador << "jal " + i->get_op() + "\n"; 
+}
+

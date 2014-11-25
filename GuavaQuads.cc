@@ -207,7 +207,7 @@ void GuavaParam::update_use(){
 
 void GuavaParam::generar_mips(GuavaTemplates* gen){
     RegisterAllocator* get_reg;
-    if (this->get_result()->get_tipo() != TypeReal::Instance()){
+    if (this->addr->get_tipo() != TypeReal::Instance()){
        get_reg = gen->get_reg_alloc(); 
     }else{
        get_reg = gen->get_reg_float_alloc(); 
@@ -227,7 +227,7 @@ void GuavaParam::attach_info(){
 }
 
 void GuavaCall::generar_mips(GuavaTemplates* t){
-
+    t->gen_call(this);
 }
 
 
@@ -245,14 +245,32 @@ void GuavaGoTo::generar_mips(GuavaTemplates* g){
  */
 void GuavaEntradaSalida::generar_mips(GuavaTemplates* t){
     if (this->get_op().compare("read") == 0){
-
+    RegisterAllocator* get_reg;
+        if (this->get_result()->get_tipo() != TypeReal::Instance()){
+           get_reg = t->get_reg_alloc(); 
+        }else{
+           get_reg = t->get_reg_float_alloc(); 
+        }
+        list<GuavaDescriptor*> registros = get_reg->getReg(this);
+        t->read(registros.front(), this);
     }else{
         t->print(this->get_arg1());
     }
 }
 
 void GuavaQuadsReturn::generar_mips(GuavaTemplates* t){
-
+    RegisterAllocator* get_reg;
+    if (this->get_arg1()->get_tipo() != TypeReal::Instance()){
+       get_reg = t->get_reg_alloc(); 
+    }else{
+       get_reg = t->get_reg_float_alloc(); 
+    }
+    list<GuavaDescriptor*> registros = get_reg->getReg(this);   
+    if (registros.empty()){
+        t->return_t(0,this);
+    }else{
+        t->return_t(registros.front(), this);
+    }
 }
 
 /**

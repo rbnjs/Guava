@@ -45,8 +45,6 @@ function void main() {
     bool2 := false;
 
     
-<<<<<<< HEAD
-=======
     if (not bool2) then {
         x1 := 1;
     }
@@ -54,5 +52,4 @@ function void main() {
         x2 := 2;
     }
 
->>>>>>> adf3d54cfa08bd700d9f9b969cafe0758cbb3660
 }

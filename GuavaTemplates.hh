@@ -92,7 +92,6 @@ public:
 
     virtual void move(GuavaDescriptor* reg, string reg_2, Symbol* result){}
     
-    virtual void read(GuavaDescriptor* reg , Symbol* result){}
 
     virtual void print(Symbol* arg){}
 
@@ -115,6 +114,12 @@ public:
     virtual void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst){}
 
     virtual void condicional_not(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst){}
+
+    virtual void return_t( GuavaDescriptor* desc, GuavaQuadsExp* i){}
+
+    virtual void gen_call(GuavaQuadsExp* e){}
+
+    void read(GuavaDescriptor* reg, GuavaQuadsExp* i){}
 };
 
 /** 
@@ -185,7 +190,12 @@ public:
 
     void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
 
-    virtual void condicional_not(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
+    void condicional_not(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
+
+    void return_t( GuavaDescriptor* desc,GuavaQuadsExp* i);
+
+    void gen_call(GuavaQuadsExp* e);
+
 
 };
 

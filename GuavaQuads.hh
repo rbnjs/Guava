@@ -642,6 +642,12 @@ public:
         result.push_back(addr);
         return result;
     }
+    
+    list<SimpleSymbol*> get_args(){
+        list<SimpleSymbol*> result;
+        result.push_back(addr);
+        return result;
+    }
 };
 
 class GuavaCall: public GuavaQuadsExp{

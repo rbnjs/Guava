@@ -114,7 +114,7 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
         if (s->is_global() && !s->is_array()){
             //Caso variable global.
             vars->manage_store(s->sym_name);
-            *generador << ("sw "+ s->sym_name+ ", "+ reg->get_nombre() + "\n");
+            *generador << ("sw "+ reg->get_nombre()+ ", "+ s->sym_name + "\n");
         } else if (!s->is_array()) {
             convert << (-s->offset-8); //A partir de -8 es que estan las variables locales.
             vars->manage_store(s->sym_name);
@@ -274,7 +274,6 @@ void MIPS::epilogo(){
  * Para el mips hace la llamada al sistema numero 10 (exit).
  */
 void MIPS::exit_main(){
-    this->epilogo();
     *generador << "li $v0, 10\n";
     *generador << "syscall\n";
     table->exitScope();
@@ -506,6 +505,8 @@ void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuads
         if (inst->get_result()->is_bp()){
             //Caso []:=
             this->store(inst->get_result(),Rx);
+        }else if (inst->get_result()->is_global()){
+            this->store(inst->get_result(),Rx);
         }else{
             this->load(Rx,inst->get_result());
         }
@@ -540,25 +541,29 @@ void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDes
         this->revision_div(Rz);
         *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # MOD\n";
         *generador << "move "+ Rx->get_nombre() + ",  $hi \n";
-    }else if (inst->get_op().compare(string("**"))){
+    }else if (inst->get_op().compare(string("**")) == 0){
         *generador << "#POW TODAVIA NO\n";
-    }else if (inst->get_op().compare(string("<=>"))){
+    }else if (inst->get_op().compare(string("<=>")) == 0){
         *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
         this->generar_ufo(Rx);
     }
     // Operaciones de comparacion
-    else if (inst->get_op().compare(string(">"))){
+    else if (inst->get_op().compare(string(">")) == 0){
         *generador << "sgt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y > z \n";
-    } else if (inst->get_op().compare(string("<"))){
+    } else if (inst->get_op().compare(string("<")) == 0){
         *generador << "slt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y < z \n";
-    } else if (inst->get_op().compare(string("="))){
+    } else if (inst->get_op().compare(string("=")) == 0){
         *generador << "seq " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y = z \n";
-    } else if (inst->get_op().compare(string("!="))){
+    } else if (inst->get_op().compare(string("!=")) == 0){
         *generador << "sne " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y != z \n";
-    } else if (inst->get_op().compare(string(">="))){
+    } else if (inst->get_op().compare(string(">=")) == 0){
         *generador << "sge " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y >= z \n";
-    } else if (inst->get_op().compare(string("<="))){
+    } else if (inst->get_op().compare(string("<=")) == 0){
         *generador << "sle " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y <= z \n";
+    }else if (inst->get_op().compare(string("AND")) == 0){
+        *generador << "and " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# AND \n";
+    }else if (inst->get_op().compare(string("OR")) == 0){
+        *generador << "or " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# AND \n";
     }
 }
 
@@ -590,9 +595,75 @@ void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
  * Genera codigo para if.
  */
 void MIPS::condicional(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion){
-    GuavaDescriptor* Ry = lregs.back();
-    GuavaDescriptor* Rx = lregs.front();
-    lregs.pop_front();
-    GuavaDescriptor* Rz = lregs.front();
-    this->operacion_ternaria(Rx, Ry, Rz, instruccion);
+    if (lregs.size() == 3){
+         GuavaDescriptor* Ry = lregs.back();
+        GuavaDescriptor* Rx = lregs.front();
+        lregs.pop_front();
+        GuavaDescriptor* Rz = lregs.front();
+        this->operacion_ternaria(Rx, Ry, Rz, instruccion);
+        regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        vars->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        ostringstream convert;
+        convert << sec_if;
+        sec_if++;
+        *generador << "beqz " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        this->go_to(instruccion->get_result());
+        *generador << "_if_lab"+convert.str()+": ";
+    }else{
+        GuavaDescriptor* Rx = lregs.front();
+        ostringstream convert;
+        convert << sec_if;
+        sec_if++;
+        *generador << "beqz " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        this->go_to(instruccion->get_result());
+        *generador << "_if_lab"+convert.str()+": \n";
+    }
 }
+
+/** 
+ * Genera codigo para if not.
+ */
+void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion){
+    if (lregs.size() == 3){
+         GuavaDescriptor* Ry = lregs.back();
+        GuavaDescriptor* Rx = lregs.front();
+        lregs.pop_front();
+        GuavaDescriptor* Rz = lregs.front();
+        this->operacion_ternaria(Rx, Ry, Rz, instruccion);
+        regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        vars->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        ostringstream convert;
+        convert << sec_if;
+        sec_if++;
+        *generador << "bnez " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        this->go_to(instruccion->get_result());
+        *generador << "_if_lab"+convert.str()+": ";
+    }else{
+        GuavaDescriptor* Rx = lregs.front();
+        ostringstream convert;
+        convert << sec_if;
+        sec_if++;
+        *generador << "bnez " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        this->go_to(instruccion->get_result());
+        *generador << "_if_lab"+convert.str()+": \n";
+    }
+}
+
+/** 
+ * Genera codigo para return
+ */
+void MIPS::return_t(GuavaDescriptor* desc, GuavaQuadsExp* i){
+    if (desc != 0) *generador << "sw " + desc->get_nombre()+ " 4($fp) #RETURN\n";
+    this->epilogo();
+    *generador << "jr\n";
+}
+
+/** 
+ * Llama a una funcion.
+ */
+void MIPS::gen_call(GuavaQuadsExp* i){
+    *generador << "jal " + i->get_op() + "\n"; 
+}
+

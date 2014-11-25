@@ -44,7 +44,7 @@ function void main() {
     bool1 := true;
     bool2 := false;
 
-    if (bool1 and bool2) then {
+    if (true and false) then {
         x1 := 1;
     }
     else {

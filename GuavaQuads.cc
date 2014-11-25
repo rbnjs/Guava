@@ -135,8 +135,18 @@ std::list<SimpleSymbol*> GuavaQuadsIf::get_args(){
     return args;
 }
 
-void GuavaQuadsIf::generar_mips(GuavaTemplates* ge){
-    //ge->condicional(this);
+/**
+ * Genera mips para expresiones condicionales.
+ */
+void GuavaQuadsIf::generar_mips(GuavaTemplates* gen){
+    RegisterAllocator* get_reg;
+    if (this->get_result()->get_tipo() != TypeReal::Instance()){
+       get_reg = gen->get_reg_alloc(); 
+    }else{
+       get_reg = gen->get_reg_float_alloc(); 
+    }
+    list<GuavaDescriptor*> registros = get_reg->getReg(this);
+    gen->condicional(registros, this);
 }
 
 /** 

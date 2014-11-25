@@ -399,12 +399,15 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         label2->false_label = labels_bool->false_label;
         
         std::list<GuavaQuads*>* result = exp1->generar_quads();
+
+        if (labels_bool->true_label->fall()){
+           result->push_back(label1->true_label); 
+        }
+
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
         
-        if (labels_bool->false_label->fall()){
-           result->push_back(label1->false_label); 
-        }
+
         
         GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
         result->push_front(comentario);
@@ -1033,7 +1036,7 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
         result->push_back(label->false_label);
         std::list<GuavaQuads*>* code_2 = lelseif->generar_quads();
         result->splice(result->end(),*code_2);
-    }     
+    } 
     GuavaQuads* comentario = new GuavaComment("SELECTOR IF COMPLEJO",line,column);
     result->push_front(comentario);
     return result;

@@ -1674,9 +1674,9 @@ bool ExpID::operator==(ExpID id){
 
 /* Class ExpIdentificador */
 
-ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id){}
+ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id), ExpBool(){}
 
-ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id){}
+ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id), ExpBool(){}
 
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();

@@ -40,15 +40,13 @@ function void main() {
         R3 array R3arreglo[10];
     }
 
-    x1 := 1 + suma(2);
-    
-    /*bool := true;
+    bool := true;
 
     if (bool) then {
         x1 := 1;
     }
     else {
         x2 := 2;
-    }*/
+    }
 
 }

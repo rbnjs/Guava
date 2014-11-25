@@ -1737,13 +1737,15 @@ public:
     }
 };
 
-class ExpIdentificador: public ExpID{
+class ExpIdentificador: public ExpID, public ExpBool {
 public:
     ExpIdentificador(Identificador* id);
     ExpIdentificador(ExpID* exp_,Identificador* id);
     ~ExpIdentificador(){}
 
     virtual std::list<GuavaQuads*>* generar_quads();
+    virtual BoolLabel* bool_label() {return labels_bool;}
+    bool exp_bool(){return tipo == TypeBool::Instance();}
     
 };
 

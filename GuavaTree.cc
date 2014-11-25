@@ -301,29 +301,82 @@ ExpBinBoolComparison::ExpBinBoolComparison(Exp* exp_1,Exp* exp_2,std::string op)
  * Retorna una lista de GuavaQuads.
  */
 std::list<GuavaQuads*>* ExpBinBoolComparison::generar_quads(){
-    std::list<GuavaQuads*>* result = exp1->generar_quads();
-    std::list<GuavaQuads*>* code = exp2->generar_quads();
-    if (code != 0) result->splice(result->end(), *code);
-    Symbol* test_symbol = temp->newtemp();
-    GuavaQuads* test = new GuavaQuadsExp(operacion, exp1->addr,exp2->addr,test_symbol);
-    result->push_back(test);
+    std::list<GuavaQuads*>* quads1 = exp1->generar_quads();
+    std::list<GuavaQuads*>* quads2 = exp2->generar_quads();
+    GuavaQuads* nuevo = 0;
+    addr = temp->newtemp();
 
-    if ( !labels_bool->true_label->fall() && !labels_bool->false_label->fall()){
-        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,test_symbol,0,labels_bool->true_label); 
+    /*Se verifica si los operandos son estructuras, arreglos o variables
+     *y dependiendo del caso se asigna la localidad del valor
+     *correspondiente.
+     */
+    //Verificacion de valores constantes
+    if(exp1->addr->sym_catg.compare(std::string("valor")) == 0
+       && exp2->addr->sym_catg.compare(std::string("valor")) == 0) {
+        exp1->addr->elem = exp1->addr;
+        exp2->addr->elem = exp2->addr;
+    }
+    else if(exp1->addr->sym_catg.compare(std::string("valor")) != 0
+            && exp2->addr->sym_catg.compare(std::string("valor")) == 0) {
+        exp2->addr->elem = exp2->addr;
+    }
+    else if(exp1->addr->sym_catg.compare(std::string("valor")) == 0
+            && exp2->addr->sym_catg.compare(std::string("valor")) != 0) {
+        exp1->addr->elem = exp1->addr;
+    }
+    //Caso ambos operandos son estructuras o arreglos
+    if (exp1->addr->elem != 0 && exp2->addr->elem != 0)
+        nuevo = new GuavaQuadsExp(operacion,exp1->addr->elem,exp2->addr->elem,addr);
+    //Caso primer operando es estructura o arreglo
+    else if (exp1->addr->elem != 0 && exp2->addr->elem == 0)
+        nuevo = new GuavaQuadsExp(operacion,exp1->addr->elem,exp2->addr,addr);
+    //Caso segundo operando es estructura o arreglo
+    else if (exp1->addr->elem == 0 && exp2->addr->elem != 0)
+        nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr->elem,addr);
+    //Caso ambos operandos no son estructuras o arreglos
+    else
+        nuevo = new GuavaQuadsExp(operacion,exp1->addr,exp2->addr,addr);
+    
+    //Se verifica que la expresion izquierda no sea un identificador
+    if (quads1 != 0) {
+        //Se verifica que la expresion derecha no sea un identificador
+        if (quads2 != 0) {
+            quads1->splice(quads1->end(),*quads2);
+        }
+        quads1->push_back(nuevo);
+        listaQuads = quads1;
+    }
+    //Se verifica que la expresion derecha no sea un identificador
+    else if (quads2 != 0){
+        quads2->push_back(nuevo);
+        listaQuads = quads2;
+    }
+    //Caso ambas expresiones identificadores
+    else {
+        listaQuads = new std::list<GuavaQuads *>();
+        listaQuads->push_back(nuevo);
+    }   
+
+    //Verificacion de booleanos y jumping code.
+    if (!labels_bool->true_label->fall() && !labels_bool->false_label->fall()){
+        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,addr,0,labels_bool->true_label); 
         GuavaQuads* go_to = new GuavaGoTo(labels_bool->false_label);
-        result->push_back(if_quad);
-        result->push_back(go_to);
-    }else if (!labels_bool->true_label->fall()){
-        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,test_symbol,0,labels_bool->true_label); 
-        result->push_back(if_quad);
-    }else if (!labels_bool->false_label->fall()) {
-        GuavaQuads* if_not = new GuavaQuadsIfNot(operacion,test_symbol,0,labels_bool->false_label);
-        result->push_back(if_not);
+        listaQuads->push_back(if_quad);
+        listaQuads->push_back(go_to);
+    }
+    else if (!labels_bool->true_label->fall()){
+        GuavaQuads* if_quad = new GuavaQuadsIf(operacion,addr,0,labels_bool->true_label); 
+        listaQuads->push_back(if_quad);
+    }
+    else if (!labels_bool->false_label->fall()) {
+        GuavaQuads* if_not = new GuavaQuadsIfNot(operacion,addr,0,labels_bool->false_label);
+        listaQuads->push_back(if_not);
     }
 
     GuavaQuads* comentario = new GuavaComment("EXPRESION COMPARACIÓN.",line, column);
-    result->push_front(comentario);
-    return result;
+    listaQuads->push_front(comentario);
+    
+    return listaQuads;
 }
 
 /* ExpBinBoolLogic */
@@ -336,38 +389,49 @@ ExpBinBoolLogic::ExpBinBoolLogic(Exp* exp_1,Exp* exp_2,std::string op): ExpBin(e
 
 std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
     if (AND){
+        //Busca el label de cada expresion
         BoolLabel* label1 = exp1->bool_label();
         BoolLabel* label2 = exp2->bool_label();
+        //Si la primera expresion da true, cae y evalua la siguiente
         label1->true_label = new GuavaFall();
         label1->false_label = (!labels_bool->false_label->fall() ? labels_bool->false_label : new GuavaLabel());
         label2->true_label = labels_bool->true_label;
         label2->false_label = labels_bool->false_label;
+        
         std::list<GuavaQuads*>* result = exp1->generar_quads();
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
+        
         if (labels_bool->false_label->fall()){
            result->push_back(label1->false_label); 
         }
+        
         GuavaQuads* comentario = new GuavaComment("EXPRESION AND.",line, column);
         result->push_front(comentario);
+        
         return result;
-    } else {
+    } 
+    else {
         BoolLabel* label1 = exp1->bool_label();
         BoolLabel* label2 = exp2->bool_label();
+        
         label1->false_label = new GuavaFall();
         label1->true_label = (!labels_bool->true_label->fall() ? labels_bool->true_label : new GuavaLabel());
         label2->true_label = labels_bool->true_label;
         label2->false_label = labels_bool->false_label;
+        
         std::list<GuavaQuads*>* result = exp1->generar_quads();
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
+        
         if (labels_bool->false_label->fall()){
            result->push_back(label1->false_label); 
         }
+        
         GuavaQuads* comentario = new GuavaComment("EXPRESION OR.",line, column);
         result->push_front(comentario);
+        
         return result;
-
     }
     return 0;
 }
@@ -951,7 +1015,7 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
     
     bool sin_else = lelseif->es_vacio();
 
-    if ( sin_else ){
+    if (sin_else) {
         label->false_label = next;
     } else {
         label->false_label = new GuavaLabel();
@@ -1660,9 +1724,9 @@ bool ExpID::operator==(ExpID id){
 
 /* Class ExpIdentificador */
 
-ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id){}
+ExpIdentificador::ExpIdentificador(Identificador* id):ExpID(id), ExpBool(){}
 
-ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id){}
+ExpIdentificador::ExpIdentificador(ExpID* exp_,Identificador* id): ExpID(exp_,id), ExpBool(){}
 
 std::list<GuavaQuads*>* ExpIdentificador::generar_quads(){
     std::list<GuavaQuads*>* result = new std::list<GuavaQuads*>();

@@ -2,13 +2,14 @@ declare {
     integer array arr[10];
     integer x1,x2;
     real r;
-    boolean bool;
+    boolean bool1, bool2;
     record R1 {
         integer a,b;
         record R2 {
             integer a,b;
             record R3 {
                 integer a,b;
+                boolean bool;
             };
             R3 record d;
             integer array INTEGERarreglo[10];
@@ -21,6 +22,10 @@ declare {
     R1 record y;
     R1 array R1arreglo[10];
 }
+
+/*function integer suma(integer a) {
+    return a;
+}*/
 
 function void main() {
     declare {
@@ -36,17 +41,14 @@ function void main() {
         R3 array R3arreglo[10];
     }
 
-    /*x1 := y.a + 5;*/
-    x1 := y.R2arreglo[5].d.b + 1024;
-    /*y.R2arreglo[5].a := x1 + 1024;*/
-    
-    /*bool := true;
+    bool1 := true;
+    bool2 := false;
 
-    if (true) then {
+    if (bool1 and bool2) then {
         x1 := 1;
     }
     else {
         x2 := 2;
-    }*/
+    }
 
 }

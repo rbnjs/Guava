@@ -23,8 +23,8 @@ declare {
     R1 array R1arreglo[10];
 }
 
-function integer suma(integer a) {
-    return a;
+function integer suma(integer a,integer b) {
+    return a+b;
 }
 
 function void main() {
@@ -40,5 +40,5 @@ function void main() {
 
         R3 array R3arreglo[10];
     }
-    x1 := suma(x2);
+    x1 := suma(x1,x2);
 }

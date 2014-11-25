@@ -256,7 +256,7 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_copy(GuavaQuads* i){
     GuavaDescriptor* tmp;
     if (args.size() != 2) return result;
 
-    if ( instruccion->uso(args.back()) != -1 && (tmp = tabla_reg->find_only_one(args.back())) != 0 ){
+    if ((tmp = tabla_reg->find_only_one(args.back())) != 0 ){
         //Caso Simple. Cuando esta en un registro y no tiene proximos usos.
         result.push_back(tmp); 
     }else if ( (tmp = tabla_reg->find_empty()) != 0){

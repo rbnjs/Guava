@@ -23,6 +23,14 @@
 
 using namespace std;
 
+bool is_number_func(const std::string &s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && (std::isdigit(*it) || std::ispunct(*it))) ++it;
+    return !s.empty() && it == s.end();
+}
+
+
 /** 
  * Indica que un Simbolo es temporal.
  * @return true si el nombre del simbolo comienza por _t o false en el caso contrario.

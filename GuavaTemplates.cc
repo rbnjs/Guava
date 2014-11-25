@@ -116,9 +116,9 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
             vars->manage_store(s->sym_name);
             *generador << ("sw "+ s->sym_name+ ", "+ reg->get_nombre() + "\n");
         } else if (!s->is_array()) {
-            convert << s->offset;
+            convert << (-s->offset-8); //A partir de -8 es que estan las variables locales.
             vars->manage_store(s->sym_name);
-            *generador << ("sw "+ convert.str() + "($sp) , "+ reg->get_nombre() + "\n" );
+            *generador << ("sw "+ reg->get_nombre() +", " + convert.str() + "($fp) \n" );
         }else{
             //Caso arreglo.
         }
@@ -193,8 +193,7 @@ void MIPS::push(Symbol* var){
     *generador << "subu $sp, $sp, " + convert.str() + "\n"; 
     if ((*vars)[var->sym_name] != 0){
         GuavaDescriptor* desc_var = (*vars)[var->sym_name];
-        convert_2 << offset_actual;
-        SimpleSymbol* lugar = new SimpleSymbol(convert_2.str()+"($sp)");
+        SimpleSymbol* lugar = lugar_pila(offset_actual);
         desc_var->set_symbol(lugar);
     }
 }
@@ -267,13 +266,15 @@ void MIPS::epilogo(){
     ostringstream convert;
     convert << offset_actual;
     *generador << "addi $sp ,  $sp , " +convert.str() + " #EPILOGUE\n";
+    this->pop_simple("$fp");
+    this->pop_simple("$ra");
 }
 
 /** 
  * Para el mips hace la llamada al sistema numero 10 (exit).
  */
 void MIPS::exit_main(){
-    
+    this->epilogo();
     *generador << "li $v0, 10\n";
     *generador << "syscall\n";
     table->exitScope();
@@ -422,26 +423,37 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
  */
 void MIPS::load(GuavaDescriptor* reg, SimpleSymbol* tmp){
     if (reg->find_by_name(tmp->sym_name) != 0) return; //La variable ya se encuentra en el descriptor
-    Symbol* var = (Symbol*) tmp;
-
-    if (table->lookup(var->sym_name) == 0){
-        //Caso constante.
-        if (var->get_tipo() != TypeReal::Instance()){
-            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
-            regs->manage_LD(reg->get_nombre(),var);
-            vars->manage_LD(reg->get_nombre(),var);
-        }else {
-            *generador << "li " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD \n"; 
-            regs_float->manage_LD(reg->get_nombre(),var);
-            vars->manage_LD(reg->get_nombre(),var);
+    
+    if (table->lookup(tmp->sym_name) == 0){
+        //Caso variable que no esta en la tabla de simbolos.
+        if (tmp->is_simple()){
+            if (tmp->is_reg()){
+                *generador << "lw " + reg->get_nombre() + ", " + tmp->sym_name + "\n";                 
+            }else{
+                *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+            }
+        } else if (tmp->is_bool()){
+            if (tmp->is_true()) *generador << "li " + reg->get_nombre() + ", 1 \n";
+            else                *generador << "li " + reg->get_nombre() + ", 0 \n";
+        }else if (tmp->is_number()){
+            *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+        }else if (tmp->is_bp()){
+            *generador << "lw " + reg->get_nombre() + ", " + tmp->bp_mips()+ "\n";
         }
     }else{
-        //Caso variable
-        *generador << "lw " + reg->get_nombre() + ", " + var->nombre_mips() + " #LOAD WORD \n";
-        regs->manage_LD(reg->get_nombre(),var);
-        regs_float->manage_LD(reg->get_nombre(),var);
-        vars->manage_LD(reg->get_nombre(),var);
+        //Caso variable se encuentra en la tabla de simbolos.
+        Symbol * var = (Symbol*) tmp;
+        if (var->is_global()){
+            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->sym_name + "\n";
+            else  *generador << "la " + reg->get_nombre() + ", " + var->sym_name + "\n";
+        }else{
+            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->bp_mips() + "\n";
+            else  *generador << "la " + reg->get_nombre() + ", " + var->bp_mips() + "\n";
+        }
     }
+    vars->manage_LD(reg->get_nombre(),tmp);
+    regs->manage_LD(reg->get_nombre(),tmp);
+    regs_float->manage_LD(reg->get_nombre(),tmp);
 }
 
 /** 
@@ -491,13 +503,18 @@ void MIPS::generar_ufo(GuavaDescriptor* Rx){
  */
 void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuadsExp* inst){
     if (inst->get_op().compare(string(":=")) == 0){
-        this->load(Rx,inst->get_result());
+        if (inst->get_result()->is_bp()){
+            //Caso []:=
+            this->store(inst->get_result(),Rx);
+        }else{
+            this->load(Rx,inst->get_result());
+        }
     } else if (inst->get_op().compare(string("-")) == 0){
         *generador << "neg " + Rx->get_nombre() +", "+ Ry->get_nombre() + "#UMINUS \n";
     } else if (inst->get_op().compare("pincrease") == 0){
         *generador << "addi "+ Rx->get_nombre() + ", " + Ry->get_nombre() + " , 1 #PINCREASE\n";
     } else if (inst->get_op().compare("pdecrease") == 0){
-        *generador << "addi "+ Rx->get_nombre() + ", " + Ry->get_nombre() + " , -1 #PDECREASE\n";
+        *generador << "subu "+ Rx->get_nombre() + ", " + Ry->get_nombre() + " , -1 #PDECREASE\n";
     }
 }
 
@@ -509,43 +526,39 @@ void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDes
     if (inst->get_op().compare(string("+")) == 0){
         *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #ADD\n";
     }else if (inst->get_op().compare(string("-")) == 0){
-        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #SUB\n";
-        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
-        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+        *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
     }else if (inst->get_op().compare(string("*"))){
-        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "\n #MUL\n";
+        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "#MUL\n";
     } else if (inst->get_op().compare(string("/")) == 0){
         this->revision_div(Rz); 
-        *generador << "div " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", "+ Rz->get_nombre() + "\n # /";
+        *generador << "div " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", "+ Rz->get_nombre() + "# / \n";
     }else if (inst->get_op().compare(string("DIV")) == 0){
         this->revision_div(Rz); 
         *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
         *generador << "move "+ Rx->get_nombre() + ",  $lo \n";
     } else if (inst->get_op().compare(string("MOD")) == 0){
         this->revision_div(Rz);
-        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
+        *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # MOD\n";
         *generador << "move "+ Rx->get_nombre() + ",  $hi \n";
     }else if (inst->get_op().compare(string("**"))){
         *generador << "#POW TODAVIA NO\n";
     }else if (inst->get_op().compare(string("<=>"))){
-        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + " #UFO\n";
-        *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
-        *generador << "neg " + Rz->get_nombre() + ", " + Rz->get_nombre() + "\n";
+        *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
         this->generar_ufo(Rx);
     }
     // Operaciones de comparacion
     else if (inst->get_op().compare(string(">"))){
-        *generador << "sgt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y > z \n";
+        *generador << "sgt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y > z \n";
     } else if (inst->get_op().compare(string("<"))){
-        *generador << "slt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y < z \n";
+        *generador << "slt " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y < z \n";
     } else if (inst->get_op().compare(string("="))){
-        *generador << "seq " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y = z \n";
+        *generador << "seq " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y = z \n";
     } else if (inst->get_op().compare(string("!="))){
-        *generador << "sne " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y != z \n";
+        *generador << "sne " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y != z \n";
     } else if (inst->get_op().compare(string(">="))){
-        *generador << "sge " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y >= z \n";
+        *generador << "sge " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y >= z \n";
     } else if (inst->get_op().compare(string("<="))){
-        *generador << "sle " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Ry->get_nombre() + "# y <= z \n";
+        *generador << "sle " + Rx->get_nombre() +", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "# y <= z \n";
     }
 }
 
@@ -571,4 +584,15 @@ void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
         regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
         vars->manage_OP(Rx->get_nombre(), instruccion->get_result());
     }
+}
+
+/** 
+ * Genera codigo para if.
+ */
+void MIPS::condicional(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion){
+    GuavaDescriptor* Ry = lregs.back();
+    GuavaDescriptor* Rx = lregs.front();
+    lregs.pop_front();
+    GuavaDescriptor* Rz = lregs.front();
+    this->operacion_ternaria(Rx, Ry, Rz, instruccion);
 }

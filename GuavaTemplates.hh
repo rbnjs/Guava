@@ -111,6 +111,8 @@ public:
     virtual void prologo(){}
 
     virtual void epilogo(){}
+
+    virtual void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst){}
 };
 
 /** 
@@ -177,6 +179,9 @@ public:
     void prologo();
 
     void epilogo();
+
+    void condicional(list<GuavaDescriptor*> regs, GuavaQuadsExp* inst);
+
 };
 
 # endif

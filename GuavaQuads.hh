@@ -319,8 +319,8 @@ public:
      * Getters de la clase
      */
     Symbol* get_arg1()  { return arg1; }
-    Symbol* get_arg2()  { return arg2; }
-    Symbol* get_result(){ return result; }
+    Symbol* get_arg2()   { return arg2; }
+    Symbol* get_result() { return result; }
 
     /**
      * Funcion que genera codigo a partir de un Quad
@@ -554,6 +554,12 @@ public:
     std::list<SimpleSymbol*> get_args();
 
     virtual void generar_mips(GuavaTemplates* g);
+
+
+    bool is_general_exp(){
+        return true;
+    }
+
 
 };
 

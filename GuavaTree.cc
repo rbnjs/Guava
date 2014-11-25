@@ -400,11 +400,13 @@ std::list<GuavaQuads*>* ExpBinBoolLogic::generar_quads(){
         label2->false_label = labels_bool->false_label;
         
         std::list<GuavaQuads*>* result = exp1->generar_quads();
+
+        if (labels_bool->true_label->fall()){
+           result->push_back(label1->true_label); 
+        }
+
         std::list<GuavaQuads*>* code = exp2->generar_quads();
         result->splice(result->end(),*code);
-        
-        if (labels_bool->false_label->fall())
-           result->push_back(label1->false_label); 
         
         GuavaQuads* comentario = new GuavaComment("EXPRESION AND",line, column);
         result->push_front(comentario);
@@ -818,21 +820,7 @@ std::list<GuavaQuads*>* Arreglo::generar_quads(){
         GuavaQuads* constante_arr = new GuavaQuadsExp("[]",direccion,exp_indice->addr,direccion);
         result->push_front(constante_arr);
         offset_actual += tam_tipo_primitivo;
-        
-        //SI TODO FUNCIONA, LAS SIGUIENTES LINEAS PUEDEN SER BORRADAS.
 
-        /*Exp* exp_tmp = *it;
-        std::list<GuavaQuads*>* tmp = exp_tmp->generar_quads();
-        Symbol* exp_addr = exp_tmp->addr;
-        if (tmp != 0) result->splice(result->end(), *tmp);
-        Symbol* direccion_a = temp->newtemp();
-        // Me muevo en la direccion del arreglo.
-        GuavaQuads* obtener_direccion = new GuavaQuadsExp("[]", direccion ,new Symbol(offset_actual),direccion_a); 
-        // Guardo en la direccion el valor de la expresion.
-        GuavaQuads* guardar_direccion = new GuavaQuadsExp(":=", exp_addr, 0 , direccion_a);
-        result->push_front(obtener_direccion);
-        result->push_front(guardar_direccion);
-        offset_actual += tam_tipo_primitivo;*/
     }
     return result;
 }
@@ -1046,7 +1034,7 @@ std::list<GuavaQuads*>* SelectorIfComplejo::generar_quads(){
         result->push_back(label->false_label);
         std::list<GuavaQuads*>* code_2 = lelseif->generar_quads();
         result->splice(result->end(),*code_2);
-    }     
+    } 
     GuavaQuads* comentario = new GuavaComment("SELECTOR IF COMPLEJO",line,column);
     result->push_front(comentario);
     return result;

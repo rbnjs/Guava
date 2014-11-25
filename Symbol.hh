@@ -21,11 +21,18 @@
 #include <string>
 #include <unordered_map>
 #include <sstream>
+#include <regex>
 #include "Types.hh"
 #include "Generator.hh"
 #define UNDEF -1
 
 using namespace std;
+
+bool is_number_func(const std::string& s);
+
+
+
+
 /**
  * Simbolo que solo tiene el nombre, utilizado en la generacion de codigo
  * intermedio.
@@ -107,6 +114,39 @@ public:
 
     virtual bool is_reg(){
         return false;
+    }
+
+    bool is_bool(){
+        if (sym_name.compare(std::string("true")) == 0 || sym_name.compare(std::string("false")) == 0){
+            return true;
+        }
+        return false;
+    }
+
+    bool is_true(){
+        if (sym_name.compare(std::string("true")) == 0){
+            return true;
+        }
+        return false;
+    }
+
+    bool is_false(){
+        if (sym_name.compare(std::string("true")) == 0){
+            return true;
+        }
+        return false;
+    }
+
+    bool is_number(){
+        return is_number_func(sym_name);
+    }
+
+    bool is_bp(){
+        return (sym_name.compare("bp") == 0);
+    }
+
+    virtual string bp_mips(){
+        return "0($sp)";
     }
 
 
@@ -232,6 +272,12 @@ public:
     void generar_mips(GuavaGenerator* gen);
 
     string nombre_mips();
+
+    string bp_mips(){
+        ostringstream convert;
+        convert << offset;
+        return convert.str() + "($fp)";
+    }
 
 };
 #endif

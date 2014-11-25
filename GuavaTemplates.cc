@@ -334,11 +334,19 @@ void MIPS::print(Symbol* arg){
         *generador << "li $v0, 4 \n";
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeInt::Instance()){
-        *generador << "li $a0, " + arg->sym_name + " #PRINT_INT\n";
+        if (!arg->is_global()){
+            *generador << "li $a0, " + arg->sym_name + " #PRINT_INT\n";
+        } else{
+            *generador << "lw $a0, " + arg->sym_name + " #PRINT_INT\n";
+        }
         *generador << "li $v0, 1\n";
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeReal::Instance()){
-        *generador << "li $f12, "+ arg->sym_name + " #PRINT_FLOAT\n";
+        if (!arg->is_global()){
+            *generador << "li $f12, " + arg->sym_name + " #PRINT_INT\n";
+        } else{
+            *generador << "lw $f12, " + arg->sym_name + " #PRINT_INT\n";
+        }
         *generador << "li $v0, 6 \n";
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeChar::Instance()){
@@ -528,7 +536,7 @@ void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDes
         *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #ADD\n";
     }else if (inst->get_op().compare(string("-")) == 0){
         *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
-    }else if (inst->get_op().compare(string("*"))){
+    }else if (inst->get_op().compare(string("*")) == 0){
         *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "#MUL\n";
     } else if (inst->get_op().compare(string("/")) == 0){
         this->revision_div(Rz); 
@@ -657,7 +665,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
 void MIPS::return_t(GuavaDescriptor* desc, GuavaQuadsExp* i){
     if (desc != 0) *generador << "sw " + desc->get_nombre()+ " 4($fp) #RETURN\n";
     this->epilogo();
-    *generador << "jr\n";
+    //*generador << "jr\n";
 }
 
 /** 

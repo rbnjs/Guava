@@ -91,7 +91,6 @@ public:
     virtual void move(GuavaDescriptor* reg, GuavaDescriptor* reg2){}
 
     virtual void move(GuavaDescriptor* reg, string reg_2, Symbol* result){}
-    
 
     virtual void print(Symbol* arg){}
 
@@ -119,7 +118,7 @@ public:
 
     virtual void gen_call(GuavaQuadsExp* e){}
 
-    void read(GuavaDescriptor* reg, GuavaQuadsExp* i){}
+    virtual void read(GuavaDescriptor* reg, Symbol* i){}
 };
 
 /** 

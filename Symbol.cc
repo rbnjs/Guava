@@ -115,6 +115,18 @@ TypeS* Symbol::get_tipo(){
     return 0;
 }
 
+string alinear_cadena(Symbol* s){
+    int faltante;
+    if ((faltante = s->contenido.size() % 4) != 0){
+        string faltante_str ("");
+        for (int i = 0; i < faltante ; ++i){
+            faltante_str += " "; 
+        }
+        return (s->contenido + faltante_str);
+    }
+    return s->contenido;
+}
+
 /** 
  * Genera codigo para mips.
  * @param g Generador
@@ -124,10 +136,13 @@ void Symbol::generar_mips(GuavaGenerator* g){
     if (contenido.empty()){
         if (width > 0){
             convert << width;
-            *g << sym_name + ": .space " + convert.str() + "\n";
+            if (width == 4) {
+                *g << sym_name + ": .word 0\n";
+            }
+            else *g << sym_name + ": .space " + convert.str() + "\n";
         }
     }else{
-        *g << sym_name+ ": .asciiz " +contenido + "\n";
+        *g << sym_name+ ": .asciiz " + alinear_cadena(this) + "\n";
     }
 }
 

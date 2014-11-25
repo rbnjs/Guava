@@ -693,6 +693,6 @@ public:
         return result;
     }
 
-    virtual void generar_mips(GuavaTemplates* g);
+    void generar_mips(GuavaTemplates* g);
 };
 #endif // GUAVAQUADS_HH

@@ -164,6 +164,7 @@ std::list<SimpleSymbol*> GuavaQuadsIfNot::get_args(){
     if (arg2 != 0){
         args.push_back(arg2);
     }
+
     return args;
 }
 
@@ -273,6 +274,10 @@ void GuavaQuadsReturn::generar_mips(GuavaTemplates* t){
     else {
         t->return_t(0,this);
     }
+}
+
+void GuavaQuadsReturn::generar_main_return(GuavaTemplates *t){
+    t->main_return();
 }
 
 /**

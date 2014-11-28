@@ -45,6 +45,7 @@ protected:
     int offset_actual = 0;
     RegisterAllocator* get_reg; /* Asignador de registros para registros normales */
     RegisterAllocator* get_reg_float; /* Asignador de registros para registros float */
+    string funcion_actual;
 public:
 
     GuavaTemplates(GuavaGenerator* g, GuavaSymTable* tabla, GuavaDescTable* vars_, GuavaDescTable* regs_, GuavaDescTable* floats);
@@ -54,6 +55,12 @@ public:
     RegisterAllocator* get_reg_float_alloc();
 
     GuavaSymTable* get_table(){ return table; }
+
+    void set_funcion_actual(string func);
+
+    string get_funcion_actual();
+
+    void print_descriptors();
 
     /** 
      * Destructor
@@ -119,6 +126,10 @@ public:
     virtual void gen_call(GuavaQuadsExp* e){}
 
     virtual void read(GuavaDescriptor* reg, Symbol* i){}
+
+    virtual void end_block(){}
+
+    virtual void main_return(){}
 };
 
 /** 
@@ -195,7 +206,9 @@ public:
 
     void gen_call(GuavaQuadsExp* e);
 
+    void end_block();
 
+    void main_return();
 };
 
 # endif

@@ -74,6 +74,18 @@ void GuavaTemplates::set_vars(list<SimpleSymbol*> simbolos){
 }
 
 /** 
+ * Imprime todos los descriptores asociados al template.
+ */
+void GuavaTemplates::print_descriptors(){
+    cout << "###REGISTERS###" << endl;
+    regs->print();
+    cout << "###FLOAT REG###" << endl;
+    regs_float->print();
+    cout << "###VARIABLES###" << endl;
+    vars->print(); 
+}
+
+/** 
  * Retorna el asignador de registros para registros
  * normales
  * @return get_reg
@@ -82,8 +94,25 @@ RegisterAllocator* GuavaTemplates::get_reg_alloc(){
     return get_reg;
 }
 
+/** 
+ * Retorna el asignador de registros flotantes.
+ */
 RegisterAllocator* GuavaTemplates::get_reg_float_alloc(){
     return get_reg_float;
+}
+
+/** 
+ * Cambia el valor de funcion_actual
+ */
+void GuavaTemplates::set_funcion_actual(string func){
+    funcion_actual = func;
+}
+
+/** 
+ * @return funcion_actual
+ */
+string GuavaTemplates::get_funcion_actual(){
+    return funcion_actual;
 }
 
 /** 
@@ -116,7 +145,7 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
             vars->manage_store(s->sym_name);
             *generador << ("sw "+ reg->get_nombre()+ ", "+ s->sym_name + "\n");
         } else if (!s->is_array()) {
-            convert << (-s->offset-8); //A partir de -8 es que estan las variables locales.
+            convert << (s->offset);
             vars->manage_store(s->sym_name);
             *generador << ("sw "+ reg->get_nombre() +", " + convert.str() + "($fp) \n" );
         }else{
@@ -234,6 +263,7 @@ void MIPS::entry_main(){
         (*it)->generar_mips(generador); 
     }  
     *generador << ".text\n";
+    *generador << funcion_actual + ":\n";
     list<Symbol*> lista_push = table->obtain_symbols(table->currentScope());
 
     this->prologo();
@@ -274,16 +304,26 @@ void MIPS::epilogo(){
  * Para el mips hace la llamada al sistema numero 10 (exit).
  */
 void MIPS::exit_main(){
+    *generador << "#EXIT MAIN \n";
     *generador << "li $v0, 10\n";
     *generador << "syscall\n";
     table->exitScope();
+    // Excepción para div
+    *generador << "_div_exception: \n";
+    *generador << "la $a0 , _aviso_div\n"; 
+    *generador << "li $v0, 4\n";
+    *generador << "syscall\n";
+    *generador << "li $v0, 10\n";
+    *generador << "syscall\n";
 }
 
 /** 
  * Escribe un label en el archivo.
+ * @param label a escribir.
  */
 void MIPS::label(string label){
-    *generador << label + ": \n";
+    if (label.compare(funcion_actual) != 0)
+        *generador << label + ": \n";
 }
 
 /** 
@@ -335,7 +375,7 @@ void MIPS::print(Symbol* arg){
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeInt::Instance()){
         if (!arg->is_global()){
-            *generador << "li $a0, " + arg->sym_name + " #PRINT_INT\n";
+            *generador << "lw $a0, " + arg->bp_mips() + " #PRINT_INT\n";
         } else{
             *generador << "lw $a0, " + arg->sym_name + " #PRINT_INT\n";
         }
@@ -343,7 +383,7 @@ void MIPS::print(Symbol* arg){
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeReal::Instance()){
         if (!arg->is_global()){
-            *generador << "li $f12, " + arg->sym_name + " #PRINT_INT\n";
+            *generador << "lw $f12, " + arg->bp_mips() + " #PRINT_INT\n";
         } else{
             *generador << "lw $f12, " + arg->sym_name + " #PRINT_INT\n";
         }
@@ -471,9 +511,9 @@ void MIPS::revision_div(GuavaDescriptor* Rz){
     ostringstream convert;
     convert << div_;
     div_++;
-    *generador << "bneqz " + Rz->get_nombre() + " _label_div" + convert.str() + "\n ";
+    *generador << "bnez " + Rz->get_nombre() + " , _label_div" + convert.str() + "\n ";
     *generador << "j _div_exception \n";
-    *generador << "_label_div" + convert.str() + ": "; 
+    *generador << "_label_div" + convert.str() + ": \n"; 
 }
 
 /**
@@ -544,11 +584,11 @@ void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDes
     }else if (inst->get_op().compare(string("DIV")) == 0){
         this->revision_div(Rz); 
         *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # DIV\n";
-        *generador << "move "+ Rx->get_nombre() + ",  $lo \n";
+        *generador << "mflo "+ Rx->get_nombre() + "\n";
     } else if (inst->get_op().compare(string("MOD")) == 0){
         this->revision_div(Rz);
         *generador << "div " + Ry->get_nombre()+ ", " + Rz->get_nombre() +" # MOD\n";
-        *generador << "move "+ Rx->get_nombre() + ",  $hi \n";
+        *generador << "mfhi "+ Rx->get_nombre() + " \n";
     }else if (inst->get_op().compare(string("**")) == 0){
         *generador << "#POW TODAVIA NO\n";
     }else if (inst->get_op().compare(string("<=>")) == 0){
@@ -581,10 +621,10 @@ void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDes
  */
 void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
     if (lregs.size() == 3){
-        GuavaDescriptor* Ry = lregs.back();
+        GuavaDescriptor* Rz = lregs.back();
         GuavaDescriptor* Rx = lregs.front();
         lregs.pop_front();
-        GuavaDescriptor* Rz = lregs.front();
+        GuavaDescriptor* Ry = lregs.front();
         this->operacion_ternaria(Rx, Ry, Rz, instruccion);
         regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
         regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
@@ -604,10 +644,10 @@ void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
  */
 void MIPS::condicional(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion){
     if (lregs.size() == 3){
-         GuavaDescriptor* Ry = lregs.back();
+        GuavaDescriptor* Rz = lregs.back();
         GuavaDescriptor* Rx = lregs.front();
         lregs.pop_front();
-        GuavaDescriptor* Rz = lregs.front();
+        GuavaDescriptor* Ry = lregs.front();
         this->operacion_ternaria(Rx, Ry, Rz, instruccion);
         regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
         regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
@@ -645,7 +685,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
         ostringstream convert;
         convert << sec_if;
         sec_if++;
-        *generador << "bnez " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        *generador << "bnez " + Rx->get_nombre() + ", _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": ";
     }else{
@@ -653,7 +693,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
         ostringstream convert;
         convert << sec_if;
         sec_if++;
-        *generador << "bnez " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
+        *generador << "bnez " + Rx->get_nombre() + ", _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": \n";
     }
@@ -665,7 +705,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
 void MIPS::return_t(GuavaDescriptor* desc, GuavaQuadsExp* i){
     if (desc != 0) *generador << "sw " + desc->get_nombre()+ " 4($fp) #RETURN\n";
     this->epilogo();
-    //*generador << "jr\n";
+    *generador << "jr $t0\n";
 }
 
 /** 
@@ -675,3 +715,35 @@ void MIPS::gen_call(GuavaQuadsExp* i){
     *generador << "jal " + i->get_op() + "\n"; 
 }
 
+
+/** 
+ * Termina un bloque de codigo. Esto es guardar en memoria cada uno de las variables
+ * de los registros.
+ */
+void MIPS::end_block(){
+    
+    *generador << "#END BLOCK \n";
+    // Registros normales.
+    for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = regs->begin(); it != regs->end(); ++it){
+        it->second->end_block(generador); 
+    }
+
+    //Registros flotantes.
+    for (std::unordered_map<string, GuavaDescriptor*>::iterator it = regs_float->begin(); it != regs_float->end() ; ++it){
+        it->second->end_block(generador);
+    }
+
+}
+
+void salir(GuavaGenerator* g){
+    *g << "li $v0 , 10 \n";
+    *g << "syscall\n";
+}
+
+/** 
+ * Retorno de un main
+ */
+void MIPS::main_return(){
+    this->epilogo();
+    salir(generador);
+}

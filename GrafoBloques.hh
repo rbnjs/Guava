@@ -102,7 +102,7 @@ public:
     void print(ostream &os);
     
 
-    bool is_entryexit(){ return (is_exit_ || is_entry_); }
+    bool is_entryexit() const { return (is_exit_ || is_entry_); }
 
     void set_belonging(string* belonging){
         belongs_to = belonging;
@@ -111,6 +111,8 @@ public:
     string* get_belongs_to() const {
         return belongs_to;
     }
+
+    bool has_return() const;
 
     bool belongs_to_func(string func) const;
 

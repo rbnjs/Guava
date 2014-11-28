@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <list>
 #include "Symbol.hh"
+#include "Generator.hh"
 
 using namespace std;
 
@@ -166,6 +167,11 @@ public:
     set<SimpleSymbol*> get_assoc_var(){
         return assoc_var;
     }
+
+    void end_block(GuavaGenerator *g);
+
+    void print();
+
 };
 
 /** 
@@ -306,7 +312,7 @@ public:
 
     void copy(GuavaDescriptor* desc);
 
-
+    void print();
 
 };
 

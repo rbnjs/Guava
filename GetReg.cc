@@ -242,6 +242,43 @@ list<GuavaDescriptor*> RegisterAllocator::getReg_general(GuavaQuads* i){
     return result;
 }
 
+/**  
+ * Caso de asignacion de registros para expresiones if.
+ *
+ * Si es una expresion if del tipo if (x mod 3 == 0) go to blah
+ * entonces voy a tratarla como una expresion general. Pues se necesitan
+ * tres registros para realizar el if. En el caso if ( valor ) go to blah
+ * solo voy a asignar un solo regitro.
+ *
+ */
+list<GuavaDescriptor*> RegisterAllocator::getReg_if(GuavaQuads* i){
+    list<GuavaDescriptor*> result;
+    GuavaQuadsExp* instruccion = (GuavaQuadsExp*) i;
+    GuavaDescriptor* tmp;
+
+    list<SimpleSymbol*> args = instruccion->get_args();
+    
+    if (args.size() != 1) return this->getReg_general(i);
+
+    SimpleSymbol* simbolo = args.front();
+
+    if ( (tmp = tabla_reg->find_only_one(simbolo)) != 0 ){
+        //Caso Simple. Cuando esta en un registro y no tiene proximos usos.
+        result.push_back(tmp); 
+    }else if ((tmp = tabla_reg->find_empty()) != 0){
+        //Caso Simple. Hay registros disponibles.
+        if (instruccion->get_result() != simbolo){
+            templates->load(tmp,simbolo);
+        }
+        result.push_back(tmp);
+    }else{
+        // Reciclaje. Caso Convencional.
+        tmp = this->recycle(instruccion,instruccion->get_result());
+        result.push_back(tmp);
+    }
+    return result;
+}
+
 /** 
  * Retorna una lista con registros para la copia x = y.
  *
@@ -279,7 +316,11 @@ list<GuavaDescriptor*> RegisterAllocator::getReg(GuavaQuads* i){
     list<GuavaDescriptor*> result;
     if (i->is_guava_exp()){
         if (i->is_general_exp()){
-            result = this->getReg_general(i);
+            if (i->is_if()){
+                result = this->getReg_if(i);
+            }else{
+                result = this->getReg_general(i);
+            }
         }else if (i->get_op().compare(std::string(":=")) == 0){
                 result = this->getReg_copy(i);
         }

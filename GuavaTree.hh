@@ -506,11 +506,11 @@ public:
         addr = temp->newtemp();
         GuavaQuads* nuevo;
         if (operacion->compare(std::string("pincrease")) == 0){
-            nuevo = new GuavaQuadsExp("+",exp->addr, new Symbol("1"),addr);
+            nuevo = new GuavaQuadsExp("+",exp->addr, new Symbol("1"),exp->addr);
         } else if (operacion->compare(std::string("pdecrease")) == 0) {
-            nuevo = new GuavaQuadsExp("-",exp->addr, new Symbol("1"),addr);
+            nuevo = new GuavaQuadsExp("-",exp->addr, new Symbol("1"),exp->addr);
         }else {
-            nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, addr);
+            nuevo = new GuavaQuadsExp(*operacion,exp->addr, 0, exp->addr);
         }
         //Se verifica si la expresion es un identificador
         if (listaQuads == 0) {

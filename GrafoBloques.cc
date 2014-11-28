@@ -107,6 +107,14 @@ bool BloqueBasico::belongs_to_func(string func) const{
 }
 
 /** 
+ * Retorna booleano si el bloque basico tiene un return.
+ */
+bool BloqueBasico::has_return() const{
+    GuavaQuads* quad = codigo.back();
+    return quad->is_return();
+}
+
+/** 
  * Genera el codigo entry para el mips. Lo que llamamos prologo.
  * @param gen_ GuavaGenerator para el archivo final
  */
@@ -137,8 +145,9 @@ void BloqueBasico::generar_entry_main_mips() const{
  * Si no son entry o exit entonces genero codigo normal
  */
 void BloqueBasico::generar_mips() const{
+    bool is_main = this->belongs_to_func("main");
     if (is_entry_){
-        if (this->belongs_to_func("main")){
+        if (is_main){
             this->generar_entry_main_mips();
             return;
         }else{
@@ -157,7 +166,8 @@ void BloqueBasico::generar_mips() const{
         return;
     }
     for(list<GuavaQuads*>::const_iterator it = codigo.begin(); it != codigo.end(); ++it){
-        (*it)->generar_mips(template_gen);
+        if (is_main && (*it)->is_return()) (*it)->generar_main_return(template_gen);
+        else (*it)->generar_mips(template_gen);
     }
 }
 
@@ -456,6 +466,9 @@ void GrafoFlujo::generar_mips(){
             entry = *it;
         }
     }
+
+    Symbol* symbol_func = tabla->lookup("main",0);
+    tabla->set_scope(symbol_func->scope_func);
     breadth_first_search(grafo,entry,visitor(vis));
     guava_gen->close();
 }
@@ -469,5 +482,9 @@ void GrafoFlujo::generar_mips(){
 void bfs_generator::discover_vertex(Vertex u, const Graph & g){
     list<SimpleSymbol*> lista = g[u].obtener_vars();
     templates->set_vars(lista);
+    string* nombre_funcion_actual = g[u].get_belongs_to();
+    templates->set_funcion_actual(*nombre_funcion_actual);
+    templates->print_descriptors();
     g[u].generar_mips();
+    if (!g[u].is_entryexit() && !g[u].has_return()) templates->end_block();
 }

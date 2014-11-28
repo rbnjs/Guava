@@ -286,6 +286,8 @@ public:
 
     virtual void generar_mips(GuavaTemplates* gen){}
 
+    virtual void generar_main_return(GuavaTemplates* gen){}
+
     virtual list<SimpleSymbol*> obtener_vars(){
         list<SimpleSymbol*> result;
         return result;
@@ -501,6 +503,8 @@ public:
     }
 
     void generar_mips(GuavaTemplates* g);
+
+    void generar_main_return(GuavaTemplates* g);
 
 
 };

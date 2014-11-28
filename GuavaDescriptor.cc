@@ -20,6 +20,7 @@
 #include <list>
 #include <climits>
 #include <regex>
+#include <iostream>
 
 using namespace std;
 
@@ -74,6 +75,44 @@ int GuavaDescriptor::count_temp(){
  */
 void GuavaDescriptor::clear(){
     assoc_var.clear();
+}
+
+
+/** 
+ * Genera el codigo de finalización de bloque
+ * para un descriptor de registros.
+ */
+void GuavaDescriptor::end_block(GuavaGenerator* g){
+
+    for (set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
+        if ((*it)->is_global()){
+            Symbol* tmp = (Symbol*) *it;
+            if (tmp->get_tipo() != TypeReal::Instance())
+                *g << "sw " + nombre + ", "+ (*it)->sym_name + " \n";
+            else *g << "s.s " + nombre + ", " + (*it)->sym_name + " \n";
+        }else if ((*it)->is_bp()){
+            Symbol* tmp = (Symbol*) *it;
+            if (tmp->get_tipo() != TypeReal::Instance())
+                *g << "sw " + nombre + ", " + (*it)->bp_mips() + " \n";
+            else *g << "s.s " + nombre + ", " + (*it)->bp_mips() + "\n";
+        }
+    }
+}
+
+/** 
+ * Imprime las variables asociadas al GuavaDescriptor.
+ */
+void GuavaDescriptor::print(){
+    if (assoc_var.size() != 0){
+        cout << "Descriptor:" << nombre; 
+        cout << " / Associated Variables: ";
+        for (set<SimpleSymbol*>::iterator it = assoc_var.begin() ; it != assoc_var.end(); ++it){
+            cout << (*it)->sym_name;
+            if (next(it) != assoc_var.end())
+                cout << ", ";
+        }
+        cout << endl;
+    }
 }
 
 
@@ -378,6 +417,10 @@ void GuavaDescriptor::borrar_por_nombre(string nombre){
     assoc_var = nuevo;
 }
 
+/** 
+ * Obtiene el tipo asociado a un registro.
+ * @return TypeS* Retorna un tipo.
+ */
 TypeS* GuavaDescriptor::get_tipo(){
     regex flotante ("$f.*");
     if (regex_match (nombre, flotante)) return TypeReal::Instance();
@@ -390,6 +433,10 @@ TypeS* GuavaDescriptor::get_tipo(){
     return 0;
 }
 
+/** 
+ * Encuentra un valor o variable en el descriptor por su nombre.
+ * @return SimpleSymbol Retorna la variable encontrada o 0 si no la encuentra.
+ */
 SimpleSymbol* GuavaDescriptor::find_by_name(string n){
     for (set<SimpleSymbol*>::iterator it = assoc_var.begin() ; it != assoc_var.end(); ++it){
         if ((*it)->sym_name.compare(n) == 0) return *it;
@@ -429,6 +476,15 @@ void GuavaDescTable::manage_push(SimpleSymbol* var, SymbolReg* nuevo){
     if (tabla.find(var->sym_name) != tabla.end()){
         GuavaDescriptor* desc = tabla[var->sym_name];
         desc->insert(nuevo);
+    }
+}
+
+/**
+ * Imprime todo lo que tiene la tabla de descriptores.
+ */
+void GuavaDescTable::print(){
+    for(std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin(); it != tabla.end(); ++it){
+        it->second->print();
     }
 }
 

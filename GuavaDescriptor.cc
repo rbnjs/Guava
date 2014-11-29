@@ -100,6 +100,28 @@ void GuavaDescriptor::end_block(GuavaGenerator* g){
 }
 
 /** 
+ * Nos dice si una variable tiene su propio descriptor de disponibilidad
+ * @return bool Retorna un booeano.
+ */
+bool GuavaDescriptor::has_own(){
+   if (addr == 0) return false;
+   else {
+       if (assoc_var.find(addr) != assoc_var.end()) return true;
+       else return false;
+   }
+}
+
+/** 
+ * Encuentra el primer registro asociado a la variable.
+ * @return reg Retorna el registro que tiene asociado el valor de la variable.
+ */
+SimpleSymbol* GuavaDescriptor::find_reg(){
+    for (set<SimpleSymbol*>::iterator reg = assoc_var.begin(); reg != assoc_var.end(); ++reg){
+        if ((*reg)->is_reg()) return *reg;
+    }
+}
+
+/** 
  * Imprime las variables asociadas al GuavaDescriptor.
  */
 void GuavaDescriptor::print(){

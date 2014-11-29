@@ -633,6 +633,7 @@ void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
         regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
         regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
         vars->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        this->store(Rx);
     }else if (lregs.size() == 2){
         GuavaDescriptor* Ry = lregs.back();
         GuavaDescriptor* Rx = lregs.front();
@@ -640,6 +641,7 @@ void MIPS::operacion(list<GuavaDescriptor*> lregs, GuavaQuadsExp * instruccion){
         regs->manage_OP(Rx->get_nombre(), instruccion->get_result());
         regs_float->manage_OP(Rx->get_nombre(), instruccion->get_result());
         vars->manage_OP(Rx->get_nombre(), instruccion->get_result());
+        this->store(Rx);
     }
 }
 
@@ -731,14 +733,25 @@ void MIPS::gen_call(GuavaQuadsExp* i){
 void MIPS::end_block(){
     
     *generador << "#END BLOCK \n";
-    // Registros normales.
-    for ( std::unordered_map<string, GuavaDescriptor* >::iterator it = regs->begin(); it != regs->end(); ++it){
-        it->second->end_block(generador); 
-    }
+    for (std::unordered_map<string, GuavaDescriptor*>::iterator it = vars->begin(); it != vars->end() ; ++it){
+        if (!it->second->has_own()){
+            SimpleSymbol* reg_s = it->second->find_reg();
+            if (reg_s == 0) continue;
+            GuavaDescriptor* register_;
 
-    //Registros flotantes.
-    for (std::unordered_map<string, GuavaDescriptor*>::iterator it = regs_float->begin(); it != regs_float->end() ; ++it){
-        it->second->end_block(generador);
+            if (reg_s->is_float_reg()){
+                register_ = (*regs_float)[reg_s->get_mips_name()];
+            }else{
+                register_ = (*regs)[reg_s->get_mips_name()];
+            }
+            if (register_ != 0){
+                register_->end_block(generador); 
+                regs->manage_ST(register_->get_nombre(),it->second->get_symbol());
+                regs_float->manage_ST(register_->get_nombre(),it->second->get_symbol());
+                vars->manage_ST(register_->get_nombre(),it->second->get_symbol());
+            }
+            
+        }
     }
 
 }

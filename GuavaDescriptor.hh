@@ -51,6 +51,7 @@ public:
      * @param s Simbolo asociado para la variable.
      */
     GuavaDescriptor(string nombre_, SimpleSymbol* s):nombre(nombre_),addr(s) {
+        assoc_var.insert(addr);
     }
 
     ~GuavaDescriptor(){}
@@ -170,7 +171,11 @@ public:
 
     void end_block(GuavaGenerator *g);
 
+    bool has_own();
+
     void print();
+
+    SimpleSymbol* find_reg();
 
 };
 

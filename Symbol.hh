@@ -151,6 +151,10 @@ public:
 
     virtual string get_mips_name();
 
+    virtual bool is_float_reg(){
+        return false;
+    }
+
 
 };
 
@@ -182,6 +186,11 @@ public:
 
     virtual bool is_reg(){
         return true;
+    }
+
+    bool is_float_reg(){
+        if (sym_name.find(std::string("fp")) != string::npos) return true;
+        return false;
     }
 
 };

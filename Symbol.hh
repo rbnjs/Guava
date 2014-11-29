@@ -149,6 +149,8 @@ public:
         return "0($sp)";
     }
 
+    virtual string get_mips_name();
+
 
 };
 
@@ -271,13 +273,13 @@ public:
 
     void generar_mips(GuavaGenerator* gen);
 
-    string nombre_mips();
-
     string bp_mips(){
         ostringstream convert;
         convert << offset;
         return convert.str() + "($fp)";
     }
+
+    string get_mips_name();
 
 };
 #endif

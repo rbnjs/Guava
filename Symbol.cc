@@ -91,19 +91,21 @@ bool Symbol::is_global(){
     return (scope == 1);
 }
 
-/**  
- * Traduce un nombre de simbolo a mips.
+/** 
+ * Retorna un nombre de mips.
+ * @return string Retorna un string con el nombre asociado a 
  */
-string Symbol::nombre_mips(){
-    regex underscore ("bp.*");
-    ostringstream convert; 
-    convert << offset;
-    if (regex_match (sym_name, underscore)){
-        return convert.str()+"($fp)";
-    }else{
-        return sym_name;
-    }
+string SimpleSymbol::get_mips_name(){
+    if (this->is_bp())
+        return this->bp_mips();
+    else return sym_name;
+}
 
+string Symbol::get_mips_name(){
+    if (this->is_bp())
+        return this->bp_mips();
+    else
+        return sym_name;
 }
 
 /** 

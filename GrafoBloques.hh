@@ -18,8 +18,11 @@
 #ifndef GRAFO_BLOQUES_HH
 #define GRAFO_BLOQUES_HH
 #include <list>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/two_bit_color_map.hpp>
+#include <boost/graph/graph_concepts.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/breadth_first_search.hpp>
 #include <unordered_map>
 #include "GuavaQuads.hh"
 #include "Generator.hh"
@@ -153,24 +156,47 @@ typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
 /** 
  * Visitador del grafo que va a generar codigo final.
  */
-class bfs_generator: public default_bfs_visitor{
+class dfs_generator: public default_dfs_visitor{
 protected:
     GuavaTemplates* templates;
+    list<SimpleSymbol*> lista_simbolos;
 public:
 
     /**
      * Constructor del visitador.
      */
-    bfs_generator(GuavaTemplates* gen_): templates(gen_){}
+    dfs_generator(GuavaTemplates* gen_): templates(gen_){}
 
     /** 
      * Destructor de la clase.
      */
-    ~bfs_generator(){}
-
+    ~dfs_generator(){}
 
     void discover_vertex(Vertex u,const Graph& g);
 
+};
+
+class dfs_vars_getter: public default_dfs_visitor{
+protected:
+    set<SimpleSymbol*>* conjunto_simbolos = 0;
+public:
+
+    /**
+     * Constructor del visitador.
+     */
+    dfs_vars_getter(){
+        conjunto_simbolos = new set<SimpleSymbol*>;
+    }
+
+    /** 
+     * Destructor de la clase.
+     */
+    ~dfs_vars_getter(){
+    }
+
+    void discover_vertex(Vertex u,const Graph& g);
+
+    list<SimpleSymbol*> get_vars();
 };
 
 /**  

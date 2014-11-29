@@ -88,8 +88,8 @@ void GuavaDescriptor::end_block(GuavaGenerator* g){
         if ((*it)->is_global()){
             Symbol* tmp = (Symbol*) *it;
             if (tmp->get_tipo() != TypeReal::Instance())
-                *g << "sw " + nombre + ", "+ (*it)->sym_name + " \n";
-            else *g << "s.s " + nombre + ", " + (*it)->sym_name + " \n";
+                *g << "sw " + nombre + ", "+ (*it)->get_mips_name() + " \n";
+            else *g << "s.s " + nombre + ", " + (*it)->get_mips_name() + " \n";
         }else if ((*it)->is_bp()){
             Symbol* tmp = (Symbol*) *it;
             if (tmp->get_tipo() != TypeReal::Instance())
@@ -107,7 +107,7 @@ void GuavaDescriptor::print(){
         cout << "Descriptor:" << nombre; 
         cout << " / Associated Variables: ";
         for (set<SimpleSymbol*>::iterator it = assoc_var.begin() ; it != assoc_var.end(); ++it){
-            cout << (*it)->sym_name;
+            cout << (*it)->get_mips_name();
             if (next(it) != assoc_var.end())
                 cout << ", ";
         }
@@ -140,7 +140,7 @@ GuavaDescTable::GuavaDescTable(list<SimpleSymbol*> s): reg(false){
     for (list<SimpleSymbol*>::iterator it = s.begin(); it != s.end(); ++it){
         GuavaDescriptor *nueva_var;
         nueva_var = new GuavaVar(*it);
-        tabla[(*it)->sym_name] = nueva_var;
+        tabla[(*it)->get_mips_name()] = nueva_var;
     }
 }
 
@@ -166,6 +166,30 @@ GuavaDescriptor* GuavaDescTable::operator[](string s){
 
 
 /** 
+ * Maneja el store en la tabla de descriptores.
+ *
+ * Esto es:
+ * sw R, x
+ * Availability (x ) ← Availability (x ) ∪ {x }
+ * @param R nombre del registro R
+ * @param x Ubicación en memoria o nombre de variable global.
+ */
+void GuavaDescTable::manage_ST(string R, SimpleSymbol* x){
+    if (reg){
+        if (tabla.find(R) != tabla.end()){
+            GuavaDescriptor* desc = tabla[R]; // Esto debe ser obvio. Pero no le hace daño a nadie.
+            desc->insert(x);
+        }
+    }else{
+        std::unordered_map<string,GuavaDescriptor*>::const_iterator it;
+        if ((it = tabla.find(x->get_mips_name())) != tabla.end()){
+            it->second->insert(it->second->get_symbol());
+        }
+    }
+}
+
+
+/** 
  * Nos dice si un simbolo s se encuentra en otro registro o variable que no sea d.
  *
  * @param s Simbolo que nos interesa buscar.
@@ -187,7 +211,7 @@ bool GuavaDescTable::available_in_other_location(SimpleSymbol* s, GuavaDescripto
  */
 GuavaDescriptor* GuavaDescTable::find_only_one(SimpleSymbol* s){
     for (std::unordered_map<string, GuavaDescriptor* >::iterator it = tabla.begin() ; it != tabla.end(); ++it){
-        if (it->second->size() == 1 && it->second->find_by_name(s->sym_name) != 0 ) return it->second;
+        if (it->second->size() == 1 && it->second->find_by_name(s->get_mips_name()) != 0 ) return it->second;
     }
     return 0;
 }
@@ -264,19 +288,6 @@ std::unordered_map<string, GuavaDescriptor* >::iterator GuavaDescTable::end(){
     return tabla.end();
 }
 
-/** 
- * Maneja la instruccion de tipo store en
- * la tabla de descriptores de variables.
- * @param var Nombre de la variable.
- */
-void GuavaDescTable::manage_store(string var){
-    if (!reg){
-        if (tabla.find(var) != tabla.end()){
-            GuavaDescriptor* desc = tabla[var];
-            desc->insert(desc->get_symbol());
-        }
-    }
-}
 
 /** 
  * Maneja la instrucción de tipo LD R, x
@@ -293,8 +304,8 @@ void GuavaDescTable::manage_LD(string R, SimpleSymbol* x){
             tabla[R] = desc;
         }
     } else{
-        if (tabla.find(x->sym_name) != tabla.end()){
-            GuavaDescriptor* desc = tabla[x->sym_name];
+        if (tabla.find(x->get_mips_name()) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->get_mips_name()];
             SimpleSymbol* nuevo = new SymbolReg(R);
             desc->insert(nuevo);
             tabla[R] = desc;
@@ -323,8 +334,8 @@ void GuavaDescTable::manage_OP(string Rx, SimpleSymbol* x){
         }
     }else{
         this->borrar_por_nombre(Rx);
-        if (tabla.find(x->sym_name) != tabla.end()){
-            GuavaDescriptor* desc = tabla[x->sym_name];
+        if (tabla.find(x->get_mips_name()) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->get_mips_name()];
             SimpleSymbol* nuevo = new SymbolReg(Rx);
             desc->clear();
             desc->insert(nuevo);
@@ -357,8 +368,8 @@ void GuavaDescTable::manage_copy(string Ry, SimpleSymbol* x){
             desc->insert(x);
         }
     }else {
-        if (tabla.find(x->sym_name) != tabla.end()){
-            GuavaDescriptor* desc = tabla[x->sym_name];
+        if (tabla.find(x->get_mips_name()) != tabla.end()){
+            GuavaDescriptor* desc = tabla[x->get_mips_name()];
             SimpleSymbol* nuevo = new SymbolReg(Ry);
             desc->clear();
             desc->insert(nuevo);
@@ -392,8 +403,8 @@ void GuavaDescTable::manage_move(string Rx, SimpleSymbol * var){
             desc->insert(var);
         }       
     }else{
-         if (tabla.find(var->sym_name) != tabla.end()){
-            GuavaDescriptor* desc = tabla[var->sym_name];
+         if (tabla.find(var->get_mips_name()) != tabla.end()){
+            GuavaDescriptor* desc = tabla[var->get_mips_name()];
             SimpleSymbol* nuevo = new SymbolReg(Rx);
             desc->insert(nuevo);
         }       
@@ -408,7 +419,7 @@ void GuavaDescTable::manage_move(string Rx, SimpleSymbol * var){
 void GuavaDescriptor::borrar_por_nombre(string nombre){
     set<SimpleSymbol*> nuevo;
     for ( set<SimpleSymbol*>::iterator it = assoc_var.begin(); it != assoc_var.end(); ++it){
-        if ((*it)->sym_name.compare(nombre) != 0){
+        if ((*it)->get_mips_name().compare(nombre) != 0){
             nuevo.insert((*it));
         }else{
             //delete *it;
@@ -439,7 +450,7 @@ TypeS* GuavaDescriptor::get_tipo(){
  */
 SimpleSymbol* GuavaDescriptor::find_by_name(string n){
     for (set<SimpleSymbol*>::iterator it = assoc_var.begin() ; it != assoc_var.end(); ++it){
-        if ((*it)->sym_name.compare(n) == 0) return *it;
+        if ((*it)->get_mips_name().compare(n) == 0) return *it;
     }
     return 0;
 }
@@ -473,8 +484,8 @@ void GuavaDescTable::manage_push(string reg, SymbolReg* nuevo){
  * @param nuevo Ubicacion en la pila
  */
 void GuavaDescTable::manage_push(SimpleSymbol* var, SymbolReg* nuevo){
-    if (tabla.find(var->sym_name) != tabla.end()){
-        GuavaDescriptor* desc = tabla[var->sym_name];
+    if (tabla.find(var->get_mips_name()) != tabla.end()){
+        GuavaDescriptor* desc = tabla[var->get_mips_name()];
         desc->insert(nuevo);
     }
 }

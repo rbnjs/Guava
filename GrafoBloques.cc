@@ -348,7 +348,8 @@ list<Graph::vertex_descriptor> GrafoFlujo::agregar_entry(list<BloqueBasico*> blo
 
 /** 
  * Hace algo asi como un dfs (creo) identificando cada uno de los nodos observados.
- * @root Raiz.
+ * @param root Raiz.
+ * @param grafo Grafo a movernos.
  */
 void identificador_recursivo(Vertex root, Graph& grafo){
     typename graph_traits<Graph>::out_edge_iterator out_i, out_end;  
@@ -458,7 +459,8 @@ void GrafoFlujo::imprimir(){
  * Genera codigo para mips
  */
 void GrafoFlujo::generar_mips(){
-    bfs_generator vis(mips);
+    dfs_generator vis(mips);
+    dfs_vars_getter vars_getter;
     Vertex entry;
     //Busco la función main primero.
     for (list<Vertex>::iterator it = entries.begin(); it != entries.end(); ++it){
@@ -466,11 +468,34 @@ void GrafoFlujo::generar_mips(){
             entry = *it;
         }
     }
-
+    depth_first_search(grafo,visitor(vars_getter).root_vertex(entry)); //Obtengo todas las variables antes de generar codigo.
     Symbol* symbol_func = tabla->lookup("main",0);
-    tabla->set_scope(symbol_func->scope_func);
-    breadth_first_search(grafo,entry,visitor(vis));
+    tabla->set_scope(symbol_func->scope_func); 
+    mips->set_vars(vars_getter.get_vars());
+    depth_first_search(grafo,visitor(vis).root_vertex(entry));
     guava_gen->close();
+}
+
+/** 
+ * Funcion que se utiliza antes de cada nodo del grafo.
+ * La voy a utilizar para obtener todas las variables del grafo.
+ */
+void dfs_vars_getter::discover_vertex(Vertex u, const Graph &g){
+    list<SimpleSymbol*> lista = g[u].obtener_vars();
+    for (list<SimpleSymbol*>::iterator it = lista.begin(); it != lista.end(); ++it){
+        conjunto_simbolos->insert(*it);
+    }
+}
+
+/** 
+ * @return lista_simbolos Retorna una lista con todas las variables encontradas.
+ */
+list<SimpleSymbol*> dfs_vars_getter::get_vars(){
+    list<SimpleSymbol*> lista;
+    for (set<SimpleSymbol*>::iterator it = conjunto_simbolos->begin(); it != conjunto_simbolos->end(); ++it){
+        lista.push_back(*it);
+    }
+    return lista;
 }
 
 /** 
@@ -479,9 +504,7 @@ void GrafoFlujo::generar_mips(){
  * @param u Nodo que contiene un BloqueBasico.
  * @param g Grafo.
  */
-void bfs_generator::discover_vertex(Vertex u, const Graph & g){
-    list<SimpleSymbol*> lista = g[u].obtener_vars();
-    templates->set_vars(lista);
+void dfs_generator::discover_vertex(Vertex u, const Graph & g){
     string* nombre_funcion_actual = g[u].get_belongs_to();
     templates->set_funcion_actual(*nombre_funcion_actual);
     templates->print_descriptors();

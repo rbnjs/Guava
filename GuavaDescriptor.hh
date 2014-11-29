@@ -197,7 +197,7 @@ class GuavaVar: public GuavaDescriptor{
 public:
     GuavaVar(string nombre_): GuavaDescriptor(nombre_){}
 
-    GuavaVar(SimpleSymbol* s): GuavaDescriptor(s->sym_name,s){}
+    GuavaVar(SimpleSymbol* s): GuavaDescriptor(s->get_mips_name(),s){}
 
     ~GuavaVar(){}
 
@@ -294,8 +294,6 @@ public:
      */
     std::unordered_map<string, GuavaDescriptor* >::iterator end();
 
-    void manage_store(string var);
-
     void manage_LD(string R, SimpleSymbol* x);
 
     void manage_OP(string R, SimpleSymbol* x);
@@ -309,6 +307,8 @@ public:
     void manage_push(SimpleSymbol* var, SymbolReg* nuevo);
 
     void manage_push(string reg, SymbolReg* nuevo);
+
+    void manage_ST(string R, SimpleSymbol* x);
 
     void copy(GuavaDescriptor* desc);
 

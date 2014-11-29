@@ -142,11 +142,15 @@ void MIPS::store(SimpleSymbol* var, GuavaDescriptor* reg){
         Symbol* s = (Symbol*) var;
         if (s->is_global() && !s->is_array()){
             //Caso variable global.
-            vars->manage_store(s->sym_name);
-            *generador << ("sw "+ reg->get_nombre()+ ", "+ s->sym_name + "\n");
+            regs_float->manage_ST(reg->get_nombre(), s);
+            regs->manage_ST(reg->get_nombre(), s);
+            vars->manage_ST(reg->get_nombre(),s);
+            *generador << ("sw "+ reg->get_nombre()+ ", "+ s->get_mips_name() + "\n");
         } else if (!s->is_array()) {
             convert << (s->offset);
-            vars->manage_store(s->sym_name);
+            regs_float->manage_ST(reg->get_nombre(), s);
+            regs->manage_ST(reg->get_nombre(), s);
+            vars->manage_ST(reg->get_nombre(),s);
             *generador << ("sw "+ reg->get_nombre() +", " + convert.str() + "($fp) \n" );
         }else{
             //Caso arreglo.
@@ -220,8 +224,8 @@ void MIPS::push(Symbol* var){
     convert << var->width;
     offset_actual += var->width;
     *generador << "subu $sp, $sp, " + convert.str() + "\n"; 
-    if ((*vars)[var->sym_name] != 0){
-        GuavaDescriptor* desc_var = (*vars)[var->sym_name];
+    if ((*vars)[var->get_mips_name()] != 0){
+        GuavaDescriptor* desc_var = (*vars)[var->get_mips_name()];
         SimpleSymbol* lugar = lugar_pila(offset_actual);
         desc_var->set_symbol(lugar);
     }
@@ -331,7 +335,7 @@ void MIPS::label(string label){
  * @param to Dirección adonde hay que saltar
  */
 void MIPS::go_to(Symbol* to){
-    *generador << "j " + to->sym_name + "\n";
+    *generador << "j " + to->get_mips_name() + "\n";
 }
 
 /** 
@@ -370,14 +374,14 @@ void MIPS::read(GuavaDescriptor* reg,Symbol* result){
  */
 void MIPS::print(Symbol* arg){
     if (arg->get_tipo() == TypeString::Instance()){
-        *generador << "la $a0, " + arg->sym_name + " #PRINT STRING\n";
+        *generador << "la $a0, " + arg->get_mips_name() + " #PRINT STRING\n";
         *generador << "li $v0, 4 \n";
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeInt::Instance()){
         if (!arg->is_global()){
             *generador << "lw $a0, " + arg->bp_mips() + " #PRINT_INT\n";
         } else{
-            *generador << "lw $a0, " + arg->sym_name + " #PRINT_INT\n";
+            *generador << "lw $a0, " + arg->get_mips_name() + " #PRINT_INT\n";
         }
         *generador << "li $v0, 1\n";
         *generador << "syscall\n";
@@ -385,12 +389,12 @@ void MIPS::print(Symbol* arg){
         if (!arg->is_global()){
             *generador << "lw $f12, " + arg->bp_mips() + " #PRINT_INT\n";
         } else{
-            *generador << "lw $f12, " + arg->sym_name + " #PRINT_INT\n";
+            *generador << "lw $f12, " + arg->get_mips_name() + " #PRINT_INT\n";
         }
         *generador << "li $v0, 6 \n";
         *generador << "syscall\n";
     }else if (arg->get_tipo() == TypeChar::Instance()){
-        *generador << "li $a0, " + arg->sym_name + " #PRINT CHAR\n";
+        *generador << "li $a0, " + arg->get_mips_name() + " #PRINT CHAR\n";
         *generador << "sw $a0,  _character\n";
         *generador << "la $a0,  _character\n";
         *generador << "li $v0, 4 \n";
@@ -469,21 +473,21 @@ void MIPS::move(GuavaDescriptor* reg, string reg_2, Symbol* result){
  * Hace li, lw o la
  */
 void MIPS::load(GuavaDescriptor* reg, SimpleSymbol* tmp){
-    if (reg->find_by_name(tmp->sym_name) != 0) return; //La variable ya se encuentra en el descriptor
+    if (reg->find_by_name(tmp->get_mips_name()) != 0) return; //La variable ya se encuentra en el descriptor
     
-    if (table->lookup(tmp->sym_name) == 0){
+    if (table->lookup(tmp->get_mips_name()) == 0){
         //Caso variable que no esta en la tabla de simbolos.
         if (tmp->is_simple()){
             if (tmp->is_reg()){
-                *generador << "lw " + reg->get_nombre() + ", " + tmp->sym_name + "\n";                 
+                *generador << "lw " + reg->get_nombre() + ", " + tmp->get_mips_name() + "\n";                 
             }else{
-                *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+                *generador << "li " + reg->get_nombre() + ", " + tmp->get_mips_name() + "\n";
             }
         } else if (tmp->is_bool()){
             if (tmp->is_true()) *generador << "li " + reg->get_nombre() + ", 1 \n";
             else                *generador << "li " + reg->get_nombre() + ", 0 \n";
         }else if (tmp->is_number()){
-            *generador << "li " + reg->get_nombre() + ", " + tmp->sym_name + "\n";
+            *generador << "li " + reg->get_nombre() + ", " + tmp->get_mips_name() + "\n";
         }else if (tmp->is_bp()){
             *generador << "lw " + reg->get_nombre() + ", " + tmp->bp_mips()+ "\n";
         }
@@ -491,8 +495,8 @@ void MIPS::load(GuavaDescriptor* reg, SimpleSymbol* tmp){
         //Caso variable se encuentra en la tabla de simbolos.
         Symbol * var = (Symbol*) tmp;
         if (var->is_global()){
-            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->sym_name + "\n";
-            else  *generador << "la " + reg->get_nombre() + ", " + var->sym_name + "\n";
+            if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->get_mips_name() + "\n";
+            else  *generador << "la " + reg->get_nombre() + ", " + var->get_mips_name() + "\n";
         }else{
             if (var->sym_catg.compare(string("var")) == 0) *generador << "lw "+ reg->get_nombre() + ", " + var->bp_mips() + "\n";
             else  *generador << "la " + reg->get_nombre() + ", " + var->bp_mips() + "\n";
@@ -655,6 +659,7 @@ void MIPS::condicional(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion)
         ostringstream convert;
         convert << sec_if;
         sec_if++;
+        *generador << "#IF\n";
         *generador << "beqz " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": ";
@@ -663,6 +668,7 @@ void MIPS::condicional(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instruccion)
         ostringstream convert;
         convert << sec_if;
         sec_if++;
+        *generador << "#IF\n";
         *generador << "beqz " + Rx->get_nombre() + " _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": \n";
@@ -685,6 +691,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
         ostringstream convert;
         convert << sec_if;
         sec_if++;
+        *generador << "#IFNOT\n";
         *generador << "bnez " + Rx->get_nombre() + ", _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": ";
@@ -693,6 +700,7 @@ void MIPS::condicional_not(list<GuavaDescriptor*> lregs, GuavaQuadsExp* instrucc
         ostringstream convert;
         convert << sec_if;
         sec_if++;
+        *generador << "#IFNOT\n";
         *generador << "bnez " + Rx->get_nombre() + ", _if_lab" + convert.str() + "\n";
         this->go_to(instruccion->get_result());
         *generador << "_if_lab"+convert.str()+": \n";

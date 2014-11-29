@@ -353,7 +353,7 @@ void MIPS::read(GuavaDescriptor* reg,Symbol* result){
         *generador << "syscall\n";
         this->move(reg,"$v0",result);
     }else if (result->get_tipo() == TypeReal::Instance()) {
-        *generador << "li $v0, 6 # READ_FLOAT";
+        *generador << "li $v0, 6 # READ_FLOAT\n";
         *generador << "syscall\n";
         this->move(reg,"$v0",result);
     }else if (result->get_tipo() == TypeChar::Instance()){
@@ -365,6 +365,8 @@ void MIPS::read(GuavaDescriptor* reg,Symbol* result){
         *generador << "syscall\n";
         this->move(reg,"$f0",result);
     }
+    //Luego de leer la variable, se guarda su valor final en su direccion
+    this->store(result,reg);
 
 }
 
@@ -563,7 +565,7 @@ void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuads
             this->load(Rx,inst->get_result());
         }
     } else if (inst->get_op().compare(string("-")) == 0){
-        *generador << "neg " + Rx->get_nombre() +", "+ Ry->get_nombre() + "#UMINUS \n";
+        *generador << "neg " + Rx->get_nombre() +", "+ Ry->get_nombre() + " #UMINUS \n";
     } else if (inst->get_op().compare("pincrease") == 0){
         *generador << "addi "+ Rx->get_nombre() + ", " + Ry->get_nombre() + " , 1 #PINCREASE\n";
     } else if (inst->get_op().compare("pdecrease") == 0){
@@ -572,16 +574,16 @@ void MIPS::operacion_unaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaQuads
 }
 
 /** 
- * Realiza una operacion ternaria.
+ * Realiza una operacion ternaria de la forma: Rx = Ry inst Rz.
  */
 void MIPS::operacion_ternaria(GuavaDescriptor* Rx, GuavaDescriptor* Ry, GuavaDescriptor* Rz, GuavaQuadsExp* inst){
     // Operaciones Aritmeticas.
     if (inst->get_op().compare(string("+")) == 0){
         *generador << "add "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #ADD\n";
     }else if (inst->get_op().compare(string("-")) == 0){
-        *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + "\n";
+        *generador << "sub "+ Rx->get_nombre() + ", "+ Ry->get_nombre() + "," + Rz->get_nombre() + " #SUB\n";
     }else if (inst->get_op().compare(string("*")) == 0){
-        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + "#MUL\n";
+        *generador << "mul " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", " + Rz->get_nombre() + " #MUL\n";
     } else if (inst->get_op().compare(string("/")) == 0){
         this->revision_div(Rz); 
         *generador << "div " + Rx->get_nombre() + ", " + Ry->get_nombre() + ", "+ Rz->get_nombre() + "# / \n";

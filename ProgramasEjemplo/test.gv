@@ -1,44 +1,17 @@
 declare {
-    integer array arr[10];
-    integer x1,x2;
-    real r;
-    boolean bool1, bool2;
-    record R1 {
-        integer a,b;
-        record R2 {
-            integer a,b;
-            record R3 {
-                integer a,b;
-                boolean bool;
-            };
-            R3 record d;
-            integer array INTEGERarreglo[10];
-        };
-        R2 record c1,c2;
-        R2 array R2arreglo[10];
-    };
-    
-    real r2;
-    R1 record y;
-    R1 array R1arreglo[10];
-}
-
-function integer suma(integer a,integer b) {
-    return a+b;
+    integer a;
 }
 
 function void main() {
     declare {
-        integer array brr[10];
-        integer w1,w2;
-        record R3 {
-            integer a,b;
-            integer array c[10];
-        };
-        R3 record z;
-        integer array crr[10];
-
-        R3 array R3arreglo[10];
+        integer b;
     }
-    x1 := suma(x1,x2);
+    print("Indique un valor para b: ");
+    read (b);
+    a := 1+b;
+    print("El valor de a es: ");
+    print(a);
+    print("\n");
+    print("El valor de b es: ");
+    print(b);
 }
